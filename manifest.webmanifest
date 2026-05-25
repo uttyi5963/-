@@ -1,0 +1,16 @@
+{
+  "name": "AIOU日本語学校 N4学習アプリ",
+  "short_name": "AIOU日本語",
+  "description": "AIOU日本語学校のN4・JFT-Basic対策アプリ。SRS単語学習、模試、AI会話、職種別日本語をオフラインでも利用できます。",
+  "lang": "ja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eef3f8",
+  "theme_color": "#0f766e",
+  "orientation": "any",
+  "icons": [
+    { "src": "./assets/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "categories": ["education", "productivity"]
+}

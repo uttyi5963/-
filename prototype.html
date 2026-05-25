@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AIOU Japan Work Japanese Program Prototype</title>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #667085;
+      --line: #d9e0e8;
+      --panel: #ffffff;
+      --band: #f4f7fb;
+      --brand: #0f766e;
+      --brand-dark: #115e59;
+      --accent: #c2410c;
+      --blue: #2563eb;
+      --green: #16a34a;
+      --yellow: #ca8a04;
+      --red: #dc2626;
+      --shadow: 0 14px 38px rgba(15, 23, 42, .10);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #eef3f8;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button, input, select { font: inherit; }
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+    }
+
+    aside {
+      background: #0b2628;
+      color: #eefafa;
+      padding: 22px 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    .brand {
+      display: grid;
+      gap: 4px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+    }
+    .brand strong { font-size: 17px; }
+    .brand span { color: #a7c7c4; font-size: 12px; }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+      margin: 22px 0;
+    }
+    .nav button {
+      width: 100%;
+      border: 0;
+      color: #d7efed;
+      background: transparent;
+      text-align: left;
+      padding: 10px 11px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+    .nav button.active { background: #17494b; color: #fff; }
+    .side-note {
+      border-top: 1px solid rgba(255,255,255,.14);
+      padding-top: 18px;
+      color: #b7d4d1;
+      font-size: 12px;
+    }
+
+    main { min-width: 0; }
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+    .sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .pill {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 7px 11px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .primary {
+      border: 0;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 7px;
+      padding: 9px 13px;
+      cursor: pointer;
+    }
+
+    .view { display: none; padding: 26px 28px 46px; }
+    .view.active { display: block; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      min-height: 116px;
+    }
+    .metric .label { color: var(--muted); font-size: 12px; }
+    .metric .value { font-size: 28px; font-weight: 750; margin-top: 6px; }
+    .metric .delta { margin-top: 7px; font-size: 12px; color: var(--brand-dark); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(330px, .65fr);
+      gap: 16px;
+    }
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .section-head {
+      padding: 15px 17px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    h2 { margin: 0; font-size: 16px; letter-spacing: 0; }
+    .section-body { padding: 16px 17px; }
+
+    .course-map {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .month {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 12px;
+      background: #fbfdff;
+      min-height: 170px;
+    }
+    .month.done { border-color: #86efac; background: #f0fdf4; }
+    .month.now { border-color: #5eead4; background: #ecfeff; }
+    .month strong { display: block; font-size: 13px; margin-bottom: 8px; }
+    .month ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 12px; }
+
+    .today {
+      display: grid;
+      gap: 10px;
+    }
+    .task {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px;
+      background: #fff;
+    }
+    .check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--green);
+      font-size: 13px;
+    }
+    .task small { color: var(--muted); display: block; }
+    .tag {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      white-space: nowrap;
+    }
+
+    .progress-row {
+      margin: 13px 0;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .bar {
+      height: 9px;
+      background: #e8eef5;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar span { display: block; height: 100%; background: var(--brand); }
+    .bar.blue span { background: var(--blue); }
+    .bar.yellow span { background: var(--yellow); }
+    .bar.red span { background: var(--red); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 11px 9px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th { color: var(--muted); font-weight: 650; background: #f8fafc; }
+    tr:last-child td { border-bottom: 0; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .status.good { color: #166534; background: #dcfce7; }
+    .status.warn { color: #854d0e; background: #fef3c7; }
+    .status.risk { color: #991b1b; background: #fee2e2; }
+
+    .ai-list {
+      display: grid;
+      gap: 10px;
+    }
+    .ai-item {
+      border-left: 4px solid var(--brand);
+      background: #f8fafc;
+      padding: 11px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .ai-item.warn { border-left-color: var(--yellow); }
+    .ai-item.risk { border-left-color: var(--red); }
+    .ai-item strong { display: block; margin-bottom: 3px; }
+    .ai-item span { color: var(--muted); }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .tabs button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .tabs button.active {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+    .job-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .job {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+      min-height: 155px;
+    }
+    .job strong { display: block; font-size: 14px; margin-bottom: 8px; }
+    .job p { margin: 0; color: var(--muted); font-size: 12px; }
+    .job .mini { margin-top: 12px; color: var(--brand-dark); font-size: 12px; }
+
+    .mock-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .mock {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fff;
+    }
+    .mock .score {
+      font-size: 30px;
+      font-weight: 760;
+      margin: 8px 0;
+    }
+
+    .study-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .study-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 14px;
+      min-height: 168px;
+    }
+    .study-card strong { display: block; font-size: 14px; margin-bottom: 8px; }
+    .study-card .jp {
+      font-size: 24px;
+      font-weight: 760;
+      margin: 7px 0 2px;
+    }
+    .study-card .roman { color: var(--accent); font-size: 13px; font-weight: 650; }
+    .study-card p { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+
+    .level-track {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(112px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+    }
+    .level {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 128px;
+    }
+    .level.active {
+      border-color: var(--brand);
+      background: #ecfdf5;
+    }
+    .level .rank {
+      display: inline-grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--brand);
+      font-weight: 760;
+      margin-bottom: 8px;
+    }
+    .level span { display: block; color: var(--muted); font-size: 12px; }
+
+    .friend-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+    }
+    .language-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .language-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 14px;
+      min-height: 182px;
+    }
+    .language-card strong { display: block; font-size: 14px; margin-bottom: 8px; }
+    .language-card p { margin: 0; color: var(--muted); font-size: 12px; }
+    .language-card .phase { margin-top: 12px; color: var(--brand-dark); font-size: 12px; font-weight: 700; }
+    .leader {
+      display: grid;
+      gap: 8px;
+    }
+    .leader-row {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      padding: 9px 10px;
+      font-size: 13px;
+    }
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--blue);
+      font-weight: 740;
+      font-size: 12px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+      border-left: 3px solid #cbd5e1;
+      padding-left: 16px;
+    }
+    .milestone { position: relative; }
+    .milestone::before {
+      content: "";
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--brand);
+      position: absolute;
+      left: -23px;
+      top: 5px;
+    }
+    .milestone strong { display: block; }
+    .milestone span { color: var(--muted); font-size: 13px; }
+
+    @media (max-width: 1060px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-2 { grid-template-columns: 1fr; }
+      .job-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .mock-grid { grid-template-columns: 1fr; }
+      .study-grid { grid-template-columns: 1fr; }
+      .friend-grid { grid-template-columns: 1fr; }
+      .language-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      header { align-items: flex-start; flex-direction: column; padding: 17px; }
+      .view { padding: 17px; }
+      .metrics { grid-template-columns: 1fr; }
+      .job-grid { grid-template-columns: 1fr; }
+      .nav { grid-template-columns: 1fr; }
+      th:nth-child(4), td:nth-child(4) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <strong>AIOU Japan Work Japanese</strong>
+        <span>Educular prototype / N4・JFT-Basic</span>
+      </div>
+      <nav class="nav" aria-label="Prototype sections">
+        <button class="active" data-view="student">学習者画面</button>
+        <button data-view="foundation">読み方・単語帳</button>
+        <button data-view="language">英語・ウルドゥー設計</button>
+        <button data-view="teacher">教師ダッシュボード</button>
+        <button data-view="tests">模試・試験対策</button>
+        <button data-view="community">レベル・友達機能</button>
+        <button data-view="jobs">職種別日本語</button>
+        <button data-view="admin">日本側管理</button>
+      </nav>
+      <div class="side-note">
+        目的：6か月でN4/JFT-Basic合格圏へ。学習量ではなく、合格見込みと介入対象を可視化する。
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <div>
+          <h1 id="pageTitle">学習者画面</h1>
+          <div class="sub">スマホ中心、毎日30〜90分、AI復習と教師介入を組み合わせる設計</div>
+        </div>
+        <div class="toolbar">
+          <span class="pill">Cohort: PK-2026-07</span>
+          <span class="pill">Target: JLPT N4 / JFT-Basic</span>
+          <button class="primary" id="demoAdvance">今週の進捗を更新</button>
+        </div>
+      </header>
+
+      <section class="view active" id="student">
+        <div class="metrics">
+          <div class="metric">
+            <div class="label">N4合格予測</div>
+            <div class="value" id="passRate">68%</div>
+            <div class="delta">先週比 +6%</div>
+          </div>
+          <div class="metric">
+            <div class="label">累計学習時間</div>
+            <div class="value">126h</div>
+            <div class="delta">6か月目標 420h</div>
+          </div>
+          <div class="metric">
+            <div class="label">連続学習</div>
+            <div class="value">18日</div>
+            <div class="delta">週5日以上で合格圏</div>
+          </div>
+          <div class="metric">
+            <div class="label">次回模試</div>
+            <div class="value">9日</div>
+            <div class="delta">N5完成チェック</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="section">
+            <div class="section-head">
+              <h2>6か月カリキュラム</h2>
+              <span class="tag">現在：2か月目 / N5完成</span>
+            </div>
+            <div class="section-body">
+              <div class="course-map">
+                <div class="month done">
+                  <strong>Month 1 文字・基礎</strong>
+                  <ul>
+                    <li>ひらがな・カタカナ</li>
+                    <li>数字・時間・自己紹介</li>
+                    <li>です/ます</li>
+                  </ul>
+                </div>
+                <div class="month now">
+                  <strong>Month 2 N5完成</strong>
+                  <ul>
+                    <li>て形・ない形</li>
+                    <li>助詞の基礎</li>
+                    <li>日常会話</li>
+                  </ul>
+                </div>
+                <div class="month">
+                  <strong>Month 3 N4前半</strong>
+                  <ul>
+                    <li>可能形・意向形</li>
+                    <li>たら・ても</li>
+                    <li>生活聴解</li>
+                  </ul>
+                </div>
+                <div class="month">
+                  <strong>Month 4 N4後半</strong>
+                  <ul>
+                    <li>そうです・ようです</li>
+                    <li>ために・ように</li>
+                    <li>読解強化</li>
+                  </ul>
+                </div>
+                <div class="month">
+                  <strong>Month 5 試験集中</strong>
+                  <ul>
+                    <li>N4模試</li>
+                    <li>JFT形式演習</li>
+                    <li>弱点別補習</li>
+                  </ul>
+                </div>
+                <div class="month">
+                  <strong>Month 6 仕上げ</strong>
+                  <ul>
+                    <li>本番模試</li>
+                    <li>面接練習</li>
+                    <li>職場日本語</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <h2>今日の課題</h2>
+              <span class="tag">45分</span>
+            </div>
+            <div class="section-body today">
+              <div class="task">
+                <span class="check">✓</span>
+                <div><strong>単語 10語</strong><small>職場・時間・移動</small></div>
+                <span class="tag">完了</span>
+              </div>
+              <div class="task">
+                <span class="check">✓</span>
+                <div><strong>て形ドリル</strong><small>昨日の弱点から自動出題</small></div>
+                <span class="tag">86%</span>
+              </div>
+              <div class="task">
+                <span class="check">!</span>
+                <div><strong>聴解 3問</strong><small>時間・金額の聞き取り</small></div>
+                <span class="tag">未了</span>
+              </div>
+              <div class="task">
+                <span class="check">▶</span>
+                <div><strong>AI会話</strong><small>遅刻連絡を日本語で話す</small></div>
+                <span class="tag">5分</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="foundation">
+        <div class="metrics">
+          <div class="metric"><div class="label">文字マスター</div><div class="value">73%</div><div class="delta">ひらがな完了 / カタカナ復習中</div></div>
+          <div class="metric"><div class="label">単語帳</div><div class="value">482</div><div class="delta">N4目標 1,500語</div></div>
+          <div class="metric"><div class="label">苦手語</div><div class="value">38</div><div class="delta">毎日自動で再出題</div></div>
+          <div class="metric"><div class="label">会話文</div><div class="value">64</div><div class="delta">生活・職場の定型表現</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="section">
+            <div class="section-head"><h2>読み方・単語カード</h2><span class="tag">英語/ウルドゥー補助</span></div>
+            <div class="section-body">
+              <div class="study-grid">
+                <div class="study-card">
+                  <strong>カタカナ</strong>
+                  <div class="jp">ホテル</div>
+                  <div class="roman">hoteru / hotel</div>
+                  <p>外来語はカタカナで読む。英語と音が違うものを重点復習。</p>
+                </div>
+                <div class="study-card">
+                  <strong>漢字語彙</strong>
+                  <div class="jp">病院</div>
+                  <div class="roman">びょういん / hospital</div>
+                  <p>漢字、かな、英語の3点セット。読みを先に覚えてから意味へ進む。</p>
+                </div>
+                <div class="study-card">
+                  <strong>生活単語</strong>
+                  <div class="jp">遅れます</div>
+                  <div class="roman">okuremasu / I will be late</div>
+                  <p>日本で困りやすい報告表現を、音声と例文で反復。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-head"><h2>反復学習エンジン</h2><span class="tag">Spaced Review</span></div>
+            <div class="section-body ai-list">
+              <div class="ai-item"><strong>知らない単語を自動保存</strong><span>間違えた語、聞き取れなかった語、検索した語を「苦手リスト」に追加。</span></div>
+              <div class="ai-item warn"><strong>忘れる前に再出題</strong><span>1日後、3日後、7日後、14日後に再テスト。合格ラインまで繰り返す。</span></div>
+              <div class="ai-item"><strong>会話文へ接続</strong><span>単語だけで終わらせず、「病院へ行きたいです」など実用文で出題。</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="language">
+        <div class="metrics">
+          <div class="metric"><div class="label">推奨UI</div><div class="value">JP+</div><div class="delta">日本語主軸、英語/ウルドゥー補助</div></div>
+          <div class="metric"><div class="label">初期説明</div><div class="value">2言語</div><div class="delta">英語 + Urduを併記</div></div>
+          <div class="metric"><div class="label">翻訳依存</div><div class="value">減少</div><div class="delta">3か月目からタップ表示へ</div></div>
+          <div class="metric"><div class="label">音声教材</div><div class="value">必須</div><div class="delta">文字より先に音で固定</div></div>
+        </div>
+        <div class="section">
+          <div class="section-head"><h2>言語設計の結論</h2><span class="tag">AIOU + online</span></div>
+          <div class="section-body">
+            <div class="language-grid">
+              <div class="language-card">
+                <strong>英語だけでは取りこぼす</strong>
+                <p>AIOUの学生や都市部・高学歴層は英語UIでも進めやすい。一方で、日本就労を狙う層全体では英語説明だけだと理解差が出やすい。</p>
+                <div class="phase">用途：管理画面、上位者、企業説明</div>
+              </div>
+              <div class="language-card">
+                <strong>ウルドゥー併記で離脱を下げる</strong>
+                <p>ウルドゥー語は共通語として使いやすく、文法説明・注意事項・生活文化の説明に向く。初期の安心感を作る。</p>
+                <div class="phase">用途：初期教材、弱点補習、保護者/家族説明</div>
+              </div>
+              <div class="language-card">
+                <strong>最後は日本語へ寄せる</strong>
+                <p>試験と職場は日本語なので、翻訳は常時表示ではなく段階的に隠す。ローマ字も2〜3か月目から減らす。</p>
+                <div class="phase">用途：N4/JFT本番、面接、職場会話</div>
+              </div>
+            </div>
+            <div class="progress-row">
+              <div class="progress-label"><span>Month 1-2：日本語 + ローマ字 + 英語 + Urdu</span><span>理解優先</span></div>
+              <div class="bar"><span style="width:100%"></span></div>
+            </div>
+            <div class="progress-row">
+              <div class="progress-label"><span>Month 3-4：日本語主表示、英語/Urduはタップで確認</span><span>試験移行</span></div>
+              <div class="bar blue"><span style="width:70%"></span></div>
+            </div>
+            <div class="progress-row">
+              <div class="progress-label"><span>Month 5-6：日本語中心、解説だけ補助言語</span><span>本番仕様</span></div>
+              <div class="bar yellow"><span style="width:38%"></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="teacher">
+        <div class="metrics">
+          <div class="metric"><div class="label">受講者</div><div class="value">312</div><div class="delta">5クラス運用中</div></div>
+          <div class="metric"><div class="label">合格圏</div><div class="value">54%</div><div class="delta">80%以上の合格予測</div></div>
+          <div class="metric"><div class="label">要介入</div><div class="value">47</div><div class="delta">7日以内に教師面談</div></div>
+          <div class="metric"><div class="label">平均学習</div><div class="value">42m</div><div class="delta">1日あたり</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="section">
+            <div class="section-head"><h2>学生別モニタリング</h2><span class="tag">教師用</span></div>
+            <div class="section-body">
+              <table>
+                <thead><tr><th>学生</th><th>進捗</th><th>合格予測</th><th>弱点</th><th>対応</th></tr></thead>
+                <tbody>
+                  <tr><td>Ayesha K.</td><td>Month 2</td><td><span class="status good">82%</span></td><td>読解速度</td><td>通常継続</td></tr>
+                  <tr><td>Hamza R.</td><td>Month 2</td><td><span class="status warn">61%</span></td><td>助詞・聴解</td><td>補習セット</td></tr>
+                  <tr><td>Fatima S.</td><td>Month 1</td><td><span class="status risk">38%</span></td><td>カタカナ</td><td>面談予約</td></tr>
+                  <tr><td>Bilal A.</td><td>Month 3</td><td><span class="status good">88%</span></td><td>会話反応</td><td>企業候補</td></tr>
+                  <tr><td>Maryam N.</td><td>Month 2</td><td><span class="status warn">57%</span></td><td>動詞活用</td><td>復習追加</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-head"><h2>AI介入提案</h2><span class="tag">自動生成</span></div>
+            <div class="section-body ai-list">
+              <div class="ai-item risk"><strong>Fatima S. は離脱リスク高</strong><span>3日連続未学習。文字教材へ戻し、ウルドゥー語説明つき課題に変更。</span></div>
+              <div class="ai-item warn"><strong>Class B は聴解が低い</strong><span>数字・時間・場所の聞き取り正答率が平均49%。今週のライブ授業で重点化。</span></div>
+              <div class="ai-item"><strong>Bilal A. は企業紹介候補</strong><span>N4模試相当78点、出席率96%。職種別日本語へ早期移行可。</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="tests">
+        <div class="section">
+          <div class="section-head"><h2>模試・テスト対策</h2><span class="tag">N4 / JFT-Basic</span></div>
+          <div class="section-body">
+            <div class="mock-grid">
+              <div class="mock">
+                <strong>毎日ミニテスト</strong>
+                <div class="score">15問</div>
+                <p class="sub">単語10、文法3、聴解1、読解1。70%未満は翌日自動復習。</p>
+              </div>
+              <div class="mock">
+                <strong>月例模試</strong>
+                <div class="score">60分</div>
+                <p class="sub">クラス順位、合格予測、弱点タグを自動生成。</p>
+              </div>
+              <div class="mock">
+                <strong>本番形式</strong>
+                <div class="score">5回</div>
+                <p class="sub">5〜6か月目に時間制限つきで実施。音声は一回再生。</p>
+              </div>
+            </div>
+            <div class="progress-row">
+              <div class="progress-label"><span>語彙問題バンク</span><span>1,240 / 2,000</span></div>
+              <div class="bar"><span style="width:62%"></span></div>
+            </div>
+            <div class="progress-row">
+              <div class="progress-label"><span>文法問題バンク</span><span>710 / 1,000</span></div>
+              <div class="bar blue"><span style="width:71%"></span></div>
+            </div>
+            <div class="progress-row">
+              <div class="progress-label"><span>聴解問題バンク</span><span>180 / 500</span></div>
+              <div class="bar yellow"><span style="width:36%"></span></div>
+            </div>
+            <div class="progress-row">
+              <div class="progress-label"><span>読解問題バンク</span><span>96 / 300</span></div>
+              <div class="bar red"><span style="width:32%"></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="community">
+        <div class="grid-2">
+          <div class="section">
+            <div class="section-head"><h2>ゲーム型レベル進行</h2><span class="tag">学習継続</span></div>
+            <div class="section-body">
+              <div class="level-track">
+                <div class="level active"><div class="rank">1</div><strong>Kana Starter</strong><span>文字・発音・あいさつ</span></div>
+                <div class="level active"><div class="rank">2</div><strong>N5 Builder</strong><span>基本文法と日常語彙</span></div>
+                <div class="level"><div class="rank">3</div><strong>N4 Challenger</strong><span>N4文法・読解・聴解</span></div>
+                <div class="level"><div class="rank">4</div><strong>Test Ready</strong><span>模試80%以上</span></div>
+                <div class="level"><div class="rank">5</div><strong>Japan Work Ready</strong><span>職種別会話・面接</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-head"><h2>友達・ランキング</h2><span class="tag">クラス内競争</span></div>
+            <div class="section-body friend-grid">
+              <div class="leader">
+                <div class="leader-row"><span class="avatar">A</span><strong>Ayesha K.</strong><span>1,840 XP</span></div>
+                <div class="leader-row"><span class="avatar">B</span><strong>Bilal A.</strong><span>1,620 XP</span></div>
+                <div class="leader-row"><span class="avatar">H</span><strong>Hamza R.</strong><span>1,210 XP</span></div>
+                <div class="leader-row"><span class="avatar">M</span><strong>Maryam N.</strong><span>1,040 XP</span></div>
+              </div>
+              <div class="ai-list">
+                <div class="ai-item"><strong>友達機能は軽量実装</strong><span>最初はチャットなし。フォロー、順位、応援ボタンだけにして運用コストを抑える。</span></div>
+                <div class="ai-item warn"><strong>質問スレッドは第2段階</strong><span>教師対応コストが増えるため、有料プランまたはクラス単位で開始。</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="jobs">
+        <div class="tabs" role="tablist">
+          <button class="active">共通基礎</button>
+          <button>業界比較</button>
+          <button>介護</button>
+          <button>外食</button>
+          <button>宿泊</button>
+          <button>建設</button>
+          <button>運送</button>
+          <button>農業</button>
+          <button>製造</button>
+        </div>
+        <div class="section" style="margin-bottom:14px;">
+          <div class="section-head"><h2>二段階モデル</h2><span class="tag">まず検定、次に職種</span></div>
+          <div class="section-body">
+            <div class="language-grid">
+              <div class="language-card"><strong>Phase 1 検定合格</strong><p>全員共通でN4/JFT-Basicを優先。文字、語彙、文法、聴解、生活会話を固める。</p><div class="phase">0〜4か月目</div></div>
+              <div class="language-card"><strong>Phase 2 職種選択</strong><p>模試60〜70%を超えた学生から、適性・体力・家族事情・希望収入を見て業界を選ぶ。</p><div class="phase">4〜5か月目</div></div>
+              <div class="language-card"><strong>Phase 3 職種別日本語</strong><p>安全指示、接客、報告、専門語彙、面接練習を追加。企業紹介用レポートにも接続する。</p><div class="phase">5〜6か月目以降</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tabs" role="tablist">
+          <button class="active">介護</button>
+          <button>外食</button>
+          <button>宿泊</button>
+          <button>建設</button>
+          <button>運送</button>
+          <button>農業</button>
+          <button>製造</button>
+        </div>
+        <div class="job-grid">
+          <div class="job"><strong>介護</strong><p>向く人：共感力、体力、年長者への敬意。声かけ、体調確認、移乗、食事、排泄。</p><div class="mini">収入：中 / 継続：高 / 追加：介護試験</div></div>
+          <div class="job"><strong>外食</strong><p>向く人：明るさ、スピード、接客耐性。注文、会計、アレルギー確認、クレーム一次対応。</p><div class="mini">収入：中〜低 / 継続：中 / 接客語</div></div>
+          <div class="job"><strong>宿泊</strong><p>向く人：丁寧な接客、清潔感、シフト勤務耐性。案内、清掃指示、忘れ物、緊急対応。</p><div class="mini">収入：中 / 継続：中 / 丁寧語</div></div>
+          <div class="job"><strong>建設</strong><p>向く人：体力、安全意識、チーム行動。安全標識、工具名、危険指示、朝礼、復唱。</p><div class="mini">収入：中〜高 / 継続：中 / 安全語彙</div></div>
+          <div class="job"><strong>運送・物流</strong><p>向く人：時間厳守、規則遵守、運転/配送への関心。点呼、配送、事故報告、ルート確認。</p><div class="mini">収入：中〜高 / 継続：中 / 免許・安全</div></div>
+          <div class="job"><strong>農業</strong><p>向く人：地方生活、屋外作業、季節変動に強い人。天候、収穫、選別、出荷、機械注意。</p><div class="mini">収入：中〜低 / 継続：中 / 地方適応</div></div>
+          <div class="job"><strong>製造</strong><p>向く人：手順遵守、集中力、品質意識。検品、不良、数量、納期、安全確認、改善報告。</p><div class="mini">収入：中 / 継続：高 / 工程語彙</div></div>
+          <div class="job"><strong>面接対策</strong><p>志望理由、自己紹介、日本で働きたい理由、家族説明。</p><div class="mini">日本側が評価</div></div>
+          <div class="job"><strong>生活日本語</strong><p>役所、病院、銀行、交通、ごみ出し、相談窓口。</p><div class="mini">失踪防止にも有効</div></div>
+        </div>
+      </section>
+
+      <section class="view" id="admin">
+        <div class="grid-2">
+          <div class="section">
+            <div class="section-head"><h2>日本側品質管理</h2><span class="tag">差別化ポイント</span></div>
+            <div class="section-body">
+              <div class="timeline">
+                <div class="milestone"><strong>教材監修</strong><span>日本語教育責任者がN4/JFT範囲、著作権、表現を確認。</span></div>
+                <div class="milestone"><strong>月1日本人ライブ</strong><span>日本人講師・企業担当者との会話会で学習意欲を維持。</span></div>
+                <div class="milestone"><strong>有料会話オプション</strong><span>試験前・面接前だけ日本人教師との個別会話を販売。通常学習とは分ける。</span></div>
+                <div class="milestone"><strong>成績優秀者特典</strong><span>将来的に日本見学、企業訪問、オンライン表彰を設計。まずは学習継続の報酬にする。</span></div>
+                <div class="milestone"><strong>候補者レポート</strong><span>学習時間、模試点、会話評価、職種適性を企業へ提示。</span></div>
+                <div class="milestone"><strong>修了証発行</strong><span>AIOU日本語学校名義。合格保証ではなく、到達度証明として運用。</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-head"><h2>開発ロードマップ</h2><span class="tag">MVP</span></div>
+            <div class="section-body ai-list">
+              <div class="ai-item"><strong>0〜3か月</strong><span>教材表示、ドリル、小テスト、月例模試、教師ダッシュボード。</span></div>
+              <div class="ai-item warn"><strong>4〜5か月</strong><span>AI弱点診断、復習プラン、合格予測、リマインド。</span></div>
+              <div class="ai-item"><strong>6〜8か月</strong><span>AI会話、発音チェック、職種別日本語、企業向けレポート。</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const titles = {
+      student: "学習者画面",
+      foundation: "読み方・単語帳",
+      language: "英語・ウルドゥー設計",
+      teacher: "教師ダッシュボード",
+      tests: "模試・試験対策",
+      community: "レベル・友達機能",
+      jobs: "職種別日本語",
+      admin: "日本側管理"
+    };
+
+    document.querySelectorAll(".nav button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = button.dataset.view;
+        document.querySelectorAll(".nav button").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById(target).classList.add("active");
+        document.getElementById("pageTitle").textContent = titles[target];
+      });
+    });
+
+    document.getElementById("demoAdvance").addEventListener("click", () => {
+      const passRate = document.getElementById("passRate");
+      const current = Number(passRate.textContent.replace("%", ""));
+      passRate.textContent = `${Math.min(current + 3, 91)}%`;
+    });
+  </script>
+</body>
+</html>
