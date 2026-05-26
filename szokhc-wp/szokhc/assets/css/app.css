@@ -1,0 +1,59 @@
+/* ===== Extended styles (front page sections) =====
+   トップページの各セクション用スタイル。
+   トップHTMLソース受領後にブランドに合わせて上書き予定。 */
+
+.news__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	margin-bottom: 16px;
+}
+.news__more {
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.access__grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 32px;
+	align-items: start;
+}
+.access__address { font-size: 16px; margin: 0 0 8px; }
+.access__tel { font-size: 20px; font-weight: 700; color: var(--color-brand-ink); margin: 0 0 16px; }
+.access__hours { display: grid; grid-template-columns: 100px 1fr; gap: 8px; margin: 0 0 12px; }
+.access__hours dt { font-weight: 700; color: var(--color-muted); }
+.access__hours dd { margin: 0; }
+.access__note { color: var(--color-muted); font-size: 14px; }
+.access__map-placeholder {
+	aspect-ratio: 4 / 3;
+	background: linear-gradient(135deg, #d4e7df 0%, #b8d4c5 100%);
+	border-radius: var(--radius);
+}
+
+.service-card .card__thumb {
+	margin: -24px -24px 16px;
+	overflow: hidden;
+	border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.audience .card { display: block; color: inherit; }
+.audience .card:hover { border-color: var(--color-brand); text-decoration: none; }
+
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: auto;
+	width: 1px; height: 1px;
+	overflow: hidden;
+}
+.skip-link:focus {
+	position: static;
+	width: auto; height: auto;
+	padding: 8px 12px;
+	background: #000; color: #fff;
+}
+
+@media (max-width: 800px) {
+	.access__grid { grid-template-columns: 1fr; }
+}

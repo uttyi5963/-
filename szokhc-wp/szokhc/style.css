@@ -1,0 +1,116 @@
+/*
+Theme Name: Szokhc
+Theme URI: https://szokhc.jp/
+Author: 医療法人社団 貞栄会
+Description: 静岡ホームクリニック（医療法人社団貞栄会）公式サイト用WordPressテーマ。在宅診療・リウマチ膠原病診療を主軸に、お知らせ／講演会情報／スタッフ紹介などをコンテンツタイプ単位で管理できる拡張性重視の独自テーマ。
+Version: 0.1.0
+Requires at least: 6.0
+Requires PHP: 8.0
+License: Proprietary
+License URI: https://szokhc.jp/
+Text Domain: szokhc
+Tags: medical, clinic, custom-menu, custom-logo, featured-images, threaded-comments, translation-ready, block-styles, wide-blocks, editor-style
+*/
+
+/* ===== Design Tokens =====
+   トップページのHTMLソース受領後、ブランドカラー・タイポを上書きする想定。
+   ここでは一般的な医療系サイトの土台のみ用意。 */
+:root {
+  --color-bg: #ffffff;
+  --color-fg: #1a1a1a;
+  --color-muted: #666;
+  --color-line: #e6e6e6;
+  --color-brand: #0b6e4f;        /* TODO: 現サイトのキーカラーに差し替え */
+  --color-brand-ink: #053f2c;
+  --color-accent: #d97706;
+  --color-soft: #f5f7f6;
+  --radius: 6px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 6px 24px rgba(0,0,0,.08);
+  --font-sans: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+  --font-serif: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  --container: 1120px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  color: var(--color-fg);
+  background: var(--color-bg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+}
+img, svg { max-width: 100%; height: auto; display: block; }
+a { color: var(--color-brand); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container { max-width: var(--container); margin: 0 auto; padding: 0 20px; }
+.section { padding: 64px 0; }
+.section--soft { background: var(--color-soft); }
+.section__title { font-family: var(--font-serif); font-size: 28px; margin: 0 0 8px; }
+.section__lead { color: var(--color-muted); margin: 0 0 32px; }
+
+.btn {
+  display: inline-block;
+  padding: 12px 20px;
+  background: var(--color-brand);
+  color: #fff;
+  border-radius: var(--radius);
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+}
+.btn:hover { background: var(--color-brand-ink); text-decoration: none; color: #fff; }
+.btn--ghost { background: transparent; color: var(--color-brand); border: 1px solid var(--color-brand); }
+.btn--ghost:hover { background: var(--color-brand); color: #fff; }
+
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255,255,255,.96);
+  backdrop-filter: saturate(140%) blur(6px);
+  border-bottom: 1px solid var(--color-line);
+}
+.site-header__inner { display: flex; align-items: center; gap: 24px; height: 72px; }
+.site-header__brand { display: flex; align-items: center; gap: 12px; }
+.site-header__brand img { max-height: 44px; width: auto; }
+.site-header__title { font-family: var(--font-serif); font-size: 18px; margin: 0; }
+.site-header__nav { margin-left: auto; }
+.site-header__nav ul { display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; }
+.site-header__nav a { color: var(--color-fg); font-size: 14px; font-weight: 600; }
+.site-header__cta { display: flex; align-items: center; gap: 12px; }
+.site-header__tel { font-weight: 700; font-size: 18px; color: var(--color-brand-ink); }
+
+.hero { background: var(--color-soft); padding: 64px 0; }
+.hero__title { font-family: var(--font-serif); font-size: 36px; line-height: 1.4; margin: 0 0 16px; }
+.hero__lead { color: var(--color-muted); margin: 0 0 24px; }
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.card {
+  background: #fff;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.card__title { font-size: 18px; margin: 0 0 8px; }
+.card__lead { color: var(--color-muted); margin: 0; font-size: 14px; }
+
+.news-list { list-style: none; margin: 0; padding: 0; }
+.news-list__item { display: grid; grid-template-columns: 130px 110px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px dashed var(--color-line); align-items: baseline; }
+.news-list__date { color: var(--color-muted); font-feature-settings: "tnum"; }
+.news-list__cat { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--color-brand); color: #fff; font-size: 12px; }
+.news-list__title { margin: 0; font-size: 16px; }
+
+.site-footer { background: #0b1b18; color: #cbd5d0; padding: 48px 0 24px; margin-top: 64px; }
+.site-footer a { color: #cbd5d0; }
+.site-footer__cols { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 24px; }
+.site-footer__bottom { border-top: 1px solid #1a3530; margin-top: 32px; padding-top: 16px; font-size: 12px; color: #8aa39c; }
+
+@media (max-width: 800px) {
+  .site-header__nav { display: none; }
+  .hero__title { font-size: 28px; }
+  .news-list__item { grid-template-columns: 1fr; gap: 4px; }
+  .site-footer__cols { grid-template-columns: 1fr 1fr; }
+}
