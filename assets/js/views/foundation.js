@@ -2,10 +2,11 @@
 import { el, escape, openModal, closeModal, toast, pct } from '../ui.js';
 import { Deck, SRS_LABELS } from '../srs.js';
 import { Profile, Storage } from '../storage.js';
-import { speakJa, canSpeak, isAutoPlayEnabled } from '../audio.js';
-import { toIPA, moraDisplay } from '../phonetics.js';
+import { speakJa, canSpeak, isAutoPlayEnabled, canRecord, recordAudio } from '../audio.js';
+import { toIPA, moraDisplay, splitMora } from '../phonetics.js';
 import { KANA_DECKS } from '../data/kana.js';
 import { VOCAB, VOCAB_DECKS, getDeckItems, findVocab } from '../data/vocab.js';
+import { getAccent } from '../data/pitch.js';
 
 const VOCAB_DECK = new Deck('vocab');
 const KANA_DECK = new Deck('kana');
@@ -160,18 +161,32 @@ function runVocabSession(deck, ids) {
     if (state.idx >= state.ids.length) return;
     const word = findVocab(state.ids[state.idx]);
     state.flipped = true;
-    // Pronunciation panel: reading + romaji + IPA + mora
+    // Pronunciation panel: reading + romaji + IPA + mora + (optional) pitch
     const mora = moraDisplay(word.reading);
     const ipa = toIPA(word.reading);
-    const pron = el('div', { class: 'pron-panel' }, [
+    const acc = getAccent(word.id, word.reading);
+
+    const pronChildren = [
       el('div', { class: 'pron-kana' }, word.reading),
       el('div', { class: 'pron-row' }, [
         el('span', { class: 'pron-chip romaji' }, word.romaji),
         el('span', { class: 'pron-chip ipa', title: 'IPA - 国際音声記号' }, `/${ipa}/`),
         el('span', { class: 'pron-chip mora', title: `${mora.count}拍` }, mora.text),
       ]),
-    ]);
+    ];
+
+    if (acc) {
+      pronChildren.push(pitchVisual(splitMora(word.reading), acc));
+    }
+
+    const pron = el('div', { class: 'pron-panel' }, pronChildren);
     card.appendChild(pron);
+
+    // Self-record / compare
+    if (canRecord()) {
+      card.appendChild(recordPanel(word));
+    }
+
     card.appendChild(el('div', { class: 'meaning' }, `${word.en}`));
     if (word.ur) card.appendChild(el('div', { class: 'urdu' }, word.ur));
     if (word.example) {
@@ -361,6 +376,67 @@ function runKanaSession(deck, ids, map) {
     onClose: () => window.dispatchEvent(new CustomEvent('profile-changed')),
   });
   render();
+}
+
+// Pitch accent visualization: shows each mora with a high or low dot,
+// connected by a line. Tokyo standard.
+function pitchVisual(mora, acc) {
+  const wrap = el('div', { class: 'pitch-wrap', title: acc.label });
+  wrap.appendChild(el('div', { class: 'pitch-label' }, `アクセント：${acc.label}`));
+  const row = el('div', { class: 'pitch-row' });
+  mora.forEach((m, i) => {
+    const isHigh = acc.pattern[i] === 'H';
+    row.appendChild(el('div', { class: 'pitch-mora' }, [
+      el('div', { class: `pitch-dot ${isHigh ? 'hi' : 'lo'}` }, ''),
+      el('div', { class: 'pitch-text' }, m),
+    ]));
+  });
+  wrap.appendChild(row);
+  return wrap;
+}
+
+// Record-and-compare panel for the flashcard back.
+function recordPanel(word) {
+  const wrap = el('div', { class: 'record-panel' });
+  const btn = el('button', { class: 'record-btn', type: 'button' });
+  btn.textContent = '🎤 録音して比較 (2秒)';
+  let recording = null;
+
+  btn.addEventListener('click', async () => {
+    if (recording) {
+      // Replay sequence: TTS → user → TTS
+      speakJa(word.reading);
+      setTimeout(() => recording.play(), 1100);
+      setTimeout(() => speakJa(word.reading), 2500);
+      return;
+    }
+    try {
+      btn.disabled = true;
+      btn.textContent = '🔴 録音中…';
+      wrap.classList.add('recording');
+      recording = await recordAudio(2200);
+      wrap.classList.remove('recording');
+      btn.disabled = false;
+      btn.textContent = '🔁 もう一度比較';
+
+      const replayMine = el('button', { class: 'record-mini', type: 'button', onclick: () => recording.play() }, '🔊 自分の発音');
+      const replayTTS = el('button', { class: 'record-mini', type: 'button', onclick: () => speakJa(word.reading) }, '🔊 ネイティブ');
+      const sub = el('div', { class: 'record-sub' }, [replayTTS, replayMine]);
+      wrap.appendChild(sub);
+
+      // Play user recording right away
+      setTimeout(() => recording.play(), 100);
+      setTimeout(() => speakJa(word.reading), 1500);
+    } catch (e) {
+      wrap.classList.remove('recording');
+      btn.disabled = false;
+      btn.textContent = '🎤 録音 (マイク許可が必要)';
+      console.warn(e);
+    }
+  });
+
+  wrap.appendChild(btn);
+  return wrap;
 }
 
 function weakPanel(weakIds) {
