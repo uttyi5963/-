@@ -1,84 +1,113 @@
 # szokhc-wp
 
-医療法人社団 貞栄会 / 静岡ホームクリニック公式サイトの WordPress 移行用ワークスペース。
+静岡ホームクリニック（医療法人社団 貞栄会）公式サイトの WordPress 移行用ワークスペース。
 
-現状はテーマディレクトリのみ管理しています。WordPress 本体・データベース・アップロード画像はサーバ側で管理する想定です。
+現在はテーマディレクトリのみ管理。WP本体・DB・メディアはサーバ側で管理する想定です。
 
-## ディレクトリ構成
+## 設計の要点
+
+現サイト（szokhc.jp）はCMS製の構造を持ったテンプレートサイトでしたが、トップに並ぶ全要素（理念リード、診療時間表、診療のかたち4枚、症状訴求、お知らせ、コラム、3カラム/4カラムバナー、アクセス、グループバナー、右下固定ボタン）をハードコードしているのが課題でした。本テーマでは、これら**すべての可変領域をCustomizerまたは投稿タイプに外出し**し、PHPテンプレートは順序と骨格だけを管理します。
 
 ```
-szokhc-wp/
-└── szokhc/                    ← WordPressテーマ本体（wp-content/themes/szokhc/ にそのまま置く）
-    ├── style.css              テーマヘッダ + デザイントークン + ベーススタイル
-    ├── functions.php          ブートストラップ。inc/ 配下を順に読み込む
-    ├── header.php             共通ヘッダ（ロゴ・グローバルナビ・TEL）
-    ├── footer.php             共通フッタ（フッターウィジェット3列）
-    ├── front-page.php         トップページ（セクション順だけ管理）
-    ├── page.php / single.php / archive.php / search.php / 404.php / index.php
-    ├── searchform.php
-    ├── inc/
-    │   ├── setup.php          theme support / メニュー / 画像サイズ / ウィジェット
-    │   ├── enqueue.php        CSS / JS 読み込み
-    │   ├── cpt.php            CPT・タクソノミー定義
-    │   ├── customizer.php     クリニック連絡先・ヒーロー領域の設定
-    │   └── template-tags.php  ヘルパ関数
-    ├── template-parts/
-    │   ├── hero.php
-    │   ├── audience-nav.php   対象別ナビ（患者／病院／施設）
-    │   ├── news.php           お知らせ最新5件
-    │   ├── services.php       診療メニュー（CPT: szk_service）
-    │   ├── access.php         受診時間・アクセス
-    │   └── conference.php     講演会情報（CPT: szk_conference）
-    └── assets/
-        ├── css/app.css        拡張スタイル
-        ├── js/                （未使用、必要時にここに）
-        └── images/            （未使用、必要時にここに）
+front-page.php
+  ├─ hero            … メインビジュアル（5枚までスライド）
+  ├─ intro           … 理念リード（見出し・本文・画像3枚）
+  ├─ hours-and-care  … 診療時間 + 診療のかたち（2カラム）
+  ├─ symptoms        … 症状訴求 + リウマチ案内
+  ├─ news            … お知らせ + 在宅医療の教科書（2カラム）
+  ├─ info-grid       … メディア/講演会/ブログ（3カラム）
+  ├─ quick-links     … 4枚バナー
+  ├─ access          … 外観写真 + Googleマップ + 採用バナー
+  └─ group           … 貞栄会グループ 6バナー
 ```
 
-## コンテンツタイプ設計
+並び替えは `front-page.php` の `get_template_part()` の順番を入れ替えるだけ。新しいセクションを足す場合も `template-parts/` にファイルを追加して呼び出せばOK。
 
-トップページに並ぶ各セクションはハードコードせず、以下に分離しています。
+## ディレクトリ
+
+```
+szokhc-wp/szokhc/
+├── style.css              テーマヘッダ / デザイントークン / ベース + 各セクションスタイル
+├── functions.php          ブートストラップ
+├── header.php             ロゴバー + グローバルナビ（緑バー）
+├── footer.php             簡素フッタ（住所・電話・コピーライト）
+├── front-page.php         トップ：セクション順
+├── page.php / single.php / archive.php / search.php / 404.php / index.php / searchform.php
+├── inc/
+│   ├── setup.php          theme support / メニュー / 画像サイズ / ウィジェット
+│   ├── enqueue.php        CSS/JS 読み込み
+│   ├── cpt.php            CPT・タクソノミー定義
+│   ├── customizer.php     全可変領域の設定
+│   └── template-tags.php  ヘルパ関数
+├── template-parts/        トップの各セクション
+└── assets/
+    ├── css/app.css        セクション拡張スタイル（必要に応じて）
+    ├── js/app.js          スライダー + SPメニュー（バニラJS）
+    └── images/            （テーマ同梱したい画像がある場合のみ）
+```
+
+## コンテンツタイプ
 
 | 種別 | スラッグ | 用途 |
 |---|---|---|
-| 投稿 (post) | `news` カテゴリ | お知らせ |
-| szk_conference | conference | 講演会情報 |
-| szk_staff | staff | 医師・スタッフ紹介 |
-| szk_service | service | 診療メニュー（在宅診療／リウマチ膠原病など） |
-| szk_facility | facility | 拠点・施設 |
+| post | /news/ | お知らせ |
+| szk_column | /column/ | 在宅医療の教科書 |
+| szk_conference | /conference/ | 講演会情報 |
+| szk_media_news | /media-news/ | メディア掲載 |
+| szk_staff | /staff/ | 医師・スタッフ紹介 |
+| szk_service | /service/ | 診療メニュー |
+| szk_facility | /facility/ | 拠点・施設 |
 
 タクソノミー：
 
 - `szk_news_category` … お知らせカテゴリ
 - `szk_audience` … 対象（患者 / 病院関係者 / 施設関係者）
 
-## カスタマイザ項目
+## カスタマイザ（外観 → カスタマイズ）
 
-外観 → カスタマイズ から編集できる項目：
-
-- クリニック連絡先：法人名 / クリニック名 / 電話 / FAX / 住所 / 受付時間 / 補足 / 問い合わせメール
-- ヒーロー領域：見出し / リード文 / CTA×2 / 背景画像
+- **クリニック連絡先**：法人名 / クリニック名 / 郵便番号 / 住所 / 電話 / FAX / メール
+- **メインビジュアル**：スライド画像 ×5（任意のリンク先付き）
+- **トップ：理念リード**：見出し / 本文 / 左右画像 / 下部画像
+- **トップ：診療時間**：時間帯ラベル / 曜日マークパターン / 休診日 / 在宅診療案内文 / 詳細リンク
+- **トップ：診療のかたち**：リード文 / カード ×4（画像 + リンク）
+- **トップ：症状訴求**：見出し / 画像 / 本文 / 詳細リンク画像 / 下部画像
+- **トップ：3カラムバナー**：画像 + リンク ×3
+- **トップ：クイックリンク**：画像 + リンク + 外部開く ×4
+- **トップ：アクセス／採用**：外観写真 / Googleマップ iframe / 採用バナー画像 + リンク
+- **トップ：貞栄会グループ**：紹介文 / バナー ×6
+- **トップ：右下固定ボタン**：画像 / リンク
 
 ## メニュー位置
 
-- `global` … グローバルナビ
-- `utility` … ヘッダー補助
+- `global` … グローバルナビ（緑バー）
+- `utility` … ヘッダー右上補助
 - `footer` … フッターナビ
-- `audience` … 対象別ナビ（説明欄を入れるとカードのリード文になる）
+- `audience` … 対象別ナビ（個別ページで利用）
+
+## デザイントークン
+
+`style.css` の `:root` で集中管理。
+
+- `--color-brand: #3bad86`  … メイングリーン
+- `--color-brand-soft: #8dcfb9` … 補助グリーン（●印）
+- `--color-accent: #fcdb73` … 見出し下線の黄色アクセント10%
+- `--color-warn: #c9171e` … 「予約制」など強調赤
+- `--container: 1000px`
+
+セクション見出しの「緑下線4px + 左10%黄色アクセント」は `.heading` クラスに集約。
 
 ## 導入手順
 
-1. WordPress (6.0+, PHP 8.0+) をサーバに設置
+1. WordPress 6.0+ / PHP 8.0+ のサーバを用意
 2. `szokhc-wp/szokhc/` を `wp-content/themes/szokhc/` に配置
-3. 管理画面 → 外観 → テーマで「Szokhc」を有効化
-4. 外観 → カスタマイズ → クリニック連絡先 / ヒーロー領域 を入力
-5. 外観 → メニュー で global / footer / audience を作成して割り当て
-6. 投稿・CPT に既存サイトのコンテンツを移行
+3. 外観 → テーマで「Szokhc」を有効化
+4. 外観 → メニュー で global / utility / footer を作成して割り当て
+5. 外観 → カスタマイズ から各セクションを入力
+6. 投稿（お知らせ）と各CPTにコンテンツ登録
 
-## 残作業（HTML ソース受領後）
+## 移行作業（次フェーズ）
 
-- [ ] トップページのブランドカラー・タイポを `style.css` の `:root` に反映
-- [ ] ロゴ・ヒーロー画像・診療メニューサムネを `assets/images/` または管理画面メディアに配置
-- [ ] 各セクションのマージン・グリッド比率を現サイトに合わせる
-- [ ] 既存サイトに固有のセクション（実績報告、社会貢献活動など）があれば template-parts を追加
-- [ ] お知らせ・講演会の既存コンテンツを CSV / WXR で移行
+- [ ] 既存メディア（ロゴ / 各セクション画像 / バナー）を WP メディアライブラリへアップロード
+- [ ] 旧URLを新WPパーマリンクに合わせて301リダイレクト計画を作成（特に /news/, /column/, /conference/）
+- [ ] お知らせ・コラム・講演会の既存記事を WXR 形式で書き出して取り込む
+- [ ] サブページ（理事長挨拶、受診時間・アクセス、診療メニュー個別 等）の固定ページ作成

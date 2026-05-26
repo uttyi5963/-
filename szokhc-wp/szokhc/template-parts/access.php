@@ -1,54 +1,59 @@
 <?php
 /**
- * Access / contact information block.
+ * Access (photo + map) and recruit banner.
  *
  * @package Szokhc
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-$address = szokhc_mod( 'szokhc_address' );
-$tel     = szokhc_mod( 'szokhc_tel' );
-$fax     = szokhc_mod( 'szokhc_fax' );
-$hours   = szokhc_mod( 'szokhc_hours' );
-$note    = szokhc_mod( 'szokhc_hours_note' );
+$photo   = szokhc_mod( 'szokhc_access_photo' );
+$map     = szokhc_mod( 'szokhc_map_embed' );
+$rec_img = szokhc_mod( 'szokhc_recruit_image' );
+$rec_url = szokhc_mod( 'szokhc_recruit_url' );
 
-if ( ! ( $address || $tel || $hours ) ) { return; }
+if ( ! ( $photo || $map || $rec_img ) ) { return; }
 ?>
-<section class="section section--soft access">
-	<div class="container access__grid">
-		<div class="access__info">
-			<h2 class="section__title"><?php esc_html_e( '受診時間・アクセス', 'szokhc' ); ?></h2>
-			<?php if ( $address ) : ?>
-				<p class="access__address"><?php echo esc_html( $address ); ?></p>
-			<?php endif; ?>
-			<?php if ( $tel ) : ?>
-				<p class="access__tel">
-					TEL <a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $tel ) ); ?>">
-						<?php echo esc_html( $tel ); ?>
-					</a>
-					<?php if ( $fax ) : ?> / FAX <?php echo esc_html( $fax ); ?><?php endif; ?>
-				</p>
-			<?php endif; ?>
-			<?php if ( $hours ) : ?>
-				<dl class="access__hours">
-					<dt><?php esc_html_e( '受付時間', 'szokhc' ); ?></dt>
-					<dd><?php echo wp_kses_post( nl2br( $hours ) ); ?></dd>
-				</dl>
-			<?php endif; ?>
-			<?php if ( $note ) : ?>
-				<p class="access__note"><?php echo esc_html( $note ); ?></p>
-			<?php endif; ?>
-		</div>
-		<div class="access__map">
-			<?php
-			/**
-			 * Googleマップ埋め込みは管理画面の固定ページ
-			 * 「受診時間・アクセス」配下のブロックで管理する想定。
-			 * ここではプレースホルダのみ。
-			 */
-			?>
-			<div class="access__map-placeholder" aria-hidden="true"></div>
+<section class="section access-section">
+	<div class="container">
+		<div class="access">
+			<div class="access__left">
+				<?php if ( $photo ) : ?>
+					<div class="access__photo"><img src="<?php echo esc_url( $photo ); ?>" alt=""></div>
+				<?php endif; ?>
+				<?php if ( $map ) : ?>
+					<div class="access__map">
+						<?php
+						$allowed = array(
+							'iframe' => array(
+								'src'             => true,
+								'width'           => true,
+								'height'          => true,
+								'style'           => true,
+								'allowfullscreen' => true,
+								'loading'         => true,
+								'referrerpolicy'  => true,
+								'title'           => true,
+							),
+						);
+						echo wp_kses( $map, $allowed );
+						?>
+					</div>
+				<?php endif; ?>
+			</div>
+			<div class="access__right">
+				<?php if ( $rec_img ) : ?>
+					<div class="access__recruit">
+						<?php if ( $rec_url ) : ?>
+							<a href="<?php echo esc_url( $rec_url ); ?>" target="_blank" rel="noopener">
+								<img src="<?php echo esc_url( $rec_img ); ?>" alt="">
+							</a>
+						<?php else : ?>
+							<img src="<?php echo esc_url( $rec_img ); ?>" alt="">
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
+			</div>
 		</div>
 	</div>
 </section>

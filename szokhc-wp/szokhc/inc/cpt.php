@@ -2,9 +2,7 @@
 /**
  * Custom post types and taxonomies.
  *
- * 拡張性確保のため、トップページに並びうる動的コンテンツを
- * コンテンツタイプ単位で分離する。フロント側のテンプレートは
- * これらを参照する想定。
+ * トップページに並ぶ動的コンテンツをコンテンツタイプ単位で分離。
  *
  * @package Szokhc
  */
@@ -13,6 +11,16 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 add_action( 'init', function () {
 
+	register_post_type( 'szk_column', array(
+		'label'        => __( '在宅医療の教科書', 'szokhc' ),
+		'public'       => true,
+		'show_in_rest' => true,
+		'menu_icon'    => 'dashicons-book',
+		'has_archive'  => 'column',
+		'rewrite'      => array( 'slug' => 'column', 'with_front' => false ),
+		'supports'     => array( 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields' ),
+	) );
+
 	register_post_type( 'szk_conference', array(
 		'label'        => __( '講演会情報', 'szokhc' ),
 		'public'       => true,
@@ -20,7 +28,17 @@ add_action( 'init', function () {
 		'menu_icon'    => 'dashicons-megaphone',
 		'has_archive'  => 'conference',
 		'rewrite'      => array( 'slug' => 'conference', 'with_front' => false ),
-		'supports'     => array( 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields' ),
+		'supports'     => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
+	) );
+
+	register_post_type( 'szk_media_news', array(
+		'label'        => __( 'メディア掲載', 'szokhc' ),
+		'public'       => true,
+		'show_in_rest' => true,
+		'menu_icon'    => 'dashicons-format-video',
+		'has_archive'  => 'media-news',
+		'rewrite'      => array( 'slug' => 'media-news', 'with_front' => false ),
+		'supports'     => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
 	) );
 
 	register_post_type( 'szk_staff', array(
