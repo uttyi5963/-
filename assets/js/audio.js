@@ -29,13 +29,35 @@ export function speakJa(text, opts = {}) {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'ja-JP';
     if (cached.japanese) u.voice = cached.japanese;
-    u.rate = opts.rate ?? 0.92;
+    // Pull preferred speed from profile if not explicitly set.
+    let rate = opts.rate;
+    if (rate == null) {
+      try {
+        const profile = JSON.parse(localStorage.getItem('aiou-nihongo/profile') || '{}');
+        rate = profile.audioSpeed ?? 0.9;
+      } catch (_) { rate = 0.9; }
+    }
+    u.rate = rate;
     u.pitch = opts.pitch ?? 1;
     u.volume = opts.volume ?? 1;
     window.speechSynthesis.speak(u);
   } catch (e) {
     console.warn('TTS failed', e);
   }
+}
+
+// Returns whether auto-play is currently enabled in profile.
+export function isAutoPlayEnabled() {
+  try {
+    const profile = JSON.parse(localStorage.getItem('aiou-nihongo/profile') || '{}');
+    return profile.audioAutoPlay !== false;
+  } catch (_) { return true; }
+}
+
+// List of available Japanese voices (if any) for picker UIs.
+export function japaneseVoices() {
+  if (!('speechSynthesis' in window)) return [];
+  return (window.speechSynthesis.getVoices() || []).filter((v) => v.lang && v.lang.toLowerCase().startsWith('ja'));
 }
 
 export function stopSpeak() {

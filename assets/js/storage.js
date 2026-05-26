@@ -50,6 +50,8 @@ const defaultProfile = () => ({
   todayTasksDone: {},     // { 'YYYY-MM-DD': ['vocab', 'drill', ...] }
   passPredict: 38,
   audio: true,
+  audioAutoPlay: true,
+  audioSpeed: 0.9,
 });
 
 export const Profile = {
