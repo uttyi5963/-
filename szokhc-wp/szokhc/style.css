@@ -1,0 +1,299 @@
+/*
+Theme Name: Szokhc
+Theme URI: https://szokhc.jp/
+Author: 医療法人社団 貞栄会
+Description: 静岡ホームクリニック（医療法人社団貞栄会）公式サイト用WordPressテーマ。在宅診療・リウマチ膠原病診療を主軸に、お知らせ／講演会情報／スタッフ紹介などをコンテンツタイプ単位で管理できる拡張性重視の独自テーマ。
+Version: 0.2.0
+Requires at least: 6.0
+Requires PHP: 8.0
+License: Proprietary
+License URI: https://szokhc.jp/
+Text Domain: szokhc
+Tags: medical, clinic, custom-menu, custom-logo, featured-images, translation-ready, block-styles, wide-blocks, editor-style
+*/
+
+/* ===== Design Tokens ===== */
+:root {
+	--color-bg: #ffffff;
+	--color-fg: #222;
+	--color-muted: #666;
+	--color-line: #dddddd;
+	--color-brand: #3bad86;        /* メイングリーン */
+	--color-brand-ink: #2a8868;
+	--color-brand-soft: #8dcfb9;   /* 補助グリーン（●印など） */
+	--color-accent: #fcdb73;       /* 見出しの黄色アクセント */
+	--color-warn: #c9171e;         /* 「予約制」赤 */
+	--color-soft: #f7faf8;
+	--radius: 6px;
+	--radius-pill: 30px;
+	--shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+	--font-sans: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+	--font-serif: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+	--container: 1000px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+	margin: 0;
+	color: var(--color-fg);
+	background: var(--color-bg);
+	font-family: var(--font-sans);
+	font-size: 15px;
+	line-height: 1.8;
+}
+img, svg { max-width: 100%; height: auto; display: block; }
+a { color: var(--color-brand-ink); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container { max-width: var(--container); margin: 0 auto; padding: 0 16px; }
+.section { padding: 40px 0; }
+.section--tight { padding: 24px 0; }
+.section--soft { background: var(--color-soft); }
+.hide { position: absolute; left: -9999px; }
+.screen-reader-text { position: absolute; left: -9999px; }
+
+/* ===== Header ===== */
+.site-header { background: #fff; border-bottom: 1px solid var(--color-line); }
+.site-header__inner { display: flex; align-items: center; gap: 16px; padding: 16px 0; }
+.site-header__brand .custom-logo,
+.site-header__brand img { max-height: 60px; width: auto; }
+.site-header__sub { margin-left: auto; font-size: 12px; color: var(--color-muted); }
+.site-header__sub a { color: var(--color-muted); }
+
+.gnavi-area { background: var(--color-brand); }
+.gnavi-area ul {
+	display: flex;
+	flex-wrap: wrap;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-width: var(--container);
+	margin: 0 auto;
+}
+.gnavi-area li { flex: 1 1 auto; border-right: 1px solid rgba(255,255,255,.25); }
+.gnavi-area li:last-child { border-right: none; }
+.gnavi-area a {
+	display: block;
+	padding: 14px 8px;
+	color: #fff;
+	font-weight: 600;
+	font-size: 13px;
+	text-align: center;
+	white-space: nowrap;
+}
+.gnavi-area a:hover { background: var(--color-brand-ink); text-decoration: none; }
+.gnavi-area a.current { background: var(--color-brand-ink); }
+
+.menu-btn { display: none; }
+
+/* ===== Main Visual (Slider) ===== */
+.mainvisual { position: relative; background: #f1f5f3; }
+.mainvisual__list { list-style: none; margin: 0; padding: 0; }
+.mainvisual__list li { display: none; }
+.mainvisual__list li:first-child { display: block; }
+.mainvisual__list img { width: 100%; height: auto; object-fit: cover; }
+.mainvisual.is-ready .mainvisual__list { position: relative; }
+.mainvisual.is-ready .mainvisual__list li { display: block; position: absolute; inset: 0; opacity: 0; transition: opacity .8s; }
+.mainvisual.is-ready .mainvisual__list li.is-active { position: relative; opacity: 1; }
+
+/* ===== Section Heading (緑下線 + 黄アクセント) ===== */
+.heading {
+	position: relative;
+	padding: 8px 8px;
+	border-bottom: 4px solid var(--color-brand);
+	margin: 0 0 16px;
+}
+.heading::after {
+	content: "";
+	position: absolute;
+	bottom: -4px;
+	left: 0;
+	width: 10%;
+	height: 4px;
+	background: var(--color-accent);
+}
+.heading__text {
+	display: block;
+	text-align: center;
+	font-weight: 700;
+	font-size: 22px;
+	color: #000;
+}
+.lead-heading {
+	display: block;
+	text-align: center;
+	font-weight: 700;
+	font-size: 22px;
+	color: var(--color-brand);
+	margin: 24px 0 12px;
+}
+.lead-heading--sub {
+	color: #000;
+	font-size: 19px;
+	margin-top: 8px;
+}
+.lead-heading--mark { color: var(--color-brand-soft); }
+.lead-heading--warn { color: var(--color-warn); font-size: 16px; }
+.lead-divider {
+	border: 0;
+	border-top: 1px solid var(--color-line);
+	width: 100px;
+	margin: 10px auto 20px;
+}
+.lead-divider--dashed { border-top-style: dashed; width: 100%; }
+.lead-divider--full { width: 100%; }
+
+/* ===== Two/Three Column ===== */
+.col-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.col-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* ===== Intro ===== */
+.intro__lead { text-align: center; font-size: 15px; }
+.intro__images { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.intro__images img { width: 100%; }
+
+/* ===== Clinic Hours Table ===== */
+.hours-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+.hours-table th, .hours-table td {
+	border: 1px solid #fff;
+	padding: 10px 6px;
+	text-align: center;
+	font-size: 14px;
+}
+.hours-table thead th {
+	background: var(--color-brand);
+	color: #fff;
+	font-weight: 700;
+}
+.hours-table tbody td { background: #f1f8f5; }
+.hours-table tbody td:first-child { background: #e6f2ec; font-weight: 600; }
+.hours-table__mark { font-size: 18px; }
+.hours-note { text-align: right; font-size: 13px; }
+.hours-note__label { color: var(--color-warn); font-weight: 700; }
+.hours-365 { margin-top: 16px; }
+.hours-365__body { font-size: 14px; }
+
+/* ===== Care Styles (診療のかたち) ===== */
+.care-styles__lead { font-size: 14px; }
+.care-styles__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.care-styles__grid img { width: 100%; }
+
+/* ===== Symptoms / Rheumatism ===== */
+.symptoms { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+.symptoms__copy { font-size: 14px; }
+
+/* ===== News (2 column) ===== */
+.news-block__head {
+	border-bottom: 2px solid var(--color-brand);
+	padding-bottom: 6px;
+	margin-bottom: 12px;
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+}
+.news-block__head h2 {
+	margin: 0;
+	font-size: 18px;
+	color: var(--color-brand-ink);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.news-block__head h2::before {
+	content: "";
+	display: inline-block;
+	width: 8px; height: 8px;
+	background: var(--color-brand);
+	border-radius: 50%;
+}
+.news-block__head a { font-size: 12px; color: var(--color-muted); }
+.news-block dl { display: grid; grid-template-columns: 110px 1fr; gap: 4px 12px; padding: 12px 0; border-bottom: 1px dashed var(--color-line); margin: 0; }
+.news-block dt { color: var(--color-muted); font-feature-settings: "tnum"; font-size: 13px; }
+.news-block dd { margin: 0; font-size: 14px; }
+.news-block dd a { color: var(--color-fg); }
+.news-block dd a:hover { color: var(--color-brand-ink); }
+
+/* Pill button (お知らせ一覧 / 一覧を見る) */
+.pill-btn {
+	display: inline-block;
+	padding: 10px 24px;
+	margin: 16px auto 0;
+	background: var(--color-brand);
+	color: #fff;
+	border-radius: var(--radius-pill);
+	font-size: 14px;
+	min-width: 260px;
+	text-align: center;
+}
+.pill-btn:hover { background: var(--color-brand-ink); text-decoration: none; color: #fff; }
+.pill-btn--wrap { text-align: center; }
+
+/* ===== Info grid (3 column: media / conference / blog) ===== */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.info-grid a { display: block; }
+.info-grid img { width: 100%; }
+
+/* ===== Quick links (4 cards) ===== */
+.quick-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.quick-links a { display: block; }
+.quick-links img { width: 100%; }
+
+/* ===== Access ===== */
+.access { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+.access__photo img { width: 100%; }
+.access__map iframe { width: 100%; height: 260px; border: 0; }
+.access__recruit { margin-top: 16px; }
+.access__recruit img { width: 100%; }
+
+/* ===== Group banners ===== */
+.group__lead {
+	text-align: center;
+	margin: 24px 0 12px;
+}
+.group__lead .mark { color: var(--color-brand-soft); font-weight: 700; }
+.group__lead .title { font-weight: 700; font-size: 19px; }
+.group__lead .body { font-size: 14px; }
+.group__banners {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	gap: 10px;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.group__banners li img { width: 100%; }
+
+/* ===== Floating CTA ===== */
+.floating-cta {
+	position: fixed;
+	right: 12px;
+	bottom: 12px;
+	z-index: 99;
+}
+.floating-cta img { width: 130px; height: auto; box-shadow: 0 4px 12px rgba(0,0,0,.18); border-radius: 50%; }
+
+/* ===== Footer ===== */
+.site-footer { background: #2c4a40; color: #cfe1d8; margin-top: 32px; padding: 28px 0 16px; }
+.site-footer a { color: #cfe1d8; }
+.site-footer__sig { font-weight: 700; font-size: 16px; color: #fff; margin-bottom: 6px; }
+.site-footer__address { font-style: normal; font-size: 13px; line-height: 1.9; }
+.site-footer__copy { border-top: 1px solid #3f5d52; margin-top: 16px; padding-top: 10px; font-size: 11px; color: #8eaaa0; text-align: center; }
+
+/* ===== Responsive ===== */
+@media (max-width: 800px) {
+	body { font-size: 14px; }
+	.site-header__sub { display: none; }
+	.gnavi-area ul { display: none; flex-direction: column; }
+	.gnavi-area li { flex: none; border-right: none; border-bottom: 1px solid rgba(255,255,255,.25); }
+	.gnavi-area.is-open ul { display: flex; }
+	.menu-btn { display: block; background: var(--color-brand); padding: 10px; text-align: right; }
+	.menu-btn img { display: inline-block; width: 40px; }
+
+	.col-2, .col-3, .intro__images, .care-styles__grid, .symptoms, .access, .info-grid { grid-template-columns: 1fr; }
+	.quick-links { grid-template-columns: 1fr 1fr; }
+	.group__banners { grid-template-columns: 1fr 1fr; }
+	.news-block dl { grid-template-columns: 1fr; gap: 2px; }
+	.heading__text { font-size: 18px; }
+	.floating-cta img { width: 90px; }
+}
