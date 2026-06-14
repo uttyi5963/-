@@ -517,6 +517,191 @@ tr:last-child td { border-bottom: 0; }
 .flashcard.flipped .back { display: block; }
 .flashcard .back { display: none; }
 
+/* Pronunciation panel inside flashcards */
+.pron-panel {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--line);
+  margin-bottom: 4px;
+}
+.pron-panel .pron-kana {
+  font-size: 22px;
+  color: var(--brand-dark);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.pron-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.pron-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #f1f5f9;
+  color: var(--ink);
+  font-weight: 600;
+}
+.pron-chip.romaji { background: #fef3c7; color: #854d0e; }
+.pron-chip.ipa { background: #ddd6fe; color: #5b21b6; font-family: ui-monospace, 'SF Mono', Menlo, monospace; letter-spacing: 0.5px; }
+.pron-chip.mora { background: #ccfbf1; color: #115e59; }
+.mini-audio {
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.mini-audio:hover { background: rgba(0,0,0,.05); }
+
+/* Pitch accent visualization */
+.pitch-wrap {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 4px 4px;
+  background: #fffbeb;
+  border-radius: 8px;
+}
+.pitch-label {
+  font-size: 11px;
+  color: #92400e;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.pitch-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.pitch-mora {
+  display: grid;
+  gap: 2px;
+  align-items: end;
+  text-align: center;
+  width: 28px;
+}
+.pitch-dot {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  margin: 0 auto;
+  background: #92400e;
+  position: relative;
+  margin-bottom: 2px;
+}
+.pitch-dot.hi { transform: translateY(-12px); }
+.pitch-dot.lo { transform: translateY(2px); }
+.pitch-text {
+  font-size: 13px;
+  color: #78350f;
+  font-weight: 700;
+}
+
+/* Record-and-compare */
+.record-panel {
+  width: 100%;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+}
+.record-panel.recording {
+  border-color: var(--red);
+  background: #fef2f2;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,.5); }
+  50% { box-shadow: 0 0 0 8px rgba(220,38,38,0); }
+}
+.record-btn {
+  border: 0;
+  background: var(--brand-dark);
+  color: #fff;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.record-btn:hover { background: #134e4a; }
+.record-btn:disabled { opacity: .7; cursor: progress; }
+.record-sub {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.record-mini {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--brand-dark);
+  cursor: pointer;
+}
+.record-mini:hover { background: #f1f5f9; }
+
+/* Cloud TTS settings: keep select styled */
+#cloud-provider, #cloud-voice {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+  font-size: 13px;
+  min-width: 220px;
+}
+
+/* Settings switch */
+.setting-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.setting-row:last-child { border-bottom: 0; }
+.setting-row strong { display: block; font-size: 14px; }
+.setting-row .sub { font-size: 12px; margin-top: 2px; }
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+.switch input { display: none; }
+.switch .slider {
+  position: absolute;
+  inset: 0;
+  background: #cbd5e1;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.switch .slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px;
+  left: 3px;
+  transition: transform .15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.switch input:checked + .slider { background: var(--brand); }
+.switch input:checked + .slider::before { transform: translateX(22px); }
+
 .srs-buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

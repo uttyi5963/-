@@ -1,5 +1,4 @@
-// Hiragana / Katakana reference data.
-// Each row: [character, romaji].
+// Hiragana / Katakana reference data including basic, dakuten, handakuten, and yoon (combo) kana.
 
 export const HIRAGANA = [
   ['あ','a'],['い','i'],['う','u'],['え','e'],['お','o'],
@@ -27,7 +26,57 @@ export const KATAKANA = [
   ['ワ','wa'],['ヲ','wo'],['ン','n'],
 ];
 
+// Dakuten (濁音) and handakuten (半濁音) — voiced consonants
+export const HIRAGANA_DAKUTEN = [
+  ['が','ga'],['ぎ','gi'],['ぐ','gu'],['げ','ge'],['ご','go'],
+  ['ざ','za'],['じ','ji'],['ず','zu'],['ぜ','ze'],['ぞ','zo'],
+  ['だ','da'],['ぢ','ji'],['づ','zu'],['で','de'],['ど','do'],
+  ['ば','ba'],['び','bi'],['ぶ','bu'],['べ','be'],['ぼ','bo'],
+  ['ぱ','pa'],['ぴ','pi'],['ぷ','pu'],['ぺ','pe'],['ぽ','po'],
+];
+
+export const KATAKANA_DAKUTEN = [
+  ['ガ','ga'],['ギ','gi'],['グ','gu'],['ゲ','ge'],['ゴ','go'],
+  ['ザ','za'],['ジ','ji'],['ズ','zu'],['ゼ','ze'],['ゾ','zo'],
+  ['ダ','da'],['ヂ','ji'],['ヅ','zu'],['デ','de'],['ド','do'],
+  ['バ','ba'],['ビ','bi'],['ブ','bu'],['ベ','be'],['ボ','bo'],
+  ['パ','pa'],['ピ','pi'],['プ','pu'],['ペ','pe'],['ポ','po'],
+];
+
+// Yoon (拗音) — combinations with ya/yu/yo
+export const HIRAGANA_YOON = [
+  ['きゃ','kya'],['きゅ','kyu'],['きょ','kyo'],
+  ['しゃ','sha'],['しゅ','shu'],['しょ','sho'],
+  ['ちゃ','cha'],['ちゅ','chu'],['ちょ','cho'],
+  ['にゃ','nya'],['にゅ','nyu'],['にょ','nyo'],
+  ['ひゃ','hya'],['ひゅ','hyu'],['ひょ','hyo'],
+  ['みゃ','mya'],['みゅ','myu'],['みょ','myo'],
+  ['りゃ','rya'],['りゅ','ryu'],['りょ','ryo'],
+  ['ぎゃ','gya'],['ぎゅ','gyu'],['ぎょ','gyo'],
+  ['じゃ','ja'],['じゅ','ju'],['じょ','jo'],
+  ['びゃ','bya'],['びゅ','byu'],['びょ','byo'],
+  ['ぴゃ','pya'],['ぴゅ','pyu'],['ぴょ','pyo'],
+];
+
+export const KATAKANA_YOON = [
+  ['キャ','kya'],['キュ','kyu'],['キョ','kyo'],
+  ['シャ','sha'],['シュ','shu'],['ショ','sho'],
+  ['チャ','cha'],['チュ','chu'],['チョ','cho'],
+  ['ニャ','nya'],['ニュ','nyu'],['ニョ','nyo'],
+  ['ヒャ','hya'],['ヒュ','hyu'],['ヒョ','hyo'],
+  ['ミャ','mya'],['ミュ','myu'],['ミョ','myo'],
+  ['リャ','rya'],['リュ','ryu'],['リョ','ryo'],
+  ['ギャ','gya'],['ギュ','gyu'],['ギョ','gyo'],
+  ['ジャ','ja'],['ジュ','ju'],['ジョ','jo'],
+  ['ビャ','bya'],['ビュ','byu'],['ビョ','byo'],
+  ['ピャ','pya'],['ピュ','pyu'],['ピョ','pyo'],
+];
+
 export const KANA_DECKS = [
-  { id: 'hira', label: 'ひらがな', desc: '46 basic hiragana characters', rows: HIRAGANA },
-  { id: 'kata', label: 'カタカナ', desc: '46 basic katakana characters', rows: KATAKANA },
+  { id: 'hira',         label: 'ひらがな (基本)',     desc: '46 basic hiragana characters', rows: HIRAGANA },
+  { id: 'hira-daku',    label: 'ひらがな (濁音)',     desc: 'Voiced hiragana — が、ざ、だ、ば、ぱ rows', rows: HIRAGANA_DAKUTEN },
+  { id: 'hira-yoon',    label: 'ひらがな (拗音)',     desc: 'Combination hiragana — きゃ、しゃ、etc.', rows: HIRAGANA_YOON },
+  { id: 'kata',         label: 'カタカナ (基本)',     desc: '46 basic katakana characters', rows: KATAKANA },
+  { id: 'kata-daku',    label: 'カタカナ (濁音)',     desc: 'Voiced katakana — ガ、ザ、ダ、バ、パ rows', rows: KATAKANA_DAKUTEN },
+  { id: 'kata-yoon',    label: 'カタカナ (拗音)',     desc: 'Combination katakana — キャ、シャ、etc.', rows: KATAKANA_YOON },
 ];
