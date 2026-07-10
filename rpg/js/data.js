@@ -75,6 +75,7 @@ DATA.heroes = {
     base:   { hp: 42, mp: 4, str: 11, agi: 8, vit: 8, int: 3 },
     growth: { hp: 10, mp: 1, str: 2, agi: 1, vit: 2, int: 1 },
     weapon: "w_spear", armor: "a_leather",
+    command: "jump", // ジャンプ: 2回目からは ダブルジャンプに しんか
     spells: [],
     learn: {},
   },
@@ -83,6 +84,7 @@ DATA.heroes = {
     base:   { hp: 58, mp: 0, str: 12, agi: 9, vit: 11, int: 2 },
     growth: { hp: 13, mp: 0, str: 2, agi: 1, vit: 3, int: 0 },
     weapon: "w_claw", armor: "a_leather",
+    command: "charge", // ためる: さいだい3かい。つぎのこうげきが 2/4/8ばい
     spells: [],
     learn: {},
   },
@@ -91,6 +93,7 @@ DATA.heroes = {
     base:   { hp: 30, mp: 24, str: 5, agi: 8, vit: 6, int: 11 },
     growth: { hp: 7, mp: 5, str: 1, agi: 1, vit: 1, int: 2 },
     weapon: "w_staff", armor: "a_cloth",
+    command: "pray", // いのる: MP0。50%で ぜんいん さいだいHPの30%かいふく
     spells: ["cure1"],
     learn: { 4: "poisona", 6: "protect", 9: "cure2", 12: "raise" },
   },
@@ -107,7 +110,8 @@ DATA.heroes = {
 // パラディンへのクラスチェンジで置きかわる内容
 DATA.paladin = {
   cls: "パラディン", spr: "pal",
-  special: "holy", // せいけん
+  special: "holy",   // せいけん
+  command: "cover",  // かばう: みがわり時は ダメージ1けた + 50%カウンター
   bonus: { hp: 30, mp: 12, str: 4, vit: 3 },
 };
 

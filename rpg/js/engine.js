@@ -313,6 +313,7 @@ const G = {
       lv, exp: this.expTotalFor(lv),
       weapon: d.weapon, armor: d.armor,
       special: d.special || null,
+      command: d.command || null,
       spells: d.spells.slice(),
       row: d.row || "front",
       poison: false, paladin: false,
@@ -380,6 +381,7 @@ const G = {
     h.cls = DATA.paladin.cls;
     h.spr = DATA.paladin.spr;
     h.special = DATA.paladin.special;
+    h.command = DATA.paladin.command;
     this.applyStats(h);
     // それまでの そうびは もちものへ もどす
     if (h.weapon) this.addItem(h.weapon);
@@ -440,6 +442,10 @@ const G = {
       if (!s.config) s.config = { atbWait: true };
       for (const h of s.party) {
         if (!h.row) h.row = (DATA.heroes[h.id] && DATA.heroes[h.id].row) || "front";
+        if (h.command === undefined) {
+          h.command = h.paladin ? DATA.paladin.command
+            : (DATA.heroes[h.id] && DATA.heroes[h.id].command) || null;
+        }
       }
       this.state = s;
       return true;
