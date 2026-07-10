@@ -7,22 +7,23 @@ const DATA = {};
 
 // ---------------- じゅもん ----------------
 // type: 'dmg'(こうげき) 'heal'(かいふく) 'revive' 'cure'(じょうたい) 'buff'
+// cast: えいしょう時間(びょう)。0または省略で即時発動
 DATA.spells = {
-  cure1:   { name: "ケアル",     mp: 4,  type: "heal",   pow: 30,  target: "ally",  field: true },
-  cure2:   { name: "ケアルラ",   mp: 9,  type: "heal",   pow: 95,  target: "ally",  field: true },
-  poisona: { name: "ポイゾナ",   mp: 3,  type: "cure",   target: "ally",  field: true },
-  protect: { name: "プロテス",   mp: 5,  type: "buff",   target: "ally" },
-  raise:   { name: "レイズ",     mp: 15, type: "revive", pow: 0.5, target: "ally",  field: true },
-  fire1:   { name: "ファイア",   mp: 5,  type: "dmg", pow: 28, elem: "fire",    target: "enemy" },
-  ice1:    { name: "ブリザド",   mp: 5,  type: "dmg", pow: 32, elem: "ice",     target: "enemy" },
-  bolt1:   { name: "サンダー",   mp: 6,  type: "dmg", pow: 38, elem: "thunder", target: "enemy" },
-  fire2:   { name: "ファイラ",   mp: 12, type: "dmg", pow: 75, elem: "fire",    target: "enemy" },
-  ice2:    { name: "ブリザラ",   mp: 14, type: "dmg", pow: 88, elem: "ice",     target: "enemy" },
+  cure1:   { name: "ケアル",     mp: 4,  type: "heal",   pow: 30,  cast: 0.8, target: "ally",  field: true },
+  cure2:   { name: "ケアルラ",   mp: 9,  type: "heal",   pow: 95,  cast: 1.4, target: "ally",  field: true },
+  poisona: { name: "ポイゾナ",   mp: 3,  type: "cure",   cast: 0.6, target: "ally",  field: true },
+  protect: { name: "プロテス",   mp: 5,  type: "buff",   cast: 1.0, target: "ally" },
+  raise:   { name: "レイズ",     mp: 15, type: "revive", pow: 0.5, cast: 2.4, target: "ally",  field: true },
+  fire1:   { name: "ファイア",   mp: 5,  type: "dmg", pow: 28, cast: 1.0, elem: "fire",    target: "enemy" },
+  ice1:    { name: "ブリザド",   mp: 5,  type: "dmg", pow: 32, cast: 1.0, elem: "ice",     target: "enemy" },
+  bolt1:   { name: "サンダー",   mp: 6,  type: "dmg", pow: 38, cast: 1.2, elem: "thunder", target: "enemy" },
+  fire2:   { name: "ファイラ",   mp: 12, type: "dmg", pow: 75, cast: 2.0, elem: "fire",    target: "enemy" },
+  ice2:    { name: "ブリザラ",   mp: 14, type: "dmg", pow: 88, cast: 2.2, elem: "ice",     target: "enemy" },
   // てきせんよう
-  e_fire:  { name: "ファイア",   mp: 0, type: "dmg", pow: 16, elem: "fire",    target: "enemy" },
+  e_fire:  { name: "ファイア",   mp: 0, type: "dmg", pow: 16, cast: 1.2, elem: "fire",    target: "enemy" },
   e_ice_all:{ name: "つめたいいき", mp: 0, type: "dmg", pow: 15, elem: "ice",  target: "enemy", all: true },
-  e_fire2: { name: "ファイラ",   mp: 0, type: "dmg", pow: 40, elem: "fire",    target: "enemy" },
-  e_meteo: { name: "ダークメテオ", mp: 0, type: "dmg", pow: 48, elem: "none",  target: "enemy", all: true },
+  e_fire2: { name: "ファイラ",   mp: 0, type: "dmg", pow: 40, cast: 2.2, elem: "fire",    target: "enemy" },
+  e_meteo: { name: "ダークメテオ", mp: 0, type: "dmg", pow: 48, cast: 3.2, elem: "none",  target: "enemy", all: true },
 };
 
 // ---------------- アイテム ----------------

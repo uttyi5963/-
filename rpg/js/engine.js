@@ -415,6 +415,7 @@ const G = {
       flags: {},
       map: ng.map, x: ng.x, y: ng.y, dir: ng.dir,
       steps: 0, playtime: 0,
+      config: { atbWait: true },
     };
   },
 
@@ -435,6 +436,7 @@ const G = {
     try {
       const s = JSON.parse(localStorage.getItem(this.SAVE_KEY));
       if (!s || !s.party) return false;
+      if (!s.config) s.config = { atbWait: true };
       this.state = s;
       return true;
     } catch (e) { return false; }

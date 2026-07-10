@@ -1,5 +1,8 @@
 // ============================================================
 // クリスタルナイツ - ATBバトル (FF4スタイル アクティブタイムバトル)
+// ・コマンド選択中も時間は流れる (本家仕様)
+// ・ウェイトモード: じゅもん/どうぐ サブメニュー中のみ時間停止
+// ・じゅもんには えいしょう時間があり、完了時に発動する
 // ============================================================
 
 function rnd(a, b) { return a + Math.random() * (b - a); }
@@ -9,12 +12,13 @@ class BattleScene {
     this.opaque = true;
     this.opts = opts;
     this.boss = !!opts.boss;
+    this.waitMode = !G.state.config || G.state.config.atbWait !== false;
 
     // てき生成 (おなじしゅるいには A,B,C…)
     const counts = {};
     groupIds.forEach((id) => { counts[id] = (counts[id] || 0) + 1; });
     const seen = {};
-    this.enemies = groupIds.map((id, i) => {
+    this.enemies = groupIds.map((id) => {
       const def = DATA.monsters[id];
       let name = def.name;
       if (counts[id] > 1) {
@@ -25,23 +29,25 @@ class BattleScene {
         id, def, name,
         hp: def.hp, maxhp: def.hp,
         atb: rnd(0, 50), dead: false,
-        flash: 0,
+        casting: null, flash: 0,
       };
     });
 
     this.party = G.state.party.map((h) => ({
-      h, atb: rnd(20, 60), defending: false, protect: false, flash: 0,
+      h, atb: rnd(20, 60), defending: false, protect: false,
+      casting: null, flash: 0,
     }));
 
-    this.phase = "intro";
+    this.phase = "intro";   // intro / atb / command / waitend
     this.introT = 0;
-    this.ready = null;       // いま コマンドにゅうりょくちゅうの プレイヤー
-    this.menu = "root";      // root / spell / item / targetE / targetP
+    this.ready = null;      // コマンドにゅうりょくちゅうの プレイヤー
+    this.readyQueue = [];
+    this.menu = "root";
     this.sel = 0; this.sel2 = 0; this.targetSel = 0;
     this.anim = null;
     this.log = "";
-    this.pops = [];          // ダメージすうじ
-    this.shadowActs = 0;     // しれんボスの こうどうかいすう
+    this.pops = [];
+    this.shadowActs = 0;
     this.fleeing = false;
 
     AudioSys.bgm(opts.music || "battle");
@@ -95,8 +101,10 @@ class BattleScene {
       if (this.introT > 0.7) { this.phase = "atb"; this.log = ""; }
       return;
     }
+    if (this.phase === "waitend") return;
 
-    if (this.phase === "exec") {
+    // アニメさいちゅうは 時間停止 (こうどうは 1つずつ)
+    if (this.anim) {
       const a = this.anim;
       a.t += dt;
       while (a.fired < a.events.length && a.events[a.fired].t <= a.t) {
@@ -104,37 +112,79 @@ class BattleScene {
       }
       if (a.t >= a.dur) {
         this.anim = null;
-        if (a.actor) a.actor.atb = 0;
         this.afterAction();
       }
       return;
     }
 
+    // ウェイトモード: サブメニューちゅうだけ 時間がとまる
+    const submenuPause = this.waitMode && this.phase === "command" &&
+      (this.menu === "spell" || this.menu === "item");
+
+    if (!submenuPause) {
+      // ATBゲージ (えいしょうちゅうは たまらない)
+      for (const p of this.aliveParty()) {
+        if (!p.casting) p.atb = Math.min(100, p.atb + (25 + p.h.agi * 3) * dt);
+      }
+      for (const e of this.aliveEnemies()) {
+        if (!e.casting) e.atb = Math.min(100, e.atb + (25 + e.def.agi * 3) * dt);
+      }
+
+      // えいしょう進行 → 完了で発動
+      for (const p of this.aliveParty()) {
+        if (p.casting && (p.casting.t += dt) >= p.casting.dur) {
+          const act = p.casting.act;
+          p.casting = null;
+          this.execSpell(p, act, false);
+          return;
+        }
+      }
+      for (const e of this.aliveEnemies()) {
+        if (e.casting && (e.casting.t += dt) >= e.casting.dur) {
+          const sp = e.casting.spell;
+          e.casting = null;
+          this.execEnemySpell(e, sp);
+          return;
+        }
+      }
+
+      // てきのターン (コマンド選択中でも おかまいなし)
+      const e = this.aliveEnemies().find((e) => e.atb >= 100 && !e.casting);
+      if (e) {
+        this.enemyAct(e);
+        if (this.anim) return;
+      }
+
+      // プレイヤーのターンまち
+      for (const p of this.aliveParty()) {
+        if (p.atb >= 100 && !p.casting && p !== this.ready && !this.readyQueue.includes(p)) {
+          this.readyQueue.push(p);
+        }
+      }
+    }
+
     if (this.phase === "command") {
+      if (!this.ready || this.ready.h.hp <= 0) {
+        this.ready = null;
+        this.phase = "atb";
+        return;
+      }
       this.updateCommand();
       return;
     }
 
-    if (this.phase === "atb") {
-      // ゲージじゅうてん (ウェイトモード: コマンド/アニメちゅうは とまる)
-      for (const p of this.aliveParty()) p.atb = Math.min(100, p.atb + (25 + p.h.agi * 3) * dt);
-      for (const e of this.aliveEnemies()) e.atb = Math.min(100, e.atb + (25 + e.def.agi * 3) * dt);
-
-      // てきのターン
-      const e = this.aliveEnemies().find((e) => e.atb >= 100);
-      if (e) { this.enemyAct(e); return; }
-
-      // プレイヤーのターン
-      const p = this.aliveParty().find((p) => p.atb >= 100);
-      if (p) {
-        this.ready = p;
-        p.defending = false;
-        if (this.poisonTick(p)) return;
-        this.phase = "command";
-        this.menu = "root";
-        this.sel = 0;
-        AudioSys.sfx("cursor");
-      }
+    // つぎのコマンドにゅうりょく者
+    while (this.readyQueue.length) {
+      const p = this.readyQueue.shift();
+      if (p.h.hp <= 0) continue;
+      this.ready = p;
+      p.defending = false;
+      if (this.poisonTick(p)) { this.ready = null; return; }
+      this.phase = "command";
+      this.menu = "root";
+      this.sel = 0;
+      AudioSys.sfx("cursor");
+      return;
     }
   }
 
@@ -147,6 +197,7 @@ class BattleScene {
     this.pop(pos.x, pos.y, d, 2);
     if (p.h.hp <= 0) {
       p.atb = 0;
+      p.casting = null;
       this.log = `${p.h.name}は どくに たおれた…`;
       AudioSys.sfx("dead");
       this.checkEnd();
@@ -234,6 +285,7 @@ class BattleScene {
 
     if (this.menu === "targetE") {
       const es = this.aliveEnemies();
+      if (es.length === 0) { this.menu = "root"; return; }
       if (Input.tap("up") || Input.tap("left")) { this.targetSel = (this.targetSel + es.length - 1) % es.length; AudioSys.sfx("cursor"); }
       if (Input.tap("down") || Input.tap("right")) { this.targetSel = (this.targetSel + 1) % es.length; AudioSys.sfx("cursor"); }
       if (Input.tap("b")) { AudioSys.sfx("cancel"); this.menu = this.pendingAct.type === "spell" ? "spell" : "root"; return; }
@@ -258,24 +310,49 @@ class BattleScene {
     }
   }
 
+  // てきに あたえるダメージを イベントれつに つむ
+  queueHitEnemy(events, target, dmg, sfx = "hit") {
+    events.push({ t: 0.4, fn: () => {
+      if (target.dead) { this.log += "  しかし てきは いない!"; return; }
+      target.hp = Math.max(0, target.hp - dmg);
+      target.flash = 0.25;
+      AudioSys.sfx(sfx);
+      const pos = this.enemyPos(this.enemies.indexOf(target));
+      this.pop(pos.x + pos.size / 2, pos.y, dmg);
+      // しれんボス: きずは ふさがる
+      if (target.def.trial && target.hp < target.maxhp) {
+        target.hp = target.maxhp;
+        this.log = "『やみは ちからでは はらえぬ……』\nかげの きずが ふさがっていく!";
+      }
+    } });
+  }
+
   // ---------------- プレイヤーのこうどう ----------------
   doPlayerAction(act) {
     const p = this.ready;
     const h = p.h;
+    p.atb = 0;
+
+    // えいしょうが ひつような じゅもん
+    if (act.type === "spell") {
+      const sp = act.spell.def;
+      if ((sp.cast || 0) > 0) {
+        h.mp -= sp.mp;
+        p.casting = { act, t: 0, dur: sp.cast };
+        this.log = `${h.name}は ${sp.name}の えいしょうを はじめた`;
+        AudioSys.sfx("cursor");
+        this.ready = null;
+        this.phase = "atb";
+        return;
+      }
+      this.execSpell(p, act, true);
+      this.ready = null;
+      this.phase = "atb";
+      return;
+    }
+
     const events = [];
     let dur = 1.0;
-
-    const hitEnemy = (target, dmg, sfx = "hit") => {
-      events.push({ t: 0.4, fn: () => {
-        if (target.dead) { this.log += "  しかし てきは いない!"; return; }
-        target.hp = Math.max(0, target.hp - dmg);
-        target.flash = 0.25;
-        AudioSys.sfx(sfx);
-        const pos = this.enemyPos(this.enemies.indexOf(target));
-        this.pop(pos.x + pos.size / 2, pos.y, dmg);
-        this.afterDamageEnemy(target, events);
-      } });
-    };
 
     if (act.type === "fight") {
       const t = act.target;
@@ -291,7 +368,7 @@ class BattleScene {
         let dmg = this.physDmg(G.atkOf(h), t.def.def);
         dmg = Math.round(dmg * this.elemMod(t.def, wdef.elem) * (crit ? 2 : 1));
         if (crit) events.push({ t: 0.35, fn: () => { this.log = "かいしんの いちげき!!"; } });
-        hitEnemy(t, dmg, crit ? "crit" : "hit");
+        this.queueHitEnemy(events, t, dmg, crit ? "crit" : "hit");
       }
     }
     else if (act.type === "dark") {
@@ -303,7 +380,7 @@ class BattleScene {
       } });
       this.aliveEnemies().forEach((e) => {
         const dmg = Math.round(this.physDmg(Math.round(G.atkOf(h) * 1.5), e.def.def));
-        hitEnemy(e, dmg);
+        this.queueHitEnemy(events, e, dmg);
       });
       dur = 1.2;
     }
@@ -315,7 +392,7 @@ class BattleScene {
         AudioSys.sfx("magic");
       } });
       const dmg = Math.round(this.physDmg(Math.round(G.atkOf(h) * 1.6), t.def.def) * this.elemMod(t.def, "holy"));
-      hitEnemy(t, dmg);
+      this.queueHitEnemy(events, t, dmg);
     }
     else if (act.type === "guard") {
       p.defending = true;
@@ -336,44 +413,6 @@ class BattleScene {
         } else {
           events.push({ t: 0, fn: () => { this.log = "にげられなかった!"; AudioSys.sfx("buzz"); } });
         }
-      }
-    }
-    else if (act.type === "spell") {
-      const sp = act.spell.def;
-      events.push({ t: 0, fn: () => {
-        this.log = `${h.name}は ${sp.name}を となえた!`;
-        h.mp -= sp.mp;
-        AudioSys.sfx(sp.type === "dmg" ? "magic" : "heal");
-      } });
-      if (sp.type === "dmg") {
-        const targets = sp.all ? this.aliveEnemies() : [act.target];
-        targets.forEach((e) => {
-          const dmg = Math.round(sp.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1) * this.elemMod(e.def, sp.elem));
-          hitEnemy(e, dmg, "magic");
-        });
-      } else {
-        const t = act.targetP;
-        events.push({ t: 0.45, fn: () => {
-          if (sp.type === "heal") {
-            if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
-            const v = G.calcHeal(h, sp);
-            t.h.hp = Math.min(t.h.maxhp, t.h.hp + v);
-            const pos = this.partyPos(this.party.indexOf(t));
-            this.pop(pos.x, pos.y, v, 3);
-          } else if (sp.type === "revive") {
-            if (t.h.hp > 0) { this.log = "しかし きかなかった!"; return; }
-            t.h.hp = Math.max(1, Math.floor(t.h.maxhp * sp.pow));
-            this.log = `${t.h.name}は いきかえった!`;
-          } else if (sp.type === "cure") {
-            if (t.h.hp <= 0 || !t.h.poison) { this.log = "しかし きかなかった!"; return; }
-            t.h.poison = false;
-            this.log = `${t.h.name}の どくが きえた!`;
-          } else if (sp.type === "buff") {
-            if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
-            t.protect = true;
-            this.log = `${t.h.name}の ぼうぎょが あがった!`;
-          }
-        } });
       }
     }
     else if (act.type === "item") {
@@ -410,97 +449,170 @@ class BattleScene {
       } });
     }
 
-    this.startAnim(events, dur, p);
+    this.startAnim(events, dur);
+    this.ready = null;
+    this.phase = "atb";
   }
 
-  // てきに ダメージをあたえたあとの しょり (しれんボスなど)
-  afterDamageEnemy(target, events) {
-    if (target.def.trial && target.hp < target.maxhp) {
-      target.hp = target.maxhp;
-      this.log = "『やみは ちからでは はらえぬ……』\nかげの きずが ふさがっていく!";
+  // じゅもんの発動 (えいしょう完了 or 即時)。payMp=true なら ここでMPをはらう
+  execSpell(p, act, payMp) {
+    const h = p.h;
+    const sp = act.spell.def;
+    const events = [];
+
+    events.push({ t: 0, fn: () => {
+      this.log = `${h.name}は ${sp.name}を となえた!`;
+      if (payMp) h.mp -= sp.mp;
+      AudioSys.sfx(sp.type === "dmg" ? "magic" : "heal");
+    } });
+
+    if (sp.type === "dmg") {
+      // 発動時点で ターゲットが たおれていたら 生きているてきに うちなおす
+      let targets;
+      if (sp.all) targets = this.aliveEnemies();
+      else {
+        let t = act.target;
+        if (!t || t.dead) t = this.aliveEnemies()[0];
+        targets = t ? [t] : [];
+      }
+      if (targets.length === 0) {
+        events.push({ t: 0.4, fn: () => { this.log = "しかし てきは いなかった!"; } });
+      }
+      targets.forEach((e) => {
+        const dmg = Math.round(sp.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1) * this.elemMod(e.def, sp.elem));
+        this.queueHitEnemy(events, e, dmg, "magic");
+      });
+    } else {
+      const t = act.targetP;
+      events.push({ t: 0.45, fn: () => {
+        if (sp.type === "heal") {
+          if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
+          const v = G.calcHeal(h, sp);
+          t.h.hp = Math.min(t.h.maxhp, t.h.hp + v);
+          const pos = this.partyPos(this.party.indexOf(t));
+          this.pop(pos.x, pos.y, v, 3);
+        } else if (sp.type === "revive") {
+          if (t.h.hp > 0) { this.log = "しかし きかなかった!"; return; }
+          t.h.hp = Math.max(1, Math.floor(t.h.maxhp * sp.pow));
+          this.log = `${t.h.name}は いきかえった!`;
+        } else if (sp.type === "cure") {
+          if (t.h.hp <= 0 || !t.h.poison) { this.log = "しかし きかなかった!"; return; }
+          t.h.poison = false;
+          this.log = `${t.h.name}の どくが きえた!`;
+        } else if (sp.type === "buff") {
+          if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
+          t.protect = true;
+          this.log = `${t.h.name}の ぼうぎょが あがった!`;
+        }
+      } });
     }
+
+    this.startAnim(events, 1.0);
   }
 
   // ---------------- てきのこうどう ----------------
   enemyAct(e) {
-    const events = [];
-    const dur = 1.0;
-
-    // どく/フェーズしょり
     const targets = this.aliveParty();
     if (targets.length === 0) return;
+    e.atb = 0;
 
     // しれんボス: 6かい こうどうしたら しずまる
     if (e.def.trial) this.shadowActs++;
 
-    let action = { type: "attack" };
+    let spell = null;
     for (const a of (e.def.acts || [])) {
-      if (Math.random() < a.rate) { action = { type: "spell", spell: DATA.spells[a.spell] }; break; }
+      if (Math.random() < a.rate) { spell = DATA.spells[a.spell]; break; }
     }
 
-    if (action.type === "spell") {
-      const sp = action.spell;
-      events.push({ t: 0, fn: () => {
-        this.log = `${e.name}は ${sp.name}を となえた!`;
-        AudioSys.sfx("magic");
-      } });
-      const victims = sp.all ? targets : [targets[Math.floor(Math.random() * targets.length)]];
-      victims.forEach((p) => {
-        events.push({ t: 0.45, fn: () => {
-          if (p.h.hp <= 0) return;
-          let dmg = Math.round(sp.pow * (1 + (e.def.int || 8) / 16) * rnd(0.9, 1.1));
-          if (p.defending) dmg = Math.round(dmg * 0.5);
-          if (p.protect) dmg = Math.round(dmg * 0.7);
-          dmg = Math.max(1, dmg);
-          p.h.hp = Math.max(0, p.h.hp - dmg);
-          p.flash = 0.25;
-          const pos = this.partyPos(this.party.indexOf(p));
-          this.pop(pos.x, pos.y, dmg, 2);
-          AudioSys.sfx("hit");
-          if (p.h.hp <= 0) { p.atb = 0; this.log = `${p.h.name}は たおれた!`; AudioSys.sfx("dead"); }
-        } });
-      });
-    } else {
-      const p = targets[Math.floor(Math.random() * targets.length)];
-      events.push({ t: 0, fn: () => { this.log = `${e.name}の こうげき!`; } });
+    if (spell) {
+      if ((spell.cast || 0) > 0) {
+        e.casting = { spell, t: 0, dur: spell.cast };
+        this.log = `${e.name}は じゅもんを えいしょうしている……!`;
+        return;
+      }
+      this.execEnemySpell(e, spell);
+      return;
+    }
+
+    // ぶつりこうげき
+    const events = [];
+    const p = targets[Math.floor(Math.random() * targets.length)];
+    events.push({ t: 0, fn: () => { this.log = `${e.name}の こうげき!`; } });
+    events.push({ t: 0.45, fn: () => {
+      if (p.h.hp <= 0) return;
+      let dmg = this.physDmg(e.def.atk, G.defOf(p.h));
+      if (p.defending) dmg = Math.round(dmg * 0.5);
+      if (p.protect) dmg = Math.round(dmg * 0.6);
+      dmg = Math.max(1, dmg);
+      p.h.hp = Math.max(0, p.h.hp - dmg);
+      p.flash = 0.25;
+      const pos = this.partyPos(this.party.indexOf(p));
+      this.pop(pos.x, pos.y, dmg, 2);
+      AudioSys.sfx("hit");
+      if (e.def.poison && Math.random() < e.def.poison && p.h.hp > 0 && !p.h.poison) {
+        p.h.poison = true;
+        this.log = `${p.h.name}は どくを うけた!`;
+      }
+      if (p.h.hp <= 0) {
+        p.atb = 0; p.casting = null;
+        this.log = `${p.h.name}は たおれた!`;
+        AudioSys.sfx("dead");
+      }
+    } });
+    this.startAnim(events, 1.0);
+  }
+
+  execEnemySpell(e, sp) {
+    const targets = this.aliveParty();
+    if (targets.length === 0) return;
+    const events = [];
+    events.push({ t: 0, fn: () => {
+      this.log = `${e.name}は ${sp.name}を となえた!`;
+      AudioSys.sfx("magic");
+    } });
+    const victims = sp.all ? targets : [targets[Math.floor(Math.random() * targets.length)]];
+    victims.forEach((p) => {
       events.push({ t: 0.45, fn: () => {
         if (p.h.hp <= 0) return;
-        let dmg = this.physDmg(e.def.atk, G.defOf(p.h));
+        let dmg = Math.round(sp.pow * (1 + (e.def.int || 8) / 16) * rnd(0.9, 1.1));
         if (p.defending) dmg = Math.round(dmg * 0.5);
-        if (p.protect) dmg = Math.round(dmg * 0.6);
+        if (p.protect) dmg = Math.round(dmg * 0.7);
         dmg = Math.max(1, dmg);
         p.h.hp = Math.max(0, p.h.hp - dmg);
         p.flash = 0.25;
         const pos = this.partyPos(this.party.indexOf(p));
         this.pop(pos.x, pos.y, dmg, 2);
         AudioSys.sfx("hit");
-        if (e.def.poison && Math.random() < e.def.poison && p.h.hp > 0 && !p.h.poison) {
-          p.h.poison = true;
-          this.log = `${p.h.name}は どくを うけた!`;
+        if (p.h.hp <= 0) {
+          p.atb = 0; p.casting = null;
+          this.log = `${p.h.name}は たおれた!`;
+          AudioSys.sfx("dead");
         }
-        if (p.h.hp <= 0) { p.atb = 0; this.log = `${p.h.name}は たおれた!`; AudioSys.sfx("dead"); }
       } });
-    }
-
-    this.startAnim(events, dur, e);
+    });
+    this.startAnim(events, 1.0);
   }
 
-  startAnim(events, dur, actor) {
+  startAnim(events, dur) {
     events.sort((a, b) => a.t - b.t);
-    this.anim = { events, dur, t: 0, fired: 0, actor };
-    this.phase = "exec";
+    this.anim = { events, dur, t: 0, fired: 0 };
   }
 
   // ---------------- こうどうごの しょり ----------------
   afterAction() {
-    this.ready = null;
-
     // てきの しぼう
     for (const e of this.enemies) {
       if (!e.dead && e.hp <= 0) {
         e.dead = true;
+        e.casting = null;
         AudioSys.sfx("dead");
       }
+    }
+
+    // コマンド中のキャラが たおされたら メニューをとじる
+    if (this.ready && this.ready.h.hp <= 0) {
+      this.ready = null;
+      if (this.phase === "command") this.phase = "atb";
     }
 
     if (this.fleeing) {
@@ -543,7 +655,7 @@ class BattleScene {
         () => {
           phaser.id = nid; phaser.def = ndef; phaser.name = ndef.name;
           phaser.hp = ndef.hp; phaser.maxhp = ndef.hp;
-          phaser.dead = false; phaser.atb = 80;
+          phaser.dead = false; phaser.atb = 80; phaser.casting = null;
           AudioSys.sfx("encounter");
           this.phase = "atb";
         }
@@ -564,11 +676,9 @@ class BattleScene {
       this.phase = "waitend";
       return;
     }
-    if (this.aliveEnemies().length === 0) {
+    if (this.aliveEnemies().length === 0 && this.phase !== "waitend") {
       this.win();
-      return;
     }
-    if (this.phase !== "waitend") this.phase = "atb";
   }
 
   win() {
@@ -594,7 +704,6 @@ class BattleScene {
 
   // ---------------- びょうが ----------------
   draw() {
-    // はいけい
     Gfx.clear(0);
     const c = Gfx.ctx;
     c.fillStyle = PAL[1];
@@ -609,6 +718,12 @@ class BattleScene {
       const pos = this.enemyPos(i);
       const variant = e.flash > 0 ? "flash" : (e.def.pal || undefined);
       Gfx.draw(e.def.spr, pos.x, pos.y, { scale: pos.scale, variant });
+      // えいしょうちゅうの しるし
+      if (e.casting) {
+        const n = 1 + Math.floor(performance.now() / 250) % 3;
+        c.fillStyle = PAL[3];
+        for (let k = 0; k < n; k++) c.fillRect(pos.x + pos.size / 2 - 8 + k * 7, pos.y - 8, 4, 4);
+      }
     });
 
     // パーティ
@@ -620,6 +735,11 @@ class BattleScene {
       Gfx.draw(spr, pos.x, pos.y, { scale: 2, variant });
       if (this.phase === "command" && this.ready === p) {
         Gfx.cursor(pos.x - 10, pos.y + 12);
+      }
+      if (p.casting) {
+        const n = 1 + Math.floor(performance.now() / 250) % 3;
+        c.fillStyle = PAL[3];
+        for (let k = 0; k < n; k++) c.fillRect(pos.x + 8 + k * 7, pos.y - 8, 4, 4);
       }
     });
 
@@ -659,7 +779,12 @@ class BattleScene {
       Gfx.textR(`${p.h.hp}`, 218, y, dead ? 2 : 3, 11);
       Gfx.text(`/${p.h.maxhp}`, 220, y, 3, 9);
       if (p.h.poison) Gfx.text("どく", 114, y + 12, 2, 8);
-      Gfx.bar(258, y + 4, 48, 5, p.atb / 100);
+      if (p.casting) {
+        Gfx.bar(258, y + 4, 48, 5, p.casting.t / p.casting.dur, 2);
+        Gfx.text("えいしょう", 258, y + 11, 2, 8);
+      } else {
+        Gfx.bar(258, y + 4, 48, 5, p.atb / 100);
+      }
       if (this.phase === "command" && this.ready === p) Gfx.cursor(106, y + 2, 3);
     });
   }
@@ -697,6 +822,7 @@ class BattleScene {
     }
     else if (this.menu === "targetE") {
       const es = this.aliveEnemies();
+      if (es.length === 0) return;
       const t = es[Math.min(this.targetSel, es.length - 1)];
       const i = this.enemies.indexOf(t);
       const pos = this.enemyPos(i);

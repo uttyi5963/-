@@ -59,7 +59,7 @@ class MenuScene {
     this.scroll = 0;
     this.target = 0;
     this.picked = null;
-    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "セーブ"];
+    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "せってい", "セーブ"];
   }
 
   update() {
@@ -91,6 +91,16 @@ class MenuScene {
       else if (cmd === "じゅもん") { this.state = "heroPick"; this.mode = "spell"; this.sub = 0; }
       else if (cmd === "どうぐ") { this.state = "item"; this.sub = 0; this.scroll = 0; }
       else if (cmd === "そうび") { this.state = "heroPick"; this.mode = "equip"; this.sub = 0; }
+      else if (cmd === "せってい") {
+        if (!G.state.config) G.state.config = { atbWait: true };
+        G.state.config.atbWait = G.state.config.atbWait === false;
+        const mode = G.state.config.atbWait ? "ウェイト" : "アクティブ";
+        G.push(new MessageScene(
+          `ATBモード: ${mode}\n` +
+          (G.state.config.atbWait
+            ? "(じゅもん/どうぐ えらびちゅうは\n じかんが とまります)"
+            : "(メニューちゅうも てきは うごきます!)")));
+      }
       else if (cmd === "セーブ") {
         if (G.save()) G.push(new MessageScene("ぼうけんのきろくを セーブした!"));
         else G.push(new MessageScene("セーブに しっぱいした……"));
@@ -242,16 +252,16 @@ class MenuScene {
     });
 
     // コマンド (みぎうえ)
-    Gfx.window(204, 4, 112, 108);
+    Gfx.window(204, 4, 112, 128);
     this.commands.forEach((c, i) => {
       Gfx.text(c, 226, 14 + i * 19);
     });
     if (this.state === "main") Gfx.cursor(212, 17 + this.sel * 19);
 
     // しょじきん (みぎした)
-    Gfx.window(204, 116, 112, 46);
-    Gfx.textR(`${G.state.gold} ギル`, 306, 126);
-    Gfx.text(DATA.maps[G.state.map].name, 212, 143, 3, 10);
+    Gfx.window(204, 136, 112, 46);
+    Gfx.textR(`${G.state.gold} ギル`, 306, 146);
+    Gfx.text(DATA.maps[G.state.map].name, 212, 163, 3, 10);
 
     if (this.state === "item") this.drawItemList();
     if (this.state === "spellList") this.drawSpellList();
