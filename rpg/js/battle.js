@@ -365,9 +365,11 @@ class BattleScene {
             t.h.hp = Math.max(1, Math.floor(t.h.maxhp * sp.pow));
             this.log = `${t.h.name}は いきかえった!`;
           } else if (sp.type === "cure") {
+            if (t.h.hp <= 0 || !t.h.poison) { this.log = "しかし きかなかった!"; return; }
             t.h.poison = false;
             this.log = `${t.h.name}の どくが きえた!`;
           } else if (sp.type === "buff") {
+            if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
             t.protect = true;
             this.log = `${t.h.name}の ぼうぎょが あがった!`;
           }
@@ -455,7 +457,7 @@ class BattleScene {
           const pos = this.partyPos(this.party.indexOf(p));
           this.pop(pos.x, pos.y, dmg, 2);
           AudioSys.sfx("hit");
-          if (p.h.hp <= 0) { this.log = `${p.h.name}は たおれた!`; AudioSys.sfx("dead"); }
+          if (p.h.hp <= 0) { p.atb = 0; this.log = `${p.h.name}は たおれた!`; AudioSys.sfx("dead"); }
         } });
       });
     } else {
@@ -476,7 +478,7 @@ class BattleScene {
           p.h.poison = true;
           this.log = `${p.h.name}は どくを うけた!`;
         }
-        if (p.h.hp <= 0) { this.log = `${p.h.name}は たおれた!`; AudioSys.sfx("dead"); }
+        if (p.h.hp <= 0) { p.atb = 0; this.log = `${p.h.name}は たおれた!`; AudioSys.sfx("dead"); }
       } });
     }
 
@@ -504,6 +506,12 @@ class BattleScene {
     if (this.fleeing) {
       this.restoreBgm();
       G.pop();
+      return;
+    }
+
+    // ぜんめつは しれんクリアや フェーズ2より ゆうせんで はんてい
+    if (this.aliveParty().length === 0) {
+      this.checkEnd();
       return;
     }
 

@@ -380,6 +380,9 @@ const G = {
     h.spr = DATA.paladin.spr;
     h.special = DATA.paladin.special;
     this.applyStats(h);
+    // それまでの そうびは もちものへ もどす
+    if (h.weapon) this.addItem(h.weapon);
+    if (h.armor) this.addItem(h.armor);
     h.weapon = "w_light";
     h.armor = "a_light";
     h.hp = h.maxhp; h.mp = h.maxmp;

@@ -400,7 +400,8 @@ class ShopScene {
         G.state.gold += gain;
         AudioSys.sfx("chest");
         this.notice = `${it.def.name}を ${gain}ギルで かいとったよ`;
-        if (this.sub >= items.length - 1) this.sub = Math.max(0, items.length - 2);
+        const after = itemList().filter((x) => x.def.price > 0);
+        if (this.sub >= after.length) this.sub = Math.max(0, after.length - 1);
       }
     }
   }

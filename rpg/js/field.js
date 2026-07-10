@@ -20,9 +20,17 @@ class FieldScene {
     const m = this.map;
     this.moving = null;
     this.nameTimer = 2.2;
-    this.npcs = (m.npcs || []).map((n) => ({
-      def: n, x: n.x, y: n.y, t: 0, wt: Math.random() * 3 + 1, moving: null,
-    }));
+    this.npcs = (m.npcs || []).map((n) => {
+      let { x, y } = n;
+      // セーブちてんが NPCのホームだったばあいは となりに よける
+      if (x === G.state.x && y === G.state.y) {
+        for (const [dx, dy] of Object.values(DIRS)) {
+          const t = m.legend[(m.rows[y + dy] || "")[x + dx]];
+          if (t && !t.solid) { x += dx; y += dy; break; }
+        }
+      }
+      return { def: n, x, y, t: 0, wt: Math.random() * 3 + 1, moving: null };
+    });
     if (m.bgm) AudioSys.bgm(m.bgm);
   }
 
@@ -233,6 +241,9 @@ class FieldScene {
         if (Math.abs(tx - home.x) > 2 || Math.abs(ty - home.y) > 2) continue;
         if (this.solidAt(tx, ty)) continue;
         if (tx === G.state.x && ty === G.state.y) continue;
+        // プレイヤーの いどうさきタイルにも はいらない
+        if (this.moving &&
+            tx === G.state.x + this.moving.dx && ty === G.state.y + this.moving.dy) continue;
         if (this.npcAt(tx, ty)) continue;
         if (this.eventAt(tx, ty)) continue;
         if (this.chestAt(tx, ty)) continue;

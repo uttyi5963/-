@@ -201,7 +201,7 @@ DATA.maps.world = {
   ],
   zones: [
     { x: 2, y: 6, w: 14, h: 3, table: "north" },
-    { x: 20, y: 6, w: 6, h: 3, table: "north" },
+    { x: 19, y: 6, w: 7, h: 3, table: "north" },
     { x: 2, y: 9, w: 14, h: 24, table: "plains_w" },
     { x: 20, y: 9, w: 14, h: 24, table: "plains_e" },
   ],
