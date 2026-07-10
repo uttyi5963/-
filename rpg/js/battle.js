@@ -87,7 +87,12 @@ class BattleScene {
   }
 
   partyPos(i) {
-    return { x: 250, y: 26 + i * 50, size: 32 };
+    const n = this.party.length;
+    const gap = n <= 3 ? 50 : 34;
+    const y0 = n <= 3 ? 26 : 14;
+    const p = this.party[i];
+    const x = p && p.h.row === "back" ? 262 : 246;
+    return { x, y: y0 + i * gap, size: 32 };
   }
 
   // ---------------- こうしん ----------------
@@ -354,6 +359,9 @@ class BattleScene {
     const events = [];
     let dur = 1.0;
 
+    // 後列からの ぶつりこうげきは はんげん
+    const rowMul = h.row === "back" ? 0.5 : 1;
+
     if (act.type === "fight") {
       const t = act.target;
       events.push({ t: 0, fn: () => { this.log = `${h.name}の こうげき!`; } });
@@ -366,7 +374,7 @@ class BattleScene {
       } else {
         const crit = Math.random() < 1 / 16;
         let dmg = this.physDmg(G.atkOf(h), t.def.def);
-        dmg = Math.round(dmg * this.elemMod(t.def, wdef.elem) * (crit ? 2 : 1));
+        dmg = Math.max(1, Math.round(dmg * this.elemMod(t.def, wdef.elem) * (crit ? 2 : 1) * rowMul));
         if (crit) events.push({ t: 0.35, fn: () => { this.log = "かいしんの いちげき!!"; } });
         this.queueHitEnemy(events, t, dmg, crit ? "crit" : "hit");
       }
@@ -379,7 +387,7 @@ class BattleScene {
         AudioSys.sfx("dark");
       } });
       this.aliveEnemies().forEach((e) => {
-        const dmg = Math.round(this.physDmg(Math.round(G.atkOf(h) * 1.5), e.def.def));
+        const dmg = Math.max(1, Math.round(this.physDmg(Math.round(G.atkOf(h) * 1.5), e.def.def) * rowMul));
         this.queueHitEnemy(events, e, dmg);
       });
       dur = 1.2;
@@ -391,7 +399,7 @@ class BattleScene {
         h.mp -= 8;
         AudioSys.sfx("magic");
       } });
-      const dmg = Math.round(this.physDmg(Math.round(G.atkOf(h) * 1.6), t.def.def) * this.elemMod(t.def, "holy"));
+      const dmg = Math.max(1, Math.round(this.physDmg(Math.round(G.atkOf(h) * 1.6), t.def.def) * this.elemMod(t.def, "holy") * rowMul));
       this.queueHitEnemy(events, t, dmg);
     }
     else if (act.type === "guard") {
@@ -541,6 +549,7 @@ class BattleScene {
     events.push({ t: 0.45, fn: () => {
       if (p.h.hp <= 0) return;
       let dmg = this.physDmg(e.def.atk, G.defOf(p.h));
+      if (p.h.row === "back") dmg = Math.round(dmg * 0.5);
       if (p.defending) dmg = Math.round(dmg * 0.5);
       if (p.protect) dmg = Math.round(dmg * 0.6);
       dmg = Math.max(1, dmg);
@@ -772,16 +781,19 @@ class BattleScene {
 
     // パーティステータス (みぎした)
     Gfx.window(106, 196, 210, 88);
+    const compact = this.party.length > 3;
+    const rowH = compact ? 16 : 26;
+    const fs = compact ? 10 : 11;
     this.party.forEach((p, i) => {
-      const y = 203 + i * 26;
+      const y = (compact ? 201 : 203) + i * rowH;
       const dead = p.h.hp <= 0;
-      Gfx.text(p.h.name, 114, y, dead ? 2 : 3, 11);
-      Gfx.textR(`${p.h.hp}`, 218, y, dead ? 2 : 3, 11);
-      Gfx.text(`/${p.h.maxhp}`, 220, y, 3, 9);
-      if (p.h.poison) Gfx.text("どく", 114, y + 12, 2, 8);
+      Gfx.text(p.h.name, 114, y, dead ? 2 : 3, fs);
+      if (p.h.poison) Gfx.text("ど", 160, y, 2, 8);
+      Gfx.textR(`${p.h.hp}`, 218, y, dead ? 2 : 3, fs);
+      Gfx.text(`/${p.h.maxhp}`, 220, y, 3, compact ? 8 : 9);
       if (p.casting) {
         Gfx.bar(258, y + 4, 48, 5, p.casting.t / p.casting.dur, 2);
-        Gfx.text("えいしょう", 258, y + 11, 2, 8);
+        if (!compact) Gfx.text("えいしょう", 258, y + 11, 2, 8);
       } else {
         Gfx.bar(258, y + 4, 48, 5, p.atb / 100);
       }

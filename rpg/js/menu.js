@@ -59,7 +59,7 @@ class MenuScene {
     this.scroll = 0;
     this.target = 0;
     this.picked = null;
-    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "せってい", "セーブ"];
+    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "たいれつ", "せってい", "セーブ"];
   }
 
   update() {
@@ -91,6 +91,7 @@ class MenuScene {
       else if (cmd === "じゅもん") { this.state = "heroPick"; this.mode = "spell"; this.sub = 0; }
       else if (cmd === "どうぐ") { this.state = "item"; this.sub = 0; this.scroll = 0; }
       else if (cmd === "そうび") { this.state = "heroPick"; this.mode = "equip"; this.sub = 0; }
+      else if (cmd === "たいれつ") { this.state = "heroPick"; this.mode = "row"; this.sub = 0; }
       else if (cmd === "せってい") {
         if (!G.state.config) G.state.config = { atbWait: true };
         G.state.config.atbWait = G.state.config.atbWait === false;
@@ -117,6 +118,10 @@ class MenuScene {
       if (this.mode === "status") this.state = "status";
       else if (this.mode === "spell") { this.state = "spellList"; this.sel2 = 0; }
       else if (this.mode === "equip") { this.state = "equipSlot"; this.sel2 = 0; }
+      else if (this.mode === "row") {
+        // まえ/うしろ を きりかえて えらびなおしへ
+        this.picked.row = this.picked.row === "back" ? "front" : "back";
+      }
     }
   }
 
@@ -236,32 +241,35 @@ class MenuScene {
     if (this.state === "status") { this.drawStatus(); return; }
 
     // パーティいちらん (ひだり)
-    Gfx.window(4, 4, 196, 190);
+    const n = G.state.party.length;
+    Gfx.window(4, 4, 196, Math.min(268, n * 48 + 20));
     G.state.party.forEach((h, i) => {
-      const y = 14 + i * 60;
-      Gfx.draw(h.spr === "hero" || h.spr === "pal" ? h.spr + "_d" : h.spr, 14, y + 6);
-      Gfx.text(h.name, 36, y);
-      Gfx.text(`Lv${h.lv} ${h.cls}`, 96, y, 3, 10);
-      Gfx.text(`HP ${h.hp}/${h.maxhp}`, 36, y + 17, h.hp === 0 ? 2 : 3, 11);
-      Gfx.text(`MP ${h.mp}/${h.maxmp}`, 36, y + 32, 3, 11);
-      if (h.poison) Gfx.text("どく", 150, y + 17, 2, 11);
+      const y = 14 + i * 48;
+      const back = h.row === "back";
+      Gfx.draw(h.spr === "hero" || h.spr === "pal" ? h.spr + "_d" : h.spr, back ? 22 : 14, y + 8);
+      Gfx.text(h.name, 42, y);
+      Gfx.text(`Lv${h.lv} ${h.cls}`, 96, y, 3, 9);
+      Gfx.text(`HP${h.hp}/${h.maxhp}`, 42, y + 16, h.hp === 0 ? 2 : 3, 10);
+      Gfx.text(`MP${h.mp}/${h.maxmp}`, 122, y + 16, 3, 10);
+      Gfx.text(back ? "後" : "前", 180, y, 3, 9);
+      if (h.poison) Gfx.text("どく", 42, y + 29, 2, 9);
       if ((this.state === "heroPick" && this.sub === i) ||
           (this.state === "targetPick" && this.target === i)) {
-        Gfx.cursor(5, y + 18);
+        Gfx.cursor(5, y + 12);
       }
     });
 
     // コマンド (みぎうえ)
-    Gfx.window(204, 4, 112, 128);
+    Gfx.window(204, 4, 112, 146);
     this.commands.forEach((c, i) => {
       Gfx.text(c, 226, 14 + i * 19);
     });
     if (this.state === "main") Gfx.cursor(212, 17 + this.sel * 19);
 
     // しょじきん (みぎした)
-    Gfx.window(204, 136, 112, 46);
-    Gfx.textR(`${G.state.gold} ギル`, 306, 146);
-    Gfx.text(DATA.maps[G.state.map].name, 212, 163, 3, 10);
+    Gfx.window(204, 154, 112, 46);
+    Gfx.textR(`${G.state.gold} ギル`, 306, 164);
+    Gfx.text(DATA.maps[G.state.map].name, 212, 181, 3, 10);
 
     if (this.state === "item") this.drawItemList();
     if (this.state === "spellList") this.drawSpellList();

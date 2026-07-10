@@ -42,22 +42,27 @@ DATA.items = {
   w_staff:   { name: "ロッド",         kind: "weapon", price: 60,  atk: 3,  who: ["rod", "celia"] },
   w_wizstaff:{ name: "まどうのつえ",   kind: "weapon", price: 500, atk: 7, int: 3, who: ["rod"] },
   w_mace:    { name: "いやしのつえ",   kind: "weapon", price: 450, atk: 6, int: 2, who: ["celia"] },
+  w_spear:   { name: "やり",           kind: "weapon", price: 250, atk: 8,  who: ["glen"] },
+  w_lance:   { name: "ミスリルのやり", kind: "weapon", price: 850, atk: 15, who: ["glen"] },
+  w_claw:    { name: "てつのつめ",     kind: "weapon", price: 200, atk: 6,  who: ["gou"] },
+  w_ironclaw:{ name: "タイガークロー", kind: "weapon", price: 700, atk: 13, who: ["gou"] },
 
   a_dark:    { name: "あんこくのよろい", kind: "armor", price: 350, def: 6,  who: ["leon"], dark: true },
-  a_steel:   { name: "こうてつのよろい", kind: "armor", price: 400, def: 10, who: ["leon"] },
-  a_mythril: { name: "ミスリルメイル", kind: "armor", price: 950, def: 13, who: ["leon"] },
+  a_steel:   { name: "こうてつのよろい", kind: "armor", price: 400, def: 10, who: ["leon", "glen"] },
+  a_mythril: { name: "ミスリルメイル", kind: "armor", price: 950, def: 13, who: ["leon", "glen"] },
   a_light:   { name: "ひかりのよろい", kind: "armor", price: 0,   def: 16, who: ["leon"] },
-  a_cloth:   { name: "ぬののローブ",   kind: "armor", price: 50,  def: 2,  who: ["rod", "celia"] },
-  a_leather: { name: "かわのよろい",   kind: "armor", price: 200, def: 5,  who: ["leon", "rod", "celia"] },
+  a_cloth:   { name: "ぬののローブ",   kind: "armor", price: 50,  def: 2,  who: ["rod", "celia", "gou"] },
+  a_leather: { name: "かわのよろい",   kind: "armor", price: 200, def: 5,  who: ["leon", "glen", "gou", "rod", "celia"] },
   a_silk:    { name: "シルクのローブ", kind: "armor", price: 400, def: 7, int: 2, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
 };
 
 // ---------------- なかま ----------------
+// row: たいれつ。後列は 物理ダメージが 与/被 ともに はんぶん
 DATA.heroes = {
   leon: {
-    name: "レオン", cls: "あんこくきし", spr: "hero",
+    name: "レオン", cls: "あんこくきし", spr: "hero", row: "front",
     base:   { hp: 48, mp: 6, str: 10, agi: 7, vit: 9, int: 4 },
     growth: { hp: 11, mp: 2, str: 2, agi: 1, vit: 2, int: 1 },
     weapon: "w_dark", armor: "a_dark",
@@ -65,8 +70,24 @@ DATA.heroes = {
     spells: [],
     learn: {},
   },
+  glen: {
+    name: "グレン", cls: "りゅうきし", spr: "glen", row: "front",
+    base:   { hp: 42, mp: 4, str: 11, agi: 8, vit: 8, int: 3 },
+    growth: { hp: 10, mp: 1, str: 2, agi: 1, vit: 2, int: 1 },
+    weapon: "w_spear", armor: "a_leather",
+    spells: [],
+    learn: {},
+  },
+  gou: {
+    name: "ゴウ", cls: "モンク", spr: "gou", row: "front",
+    base:   { hp: 58, mp: 0, str: 12, agi: 9, vit: 11, int: 2 },
+    growth: { hp: 13, mp: 0, str: 2, agi: 1, vit: 3, int: 0 },
+    weapon: "w_claw", armor: "a_leather",
+    spells: [],
+    learn: {},
+  },
   celia: {
-    name: "セリア", cls: "しろまどうし", spr: "celia",
+    name: "セリア", cls: "しろまどうし", spr: "celia", row: "back",
     base:   { hp: 30, mp: 24, str: 5, agi: 8, vit: 6, int: 11 },
     growth: { hp: 7, mp: 5, str: 1, agi: 1, vit: 1, int: 2 },
     weapon: "w_staff", armor: "a_cloth",
@@ -74,7 +95,7 @@ DATA.heroes = {
     learn: { 4: "poisona", 6: "protect", 9: "cure2", 12: "raise" },
   },
   rod: {
-    name: "ロッド", cls: "くろまどうし", spr: "rod",
+    name: "ロッド", cls: "くろまどうし", spr: "rod", row: "back",
     base:   { hp: 27, mp: 22, str: 5, agi: 7, vit: 5, int: 13 },
     growth: { hp: 6, mp: 6, str: 1, agi: 1, vit: 1, int: 3 },
     weapon: "w_staff", armor: "a_cloth",
@@ -132,7 +153,7 @@ DATA.shops = {
   town: {
     name: "ミストのみせ",
     stock: ["potion", "hipotion", "ether", "antidote", "phoenix",
-            "w_steel", "w_mythril", "w_wizstaff", "w_mace",
+            "w_steel", "w_mythril", "w_lance", "w_ironclaw", "w_wizstaff", "w_mace",
             "a_steel", "a_leather", "a_silk"],
   },
 };
@@ -551,7 +572,16 @@ DATA.maps.shrine = {
         { flag: ["paladin", 1] },
       ] },
   ],
-  npcs: [],
+  npcs: [
+    { id: "gounpc", x: 7, y: 12, spr: "gou", hideFlag: "gouJoined",
+      script: [
+        { msg: "ゴウ「おれは ながれの モンク、ゴウ。\nこの ほこらの やみは\nただものじゃねえ ぜ」" },
+        { msg: "ゴウ「いどむ かおだな……。 きにいった!\nおれの こぶしも かしてやる!」" },
+        { join: "gou" },
+        { flag: ["gouJoined", 1] },
+        { msg: "モンクのゴウが なかまに くわわった!" },
+      ] },
+  ],
   chests: [
     { id: "shrine1", x: 1, y: 4, item: "hipotion" },
     { id: "shrine2", x: 12, y: 8, gold: 300 },
@@ -668,6 +698,9 @@ DATA.scripts = {
     { msg: "レオン「……なぜ クリスタルを?\nミストのむらは へいわな むらです」" },
     { msg: "バロンおう「たみを まもるためだ。\nゆけ! これは めいれいだ!!」" },
     { msg: "レオン(……おうは かわられた。\nだが きしである わたしに\nめいれいに そむくことは できぬ……)" },
+    { msg: "グレン「まて レオン! オレも いくぜ。\nしんゆうを ひとりで\nいかせられるかよ」" },
+    { join: "glen" },
+    { msg: "りゅうきしグレンが なかまに くわわった!" },
     { flag: ["intro", 1] },
   ],
   zarbaFight: [

@@ -314,6 +314,7 @@ const G = {
       weapon: d.weapon, armor: d.armor,
       special: d.special || null,
       spells: d.spells.slice(),
+      row: d.row || "front",
       poison: false, paladin: false,
     };
     this.applyStats(h);
@@ -437,6 +438,9 @@ const G = {
       const s = JSON.parse(localStorage.getItem(this.SAVE_KEY));
       if (!s || !s.party) return false;
       if (!s.config) s.config = { atbWait: true };
+      for (const h of s.party) {
+        if (!h.row) h.row = (DATA.heroes[h.id] && DATA.heroes[h.id].row) || "front";
+      }
       this.state = s;
       return true;
     } catch (e) { return false; }
@@ -548,8 +552,10 @@ function runScript(ops, onDone) {
         continue;
       }
       if (op.join) {
-        const lv = Math.max(G.state.party[0].lv, 2);
-        G.state.party.push(G.makeHero(op.join, lv));
+        if (!G.state.party.some((h) => h.id === op.join) && G.state.party.length < 5) {
+          const lv = Math.max(G.state.party[0].lv, 1);
+          G.state.party.push(G.makeHero(op.join, lv));
+        }
         AudioSys.sfx("levelup");
         continue;
       }
