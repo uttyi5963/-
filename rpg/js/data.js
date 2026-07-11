@@ -27,6 +27,8 @@ DATA.spells = {
   e_meteo: { name: "ダークメテオ", mp: 0, type: "dmg", pow: 48, cast: 3.2, elem: "none",  target: "enemy", all: true },
   e_toad:  { name: "カエルのうた", mp: 0, type: "status", status: "toad",    cast: 1.5, target: "enemy" },
   e_silence:{ name: "ちんもくのかぜ", mp: 0, type: "status", status: "silence", cast: 1.2, target: "enemy" },
+  e_ice:   { name: "ブリザド",     mp: 0, type: "dmg", pow: 20, cast: 1.2, elem: "ice", target: "enemy" },
+  e_breath:{ name: "こおりのブレス", mp: 0, type: "dmg", pow: 30, cast: 2.5, elem: "ice", target: "enemy", all: true },
 };
 
 // じょうたいいじょう
@@ -56,8 +58,10 @@ DATA.items = {
   w_staff:   { name: "ロッド",         kind: "weapon", price: 60,  atk: 3,  who: ["rod", "celia"] },
   w_wizstaff:{ name: "まどうのつえ",   kind: "weapon", price: 500, atk: 7, int: 3, who: ["rod"] },
   w_mace:    { name: "いやしのつえ",   kind: "weapon", price: 450, atk: 6, int: 2, who: ["celia"] },
+  w_flame:   { name: "フレイムソード", kind: "weapon", price: 1200, atk: 19, who: ["leon"], elem: "fire" },
   w_spear:   { name: "やり",           kind: "weapon", price: 250, atk: 8,  who: ["glen"] },
   w_lance:   { name: "ミスリルのやり", kind: "weapon", price: 850, atk: 15, who: ["glen"] },
+  w_dragonlance: { name: "りゅうのやり", kind: "weapon", price: 1500, atk: 17, who: ["glen"], slay: ["dragon"] },
   w_claw:    { name: "てつのつめ",     kind: "weapon", price: 200, atk: 6,  who: ["gou"] },
   w_ironclaw:{ name: "タイガークロー", kind: "weapon", price: 700, atk: 13, who: ["gou"] },
 
@@ -68,6 +72,7 @@ DATA.items = {
   a_cloth:   { name: "ぬののローブ",   kind: "armor", price: 50,  def: 2,  who: ["rod", "celia", "gou"] },
   a_leather: { name: "かわのよろい",   kind: "armor", price: 200, def: 5,  who: ["leon", "glen", "gou", "rod", "celia"] },
   a_silk:    { name: "シルクのローブ", kind: "armor", price: 400, def: 7, int: 2, who: ["rod", "celia"] },
+  a_ice:     { name: "こおりのローブ", kind: "armor", price: 900, def: 9, int: 2, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
 };
@@ -153,6 +158,22 @@ DATA.monsters = {
   ddemon:   { name: "ダークデーモン", spr: "demon",  hp: 66, atk: 22, def: 8,  agi: 10, exp: 62, gold: 55,
     race: "demon", weak: ["holy"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
 
+  // ---- こおりのどうくつ ----
+  icegoblin: { name: "アイスゴブリン", spr: "goblin", pal: "light", hp: 30, atk: 14, def: 4, agi: 7, exp: 22, gold: 20,
+    weak: ["fire"] },
+  icebat:    { name: "ブリザドバット", spr: "bat", pal: "light", hp: 24, atk: 13, def: 2, agi: 12, exp: 18, gold: 15,
+    weak: ["fire"], inflict: { status: "blind", rate: 0.25 } },
+  frostwiz:  { name: "こおりのまどうし", spr: "wizard", pal: "light", hp: 40, atk: 12, def: 5, agi: 9, exp: 34, gold: 40,
+    weak: ["fire"], resist: ["ice"], acts: [{ spell: "e_ice", rate: 0.4 }, { spell: "e_silence", rate: 0.2 }] },
+  frostgar:  { name: "フロストガーゴイル", spr: "gargoyle", pal: "light", hp: 70, atk: 24, def: 9, agi: 11, exp: 55, gold: 50,
+    weak: ["fire"] },
+  babydragon:{ name: "ベビードラゴン", spr: "dragon", hp: 90, atk: 26, def: 10, agi: 8, exp: 85, gold: 80,
+    race: "dragon", resist: ["ice"], acts: [{ spell: "e_ice", rate: 0.25 }] },
+  frostdragon: { name: "フロストドラゴン", spr: "dragon", pal: "light", boss: true, scale: 3,
+    hp: 340, atk: 28, def: 12, agi: 10, exp: 300, gold: 500,
+    race: "dragon", absorb: ["ice"],
+    acts: [{ spell: "e_breath", rate: 0.3 }, { spell: "e_ice", rate: 0.2 }] },
+
   // ボスは 8ばい弱点で とけないよう たいせい/きゅうしゅう ちゅうしん。
   // れいがい: ザルバ しんのすがた だけ せい属性が じゃくてん (せいけんが きめて)
   demonguard: { name: "デーモンガード", spr: "demon", boss: true, scale: 3,
@@ -179,6 +200,7 @@ DATA.encounters = {
   cave:     { rate: 1 / 13, groups: [["bat", "bat"], ["skeleton"], ["toad", "toad", "bat"], ["skeleton", "bat", "bat"]] },
   shrine:   { rate: 1 / 13, groups: [["skeleton", "skeleton"], ["gargoyle", "wizard"], ["gargoyle", "gargoyle"]] },
   tower:    { rate: 1 / 12, groups: [["ddemon"], ["golem"], ["gargoyle", "gargoyle", "wizard"], ["ddemon", "wizard"]] },
+  icecave:  { rate: 1 / 13, groups: [["icegoblin", "icegoblin"], ["icebat", "icebat", "icegoblin"], ["frostwiz", "icebat"], ["frostgar"], ["babydragon"], ["frostwiz", "frostwiz"]] },
 };
 
 // ---------------- ショップ ----------------
@@ -213,6 +235,7 @@ DATA.maps.world = {
     "C": { tile: "icon_castle" },
     "T": { tile: "icon_town" },
     "c": { tile: "icon_cave" },
+    "I": { tile: "icon_cave" },
     "M": { tile: "icon_shrine" },
     "X": { tile: "icon_tower" },
   },
@@ -224,7 +247,7 @@ DATA.maps.world = {
     "wwm.....M.....mwwwwwwwwwww..X..wwwwwwwww",
     "wwmmmmmm.mmmmmmwwwwwwwwwww.....wwwwwwwww",
     "wwffffff.ffffffmmmmffffffwwwwbwwwwwwwwww",
-    "wwffffff.ffffffmmmmffffffwwwwbwwwwwwwwww",
+    "wwffffff.ffffffmmmmffIfffwwwwbwwwwwwwwww",
     "wwffffff.ffffffmmmmffffffwwwwbwwwwwwwwww",
     "ww..............mmmm..........wwwwwwwwww",
     "ww.....f........mmmm....ff........wwwwww",
@@ -273,6 +296,7 @@ DATA.maps.world = {
       cond: { flag: "paladin" },
       failScript: [{ msg: "とうは くろい けっかいに\nつつまれている……!" }],
       warp: { map: "tower1", x: 6, y: 10, dir: "u" } },
+    { x: 21, y: 7, type: "enter", warp: { map: "icecave", x: 1, y: 12, dir: "u" } },
   ],
   npcs: [],
   chests: [],
@@ -380,6 +404,24 @@ DATA.maps.town = {
     { id: "vil2", x: 14, y: 12, spr: "villager", wander: true,
       script: [
         { msg: "むらびと「きたのほこらには\n『こころのかがみ』が あるそうじゃ。\nみたものの こころを うつすとか」" },
+      ] },
+    { id: "hunter", x: 16, y: 11, spr: "villager",
+      script: [
+        { cond: { flag: "iceReward" },
+          then: [{ msg: "ハンター「あんたら まじで つええなあ。\nまた しごとが あったら たのむぜ」" }],
+          else: [
+            { cond: { flag: "iceBoss" },
+              then: [
+                { msg: "ハンター「な なんと! ほんとうに\nりゅうを たおしちまったのか!!\nやくそくの ほうびだ、うけとりな!」" },
+                { give: { gold: 1000 } },
+                { msg: "1000ギルを てにいれた!" },
+                { flag: ["iceReward", 1] },
+              ],
+              else: [
+                { msg: "ハンター「きたのもりの どうくつに\nりゅうが すみついちまった。\nたおせば 1000ギル はらうぜ」" },
+                { flag: ["iceQuest", 1] },
+              ] },
+          ] },
       ] },
   ],
   chests: [],
@@ -724,8 +766,62 @@ DATA.maps.towertop = {
   chests: [],
 };
 
+// ---------------- こおりのどうくつ ----------------
+DATA.maps.icecave = {
+  name: "こおりのどうくつ",
+  bgm: "dungeon",
+  encounter: "icecave",
+  legend: {
+    "#": { tile: "mountain", solid: true },
+    ".": { tile: "floor" },
+  },
+  rows: [
+    "####################",
+    "#..................#",
+    "#..##############..#",
+    "#..................#",
+    "#..#################",
+    "#..................#",
+    "#################..#",
+    "#..................#",
+    "#..#################",
+    "#..................#",
+    "#################..#",
+    "#..................#",
+    "#..................#",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 12, type: "enter", warp: { map: "world", x: 21, y: 8, dir: "d" } },
+    { x: 1, y: 2, type: "enter", scriptId: "iceDragon" },
+    { x: 2, y: 2, type: "enter", scriptId: "iceDragon" },
+    { x: 17, y: 2, type: "enter", scriptId: "iceDragon" },
+    { x: 18, y: 2, type: "enter", scriptId: "iceDragon" },
+  ],
+  npcs: [
+    { id: "icedragonnpc", x: 14, y: 1, spr: "dragon", hideFlag: "iceBoss",
+      script: [{ runScript: "iceDragon" }] },
+  ],
+  chests: [
+    { id: "ice1", x: 18, y: 5, item: "a_ice" },
+    { id: "ice2", x: 1, y: 9, gold: 800 },
+    { id: "ice3", x: 1, y: 1, item: "w_flame" },
+    { id: "ice4", x: 2, y: 1, item: "w_dragonlance" },
+  ],
+};
+
 // ---------------- きょうつうスクリプト ----------------
 DATA.scripts = {
+  iceDragon: [
+    { cond: { flag: "iceBoss" },
+      then: [],
+      else: [
+        { msg: "フロストドラゴン\n「グルルル…… ここは わしの ねぐら。\nこおりの はかに うまりたいものから\nかかってくるがいい」" },
+        { battle: { group: ["frostdragon"], boss: true, music: "boss" } },
+        { flag: ["iceBoss", 1] },
+        { msg: "どうくつの おくで なにかが\nひかっている……!" },
+      ] },
+  ],
   intro: [
     { msg: "バロンおう「あんこくきし レオンよ。\nミストのむらの ちょうろうがもつ\nクリスタルを うばってくるのだ」" },
     { msg: "レオン「……なぜ クリスタルを?\nミストのむらは へいわな むらです」" },

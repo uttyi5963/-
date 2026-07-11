@@ -41,6 +41,7 @@ const Gfx = {
         let pi = +ch;
         if (variant === "dark") pi = pi === 0 ? 2 : 3;
         else if (variant === "flash") pi = 3 - pi;
+        else if (variant === "light") pi = Math.max(0, pi - 1); // こおり系リカラー
         c.fillStyle = PAL[pi];
         c.fillRect(x * scale, y * scale, scale, scale);
       }
