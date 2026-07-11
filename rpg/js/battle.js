@@ -552,7 +552,17 @@ class BattleScene {
       events.push({ t: 0, fn: () => { this.log = `${h.name}は ${it.def.name}を つかった!`; } });
       events.push({ t: 0.45, fn: () => {
         const def = it.def;
-        if (def.elixir) {
+        if (def.partyheal) {
+          G.removeItem(it.id);
+          this.aliveParty().forEach((q) => {
+            q.h.hp = q.h.maxhp; q.h.mp = q.h.maxmp;
+            Object.keys(DATA.statuses).forEach((s) => { q.h[s] = false; });
+            const pos = this.partyPos(this.party.indexOf(q));
+            this.pop(pos.x, pos.y, q.h.maxhp, 3);
+          });
+          this.log = "なかまぜんいんが かんぜんに かいふくした!";
+          AudioSys.sfx("heal");
+        } else if (def.elixir) {
           if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
           G.removeItem(it.id);
           t.h.hp = t.h.maxhp;

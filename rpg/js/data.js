@@ -61,6 +61,8 @@ DATA.items = {
   echoherb: { name: "やまびこそう",   kind: "use", price: 30,  cure: "silence", desc: "ちんもくを なおす" },
   kiss:     { name: "おとめのキッス", kind: "use", price: 60,  cure: "toad", desc: "カエルを もとにもどす" },
   elixir:   { name: "エリクサー",     kind: "use", price: 2000, elixir: true, desc: "HPとMPが かんぜんかいふく" },
+  megapotion: { name: "メガポーション", kind: "use", price: 500, heal: 600, desc: "HPを 600 かいふく" },
+  worldtear: { name: "せかいのしずく", kind: "use", price: 0, partyheal: true, desc: "なかまぜんいんが かんぜんかいふく" },
 
   w_dark:    { name: "ダークソード",   kind: "weapon", price: 300, atk: 8,  who: ["leon"], dark: true },
   w_steel:   { name: "こうてつのつるぎ", kind: "weapon", price: 450, atk: 12, who: ["leon"] },
@@ -86,6 +88,7 @@ DATA.items = {
   w_claw:    { name: "てつのつめ",     kind: "weapon", price: 200, atk: 6,  who: ["gou"] },
   w_ironclaw:{ name: "タイガークロー", kind: "weapon", price: 700, atk: 13, who: ["gou"] },
   w_thunderclaw: { name: "かみなりのつめ", kind: "weapon", price: 1400, atk: 16, who: ["gou"], elem: "thunder" },
+  w_kingclaw: { name: "りゅうおうのつめ", kind: "weapon", price: 0, atk: 34, who: ["gou"], slay: ["dragon"] },
   w_boltstaff: { name: "いかずちのつえ", kind: "weapon", price: 1600, atk: 10, int: 4, who: ["rod"] },
 
   a_dark:    { name: "あんこくのよろい", kind: "armor", price: 350, def: 6,  who: ["leon"], dark: true },
@@ -239,6 +242,12 @@ DATA.monsters = {
     weak: ["holy"] },
   darksoldier: { name: "やみのへいし", spr: "soldier", pal: "dark", hp: 100, atk: 32, def: 14, agi: 14, exp: 150, gold: 140,
     weak: ["holy"] },
+  // ---- かくしボス ----
+  vaha: { name: "しんえんりゅう ヴァハ", spr: "dragon", pal: "dark", boss: true, scale: 4,
+    hp: 4000, atk: 60, def: 26, agi: 20, exp: 5000, gold: 10000,
+    race: "dragon", absorb: ["fire", "ice", "thunder"],
+    acts: [{ spell: "e_starfall", rate: 0.25 }, { spell: "e_bigwave", rate: 0.2 }, { spell: "e_eruption", rate: 0.2 }] },
+
   // ---- ほしのとう (さいしゅうしょう) ----
   arcdemon: { name: "アークデーモン", spr: "demon", pal: "dark", hp: 260, atk: 48, def: 18, agi: 18, exp: 450, gold: 400,
     race: "demon", weak: ["holy"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
@@ -347,13 +356,13 @@ DATA.encounters = {
 DATA.shops = {
   muspel: {
     name: "ムスペルのかじば",
-    stock: ["hipotion", "ether", "elixir", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
+    stock: ["hipotion", "megapotion", "ether", "elixir", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
             "w_iceblade", "w_halberd", "w_battleclaw", "w_sagestaff", "w_spiritrod",
             "a_dwarf", "a_sage"],
   },
   port: {
     name: "ソレイユのみせ",
-    stock: ["potion", "hipotion", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
+    stock: ["potion", "hipotion", "megapotion", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
             "w_flame", "w_lance", "w_thunderclaw", "w_crystalrod",
             "a_aqua", "a_ice"],
   },
@@ -681,7 +690,22 @@ DATA.maps.elder = {
   npcs: [
     { id: "elderman", x: 5, y: 2, spr: "elder",
       script: [
-        { cond: { flag: "crystal" },
+        { cond: { flag: "worldtearGiven" },
+          then: [{ msg: "ちょうろう「せかいのしずくは\nつかったかの? おぬしらの たびに\nかごが あらんことを」" }],
+          else: [
+            { cond: { flag: "allCrystals" },
+              then: [
+                { msg: "ちょうろう「おお…… 4つのクリスタルの\nひかりを かんじる。よくぞ ここまで」" },
+                { give: { item: "worldtear" } },
+                { flag: ["worldtearGiven", 1] },
+                { msg: "せかいのしずくを さずかった!\n(なかまぜんいんが かんぜんかいふくする\nいちどきりの ひほう)" },
+              ],
+              else: [] },
+          ] },
+        { cond: { flag: "worldtearGiven" },
+          then: [],
+          else: [
+            { cond: { flag: "crystal" },
           then: [
             { cond: { flag: "paladin" },
               then: [{ msg: "ちょうろう「せいなるひかりを えたのじゃな。\nきたのとうへ ゆけ。\nザルバを たおすのじゃ!」" }],
@@ -700,6 +724,7 @@ DATA.maps.elder = {
             { msg: "ちょうろう「セリア……。 たのんだぞ。\nレオンどの、まごを よろしくたのむ」" },
             { join: "celia" },
             { msg: "セリアが なかまに くわわった!" },
+          ] },
           ] },
       ] },
   ],
@@ -964,6 +989,10 @@ DATA.maps.icecave = {
   npcs: [
     { id: "icedragonnpc", x: 14, y: 1, spr: "dragon", hideFlag: "iceBoss",
       script: [{ runScript: "iceDragon" }] },
+    // しんエンドごに あらわれる かくしボス
+    { id: "vahanpc", x: 7, y: 1, spr: "dragon", pal: "dark",
+      showFlag: "trueClear", hideFlag: "superBoss",
+      script: [{ runScript: "vahaFight" }] },
   ],
   chests: [
     { id: "ice1", x: 18, y: 5, item: "a_ice" },
@@ -1010,8 +1039,25 @@ DATA.maps.port = {
   npcs: [
     { id: "sailor", x: 9, y: 7, spr: "villager",
       script: [
-        { msg: "せんいん「よう! ここは みなとまち\nソレイユ。うみの むこうで よなよな\nあかい ひかりが みえるんだ」" },
-        { msg: "せんいん「ちていに つづく おおあなが\nひらいたって うわさも ある。\nいやな よかんが するぜ……」" },
+        { cond: { flag: "seaBoss" },
+          then: [
+            { cond: { flag: "seaReward" },
+              then: [
+                { cond: { flag: "trueClear" },
+                  then: [{ msg: "せんいん「こおりのどうくつの おくで\nくろい りゅうを みたって うわさだ。\nうでに おぼえが あるなら……」" }],
+                  else: [{ msg: "せんいん「うみが しずかに なった。\nあんたたちの おかげだな!」" }] },
+              ],
+              else: [
+                { msg: "せんいん「うみのそこの ぬしを\nたおしてくれたのか!! これで あんしんして\nりょうが できる。れいだ、うけとってくれ!」" },
+                { give: { gold: 2500 } },
+                { msg: "2500ギルを てにいれた!" },
+                { flag: ["seaReward", 1] },
+              ] },
+          ],
+          else: [
+            { msg: "せんいん「よう! ここは みなとまち\nソレイユ。うみの むこうで よなよな\nあかい ひかりが みえるんだ」" },
+            { msg: "せんいん「ちていに つづく おおあなが\nひらいたって うわさも ある。\nいやな よかんが するぜ……」" },
+          ] },
       ] },
     { id: "obaba", x: 5, y: 6, spr: "villager", wander: true,
       script: [
@@ -1887,6 +1933,19 @@ DATA.scripts = {
         { battle: { group: ["kraken"], boss: true, music: "boss" } },
         { flag: ["waterBoss", 1] },
         { msg: "すいろに しずけさが もどった。" },
+      ] },
+  ],
+  vahaFight: [
+    { cond: { flag: "superBoss" },
+      then: [],
+      else: [
+        { msg: "こおりの おくで くろい りゅうが\nめを ひらいた……。" },
+        { msg: "ヴァハ「ヴォイドスを ほろぼした\nちからを もつもの……。\nわが しんえんに いどむか?」" },
+        { battle: { group: ["vaha"], boss: true, music: "boss" } },
+        { flag: ["superBoss", 1] },
+        { msg: "ヴァハ「……みごとだ。\nおまえたちこそ しんの\nクリスタルナイツ で ある」" },
+        { give: { item: "w_kingclaw" } },
+        { msg: "りゅうおうのつめを てにいれた!!\nすべてを やりとげた あなたは\nまさしく でんせつの ゆうしゃだ!" },
       ] },
   ],
   iceDragon: [

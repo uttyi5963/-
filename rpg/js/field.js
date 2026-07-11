@@ -50,6 +50,7 @@ class FieldScene {
   npcAt(x, y) {
     return this.npcs.find((n) => {
       if (n.def.hideFlag && G.flag(n.def.hideFlag)) return false;
+      if (n.def.showFlag && !G.flag(n.def.showFlag)) return false;
       const tx = n.moving ? n.moving.tx : n.x;
       const ty = n.moving ? n.moving.ty : n.y;
       return (n.x === x && n.y === y) || (tx === x && ty === y);
@@ -304,6 +305,7 @@ class FieldScene {
     // NPC
     for (const n of this.npcs) {
       if (n.def.hideFlag && G.flag(n.def.hideFlag)) continue;
+      if (n.def.showFlag && !G.flag(n.def.showFlag)) continue;
       let nx = n.x * TILE, ny = n.y * TILE;
       if (n.moving) {
         nx += (n.moving.tx - n.x) * TILE * n.moving.t;

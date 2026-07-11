@@ -8,6 +8,15 @@ function itemList() {
 
 // フィールドでのアイテムこうか。つかえたら メッセージ、だめなら null
 function applyFieldItem(def, hero) {
+  if (def.partyheal) {
+    G.state.party.forEach((h) => {
+      if (h.hp > 0) {
+        h.hp = h.maxhp; h.mp = h.maxmp;
+        Object.keys(DATA.statuses).forEach((s) => { h[s] = false; });
+      }
+    });
+    return "なかまぜんいんが かんぜんに かいふくした!";
+  }
   if (def.elixir) {
     if (hero.hp <= 0) return null;
     hero.hp = hero.maxhp;
