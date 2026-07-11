@@ -67,9 +67,21 @@ class BattleScene {
     else AudioSys.stopBgm();
   }
 
+  // 属性倍率: きゅうしゅう=-1(かいふく) / たいせい=0.5 / じゃくてん=8ばい
   elemMod(def, elem) {
     if (!elem) return 1;
-    return (def.weak || []).includes(elem) ? 1.75 : 1;
+    if ((def.absorb || []).includes(elem)) return -1;
+    if ((def.resist || []).includes(elem)) return 0.5;
+    if ((def.weak || []).includes(elem)) return 8;
+    return 1;
+  }
+
+  // ぶきの属性 + しゅぞくとっこう(8ばい) をあわせた倍率
+  weaponMod(h, def) {
+    const w = DATA.items[h.weapon] || {};
+    let m = this.elemMod(def, w.elem);
+    if (w.slay && def.race && w.slay.includes(def.race)) m = Math.max(m, 8);
+    return m;
   }
 
   physDmg(atk, def) {
@@ -266,7 +278,10 @@ class BattleScene {
         }
         else if (cmd.id === "pray") this.doPlayerAction({ type: "pray" });
         else if (cmd.id === "cover") { this.menu = "targetP"; this.targetSel = 0; this.pendingAct = { type: "cover" }; }
-        else if (cmd.id === "spell") { this.menu = "spell"; this.sel2 = 0; }
+        else if (cmd.id === "spell") {
+          if (h.silence || h.toad) { AudioSys.sfx("buzz"); this.log = "こえが でない!"; return; }
+          this.menu = "spell"; this.sel2 = 0;
+        }
         else if (cmd.id === "guard") this.doPlayerAction({ type: "guard" });
         else if (cmd.id === "item") { this.menu = "item"; this.sel2 = 0; }
         else if (cmd.id === "run") this.doPlayerAction({ type: "run" });
@@ -350,14 +365,21 @@ class BattleScene {
     }
   }
 
-  // てきに あたえるダメージを イベントれつに つむ
+  // てきに あたえるダメージを イベントれつに つむ (dmg<0 は きゅうしゅう=かいふく)
   queueHitEnemy(events, target, dmg, sfx = "hit") {
     events.push({ t: 0.4, fn: () => {
       if (target.dead) { this.log += "  しかし てきは いない!"; return; }
+      const pos = this.enemyPos(this.enemies.indexOf(target));
+      if (dmg < 0) {
+        target.hp = Math.min(target.maxhp, target.hp - dmg);
+        AudioSys.sfx("heal");
+        this.pop(pos.x + pos.size / 2, pos.y, -dmg, 1);
+        this.log = `${target.name}は こうげきを きゅうしゅうした!`;
+        return;
+      }
       target.hp = Math.max(0, target.hp - dmg);
       target.flash = 0.25;
       AudioSys.sfx(sfx);
-      const pos = this.enemyPos(this.enemies.indexOf(target));
       this.pop(pos.x + pos.size / 2, pos.y, dmg);
       // しれんボス: きずは ふさがる
       if (target.def.trial && target.hp < target.maxhp) {
@@ -376,6 +398,12 @@ class BattleScene {
     // えいしょうが ひつような じゅもん
     if (act.type === "spell") {
       const sp = act.spell.def;
+      if (h.silence || h.toad) {
+        this.startAnim([{ t: 0, fn: () => { this.log = `${h.name}は こえが でない!`; AudioSys.sfx("buzz"); } }], 0.6);
+        this.ready = null;
+        this.phase = "atb";
+        return;
+      }
       if ((sp.cast || 0) > 0) {
         h.mp -= sp.mp;
         p.casting = { act, t: 0, dur: sp.cast };
@@ -400,12 +428,18 @@ class BattleScene {
     if (act.type === "fight") {
       const t = act.target;
       events.push({ t: 0, fn: () => { this.log = `${h.name}の こうげき!`; } });
-      const wdef = DATA.items[h.weapon] || {};
-      if (Math.random() < 0.05) {
+      // くらやみ: めいちゅうりつ 50%
+      const missChance = h.blind ? 0.5 : 0.05;
+      if (Math.random() < missChance) {
         events.push({ t: 0.4, fn: () => {
-          this.log = `${h.name}の こうげき! ミス!`;
+          this.log = `${h.name}の こうげき! ミス!` + (h.blind ? "\n(くらやみで ねらいが さだまらない)" : "");
           AudioSys.sfx("cancel");
         } });
+      } else if (h.toad) {
+        // カエル: 1〜3の こていダメージ
+        const dmg = 1 + Math.floor(rnd(0, 3));
+        events.push({ t: 0.2, fn: () => { this.log = `${h.name}の カエルパンチ…`; } });
+        this.queueHitEnemy(events, t, dmg, "hit");
       } else {
         const crit = Math.random() < 1 / 16;
         // ためる: 2/4/8ばい (つかったら リセット)
@@ -415,7 +449,7 @@ class BattleScene {
           p.charge = 0;
         }
         let dmg = this.physDmg(G.atkOf(h), t.def.def);
-        dmg = Math.max(1, Math.round(dmg * this.elemMod(t.def, wdef.elem) * (crit ? 2 : 1) * rowMul * chargeMul));
+        dmg = Math.max(1, Math.round(dmg * this.weaponMod(h, t.def) * (crit ? 2 : 1) * rowMul * chargeMul));
         if (crit) events.push({ t: 0.35, fn: () => { this.log = "かいしんの いちげき!!"; } });
         this.queueHitEnemy(events, t, dmg, crit || chargeMul > 1 ? "crit" : "hit");
       }
@@ -487,7 +521,8 @@ class BattleScene {
         h.mp -= 8;
         AudioSys.sfx("magic");
       } });
-      const dmg = Math.max(1, Math.round(this.physDmg(Math.round(G.atkOf(h) * 1.6), t.def.def) * this.elemMod(t.def, "holy") * rowMul));
+      const mod = Math.max(this.elemMod(t.def, "holy"), this.weaponMod(h, t.def));
+      const dmg = Math.max(1, Math.round(this.physDmg(Math.round(G.atkOf(h) * 1.6), t.def.def) * mod * rowMul));
       this.queueHitEnemy(events, t, dmg);
     }
     else if (act.type === "guard") {
@@ -535,11 +570,11 @@ class BattleScene {
           t.h.hp = Math.max(1, Math.floor(t.h.maxhp * def.revive));
           this.log = `${t.h.name}は いきかえった!`;
           AudioSys.sfx("heal");
-        } else if (def.cure === "poison") {
-          if (!t.h.poison) { this.log = "しかし きかなかった!"; return; }
+        } else if (def.cure) {
+          if (!t.h[def.cure]) { this.log = "しかし きかなかった!"; return; }
           G.removeItem(it.id);
-          t.h.poison = false;
-          this.log = `${t.h.name}の どくが なおった!`;
+          t.h[def.cure] = false;
+          this.log = `${t.h.name}の ${DATA.statuses[def.cure].name}が なおった!`;
           AudioSys.sfx("heal");
         }
       } });
@@ -620,9 +655,11 @@ class BattleScene {
           t.h.hp = Math.max(1, Math.floor(t.h.maxhp * sp.pow));
           this.log = `${t.h.name}は いきかえった!`;
         } else if (sp.type === "cure") {
-          if (t.h.hp <= 0 || !t.h.poison) { this.log = "しかし きかなかった!"; return; }
-          t.h.poison = false;
-          this.log = `${t.h.name}の どくが きえた!`;
+          const sts = sp.cureAll ? Object.keys(DATA.statuses) : ["poison"];
+          const had = sts.filter((s) => t.h[s]);
+          if (t.h.hp <= 0 || had.length === 0) { this.log = "しかし きかなかった!"; return; }
+          had.forEach((s) => { t.h[s] = false; });
+          this.log = `${t.h.name}の ${had.map((s) => DATA.statuses[s].name).join("・")}が きえた!`;
         } else if (sp.type === "buff") {
           if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
           t.protect = true;
@@ -693,9 +730,11 @@ class BattleScene {
       const pos = this.partyPos(this.party.indexOf(victim));
       this.pop(pos.x, pos.y, dmg, 2);
       AudioSys.sfx("hit");
-      if (!covered && e.def.poison && Math.random() < e.def.poison && victim.h.hp > 0 && !victim.h.poison) {
-        victim.h.poison = true;
-        this.log = `${victim.h.name}は どくを うけた!`;
+      // ついかこうか (どく/くらやみ など)。みがわり時は はつどうしない
+      const inf = e.def.inflict || (e.def.poison ? { status: "poison", rate: e.def.poison } : null);
+      if (!covered && inf && Math.random() < inf.rate && victim.h.hp > 0 && !victim.h[inf.status]) {
+        victim.h[inf.status] = true;
+        this.log = `${victim.h.name}は ${DATA.statuses[inf.status].name}に かかった!`;
       }
       if (victim.h.hp <= 0) {
         victim.atb = 0; victim.casting = null;
@@ -723,6 +762,21 @@ class BattleScene {
       this.log = `${e.name}は ${sp.name}を となえた!`;
       AudioSys.sfx("magic");
     } });
+
+    // じょうたいいじょう じゅもん
+    if (sp.type === "status") {
+      const p = targets[Math.floor(Math.random() * targets.length)];
+      events.push({ t: 0.5, fn: () => {
+        if (p.h.hp <= 0) return;
+        if (p.h[sp.status]) { this.log = "しかし きかなかった!"; return; }
+        p.h[sp.status] = true;
+        p.flash = 0.25;
+        this.log = `${p.h.name}は ${DATA.statuses[sp.status].name}に かかった!`;
+        AudioSys.sfx("buzz");
+      } });
+      this.startAnim(events, 1.0);
+      return;
+    }
     const victims = sp.all ? targets : [targets[Math.floor(Math.random() * targets.length)]];
     victims.forEach((p) => {
       events.push({ t: 0.45, fn: () => {
@@ -890,6 +944,7 @@ class BattleScene {
       }
       let spr = p.h.spr;
       if (spr === "hero" || spr === "pal") spr += "_s";
+      if (p.h.toad) spr = "toad"; // カエルのすがた
       const variant = p.flash > 0 ? "flash" : (p.h.hp <= 0 ? "dark" : undefined);
       Gfx.draw(spr, pos.x, pos.y, { scale: 2, variant });
       if (this.phase === "command" && this.ready === p) {
@@ -938,7 +993,8 @@ class BattleScene {
       const y = (compact ? 201 : 203) + i * rowH;
       const dead = p.h.hp <= 0;
       Gfx.text(p.h.name, 114, y, dead ? 2 : 3, fs);
-      if (p.h.poison) Gfx.text("ど", 160, y, 2, 8);
+      const st = Object.keys(DATA.statuses).find((s) => p.h[s]);
+      if (st) Gfx.text(DATA.statuses[st].mark, 160, y, 2, 8);
       if (p.charge > 0) Gfx.text(`た${p.charge}`, 172, y, 2, 8);
       Gfx.textR(`${p.h.hp}`, 218, y, dead ? 2 : 3, fs);
       Gfx.text(`/${p.h.maxhp}`, 220, y, 3, compact ? 8 : 9);

@@ -23,10 +23,10 @@ function applyFieldItem(def, hero) {
     hero.hp = Math.max(1, Math.floor(hero.maxhp * def.revive));
     return `${hero.name}は いきかえった!`;
   }
-  if (def.cure === "poison") {
-    if (!hero.poison) return null;
-    hero.poison = false;
-    return `${hero.name}の どくが なおった!`;
+  if (def.cure) {
+    if (!hero[def.cure]) return null;
+    hero[def.cure] = false;
+    return `${hero.name}の ${DATA.statuses[def.cure].name}が なおった!`;
   }
   return null;
 }
@@ -43,9 +43,11 @@ function applyFieldSpell(spell, caster, target) {
     return `${target.name}は いきかえった!`;
   }
   if (spell.type === "cure") {
-    if (!target.poison) return null;
-    target.poison = false;
-    return `${target.name}の どくが なおった!`;
+    const sts = spell.cureAll ? Object.keys(DATA.statuses) : ["poison"];
+    const had = sts.filter((s) => target[s]);
+    if (had.length === 0) return null;
+    had.forEach((s) => { target[s] = false; });
+    return `${target.name}の ${had.map((s) => DATA.statuses[s].name).join("・")}が なおった!`;
   }
   return null;
 }
@@ -143,7 +145,8 @@ class MenuScene {
     if (Input.tap("b")) { AudioSys.sfx("cancel"); this.state = "heroPick"; return; }
     if (Input.tap("a") && spells.length > 0) {
       const sp = spells[this.sel2];
-      if (this.picked.mp < sp.def.mp || this.picked.hp <= 0) { AudioSys.sfx("buzz"); return; }
+      if (this.picked.mp < sp.def.mp || this.picked.hp <= 0 ||
+          this.picked.silence || this.picked.toad) { AudioSys.sfx("buzz"); return; }
       AudioSys.sfx("confirm");
       this.pendingSpell = sp;
       this.state = "targetPick";
@@ -252,7 +255,10 @@ class MenuScene {
       Gfx.text(`HP${h.hp}/${h.maxhp}`, 42, y + 16, h.hp === 0 ? 2 : 3, 10);
       Gfx.text(`MP${h.mp}/${h.maxmp}`, 122, y + 16, 3, 10);
       Gfx.text(back ? "後" : "前", 180, y, 3, 9);
-      if (h.poison) Gfx.text("どく", 42, y + 29, 2, 9);
+      const sts = Object.keys(DATA.statuses).filter((s) => h[s]);
+      if (sts.length) {
+        Gfx.text(sts.slice(0, 2).map((s) => DATA.statuses[s].name).join(" "), 42, y + 29, 2, 9);
+      }
       if ((this.state === "heroPick" && this.sub === i) ||
           (this.state === "targetPick" && this.target === i)) {
         Gfx.cursor(5, y + 12);

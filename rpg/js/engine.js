@@ -598,7 +598,8 @@ function runScript(ops, onDone) {
                 G.state.gold -= price;
                 G.fade(() => {
                   G.state.party.forEach((h) => {
-                    h.hp = h.maxhp; h.mp = h.maxmp; h.poison = false;
+                    h.hp = h.maxhp; h.mp = h.maxmp;
+                    Object.keys(DATA.statuses).forEach((s) => { h[s] = false; });
                   });
                   AudioSys.sfx("heal");
                   G.push(new MessageScene("やどや「おはよう! げんきに なったね」", next));

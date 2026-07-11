@@ -12,6 +12,7 @@ DATA.spells = {
   cure1:   { name: "ケアル",     mp: 4,  type: "heal",   pow: 30,  cast: 0.8, target: "ally",  field: true },
   cure2:   { name: "ケアルラ",   mp: 9,  type: "heal",   pow: 95,  cast: 1.4, target: "ally",  field: true },
   poisona: { name: "ポイゾナ",   mp: 3,  type: "cure",   cast: 0.6, target: "ally",  field: true },
+  esuna:   { name: "エスナ",     mp: 10, type: "cure",   cureAll: true, cast: 1.0, target: "ally", field: true },
   protect: { name: "プロテス",   mp: 5,  type: "buff",   cast: 1.0, target: "ally" },
   raise:   { name: "レイズ",     mp: 15, type: "revive", pow: 0.5, cast: 2.4, target: "ally",  field: true },
   fire1:   { name: "ファイア",   mp: 5,  type: "dmg", pow: 28, cast: 1.0, elem: "fire",    target: "enemy" },
@@ -24,6 +25,16 @@ DATA.spells = {
   e_ice_all:{ name: "つめたいいき", mp: 0, type: "dmg", pow: 15, elem: "ice",  target: "enemy", all: true },
   e_fire2: { name: "ファイラ",   mp: 0, type: "dmg", pow: 40, cast: 2.2, elem: "fire",    target: "enemy" },
   e_meteo: { name: "ダークメテオ", mp: 0, type: "dmg", pow: 48, cast: 3.2, elem: "none",  target: "enemy", all: true },
+  e_toad:  { name: "カエルのうた", mp: 0, type: "status", status: "toad",    cast: 1.5, target: "enemy" },
+  e_silence:{ name: "ちんもくのかぜ", mp: 0, type: "status", status: "silence", cast: 1.2, target: "enemy" },
+};
+
+// じょうたいいじょう
+DATA.statuses = {
+  poison:  { name: "どく",     mark: "ど" },
+  blind:   { name: "くらやみ", mark: "や" },
+  silence: { name: "ちんもく", mark: "ち" },
+  toad:    { name: "カエル",   mark: "カ" },
 };
 
 // ---------------- アイテム ----------------
@@ -34,11 +45,14 @@ DATA.items = {
   ether:    { name: "エーテル",       kind: "use", price: 100, mp: 40,    desc: "MPを 40 かいふく" },
   phoenix:  { name: "フェニックスのお", kind: "use", price: 400, revive: 0.5, desc: "せんとうふのうから ふっかつ" },
   antidote: { name: "どくけし",       kind: "use", price: 20,  cure: "poison", desc: "どくを なおす" },
+  eyedrops: { name: "めぐすり",       kind: "use", price: 20,  cure: "blind", desc: "くらやみを なおす" },
+  echoherb: { name: "やまびこそう",   kind: "use", price: 30,  cure: "silence", desc: "ちんもくを なおす" },
+  kiss:     { name: "おとめのキッス", kind: "use", price: 60,  cure: "toad", desc: "カエルを もとにもどす" },
 
   w_dark:    { name: "ダークソード",   kind: "weapon", price: 300, atk: 8,  who: ["leon"], dark: true },
   w_steel:   { name: "こうてつのつるぎ", kind: "weapon", price: 450, atk: 12, who: ["leon"] },
   w_mythril: { name: "ミスリルソード", kind: "weapon", price: 900, atk: 16, who: ["leon"] },
-  w_light:   { name: "ひかりのつるぎ", kind: "weapon", price: 0,   atk: 24, who: ["leon"], elem: "holy" },
+  w_light:   { name: "ひかりのつるぎ", kind: "weapon", price: 0,   atk: 24, who: ["leon"], elem: "holy", slay: ["undead"] },
   w_staff:   { name: "ロッド",         kind: "weapon", price: 60,  atk: 3,  who: ["rod", "celia"] },
   w_wizstaff:{ name: "まどうのつえ",   kind: "weapon", price: 500, atk: 7, int: 3, who: ["rod"] },
   w_mace:    { name: "いやしのつえ",   kind: "weapon", price: 450, atk: 6, int: 2, who: ["celia"] },
@@ -95,7 +109,7 @@ DATA.heroes = {
     weapon: "w_staff", armor: "a_cloth",
     command: "pray", // いのる: MP0。50%で ぜんいん さいだいHPの30%かいふく
     spells: ["cure1"],
-    learn: { 4: "poisona", 6: "protect", 9: "cure2", 12: "raise" },
+    learn: { 4: "poisona", 6: "protect", 9: "cure2", 10: "esuna", 12: "raise" },
   },
   rod: {
     name: "ロッド", cls: "くろまどうし", spr: "rod", row: "back",
@@ -119,26 +133,41 @@ DATA.paladin = {
 DATA.expNext = (l) => 6 * l * l + 4 * l;
 
 // ---------------- モンスター ----------------
+// weak: 弱点(8ばい) / resist: たいせい(0.5ばい) / absorb: きゅうしゅう(かいふく)
+// race: しゅぞく(とっこうぶきは 8ばい) / inflict: ぶつりこうげきの ついかこうか
 DATA.monsters = {
   goblin:   { name: "ゴブリン",     spr: "goblin",   hp: 16, atk: 7,  def: 2,  agi: 4, exp: 5,  gold: 6 },
-  bat:      { name: "おおコウモリ", spr: "bat",      hp: 12, atk: 6,  def: 1,  agi: 9, exp: 4,  gold: 4 },
-  toad:     { name: "どくガエル",   spr: "toad",     hp: 22, atk: 8,  def: 2,  agi: 5, exp: 7,  gold: 8, poison: 0.3 },
-  skeleton: { name: "スケルトン",   spr: "skeleton", hp: 34, atk: 13, def: 4,  agi: 6, exp: 14, gold: 14, weak: ["fire", "holy"] },
-  wizard:   { name: "まどうし",     spr: "wizard",   hp: 28, atk: 8,  def: 3,  agi: 7, exp: 18, gold: 22, acts: [{ spell: "e_fire", rate: 0.5 }] },
-  gargoyle: { name: "ガーゴイル",   spr: "gargoyle", hp: 46, atk: 16, def: 6,  agi: 9, exp: 26, gold: 28 },
-  golem:    { name: "ゴーレム",     spr: "golem",    hp: 85, atk: 21, def: 13, agi: 3, exp: 55, gold: 60, weak: ["thunder"] },
-  ddemon:   { name: "ダークデーモン", spr: "demon",  hp: 66, atk: 22, def: 8,  agi: 10, exp: 62, gold: 55, weak: ["holy"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
+  bat:      { name: "おおコウモリ", spr: "bat",      hp: 12, atk: 6,  def: 1,  agi: 9, exp: 4,  gold: 4,
+    weak: ["thunder"], inflict: { status: "blind", rate: 0.25 } },
+  toad:     { name: "どくガエル",   spr: "toad",     hp: 22, atk: 8,  def: 2,  agi: 5, exp: 7,  gold: 8,
+    weak: ["ice"], inflict: { status: "poison", rate: 0.3 },
+    acts: [{ spell: "e_toad", rate: 0.2 }] },
+  skeleton: { name: "スケルトン",   spr: "skeleton", hp: 34, atk: 13, def: 4,  agi: 6, exp: 14, gold: 14,
+    race: "undead", weak: ["fire", "holy"] },
+  wizard:   { name: "まどうし",     spr: "wizard",   hp: 28, atk: 8,  def: 3,  agi: 7, exp: 18, gold: 22,
+    resist: ["fire"], acts: [{ spell: "e_fire", rate: 0.35 }, { spell: "e_silence", rate: 0.25 }] },
+  gargoyle: { name: "ガーゴイル",   spr: "gargoyle", hp: 46, atk: 16, def: 6,  agi: 9, exp: 26, gold: 28,
+    weak: ["thunder"] },
+  golem:    { name: "ゴーレム",     spr: "golem",    hp: 85, atk: 21, def: 13, agi: 3, exp: 55, gold: 60,
+    weak: ["thunder"] },
+  ddemon:   { name: "ダークデーモン", spr: "demon",  hp: 66, atk: 22, def: 8,  agi: 10, exp: 62, gold: 55,
+    race: "demon", weak: ["holy"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
 
+  // ボスは 8ばい弱点で とけないよう たいせい/きゅうしゅう ちゅうしん。
+  // れいがい: ザルバ しんのすがた だけ せい属性が じゃくてん (せいけんが きめて)
   demonguard: { name: "デーモンガード", spr: "demon", boss: true, scale: 3,
-    hp: 170, atk: 15, def: 5, agi: 6, exp: 90, gold: 150, weak: ["holy"],
+    hp: 170, atk: 15, def: 5, agi: 6, exp: 90, gold: 150,
+    race: "demon", absorb: ["ice"],
     acts: [{ spell: "e_ice_all", rate: 0.35 }] },
   shadow: { name: "あんこくのかげ", spr: "hero_d", pal: "dark", boss: true, scale: 3, trial: true,
     hp: 999, atk: 17, def: 99, agi: 7, exp: 0, gold: 0 },
   zarba: { name: "まおうザルバ", spr: "zarba", boss: true, scale: 3,
-    hp: 400, atk: 24, def: 8, agi: 9, exp: 0, gold: 0, weak: ["holy"],
+    hp: 400, atk: 24, def: 8, agi: 9, exp: 0, gold: 0,
+    race: "demon", resist: ["fire", "ice"],
     acts: [{ spell: "e_fire2", rate: 0.3 }], phase2: "zarba2" },
   zarba2: { name: "ザルバ しんのすがた", spr: "zarba", pal: "dark", boss: true, scale: 4,
-    hp: 480, atk: 30, def: 10, agi: 12, exp: 0, gold: 0, weak: ["holy"],
+    hp: 1200, atk: 30, def: 10, agi: 12, exp: 0, gold: 0,
+    race: "demon", weak: ["holy"], absorb: ["fire"],
     acts: [{ spell: "e_meteo", rate: 0.3 }, { spell: "e_ice_all", rate: 0.2 }] },
 };
 
@@ -156,7 +185,7 @@ DATA.encounters = {
 DATA.shops = {
   town: {
     name: "ミストのみせ",
-    stock: ["potion", "hipotion", "ether", "antidote", "phoenix",
+    stock: ["potion", "hipotion", "ether", "antidote", "eyedrops", "echoherb", "kiss", "phoenix",
             "w_steel", "w_mythril", "w_lance", "w_ironclaw", "w_wizstaff", "w_mace",
             "a_steel", "a_leather", "a_silk"],
   },

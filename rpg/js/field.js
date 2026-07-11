@@ -301,7 +301,7 @@ class FieldScene {
       Gfx.draw(n.def.spr, nx - camx, ny - camy - 2);
     }
 
-    // プレイヤー
+    // プレイヤー (カエル化していたら カエルのすがた)
     const lead = G.state.party[0];
     const sprBase = lead ? lead.spr : "hero";
     let sprName, flip = false;
@@ -310,6 +310,7 @@ class FieldScene {
     else if (G.state.dir === "r") { sprName = sprBase + "_s"; flip = true; }
     else sprName = sprBase + "_d";
     if (!SPR.chars[sprName]) sprName = sprBase;
+    if (lead && lead.toad) { sprName = "toad"; flip = false; }
     const bob = this.moving && this.moving.t > 0.25 && this.moving.t < 0.75 ? -1 : 0;
     Gfx.draw(sprName, px - camx, py - camy - 2 + bob, { flip });
 
