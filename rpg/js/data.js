@@ -209,7 +209,7 @@ DATA.monsters = {
   babydragon:{ name: "ベビードラゴン", spr: "dragon", hp: 90, atk: 26, def: 10, agi: 8, exp: 85, gold: 80,
     race: "dragon", resist: ["ice"], acts: [{ spell: "e_ice", rate: 0.25 }] },
   frostdragon: { name: "フロストドラゴン", spr: "dragon", pal: "light", boss: true, scale: 3,
-    hp: 340, atk: 28, def: 12, agi: 10, exp: 300, gold: 500,
+    hp: 700, atk: 28, def: 12, agi: 10, exp: 300, gold: 500,
     race: "dragon", absorb: ["ice"],
     acts: [{ spell: "e_breath", rate: 0.3 }, { spell: "e_ice", rate: 0.2 }] },
 
@@ -223,7 +223,7 @@ DATA.monsters = {
   sludge:   { name: "ヘドロゴーレム", spr: "golem", pal: "dark", hp: 110, atk: 28, def: 15, agi: 4, exp: 95, gold: 90,
     weak: ["fire"], inflict: { status: "poison", rate: 0.4 } },
   kraken:   { name: "クラーケン", spr: "kraken", boss: true, scale: 3,
-    hp: 450, atk: 30, def: 12, agi: 11, exp: 450, gold: 800,
+    hp: 900, atk: 30, def: 12, agi: 11, exp: 450, gold: 800,
     resist: ["fire", "ice"],
     acts: [{ spell: "e_wave", rate: 0.3 }, { spell: "e_ink", rate: 0.25 }] },
 
@@ -244,7 +244,7 @@ DATA.monsters = {
     weak: ["holy"] },
   // ---- かくしボス ----
   vaha: { name: "しんえんりゅう ヴァハ", spr: "dragon", pal: "dark", boss: true, scale: 4,
-    hp: 4000, atk: 60, def: 26, agi: 20, exp: 5000, gold: 10000,
+    hp: 9000, atk: 60, def: 26, agi: 20, exp: 5000, gold: 10000,
     race: "dragon", absorb: ["fire", "ice", "thunder"],
     acts: [{ spell: "e_starfall", rate: 0.25 }, { spell: "e_bigwave", rate: 0.2 }, { spell: "e_eruption", rate: 0.2 }] },
 
@@ -258,11 +258,11 @@ DATA.monsters = {
   voidgolem: { name: "ヴォイドゴーレム", spr: "golem", pal: "dark", hp: 320, atk: 50, def: 28, agi: 8, exp: 520, gold: 480,
     weak: ["thunder"], absorb: ["fire", "ice"] },
   voidos: { name: "ほしくらい ヴォイドス", spr: "voidos", boss: true, scale: 4,
-    hp: 1800, atk: 48, def: 20, agi: 16, exp: 0, gold: 0,
+    hp: 3200, atk: 48, def: 20, agi: 16, exp: 0, gold: 0,
     absorb: ["fire", "ice", "thunder"],
     acts: [{ spell: "e_starfall", rate: 0.25 }, { spell: "e_bigwave", rate: 0.2 }], phase2: "voidos2" },
   voidos2: { name: "ヴォイドス しんのすがた", spr: "voidos", pal: "dark", boss: true, scale: 4,
-    hp: 1500, atk: 54, def: 22, agi: 20, exp: 0, gold: 0,
+    hp: 2600, atk: 54, def: 22, agi: 20, exp: 0, gold: 0,
     race: "demon", weak: ["holy"], absorb: ["fire", "ice", "thunder"],
     acts: [{ spell: "e_starfall", rate: 0.3 }, { spell: "e_tornado", rate: 0.2 }] },
 
@@ -276,7 +276,7 @@ DATA.monsters = {
   abyssdemon: { name: "アビスデーモン", spr: "demon", pal: "dark", hp: 200, atk: 42, def: 16, agi: 17, exp: 380, gold: 350,
     race: "demon", weak: ["holy"], acts: [{ spell: "e_ice", rate: 0.3 }] },
   levia: { name: "しんかいのぬし リヴァイア", spr: "kraken", pal: "dark", boss: true, scale: 4,
-    hp: 1300, atk: 44, def: 20, agi: 15, exp: 2400, gold: 3000,
+    hp: 2800, atk: 44, def: 20, agi: 15, exp: 2400, gold: 3000,
     absorb: ["ice"], resist: ["fire"],
     acts: [{ spell: "e_bigwave", rate: 0.3 }, { spell: "e_ink", rate: 0.25 }] },
 
@@ -290,7 +290,7 @@ DATA.monsters = {
   winddemon: { name: "ウィンドデーモン", spr: "demon", hp: 170, atk: 40, def: 15, agi: 17, exp: 300, gold: 280,
     race: "demon", weak: ["holy"], acts: [{ spell: "e_gale", rate: 0.35 }] },
   tempest: { name: "あらしのおう テンペスト", spr: "bird", boss: true, scale: 4,
-    hp: 1100, atk: 42, def: 18, agi: 16, exp: 1800, gold: 2200,
+    hp: 2400, atk: 42, def: 18, agi: 16, exp: 1800, gold: 2200,
     absorb: ["thunder"], resist: ["ice"],
     acts: [{ spell: "e_tornado", rate: 0.3 }, { spell: "e_bolt2", rate: 0.25 }] },
 
@@ -304,32 +304,32 @@ DATA.monsters = {
   shadowbeast: { name: "シャドウビースト", spr: "gargoyle", pal: "dark", hp: 140, atk: 38, def: 14, agi: 16, exp: 230, gold: 200,
     weak: ["holy"] },
   meteogolem: { name: "いんせきのばんにん", spr: "golem", pal: "light", boss: true, scale: 3,
-    hp: 700, atk: 38, def: 20, agi: 6, exp: 900, gold: 1200,
+    hp: 1500, atk: 38, def: 20, agi: 6, exp: 900, gold: 1200,
     resist: ["fire", "ice"],
     acts: [{ spell: "e_quake", rate: 0.3 }] },
   glad: { name: "ちていのまじん グラード", spr: "demon", pal: "light", boss: true, scale: 4,
-    hp: 900, atk: 38, def: 16, agi: 12, exp: 1200, gold: 1500,
+    hp: 2000, atk: 38, def: 16, agi: 12, exp: 1200, gold: 1500,
     race: "demon", resist: ["fire"],
     acts: [{ spell: "e_quake", rate: 0.25 }, { spell: "e_silence", rate: 0.2 }, { spell: "e_fire2", rate: 0.2 }] },
   magmaworm: { name: "マグマウォーム", spr: "worm", boss: true, scale: 4,
-    hp: 600, atk: 34, def: 14, agi: 10, exp: 700, gold: 1000,
+    hp: 1300, atk: 34, def: 14, agi: 10, exp: 700, gold: 1000,
     absorb: ["fire"],
     acts: [{ spell: "e_eruption", rate: 0.3 }, { spell: "e_fire2", rate: 0.2 }] },
 
   // ボスは 8ばい弱点で とけないよう たいせい/きゅうしゅう ちゅうしん。
   // れいがい: ザルバ しんのすがた だけ せい属性が じゃくてん (せいけんが きめて)
   demonguard: { name: "デーモンガード", spr: "demon", boss: true, scale: 3,
-    hp: 170, atk: 15, def: 5, agi: 6, exp: 90, gold: 150,
+    hp: 260, atk: 15, def: 5, agi: 6, exp: 90, gold: 150,
     race: "demon", absorb: ["ice"],
     acts: [{ spell: "e_ice_all", rate: 0.35 }] },
   shadow: { name: "あんこくのかげ", spr: "hero_d", pal: "dark", boss: true, scale: 3, trial: true,
     hp: 999, atk: 17, def: 99, agi: 7, exp: 0, gold: 0 },
   zarba: { name: "まおうザルバ", spr: "zarba", boss: true, scale: 3,
-    hp: 400, atk: 24, def: 8, agi: 9, exp: 0, gold: 0,
+    hp: 600, atk: 24, def: 8, agi: 9, exp: 0, gold: 0,
     race: "demon", resist: ["fire", "ice"],
     acts: [{ spell: "e_fire2", rate: 0.3 }], phase2: "zarba2" },
   zarba2: { name: "ザルバ しんのすがた", spr: "zarba", pal: "dark", boss: true, scale: 4,
-    hp: 1200, atk: 30, def: 10, agi: 12, exp: 0, gold: 0,
+    hp: 1600, atk: 30, def: 10, agi: 12, exp: 0, gold: 0,
     race: "demon", weak: ["holy"], absorb: ["fire"],
     acts: [{ spell: "e_meteo", rate: 0.3 }, { spell: "e_ice_all", rate: 0.2 }] },
 };
@@ -514,9 +514,13 @@ DATA.maps.castle = {
       ] },
     { id: "guard1", x: 8, y: 9, spr: "soldier",
       script: [
-        { cond: { flag: "clear" },
-          then: [{ msg: "へいし「レオンさま ばんざい!\nパラディン ばんざい!」" }],
-          else: [{ msg: "へいし「にしのどうくつを ぬければ\nミストのむらへ いけます」" }] },
+        { cond: { flag: "trueClear" },
+          then: [{ msg: "へいし「せかいの きゅうせいしゅ\nばんざーい!! おうさまも たいへん\nおよろこびです!」" }],
+          else: [
+            { cond: { flag: "clear" },
+              then: [{ msg: "へいし「レオンさま ばんざい!\nパラディン ばんざい!」" }],
+              else: [{ msg: "へいし「にしのどうくつを ぬければ\nミストのむらへ いけます」" }] },
+          ] },
       ] },
     { id: "guard2", x: 11, y: 9, spr: "soldier",
       script: [
@@ -569,9 +573,13 @@ DATA.maps.town = {
   npcs: [
     { id: "vil1", x: 5, y: 11, spr: "villager", wander: true,
       script: [
-        { cond: { flag: "paladin" },
-          then: [{ msg: "むらびと「おお ひかりのきしさま!\nどうか ザルバを たおしてくだされ!」" }],
-          else: [{ msg: "むらびと「さいきん モンスターが\nふえたのう。おちおち はたけにも\nいけんわい」" }] },
+        { cond: { flag: "allCrystals" },
+          then: [{ msg: "むらびと「よぞらに ひかる とうが\nみえるじゃろ? あれが うわさの\nほしのとう じゃよ……」" }],
+          else: [
+            { cond: { flag: "paladin" },
+              then: [{ msg: "むらびと「おお ひかりのきしさま!\nどうか ザルバを たおしてくだされ!」" }],
+              else: [{ msg: "むらびと「さいきん モンスターが\nふえたのう。おちおち はたけにも\nいけんわい」" }] },
+          ] },
       ] },
     { id: "vil2", x: 14, y: 12, spr: "villager", wander: true,
       script: [
