@@ -952,13 +952,20 @@ class BattleScene {
     const beaten = this.enemies.filter((e) => !e.fled);
     const exp = beaten.reduce((s, e) => s + (DATA.monsters[e.id].exp || 0), 0);
     const gold = beaten.reduce((s, e) => s + (DATA.monsters[e.id].gold || 0), 0);
+    // 生きのこりボーナス: たおれた なかま1人につき けいけんち+50%
+    // (5人パーティで 1人のこりなら 3ばい。たおれた なかまには はいらない)
+    const fallen = this.party.length - this.aliveParty().length;
+    const mult = 1 + fallen * 0.5;
+    const gain = Math.round(exp * mult);
     AudioSys.bgm("victory");
     const msgs = ["まものたちを やっつけた!"];
-    if (exp > 0 || gold > 0) msgs.push(`けいけんち ${exp} かくとく!\n${gold}ギルを てにいれた!`);
+    if (exp > 0 || gold > 0) {
+      msgs.push(`けいけんち ${gain} かくとく!` + (mult > 1 ? `\n(生きのこりボーナス ${mult}ばい!)` : "") + `\n${gold}ギルを てにいれた!`);
+    }
     G.state.gold += gold;
     for (const p of this.party) {
-      if (p.h.hp > 0 && exp > 0) {
-        const ups = G.addExp(p.h, exp);
+      if (p.h.hp > 0 && gain > 0) {
+        const ups = G.addExp(p.h, gain);
         ups.forEach((m) => msgs.push(m));
       }
     }
