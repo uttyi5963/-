@@ -552,7 +552,14 @@ class BattleScene {
       events.push({ t: 0, fn: () => { this.log = `${h.name}は ${it.def.name}を つかった!`; } });
       events.push({ t: 0.45, fn: () => {
         const def = it.def;
-        if (def.heal) {
+        if (def.elixir) {
+          if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
+          G.removeItem(it.id);
+          t.h.hp = t.h.maxhp;
+          t.h.mp = t.h.maxmp;
+          this.log = `${t.h.name}は かんぜんに かいふくした!`;
+          AudioSys.sfx("heal");
+        } else if (def.heal) {
           if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
           G.removeItem(it.id);
           t.h.hp = Math.min(t.h.maxhp, t.h.hp + def.heal);

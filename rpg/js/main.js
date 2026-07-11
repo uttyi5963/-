@@ -21,8 +21,12 @@ class TitleScene {
     }
     if (Input.tap("a")) {
       AudioSys.sfx("confirm");
-      if (opts[this.sel] === "つづきから" && G.load()) {
-        G.fade(() => G.replace(new FieldScene()));
+      if (opts[this.sel] === "つづきから") {
+        G.push(new SlotPickScene("load", (slot) => {
+          if (slot >= 0 && G.load(slot)) {
+            G.fade(() => G.replace(new FieldScene()));
+          }
+        }));
       } else {
         G.newGame();
         G.fade(() => {
@@ -143,6 +147,7 @@ class EndingScene {
 function bootGame() {
   Gfx.init();
   Input.init();
+  G.migrateLegacy();
   G.push(new TitleScene());
 
   let last = performance.now();
@@ -175,6 +180,7 @@ function bootGame() {
 // じどうテストよう フック
 window.CK = { G, Gfx, Input, AudioSys, DATA, SPR };
 window.CKDEBUG = {
+  noEncounters: false, // テストよう: ランダムエンカウントを とめる
   warp(map, x, y) {
     G.state.map = map; G.state.x = x; G.state.y = y;
     const f = G.scenes.find((s) => s instanceof FieldScene);

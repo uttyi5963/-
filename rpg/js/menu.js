@@ -8,6 +8,12 @@ function itemList() {
 
 // フィールドでのアイテムこうか。つかえたら メッセージ、だめなら null
 function applyFieldItem(def, hero) {
+  if (def.elixir) {
+    if (hero.hp <= 0) return null;
+    hero.hp = hero.maxhp;
+    hero.mp = hero.maxmp;
+    return `${hero.name}の HPとMPが かんぜんに かいふくした!`;
+  }
   if (def.heal) {
     if (hero.hp <= 0) return null;
     hero.hp = Math.min(hero.maxhp, hero.hp + def.heal);
@@ -105,8 +111,11 @@ class MenuScene {
             : "(メニューちゅうも てきは うごきます!)")));
       }
       else if (cmd === "セーブ") {
-        if (G.save()) G.push(new MessageScene("ぼうけんのきろくを セーブした!"));
-        else G.push(new MessageScene("セーブに しっぱいした……"));
+        G.push(new SlotPickScene("save", (slot) => {
+          if (slot < 0) return;
+          if (G.save(slot)) G.push(new MessageScene(`スロット${slot}に きろくした!`));
+          else G.push(new MessageScene("セーブに しっぱいした……"));
+        }));
       }
     }
   }

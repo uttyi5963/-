@@ -142,7 +142,9 @@ class FieldScene {
 
     if (this.solidAt(nx, ny)) return;
     if (this.npcAt(nx, ny)) return;
-    if (this.chestAt(nx, ny)) return;
+    // かくしとうばこは 通行をさまたげない
+    const ch = this.chestAt(nx, ny);
+    if (ch && !ch.hidden) return;
 
     this.moving = { dx, dy, t: 0 };
   }
@@ -168,6 +170,7 @@ class FieldScene {
   }
 
   checkEncounter() {
+    if (window.CKDEBUG && window.CKDEBUG.noEncounters) return;
     const m = this.map;
     let table = null;
     if (m.encounter) table = DATA.encounters[m.encounter];
@@ -188,8 +191,12 @@ class FieldScene {
     const [dx, dy] = DIRS[G.state.dir];
     let fx = G.state.x + dx, fy = G.state.y + dy;
 
-    // たからばこ
-    const chest = this.chestAt(fx, fy);
+    // たからばこ (めのまえ、または あしもとの かくしとうばこ)
+    let chest = this.chestAt(fx, fy);
+    if (!chest) {
+      const own = this.chestAt(G.state.x, G.state.y);
+      if (own && own.hidden) chest = own;
+    }
     if (chest) {
       const flagKey = "chest_" + chest.id;
       if (G.flag(flagKey)) {
@@ -197,6 +204,9 @@ class FieldScene {
       } else {
         G.setFlag(flagKey, 1);
         AudioSys.sfx("chest");
+        if (chest.hidden) {
+          G.push(new MessageScene("かくされた たからばこを みつけた!"));
+        }
         if (chest.gold) {
           G.state.gold += chest.gold;
           G.push(new MessageScene(`たからばこを あけた!\n${chest.gold}ギルを てにいれた!`));
@@ -284,9 +294,10 @@ class FieldScene {
       }
     }
 
-    // たからばこ
+    // たからばこ (かくしは みつけるまで えがかない)
     for (const c of (m.chests || [])) {
       const opened = G.flag("chest_" + c.id);
+      if (c.hidden && !opened) continue;
       Gfx.draw(opened ? "chest_open" : "chest", c.x * TILE - camx, c.y * TILE - camy);
     }
 

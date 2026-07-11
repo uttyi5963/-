@@ -424,21 +424,50 @@ const G = {
   },
 
   SAVE_KEY: "crystal_knights_save",
+  SLOTS: 4,
 
-  save() {
+  slotKey(n) { return this.SAVE_KEY + "_slot" + n; },
+
+  // むかしの 1スロットセーブを スロット1へ ひっこし
+  migrateLegacy() {
     try {
-      localStorage.setItem(this.SAVE_KEY, JSON.stringify(this.state));
+      const old = localStorage.getItem(this.SAVE_KEY);
+      if (old && !localStorage.getItem(this.slotKey(1))) {
+        localStorage.setItem(this.slotKey(1), old);
+        localStorage.removeItem(this.SAVE_KEY);
+      }
+    } catch (e) { /* ignore */ }
+  },
+
+  save(slot = 1) {
+    try {
+      localStorage.setItem(this.slotKey(slot), JSON.stringify(this.state));
       return true;
     } catch (e) { return false; }
   },
 
   hasSave() {
-    try { return !!localStorage.getItem(this.SAVE_KEY); } catch (e) { return false; }
+    for (let n = 1; n <= this.SLOTS; n++) if (this.slotInfo(n)) return true;
+    return false;
   },
 
-  load() {
+  // スロットのようやく (からっぽなら null)
+  slotInfo(n) {
     try {
-      const s = JSON.parse(localStorage.getItem(this.SAVE_KEY));
+      const s = JSON.parse(localStorage.getItem(this.slotKey(n)));
+      if (!s || !s.party || !s.party[0]) return null;
+      return {
+        name: s.party[0].name, lv: s.party[0].lv,
+        map: (DATA.maps[s.map] && DATA.maps[s.map].name) || s.map,
+        min: Math.floor((s.playtime || 0) / 60),
+        members: s.party.length,
+      };
+    } catch (e) { return null; }
+  },
+
+  load(slot = 1) {
+    try {
+      const s = JSON.parse(localStorage.getItem(this.slotKey(slot)));
       if (!s || !s.party) return false;
       if (!s.config) s.config = { atbWait: true };
       for (const h of s.party) {
@@ -531,6 +560,50 @@ class ChoiceScene {
       Gfx.text(op, this.x + 22, this.y + 10 + i * 17);
     });
     Gfx.cursor(this.x + 10, this.y + 13 + this.sel * 17);
+  }
+}
+
+// ---------------- セーブスロットせんたく ----------------
+// mode: "save" | "load"。onPick(スロットばんごう 1..4, キャンセルは -1)
+class SlotPickScene {
+  constructor(mode, onPick) {
+    this.mode = mode;
+    this.onPick = onPick;
+    this.sel = 0;
+    this.opaque = false;
+  }
+  update() {
+    if (Input.tap("up")) { this.sel = (this.sel + G.SLOTS - 1) % G.SLOTS; AudioSys.sfx("cursor"); }
+    if (Input.tap("down")) { this.sel = (this.sel + 1) % G.SLOTS; AudioSys.sfx("cursor"); }
+    if (Input.tap("b")) {
+      AudioSys.sfx("cancel");
+      G.pop();
+      this.onPick(-1);
+      return;
+    }
+    if (Input.tap("a")) {
+      const slot = this.sel + 1;
+      if (this.mode === "load" && !G.slotInfo(slot)) { AudioSys.sfx("buzz"); return; }
+      AudioSys.sfx("confirm");
+      G.pop();
+      this.onPick(slot);
+    }
+  }
+  draw() {
+    Gfx.window(30, 60, 260, 168);
+    Gfx.text(this.mode === "save" ? "どこに きろくしますか?" : "どの きろくで はじめますか?", 44, 68, 3, 11);
+    for (let i = 0; i < G.SLOTS; i++) {
+      const y = 92 + i * 32;
+      const info = G.slotInfo(i + 1);
+      Gfx.text(`スロット${i + 1}`, 58, y, 3, 11);
+      if (info) {
+        Gfx.text(`${info.name} Lv${info.lv} なかま${info.members}にん`, 58, y + 14, 3, 9);
+        Gfx.textR(`${info.map} ${info.min}ふん`, 276, y + 14, 3, 9);
+      } else {
+        Gfx.text("(からっぽ)", 58, y + 14, 1, 9);
+      }
+      if (this.sel === i) Gfx.cursor(44, y + 6);
+    }
   }
 }
 

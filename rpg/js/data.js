@@ -29,6 +29,8 @@ DATA.spells = {
   e_silence:{ name: "ちんもくのかぜ", mp: 0, type: "status", status: "silence", cast: 1.2, target: "enemy" },
   e_ice:   { name: "ブリザド",     mp: 0, type: "dmg", pow: 20, cast: 1.2, elem: "ice", target: "enemy" },
   e_breath:{ name: "こおりのブレス", mp: 0, type: "dmg", pow: 30, cast: 2.5, elem: "ice", target: "enemy", all: true },
+  e_wave:  { name: "おおつなみ",   mp: 0, type: "dmg", pow: 35, cast: 2.8, elem: "ice", target: "enemy", all: true },
+  e_ink:   { name: "すみはき",     mp: 0, type: "status", status: "blind", cast: 1.0, target: "enemy" },
 };
 
 // じょうたいいじょう
@@ -50,6 +52,7 @@ DATA.items = {
   eyedrops: { name: "めぐすり",       kind: "use", price: 20,  cure: "blind", desc: "くらやみを なおす" },
   echoherb: { name: "やまびこそう",   kind: "use", price: 30,  cure: "silence", desc: "ちんもくを なおす" },
   kiss:     { name: "おとめのキッス", kind: "use", price: 60,  cure: "toad", desc: "カエルを もとにもどす" },
+  elixir:   { name: "エリクサー",     kind: "use", price: 2000, elixir: true, desc: "HPとMPが かんぜんかいふく" },
 
   w_dark:    { name: "ダークソード",   kind: "weapon", price: 300, atk: 8,  who: ["leon"], dark: true },
   w_steel:   { name: "こうてつのつるぎ", kind: "weapon", price: 450, atk: 12, who: ["leon"] },
@@ -64,6 +67,8 @@ DATA.items = {
   w_dragonlance: { name: "りゅうのやり", kind: "weapon", price: 1500, atk: 17, who: ["glen"], slay: ["dragon"] },
   w_claw:    { name: "てつのつめ",     kind: "weapon", price: 200, atk: 6,  who: ["gou"] },
   w_ironclaw:{ name: "タイガークロー", kind: "weapon", price: 700, atk: 13, who: ["gou"] },
+  w_thunderclaw: { name: "かみなりのつめ", kind: "weapon", price: 1400, atk: 16, who: ["gou"], elem: "thunder" },
+  w_boltstaff: { name: "いかずちのつえ", kind: "weapon", price: 1600, atk: 10, int: 4, who: ["rod"] },
 
   a_dark:    { name: "あんこくのよろい", kind: "armor", price: 350, def: 6,  who: ["leon"], dark: true },
   a_steel:   { name: "こうてつのよろい", kind: "armor", price: 400, def: 10, who: ["leon", "glen"] },
@@ -73,6 +78,7 @@ DATA.items = {
   a_leather: { name: "かわのよろい",   kind: "armor", price: 200, def: 5,  who: ["leon", "glen", "gou", "rod", "celia"] },
   a_silk:    { name: "シルクのローブ", kind: "armor", price: 400, def: 7, int: 2, who: ["rod", "celia"] },
   a_ice:     { name: "こおりのローブ", kind: "armor", price: 900, def: 9, int: 2, who: ["rod", "celia"] },
+  a_aqua:    { name: "アクアメイル",   kind: "armor", price: 1600, def: 15, who: ["leon", "glen"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
 };
@@ -174,6 +180,20 @@ DATA.monsters = {
     race: "dragon", absorb: ["ice"],
     acts: [{ spell: "e_breath", rate: 0.3 }, { spell: "e_ice", rate: 0.2 }] },
 
+  // ---- ちかすいろ ----
+  mudtoad:  { name: "マッドトード", spr: "toad", pal: "dark", hp: 45, atk: 20, def: 6, agi: 7, exp: 40, gold: 35,
+    weak: ["ice"], inflict: { status: "poison", rate: 0.3 }, acts: [{ spell: "e_toad", rate: 0.2 }] },
+  sewerbat: { name: "げすいコウモリ", spr: "bat", pal: "dark", hp: 30, atk: 18, def: 4, agi: 14, exp: 30, gold: 25,
+    weak: ["thunder"], inflict: { status: "blind", rate: 0.3 } },
+  waterelem:{ name: "ウォーターエレメント", spr: "wizard", pal: "dark", hp: 55, atk: 16, def: 7, agi: 10, exp: 60, gold: 60,
+    weak: ["thunder"], absorb: ["ice"], acts: [{ spell: "e_ice", rate: 0.4 }] },
+  sludge:   { name: "ヘドロゴーレム", spr: "golem", pal: "dark", hp: 110, atk: 28, def: 15, agi: 4, exp: 95, gold: 90,
+    weak: ["fire"], inflict: { status: "poison", rate: 0.4 } },
+  kraken:   { name: "クラーケン", spr: "kraken", boss: true, scale: 3,
+    hp: 450, atk: 30, def: 12, agi: 11, exp: 450, gold: 800,
+    resist: ["fire", "ice"],
+    acts: [{ spell: "e_wave", rate: 0.3 }, { spell: "e_ink", rate: 0.25 }] },
+
   // ボスは 8ばい弱点で とけないよう たいせい/きゅうしゅう ちゅうしん。
   // れいがい: ザルバ しんのすがた だけ せい属性が じゃくてん (せいけんが きめて)
   demonguard: { name: "デーモンガード", spr: "demon", boss: true, scale: 3,
@@ -201,6 +221,7 @@ DATA.encounters = {
   shrine:   { rate: 1 / 13, groups: [["skeleton", "skeleton"], ["gargoyle", "wizard"], ["gargoyle", "gargoyle"]] },
   tower:    { rate: 1 / 12, groups: [["ddemon"], ["golem"], ["gargoyle", "gargoyle", "wizard"], ["ddemon", "wizard"]] },
   icecave:  { rate: 1 / 13, groups: [["icegoblin", "icegoblin"], ["icebat", "icebat", "icegoblin"], ["frostwiz", "icebat"], ["frostgar"], ["babydragon"], ["frostwiz", "frostwiz"]] },
+  waterway: { rate: 1 / 13, groups: [["mudtoad", "mudtoad"], ["sewerbat", "sewerbat", "sewerbat"], ["waterelem", "sewerbat"], ["sludge"], ["waterelem", "waterelem"], ["sludge", "mudtoad"]] },
 };
 
 // ---------------- ショップ ----------------
@@ -236,6 +257,7 @@ DATA.maps.world = {
     "T": { tile: "icon_town" },
     "c": { tile: "icon_cave" },
     "I": { tile: "icon_cave" },
+    "U": { tile: "icon_cave" },
     "M": { tile: "icon_shrine" },
     "X": { tile: "icon_tower" },
   },
@@ -270,7 +292,7 @@ DATA.maps.world = {
     "ww..............mmmm..............wwwwww",
     "ww..............mmmm......f.......wwwwww",
     "ww...ff.........mmmm.....ff.......wwwwww",
-    "ww....f.........mmmm..............wwwwww",
+    "ww....f..U......mmmm..............wwwwww",
     "ww..............mmmm..............wwwwww",
     "www.............mmmm............wwwwwwww",
     "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
@@ -297,6 +319,7 @@ DATA.maps.world = {
       failScript: [{ msg: "とうは くろい けっかいに\nつつまれている……!" }],
       warp: { map: "tower1", x: 6, y: 10, dir: "u" } },
     { x: 21, y: 7, type: "enter", warp: { map: "icecave", x: 1, y: 12, dir: "u" } },
+    { x: 9, y: 30, type: "enter", warp: { map: "waterway", x: 1, y: 8, dir: "u" } },
   ],
   npcs: [],
   chests: [],
@@ -355,7 +378,9 @@ DATA.maps.castle = {
           else: [{ msg: "へいし「さいきん おうさまは\nひとが かわってしまわれた……」" }] },
       ] },
   ],
-  chests: [],
+  chests: [
+    { id: "castle1", x: 17, y: 1, gold: 500, hidden: true },
+  ],
 };
 
 // ---------------- ミストのむら ----------------
@@ -408,7 +433,7 @@ DATA.maps.town = {
     { id: "hunter", x: 16, y: 11, spr: "villager",
       script: [
         { cond: { flag: "iceReward" },
-          then: [{ msg: "ハンター「あんたら まじで つええなあ。\nまた しごとが あったら たのむぜ」" }],
+          then: [{ msg: "ハンター「そういや みなみの ちかすいろで\nみずおとの おかしい ばしょが あるって\nうわさだぜ。なにか あるのかもな」" }],
           else: [
             { cond: { flag: "iceBoss" },
               then: [
@@ -810,8 +835,69 @@ DATA.maps.icecave = {
   ],
 };
 
+// ---------------- ちかすいろ ----------------
+DATA.maps.waterway = {
+  name: "ちかすいろ",
+  bgm: "dungeon",
+  encounter: "waterway",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    "~": { tile: "water", solid: true },
+    ".": { tile: "floor" },
+  },
+  rows: [
+    "######################",
+    "#....................#",
+    "#....................#",
+    "#.~~~~~~~~~~~~~~~~~~.#",
+    "#.~~~~~~~~~~~~~~~~~~.#",
+    "#....................#",
+    "#.~~~~~~~~~~~~~~~~~~.#",
+    "#.~~~~~~~~~~~~~~~~~~.#",
+    "#....................#",
+    "######################",
+  ],
+  events: [
+    { x: 1, y: 8, type: "enter", warp: { map: "world", x: 9, y: 31, dir: "d" } },
+    { x: 3, y: 8, type: "enter", scriptId: "wwWarn" },
+    { x: 6, y: 1, type: "enter", scriptId: "krakenFight" },
+    { x: 6, y: 2, type: "enter", scriptId: "krakenFight" },
+    { x: 15, y: 1, type: "enter", scriptId: "krakenFight" },
+    { x: 15, y: 2, type: "enter", scriptId: "krakenFight" },
+  ],
+  npcs: [
+    { id: "krakennpc", x: 11, y: 1, spr: "kraken", hideFlag: "waterBoss",
+      script: [{ runScript: "krakenFight" }] },
+  ],
+  chests: [
+    { id: "ww1", x: 9, y: 1, item: "w_thunderclaw" },
+    { id: "ww2", x: 13, y: 1, item: "a_aqua" },
+    { id: "ww3", x: 17, y: 1, item: "w_boltstaff" },
+    { id: "ww4", x: 2, y: 5, gold: 900 },
+    { id: "ww5", x: 12, y: 5, item: "elixir", hidden: true },
+  ],
+};
+
 // ---------------- きょうつうスクリプト ----------------
 DATA.scripts = {
+  wwWarn: [
+    { cond: { flag: "wwWarned" },
+      then: [],
+      else: [
+        { msg: "いしぶみ「このさき すいろの ぬし あり。\nそなえ なきものは ひきかえすべし」" },
+        { flag: ["wwWarned", 1] },
+      ] },
+  ],
+  krakenFight: [
+    { cond: { flag: "waterBoss" },
+      then: [],
+      else: [
+        { msg: "すいめんが さかまき……\nすいろの ぬし クラーケンが\nすがたを あらわした!!" },
+        { battle: { group: ["kraken"], boss: true, music: "boss" } },
+        { flag: ["waterBoss", 1] },
+        { msg: "すいろに しずけさが もどった。" },
+      ] },
+  ],
   iceDragon: [
     { cond: { flag: "iceBoss" },
       then: [],
