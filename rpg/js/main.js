@@ -10,7 +10,14 @@ class TitleScene {
     AudioSys.bgm("title");
   }
   options() {
-    return G.hasSave() ? ["はじめから", "つづきから"] : ["はじめから"];
+    const opts = ["はじめから"];
+    if (G.hasSave()) opts.push("つづきから");
+    // どれかの スロットに しんエンドの きろくが あれば 2しゅうめ かいほう
+    for (let n = 1; n <= G.SLOTS; n++) {
+      const info = G.slotInfo(n);
+      if (info && info.trueClear) { opts.push("つよくてニューゲーム"); break; }
+    }
+    return opts;
   }
   update(dt) {
     this.t += dt;
@@ -21,10 +28,27 @@ class TitleScene {
     }
     if (Input.tap("a")) {
       AudioSys.sfx("confirm");
-      if (opts[this.sel] === "つづきから") {
+      const pick = opts[this.sel];
+      if (pick === "つづきから") {
         G.push(new SlotPickScene("load", (slot) => {
           if (slot >= 0 && G.load(slot)) {
             G.fade(() => G.replace(new FieldScene()));
+          }
+        }));
+      } else if (pick === "つよくてニューゲーム") {
+        G.push(new SlotPickScene("load", (slot) => {
+          if (slot < 0) return;
+          const info = G.slotInfo(slot);
+          if (!info || !info.trueClear) {
+            G.push(new MessageScene("しんエンドの クリアきろくが ある\nスロットを えらんでください。"));
+            return;
+          }
+          if (G.newGamePlus(slot)) {
+            G.fade(() => {
+              G.replace(new FieldScene());
+              const boot = DATA.scripts[DATA.newGame.runScript];
+              if (boot) runScript(boot);
+            });
           }
         }));
       } else {

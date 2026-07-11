@@ -491,8 +491,44 @@ const G = {
         map: (DATA.maps[s.map] && DATA.maps[s.map].name) || s.map,
         min: Math.floor((s.playtime || 0) / 60),
         members: s.party.length,
+        trueClear: !!(s.flags && s.flags.trueClear),
       };
     } catch (e) { return null; }
+  },
+
+  // つよくてニューゲーム: クリアデータから レベル/そうび/ギル/ずかんを ひきつぎ
+  newGamePlus(slot) {
+    let src;
+    try { src = JSON.parse(localStorage.getItem(this.slotKey(slot))); } catch (e) { return false; }
+    if (!src || !src.party || !src.flags || !src.flags.trueClear) return false;
+
+    this.newGame();
+    this.state.gold = src.gold;
+    this.state.bestiary = src.bestiary || {};
+    this.state.config = src.config || { atbWait: true };
+    // キーアイテムは もちこせない
+    this.state.items = {};
+    for (const [id, n] of Object.entries(src.items || {})) {
+      if (DATA.items[id] && DATA.items[id].kind !== "key") this.state.items[id] = n;
+    }
+    // なかまは ものがたりで さいかにゅう (そだてた すがたのまま)
+    this.state.ngHeroes = {};
+    for (const h of src.party) {
+      this.state.ngHeroes[h.id] = JSON.parse(JSON.stringify(h));
+    }
+    // レオンは あんこくきしに もどって さいしゅっぱつ
+    const leon = JSON.parse(JSON.stringify(this.state.ngHeroes.leon));
+    const base = DATA.heroes.leon;
+    leon.paladin = false;
+    leon.cls = base.cls; leon.spr = base.spr;
+    leon.special = base.special; leon.command = base.command || null;
+    if (leon.weapon === "w_light") leon.weapon = "w_dark";
+    if (leon.armor === "a_light") leon.armor = "a_dark";
+    this.applyStats(leon);
+    leon.hp = leon.maxhp; leon.mp = leon.maxmp;
+    leon.poison = leon.blind = leon.silence = leon.toad = false;
+    this.state.party = [leon];
+    return true;
   },
 
   load(slot = 1) {
@@ -697,8 +733,17 @@ function runScript(ops, onDone) {
       }
       if (op.join) {
         if (!G.state.party.some((h) => h.id === op.join) && G.state.party.length < 5) {
-          const lv = Math.max(G.state.party[0].lv, 1);
-          G.state.party.push(G.makeHero(op.join, lv));
+          // 2しゅうめは そだてた なかまが もどってくる
+          const saved = G.state.ngHeroes && G.state.ngHeroes[op.join];
+          if (saved) {
+            const h = JSON.parse(JSON.stringify(saved));
+            h.hp = h.maxhp; h.mp = h.maxmp;
+            h.poison = h.blind = h.silence = h.toad = false;
+            G.state.party.push(h);
+          } else {
+            const lv = Math.max(G.state.party[0].lv, 1);
+            G.state.party.push(G.makeHero(op.join, lv));
+          }
         }
         AudioSys.sfx("levelup");
         continue;
