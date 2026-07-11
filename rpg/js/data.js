@@ -1075,6 +1075,15 @@ DATA.maps.port = {
       script: [
         { msg: "しょうにん「ソレイユのみせは\nミストより いいものぞろいだよ!\nぜひ みていっとくれ」" },
       ] },
+    { id: "arena", x: 13, y: 7, spr: "soldier",
+      script: [
+        { cond: { flag: "arenaGold" },
+          then: [
+            { msg: "うけつけ「チャンピオン! また\nうでだめしに きたのかい?」" },
+            { runScript: "arenaEntry" },
+          ],
+          else: [{ runScript: "arenaEntry" }] },
+      ] },
     { id: "scholar", x: 18, y: 6, spr: "elder",
       script: [
         { cond: { flag: "glowReward" },
@@ -1822,6 +1831,57 @@ DATA.scripts = {
           ] },
       ],
       else: [{ msg: "ちていへ つづく おおとびら……\nふしぎな ちからで とざされている。" }] },
+  ],
+  arenaEntry: [
+    { msg: "うけつけ「ソレイユとうぎじょうへ ようこそ!\n3れんせんを かちぬけば しょうきんだ。\nランクを えらびな!」" },
+    { menu: { options: [
+      { label: "ブロンズ300G", ops: [
+        { payGold: { amount: 300,
+          ok: [
+            { msg: "うけつけ「ブロンズランク かいし!!」" },
+            { battle: { group: ["skeleton", "skeleton"], boss: true } },
+            { battle: { group: ["wizard", "gargoyle"], boss: true } },
+            { battle: { group: ["golem"], boss: true } },
+            { msg: "うけつけ「みごとな かちっぷりだ!\nしょうきんと しょうひんを うけとりな!」" },
+            { give: { gold: 800 } },
+            { give: { item: "hipotion" } },
+            { msg: "800ギルと ハイポーションを てにいれた!" },
+            { flag: ["arenaBronze", 1] },
+          ],
+          ng: [{ msg: "うけつけ「おかねが たりないよ!」" }] } },
+      ] },
+      { label: "シルバー1000G", ops: [
+        { payGold: { amount: 1000,
+          ok: [
+            { msg: "うけつけ「シルバーランク かいし!!」" },
+            { battle: { group: ["frostgar", "icebat", "icebat"], boss: true } },
+            { battle: { group: ["sludge", "waterelem"], boss: true } },
+            { battle: { group: ["flamedemon", "firelizard"], boss: true } },
+            { msg: "うけつけ「つよい! しょうきんだ!」" },
+            { give: { gold: 2500 } },
+            { give: { item: "elixir" } },
+            { msg: "2500ギルと エリクサーを てにいれた!" },
+            { flag: ["arenaSilver", 1] },
+          ],
+          ng: [{ msg: "うけつけ「おかねが たりないよ!」" }] } },
+      ] },
+      { label: "ゴールド3000G", ops: [
+        { payGold: { amount: 3000,
+          ok: [
+            { msg: "うけつけ「ゴールドランク……\nいのちの ほしょうは しないよ!!」" },
+            { battle: { group: ["darkknight", "darksoldier", "darksoldier"], boss: true } },
+            { battle: { group: ["deathknight", "shadowbeast"], boss: true } },
+            { battle: { group: ["arcdemon", "voidgolem"], boss: true } },
+            { msg: "うけつけ「しんじられない……\nあんたたちが チャンピオンだ!!」" },
+            { give: { gold: 8000 } },
+            { give: { item: "elixir" } },
+            { msg: "8000ギルと エリクサーを てにいれた!\nとうぎじょう チャンピオンに かがやいた!" },
+            { flag: ["arenaGold", 1] },
+          ],
+          ng: [{ msg: "うけつけ「おかねが たりないよ!」" }] } },
+      ] },
+      { label: "やめる", ops: [] },
+    ] } },
   ],
   airshipBoard: [
     { cond: { flag: "airship" },

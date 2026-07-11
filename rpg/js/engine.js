@@ -669,6 +669,21 @@ function runScript(ops, onDone) {
         if (op.take.item) G.removeItem(op.take.item);
         continue;
       }
+      if (op.payGold) {
+        // はらえたら ok、たりなければ ng の れつへ ぶんき
+        const p = op.payGold;
+        let branch;
+        if (G.state.gold >= p.amount) {
+          G.state.gold -= p.amount;
+          AudioSys.sfx("chest");
+          branch = p.ok || [];
+        } else {
+          AudioSys.sfx("buzz");
+          branch = p.ng || [];
+        }
+        ops = ops.slice(0, i).concat(branch, ops.slice(i));
+        continue;
+      }
       if (op.menu) {
         // せんたくし: えらんだ options[n].ops を さしこんで つづける
         const m = op.menu;
