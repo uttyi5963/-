@@ -61,6 +61,7 @@ DATA.items = {
   w_staff:   { name: "ロッド",         kind: "weapon", price: 60,  atk: 3,  who: ["rod", "celia"] },
   w_wizstaff:{ name: "まどうのつえ",   kind: "weapon", price: 500, atk: 7, int: 3, who: ["rod"] },
   w_mace:    { name: "いやしのつえ",   kind: "weapon", price: 450, atk: 6, int: 2, who: ["celia"] },
+  w_crystalrod: { name: "すいしょうロッド", kind: "weapon", price: 1300, atk: 8, int: 4, who: ["celia"] },
   w_flame:   { name: "フレイムソード", kind: "weapon", price: 1200, atk: 19, who: ["leon"], elem: "fire" },
   w_spear:   { name: "やり",           kind: "weapon", price: 250, atk: 8,  who: ["glen"] },
   w_lance:   { name: "ミスリルのやり", kind: "weapon", price: 850, atk: 15, who: ["glen"] },
@@ -226,6 +227,12 @@ DATA.encounters = {
 
 // ---------------- ショップ ----------------
 DATA.shops = {
+  port: {
+    name: "ソレイユのみせ",
+    stock: ["potion", "hipotion", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
+            "w_flame", "w_lance", "w_thunderclaw", "w_crystalrod",
+            "a_aqua", "a_ice"],
+  },
   town: {
     name: "ミストのみせ",
     stock: ["potion", "hipotion", "ether", "antidote", "eyedrops", "echoherb", "kiss", "phoenix",
@@ -255,6 +262,7 @@ DATA.maps.world = {
     "b": { tile: "bridge" },
     "C": { tile: "icon_castle" },
     "T": { tile: "icon_town" },
+    "P": { tile: "icon_town" },
     "c": { tile: "icon_cave" },
     "I": { tile: "icon_cave" },
     "U": { tile: "icon_cave" },
@@ -278,7 +286,7 @@ DATA.maps.world = {
     "ww..............mmmm..............wwwwww",
     "ww..f...........mmmm..............wwwwww",
     "ww.ff...........mmmm......ff......wwwwww",
-    "ww..............mmmm.....ffff.....wwwwww",
+    "ww..............mmmm.....ffff.P...wwwwww",
     "ww..............mmmm......ff......wwwwww",
     "ww..............mmmm..............wwwwww",
     "ww..............mmmm..............wwwwww",
@@ -320,6 +328,7 @@ DATA.maps.world = {
       warp: { map: "tower1", x: 6, y: 10, dir: "u" } },
     { x: 21, y: 7, type: "enter", warp: { map: "icecave", x: 1, y: 12, dir: "u" } },
     { x: 9, y: 30, type: "enter", warp: { map: "waterway", x: 1, y: 8, dir: "u" } },
+    { x: 30, y: 16, type: "enter", warp: { map: "port", x: 10, y: 1, dir: "d" } },
   ],
   npcs: [],
   chests: [],
@@ -833,6 +842,120 @@ DATA.maps.icecave = {
     { id: "ice3", x: 1, y: 1, item: "w_flame" },
     { id: "ice4", x: 2, y: 1, item: "w_dragonlance" },
   ],
+};
+
+// ---------------- みなとまち ソレイユ ----------------
+DATA.maps.port = {
+  name: "みなとまち ソレイユ",
+  bgm: "town",
+  exit: { map: "world", x: 30, y: 17, dir: "d" },
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "D": { tile: "door" },
+    "w": { tile: "water", solid: true },
+    "b": { tile: "bridge" },
+  },
+  rows: [
+    "ffffffffff..ffffffffff",
+    "f....................f",
+    "f.WWWWW.......WWWWW..f",
+    "f.WWWWW.......WWWWW..f",
+    "f.WWdWW.......WWDWW..f",
+    "f....................f",
+    "f....................f",
+    "f....................f",
+    "wwwwwwwwwwbwwwwwwwwwww",
+    "wwwwwwwwwwbwwwwwwwwwww",
+    "wwwwwwwwwwbwwwwwwwwwww",
+    "wwwwwwwwwwbwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwww",
+  ],
+  events: [
+    { x: 4, y: 4, type: "enter", warp: { map: "portinn", x: 4, y: 6, dir: "u" } },
+    { x: 16, y: 4, type: "enter", warp: { map: "portshop", x: 4, y: 6, dir: "u" } },
+  ],
+  npcs: [
+    { id: "sailor", x: 9, y: 7, spr: "villager",
+      script: [
+        { msg: "せんいん「よう! ここは みなとまち\nソレイユ。うみの むこうで よなよな\nあかい ひかりが みえるんだ」" },
+        { msg: "せんいん「ちていに つづく おおあなが\nひらいたって うわさも ある。\nいやな よかんが するぜ……」" },
+      ] },
+    { id: "obaba", x: 5, y: 6, spr: "villager", wander: true,
+      script: [
+        { msg: "おばあさん「さんばしの さきっぽで\nなにかが ひかったのを みたんだよ。\nしらべてみたら どうだい?」" },
+      ] },
+    { id: "merchant", x: 14, y: 6, spr: "villager", wander: true,
+      script: [
+        { msg: "しょうにん「ソレイユのみせは\nミストより いいものぞろいだよ!\nぜひ みていっとくれ」" },
+      ] },
+  ],
+  chests: [
+    { id: "pier1", x: 10, y: 11, item: "elixir", hidden: true },
+  ],
+};
+
+DATA.maps.portinn = {
+  name: "ソレイユのやどや",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "B": { tile: "bed" },
+    "n": { tile: "counter", solid: true },
+    "d": { tile: "door" },
+  },
+  rows: [
+    "##########",
+    "#B......B#",
+    "#........#",
+    "#..nnnn..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####dd####",
+  ],
+  events: [
+    { x: 4, y: 7, type: "enter", warp: { map: "port", x: 4, y: 5, dir: "d" } },
+    { x: 5, y: 7, type: "enter", warp: { map: "port", x: 4, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "portinnkeep", x: 4, y: 2, spr: "villager",
+      script: [{ inn: 40 }] },
+  ],
+  chests: [],
+};
+
+DATA.maps.portshop = {
+  name: "ソレイユのみせ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "n": { tile: "counter", solid: true },
+    "d": { tile: "door" },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#........#",
+    "#..nnnn..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####dd####",
+  ],
+  events: [
+    { x: 4, y: 7, type: "enter", warp: { map: "port", x: 16, y: 5, dir: "d" } },
+    { x: 5, y: 7, type: "enter", warp: { map: "port", x: 16, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "portshopkeep", x: 4, y: 2, spr: "villager",
+      script: [{ shop: "port" }] },
+  ],
+  chests: [],
 };
 
 // ---------------- ちかすいろ ----------------
