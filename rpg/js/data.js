@@ -37,6 +37,7 @@ DATA.spells = {
   e_gale:  { name: "かまいたち",   mp: 0, type: "dmg", pow: 30, cast: 1.5, elem: "none", target: "enemy" },
   e_tornado: { name: "たつまき",   mp: 0, type: "dmg", pow: 50, cast: 3.4, elem: "none", target: "enemy", all: true },
   e_bolt2: { name: "いなずま",     mp: 0, type: "dmg", pow: 45, cast: 2.0, elem: "thunder", target: "enemy" },
+  e_bigwave: { name: "だいかいしょう", mp: 0, type: "dmg", pow: 55, cast: 3.5, elem: "ice", target: "enemy", all: true },
 };
 
 // じょうたいいじょう
@@ -79,6 +80,7 @@ DATA.items = {
   w_lance:   { name: "ミスリルのやり", kind: "weapon", price: 850, atk: 15, who: ["glen"] },
   w_dragonlance: { name: "りゅうのやり", kind: "weapon", price: 1500, atk: 17, who: ["glen"], slay: ["dragon"] },
   w_windspear: { name: "かぜのやり",   kind: "weapon", price: 3000, atk: 26, who: ["glen"] },
+  w_trident: { name: "トライデント",   kind: "weapon", price: 3600, atk: 28, who: ["glen"], elem: "thunder" },
   w_claw:    { name: "てつのつめ",     kind: "weapon", price: 200, atk: 6,  who: ["gou"] },
   w_ironclaw:{ name: "タイガークロー", kind: "weapon", price: 700, atk: 13, who: ["gou"] },
   w_thunderclaw: { name: "かみなりのつめ", kind: "weapon", price: 1400, atk: 16, who: ["gou"], elem: "thunder" },
@@ -97,12 +99,14 @@ DATA.items = {
   a_dwarf:   { name: "ドヴェルグメイル", kind: "armor", price: 2400, def: 19, who: ["leon", "glen"] },
   a_gaia:    { name: "だいちのよろい",   kind: "armor", price: 3200, def: 22, who: ["leon", "glen"] },
   a_sylph:   { name: "シルフのローブ",   kind: "armor", price: 3000, def: 16, int: 4, who: ["rod", "celia"] },
+  a_abyss:   { name: "しんかいのローブ", kind: "armor", price: 3400, def: 18, int: 5, who: ["rod", "celia"] },
   a_sage:    { name: "けんじゃのローブ", kind: "armor", price: 2200, def: 13, int: 3, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
   earthcrystal: { name: "ちのクリスタル", kind: "key", price: 0, desc: "だいちのちからを やどす けっしょう" },
   windcrystal: { name: "かぜのクリスタル", kind: "key", price: 0, desc: "あらしのちからを やどす けっしょう" },
+  watercrystal: { name: "みずのクリスタル", kind: "key", price: 0, desc: "うみのちからを やどす けっしょう" },
 };
 
 // ---------------- なかま ----------------
@@ -231,6 +235,20 @@ DATA.monsters = {
     weak: ["holy"] },
   darksoldier: { name: "やみのへいし", spr: "soldier", pal: "dark", hp: 100, atk: 32, def: 14, agi: 14, exp: 150, gold: 140,
     weak: ["holy"] },
+  // ---- うみのそこ / かいていしんでん ----
+  octopus: { name: "オクトパス", spr: "kraken", pal: "light", hp: 180, atk: 40, def: 14, agi: 15, exp: 340, gold: 300,
+    weak: ["thunder"], acts: [{ spell: "e_ink", rate: 0.3 }] },
+  deepworm: { name: "ディープワーム", spr: "worm", pal: "dark", hp: 220, atk: 44, def: 18, agi: 8, exp: 360, gold: 320,
+    weak: ["thunder"] },
+  merman: { name: "マーマンナイト", spr: "soldier", pal: "light", hp: 190, atk: 44, def: 18, agi: 16, exp: 350, gold: 330,
+    weak: ["thunder"] },
+  abyssdemon: { name: "アビスデーモン", spr: "demon", pal: "dark", hp: 200, atk: 42, def: 16, agi: 17, exp: 380, gold: 350,
+    race: "demon", weak: ["holy"], acts: [{ spell: "e_ice", rate: 0.3 }] },
+  levia: { name: "しんかいのぬし リヴァイア", spr: "kraken", pal: "dark", boss: true, scale: 4,
+    hp: 1300, atk: 44, def: 20, agi: 15, exp: 2400, gold: 3000,
+    absorb: ["ice"], resist: ["fire"],
+    acts: [{ spell: "e_bigwave", rate: 0.3 }, { spell: "e_ink", rate: 0.25 }] },
+
   // ---- そらのしま / かぜのしんでん ----
   stormbird: { name: "ストームバード", spr: "bird", hp: 150, atk: 40, def: 14, agi: 18, exp: 280, gold: 250,
     weak: ["thunder"] },
@@ -299,6 +317,7 @@ DATA.encounters = {
   underworld: { rate: 1 / 14, groups: [["darkknight"], ["darksoldier", "darksoldier"], ["flamedemon", "darksoldier"], ["firelizard", "firelizard"], ["magmagolem", "flamewiz"], ["darkknight", "darksoldier"]] },
   temple:   { rate: 1 / 13, groups: [["darkpriest", "darkpriest"], ["guardian"], ["deathknight"], ["shadowbeast", "darkpriest"], ["deathknight", "shadowbeast"], ["guardian", "darkpriest"]] },
   sky:      { rate: 1 / 14, groups: [["stormbird"], ["harpy", "harpy"], ["stormbird", "harpy"], ["skydragon"], ["winddemon"], ["winddemon", "harpy"]] },
+  sea:      { rate: 1 / 14, groups: [["octopus"], ["merman", "merman"], ["deepworm"], ["abyssdemon", "merman"], ["octopus", "merman"], ["abyssdemon"]] },
 };
 
 // ---------------- ショップ ----------------
@@ -1286,7 +1305,18 @@ DATA.maps.muspel = {
   npcs: [
     { id: "dwarf1", x: 5, y: 10, spr: "villager", pal: "dark", wander: true,
       script: [
-        { msg: "ドワーフ「ようこそ ムスペルへ!\nちじょうの ひとが くるのは\nひさしぶりだべ」" },
+        { cond: { flag: "submarine" },
+          then: [{ msg: "ドワーフ「せんすいそうちの ちょうしは\nどうだべ? うみのそこも\nひこうせんから いけるだよ」" }],
+          else: [
+            { cond: { flag: "windCrystal" },
+              then: [
+                { msg: "ドワーフ「かぜのクリスタルだべか!!\nそれが あれば ひこうせんに\nせんすいそうちを つけられるだ!」" },
+                { msg: "ドワーフ「よし、くみこんでおいただ!\nおおうずしおの したの うみのそこへ\nもぐれるように なっただよ」" },
+                { flag: ["submarine", 1] },
+                { msg: "ひこうせんが せんすいできるように なった!\n(いきさきに うみのそこ が ふえました)" },
+              ],
+              else: [{ msg: "ドワーフ「ようこそ ムスペルへ!\nちじょうの ひとが くるのは\nひさしぶりだべ」" }] },
+          ] },
       ] },
     { id: "dwarf2", x: 14, y: 11, spr: "villager", pal: "dark", wander: true,
       script: [
@@ -1498,6 +1528,88 @@ DATA.maps.windtemple = {
   ],
 };
 
+// ---------------- うみのそこ ----------------
+DATA.maps.seafloor = {
+  name: "うみのそこ",
+  outdoor: true,
+  bgm: "under",
+  encounter: "sea",
+  legend: {
+    "m": { tile: "mountain", solid: true },
+    "w": { tile: "water", solid: true },
+    ".": { tile: "path" },
+    "D": { tile: "icon_shrine" },
+  },
+  rows: [
+    "mmmmmmmmmmmmmmmmmmmmmmmm",
+    "m......................m",
+    "m..ww.........ww.......m",
+    "m..ww..........ww......m",
+    "m......................m",
+    "m.....ww......ww.......m",
+    "m......................m",
+    "m........D.............m",
+    "m......................m",
+    "m...ww.........ww......m",
+    "m......................m",
+    "m......................m",
+    "m......................m",
+    "mmmmmmmmmmmmmmmmmmmmmmmm",
+  ],
+  events: [
+    { x: 3, y: 11, type: "enter", scriptId: "airshipBoard" },
+    { x: 9, y: 7, type: "enter", warp: { map: "seatemple", x: 2, y: 12, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "sea1", x: 22, y: 1, gold: 3000, hidden: true },
+  ],
+};
+
+// ---------------- かいていしんでん ----------------
+DATA.maps.seatemple = {
+  name: "かいていしんでん",
+  bgm: "shrine",
+  encounter: "sea",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+  },
+  rows: [
+    "##################",
+    "#................#",
+    "#..############..#",
+    "#................#",
+    "#..###############",
+    "#................#",
+    "###############..#",
+    "#................#",
+    "#..###############",
+    "#................#",
+    "###############..#",
+    "#................#",
+    "#................#",
+    "##################",
+  ],
+  events: [
+    { x: 2, y: 12, type: "enter", warp: { map: "seafloor", x: 9, y: 8, dir: "d" } },
+    { x: 1, y: 2, type: "enter", scriptId: "leviaFight" },
+    { x: 2, y: 2, type: "enter", scriptId: "leviaFight" },
+    { x: 15, y: 2, type: "enter", scriptId: "leviaFight" },
+    { x: 16, y: 2, type: "enter", scriptId: "leviaFight" },
+  ],
+  npcs: [
+    { id: "levianpc", x: 8, y: 1, spr: "kraken", pal: "dark", hideFlag: "seaBoss",
+      script: [{ runScript: "leviaFight" }] },
+  ],
+  chests: [
+    { id: "st1", x: 12, y: 1, item: "w_trident" },
+    { id: "st2", x: 5, y: 1, item: "elixir", hidden: true },
+    { id: "st3", x: 1, y: 7, item: "a_abyss" },
+    { id: "st4", x: 16, y: 7, gold: 3000 },
+  ],
+};
+
 // ---------------- きょうつうスクリプト ----------------
 DATA.scripts = {
   magmaFight: [
@@ -1528,14 +1640,42 @@ DATA.scripts = {
     { cond: { flag: "airship" },
       then: [
         { msg: "ひこうせんに のりこんだ!\nどこへ とぶ?" },
-        { menu: { options: [
-          { label: "バロンじょう", ops: [{ warp: { map: "world", x: 7, y: 27, dir: "d" } }] },
-          { label: "ミストのむら", ops: [{ warp: { map: "world", x: 27, y: 23, dir: "d" } }] },
-          { label: "ソレイユ",     ops: [{ warp: { map: "port", x: 10, y: 7, dir: "u" } }] },
-          { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
-        ] } },
+        { cond: { flag: "submarine" },
+          then: [
+            { menu: { options: [
+              { label: "バロンじょう", ops: [{ warp: { map: "world", x: 7, y: 27, dir: "d" } }] },
+              { label: "ミストのむら", ops: [{ warp: { map: "world", x: 27, y: 23, dir: "d" } }] },
+              { label: "ソレイユ",     ops: [{ warp: { map: "port", x: 10, y: 7, dir: "u" } }] },
+              { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
+              { label: "うみのそこ",   ops: [{ warp: { map: "seafloor", x: 3, y: 11, dir: "d" } }] },
+            ] } },
+          ],
+          else: [
+            { menu: { options: [
+              { label: "バロンじょう", ops: [{ warp: { map: "world", x: 7, y: 27, dir: "d" } }] },
+              { label: "ミストのむら", ops: [{ warp: { map: "world", x: 27, y: 23, dir: "d" } }] },
+              { label: "ソレイユ",     ops: [{ warp: { map: "port", x: 10, y: 7, dir: "u" } }] },
+              { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
+            ] } },
+          ] },
       ],
       else: [{ msg: "おきに ふるびた ひこうせんが\nういている。うごきそうにない。" }] },
+  ],
+  leviaFight: [
+    { cond: { flag: "seaBoss" },
+      then: [],
+      else: [
+        { msg: "うみが うねり くらやみの そこから\nしんかいのぬし リヴァイアが\nうかびあがってきた!!" },
+        { battle: { group: ["levia"], boss: true, music: "boss" } },
+        { flag: ["seaBoss", 1] },
+        { msg: "しずかになった さいだんに\nあおい けっしょうが ゆらめいている。" },
+        { give: { item: "watercrystal" } },
+        { flag: ["waterCrystal", 1] },
+        { msg: "みずのクリスタルを てにいれた!!" },
+        { msg: "4つのクリスタルが きょうめいし……\nそらたかく こだいのとう\n『ほしのとう』が すがたをあらわした!!" },
+        { flag: ["allCrystals", 1] },
+        { msg: "―― さいしゅうしょう ――\nほしのとうが そらのしまの きたに\nあらわれた。すべての けつまつへ……" },
+      ] },
   ],
   tempestFight: [
     { cond: { flag: "skyBoss" },
