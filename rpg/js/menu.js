@@ -76,7 +76,7 @@ class MenuScene {
     this.scroll = 0;
     this.target = 0;
     this.picked = null;
-    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "たいれつ", "ずかん", "せってい", "セーブ"];
+    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "たいれつ", "ずかん", "クエスト", "せってい", "セーブ"];
   }
 
   update() {
@@ -110,6 +110,7 @@ class MenuScene {
       else if (cmd === "そうび") { this.state = "heroPick"; this.mode = "equip"; this.sub = 0; }
       else if (cmd === "たいれつ") { this.state = "heroPick"; this.mode = "row"; this.sub = 0; }
       else if (cmd === "ずかん") { G.push(new BestiaryScene()); }
+      else if (cmd === "クエスト") { G.push(new QuestScene()); }
       else if (cmd === "せってい") {
         if (!G.state.config) G.state.config = { atbWait: true };
         G.state.config.atbWait = G.state.config.atbWait === false;
@@ -285,16 +286,16 @@ class MenuScene {
     });
 
     // コマンド (みぎうえ)
-    Gfx.window(204, 4, 112, 164);
+    Gfx.window(204, 4, 112, 184);
     this.commands.forEach((c, i) => {
       Gfx.text(c, 226, 14 + i * 19);
     });
     if (this.state === "main") Gfx.cursor(212, 17 + this.sel * 19);
 
     // しょじきん (みぎした)
-    Gfx.window(204, 172, 112, 46);
-    Gfx.textR(`${G.state.gold} ギル`, 306, 182);
-    Gfx.text(DATA.maps[G.state.map].name, 212, 199, 3, 10);
+    Gfx.window(204, 192, 112, 46);
+    Gfx.textR(`${G.state.gold} ギル`, 306, 202);
+    Gfx.text(DATA.maps[G.state.map].name, 212, 219, 3, 10);
 
     if (this.state === "item") this.drawItemList();
     if (this.state === "spellList") this.drawSpellList();
@@ -480,6 +481,87 @@ class BestiaryScene {
       Gfx.text("(たおすと わかる)", 196, 146, 1, 9);
     }
     Gfx.text("A/B: もどる", 130, 244, 1, 9);
+  }
+}
+
+// ============================================================
+// クエストちょう
+// ============================================================
+class QuestScene {
+  constructor() {
+    this.opaque = true;
+  }
+
+  // メインストーリーの「つぎのもくてき」(みたされていない さいしょのもの)
+  objective() {
+    const steps = [
+      ["intro", "おうさまの めいれいを きこう"],
+      ["caveBoss", "にしのどうくつを ぬけて\nミストのむらへ むかおう"],
+      ["crystal", "ミストのむらの ちょうろうに あおう"],
+      ["paladin", "きたのほこらで しれんを うけよう\n(クリスタルが かぎ)"],
+      ["clear", "まてんろうで まおうザルバを たおそう"],
+      ["magmaBoss", "みなみの おおあなの そこを しらべよう"],
+      ["earthCrystal", "ちていしんでんで\nちのクリスタルを とりもどそう"],
+      ["airship", "ムスペルの ドワーフに はなそう"],
+      ["windCrystal", "ひこうせんで そらのしまへ。\nかぜのしんでんに いどもう"],
+      ["submarine", "ドワーフに かぜのクリスタルを みせよう"],
+      ["waterCrystal", "うみのそこの しんでんへ もぐろう"],
+      ["trueClear", "ほしのとうで ヴォイドスを たおそう!"],
+    ];
+    for (const [flag, text] of steps) {
+      if (!G.flag(flag)) return text;
+    }
+    return "せかいは すくわれた!\nかくしボスや ずかんかんせいに ちょうせん!";
+  }
+
+  quests() {
+    const f = (k) => G.flag(k);
+    const list = [];
+    if (f("iceQuest") || f("iceBoss")) {
+      list.push(["りゅうたいじ (ハンター)",
+        f("iceReward") ? "かんりょう" : f("iceBoss") ? "ハンターに ほうこく" : "こおりのどうくつの りゅうを たおす"]);
+    }
+    if (f("magmaBoss")) {
+      list.push(["かがやくいし",
+        f("glowReward") ? "がくしゃに ゆずった" : f("forged") ? "つるぎに きたえた"
+          : "がくしゃに ゆずるか かじやで きたえるか"]);
+    }
+    if (f("seaBoss")) {
+      list.push(["うみのぬし たいじ",
+        f("seaReward") ? "かんりょう" : "ソレイユの せんいんに ほうこく"]);
+    }
+    if (f("arenaBronze") || f("arenaSilver") || f("arenaGold")) {
+      const rank = f("arenaGold") ? "チャンピオン!" : f("arenaSilver") ? "シルバーせいは" : "ブロンズせいは";
+      list.push(["とうぎじょう", rank]);
+    }
+    if (f("worldtearGiven")) list.push(["ちょうろうの おくりもの", "せかいのしずくを さずかった"]);
+    if (f("superBoss")) list.push(["しんえんりゅう ヴァハ", "とうばつ! でんせつの ゆうしゃ"]);
+    return list;
+  }
+
+  update() {
+    if (Input.tap("a") || Input.tap("b")) { AudioSys.sfx("cancel"); G.pop(); }
+  }
+
+  draw() {
+    Gfx.clear(0);
+    Gfx.window(4, 4, 312, 30);
+    Gfx.text("クエストちょう", 14, 12);
+
+    Gfx.window(4, 38, 312, 72);
+    Gfx.text("▼ つぎのもくてき", 14, 44, 2, 10);
+    this.objective().split("\n").forEach((l, i) => Gfx.text(l, 20, 62 + i * 16, 3, 11));
+
+    Gfx.window(4, 114, 312, 154);
+    Gfx.text("▼ サブクエスト", 14, 120, 2, 10);
+    const qs = this.quests();
+    if (qs.length === 0) Gfx.text("(まだ なにも うけていない)", 24, 140, 1, 10);
+    qs.slice(0, 6).forEach(([name, state], i) => {
+      const y = 140 + i * 21;
+      Gfx.text(name, 20, y, 3, 10);
+      Gfx.textR(state, 300, y, state === "かんりょう" ? 1 : 2, 9);
+    });
+    Gfx.text("A/B: もどる", 130, 272, 1, 9);
   }
 }
 

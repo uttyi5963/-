@@ -107,6 +107,10 @@ DATA.items = {
   a_abyss:   { name: "しんかいのローブ", kind: "armor", price: 3400, def: 18, int: 5, who: ["rod", "celia"] },
   a_star:    { name: "ほしのよろい",     kind: "armor", price: 0, def: 26, who: ["leon", "glen"] },
   a_cosmos:  { name: "コスモスのローブ", kind: "armor", price: 0, def: 20, int: 6, who: ["rod", "celia"] },
+  // ゴウせんよう どうぎ けいとう
+  a_gi:      { name: "みきりのどうぎ",   kind: "armor", price: 800, def: 9, who: ["gou"] },
+  a_master:  { name: "たつじんのどうぎ", kind: "armor", price: 2000, def: 15, who: ["gou"] },
+  a_champ:   { name: "チャンピオンベルト", kind: "armor", price: 0, def: 24, who: ["gou"] },
   a_sage:    { name: "けんじゃのローブ", kind: "armor", price: 2200, def: 13, int: 3, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
@@ -358,13 +362,13 @@ DATA.shops = {
     name: "ムスペルのかじば",
     stock: ["hipotion", "megapotion", "ether", "elixir", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
             "w_iceblade", "w_halberd", "w_battleclaw", "w_sagestaff", "w_spiritrod",
-            "a_dwarf", "a_sage"],
+            "a_dwarf", "a_sage", "a_master"],
   },
   port: {
     name: "ソレイユのみせ",
     stock: ["potion", "hipotion", "megapotion", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
             "w_flame", "w_lance", "w_thunderclaw", "w_crystalrod",
-            "a_aqua", "a_ice"],
+            "a_aqua", "a_ice", "a_gi"],
   },
   town: {
     name: "ミストのみせ",
@@ -1875,7 +1879,8 @@ DATA.scripts = {
             { msg: "うけつけ「しんじられない……\nあんたたちが チャンピオンだ!!」" },
             { give: { gold: 8000 } },
             { give: { item: "elixir" } },
-            { msg: "8000ギルと エリクサーを てにいれた!\nとうぎじょう チャンピオンに かがやいた!" },
+            { give: { item: "a_champ" } },
+            { msg: "8000ギルと エリクサー、そして\nチャンピオンベルトを てにいれた!!" },
             { flag: ["arenaGold", 1] },
           ],
           ng: [{ msg: "うけつけ「おかねが たりないよ!」" }] } },
