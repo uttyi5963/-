@@ -47,6 +47,12 @@ function applyFieldItem(def, hero) {
 }
 
 function applyFieldSpell(spell, caster, target) {
+  if (spell.type === "heal" && spell.all) {
+    const alive = G.state.party.filter((h) => h.hp > 0 && h.hp < h.maxhp);
+    if (alive.length === 0) return null;
+    alive.forEach((h) => { h.hp = Math.min(h.maxhp, h.hp + G.calcHeal(caster, spell)); });
+    return "なかまぜんいんの HPが かいふくした!";
+  }
   if (spell.type === "heal") {
     if (target.hp <= 0) return null;
     target.hp = Math.min(target.maxhp, target.hp + G.calcHeal(caster, spell));

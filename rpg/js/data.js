@@ -20,6 +20,14 @@ DATA.spells = {
   bolt1:   { name: "サンダー",   mp: 6,  type: "dmg", pow: 38, cast: 1.2, elem: "thunder", target: "enemy" },
   fire2:   { name: "ファイラ",   mp: 12, type: "dmg", pow: 75, cast: 2.0, elem: "fire",    target: "enemy" },
   ice2:    { name: "ブリザラ",   mp: 14, type: "dmg", pow: 88, cast: 2.2, elem: "ice",     target: "enemy" },
+  // じょういまほう (レベル15いこうで しゅうとく)
+  fire3:   { name: "ファイガ",   mp: 22, type: "dmg", pow: 140, cast: 2.6, elem: "fire",    target: "enemy" },
+  ice3:    { name: "ブリザガ",   mp: 26, type: "dmg", pow: 165, cast: 2.8, elem: "ice",     target: "enemy" },
+  bolt3:   { name: "サンダガ",   mp: 30, type: "dmg", pow: 190, cast: 3.0, elem: "thunder", target: "enemy" },
+  flare:   { name: "フレア",     mp: 48, type: "dmg", pow: 320, cast: 4.0, elem: "none",    target: "enemy" },
+  cure3:   { name: "ケアルガ",   mp: 20, type: "heal", pow: 220, cast: 1.8, target: "ally",  field: true },
+  rain:    { name: "いやしのあめ", mp: 32, type: "heal", pow: 110, cast: 2.2, target: "ally", all: true, field: true },
+  saint:   { name: "セイントレイ", mp: 40, type: "dmg", pow: 260, cast: 3.4, elem: "holy",  target: "enemy" },
   // てきせんよう
   e_fire:  { name: "ファイア",   mp: 0, type: "dmg", pow: 16, cast: 1.2, elem: "fire",    target: "enemy" },
   e_ice_all:{ name: "つめたいいき", mp: 0, type: "dmg", pow: 15, elem: "ice",  target: "enemy", all: true },
@@ -165,7 +173,7 @@ DATA.heroes = {
     weapon: "w_staff", armor: "a_cloth",
     command: "pray", // いのる: MP0。50%で ぜんいん さいだいHPの30%かいふく
     spells: ["cure1"],
-    learn: { 4: "poisona", 6: "protect", 9: "cure2", 10: "esuna", 12: "raise" },
+    learn: { 4: "poisona", 6: "protect", 9: "cure2", 10: "esuna", 12: "raise", 16: "cure3", 20: "rain", 26: "saint" },
   },
   rod: {
     name: "ロッド", cls: "くろまどうし", spr: "rod", row: "back",
@@ -173,7 +181,7 @@ DATA.heroes = {
     growth: { hp: 6, mp: 6, str: 1, agi: 1, vit: 1, int: 3 },
     weapon: "w_staff", armor: "a_cloth",
     spells: ["fire1"],
-    learn: { 4: "ice1", 6: "bolt1", 9: "fire2", 12: "ice2" },
+    learn: { 4: "ice1", 6: "bolt1", 9: "fire2", 12: "ice2", 15: "fire3", 19: "ice3", 24: "bolt3", 32: "flare" },
   },
 };
 

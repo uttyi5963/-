@@ -322,6 +322,9 @@ class BattleScene {
         if (sp.def.target === "enemy") {
           if (sp.def.all) this.doPlayerAction(this.pendingAct);
           else { this.menu = "targetE"; this.targetSel = 0; }
+        } else if (sp.def.all) {
+          // みかたぜんたい: ターゲットせんたく なし
+          this.doPlayerAction(this.pendingAct);
         } else {
           this.menu = "targetP"; this.targetSel = 0;
         }
@@ -685,11 +688,16 @@ class BattleScene {
       const t = act.targetP;
       events.push({ t: 0.45, fn: () => {
         if (sp.type === "heal") {
-          if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
-          const v = G.calcHeal(h, sp);
-          t.h.hp = Math.min(t.h.maxhp, t.h.hp + v);
-          const pos = this.partyPos(this.party.indexOf(t));
-          this.pop(pos.x, pos.y, v, 3);
+          // ぜんたいかいふく (いやしのあめ) は いきているぜんいんに
+          const ts = sp.all ? this.aliveParty() : [t];
+          const alive = ts.filter((q) => q && q.h.hp > 0);
+          if (alive.length === 0) { this.log = "しかし きかなかった!"; return; }
+          alive.forEach((q) => {
+            const v = G.calcHeal(h, sp);
+            q.h.hp = Math.min(q.h.maxhp, q.h.hp + v);
+            const pos = this.partyPos(this.party.indexOf(q));
+            this.pop(pos.x, pos.y, v, 3);
+          });
         } else if (sp.type === "revive") {
           if (t.h.hp > 0) { this.log = "しかし きかなかった!"; return; }
           t.h.hp = Math.max(1, Math.floor(t.h.maxhp * sp.pow));

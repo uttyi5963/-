@@ -407,11 +407,16 @@ const G = {
     return t;
   },
 
+  MAX_LV: 99,
+
   // かくとくEXP -> レベルアップしょり。メッセージれつをかえす
   addExp(h, amount) {
     const msgs = [];
     h.exp += amount;
-    while (h.exp >= this.expTotalFor(h.lv + 1)) {
+    // レベル99が じょうげん。あまった けいけんちは きりすて
+    const capExp = this.expTotalFor(this.MAX_LV);
+    if (h.exp > capExp) h.exp = capExp;
+    while (h.lv < this.MAX_LV && h.exp >= this.expTotalFor(h.lv + 1)) {
       h.lv++;
       const beforeHp = h.maxhp, beforeMp = h.maxmp;
       this.applyStats(h);
