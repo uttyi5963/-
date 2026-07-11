@@ -1175,6 +1175,14 @@ DATA.maps.port = {
       script: [
         { msg: "しょうにん「ソレイユのみせは\nミストより いいものぞろいだよ!\nぜひ みていっとくれ」" },
       ] },
+    // つりぼり
+    { id: "fisher", x: 11, y: 7, spr: "villager",
+      script: [
+        { cond: { flag: "fishKing" },
+          then: [{ msg: "つりし「ぬしを つりあげた うでまえ、\nほんもんだね。 きょうも つるかい?」" }],
+          else: [{ msg: "つりし「ここの うみには『ぬし』が\nいるんだ。 つってみるかい?」" }] },
+        { fishing: { price: 50 } },
+      ] },
     // ゴウのこじんイベント (ちのクリスタルご)
     { id: "roushi", x: 6, y: 5, spr: "elder", showFlag: "earthCrystal",
       script: [

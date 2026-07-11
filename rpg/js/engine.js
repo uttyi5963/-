@@ -724,6 +724,10 @@ function runScript(ops, onDone) {
         ops = ops.slice(0, i).concat(branch, ops.slice(i));
         continue;
       }
+      if (op.fishing) {
+        G.push(new FishingScene(op.fishing.price || 50, next));
+        return;
+      }
       if (op.menu) {
         // せんたくし: えらんだ options[n].ops を さしこんで つづける
         const m = op.menu;

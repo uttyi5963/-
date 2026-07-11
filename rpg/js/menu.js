@@ -535,6 +535,7 @@ class QuestScene {
       list.push(["とうぎじょう", rank]);
     }
     if (f("worldtearGiven")) list.push(["ちょうろうの おくりもの", "せかいのしずくを さずかった"]);
+    if (f("fishKing")) list.push(["つりぼりの ぬし", "つりあげた!"]);
     if (f("superBoss")) list.push(["しんえんりゅう ヴァハ", "とうばつ! でんせつの ゆうしゃ"]);
     // なかまの こじんイベント
     if (f("paladin")) list.push(["グレンと いもうと",
@@ -571,6 +572,136 @@ class QuestScene {
       Gfx.textR(state, 300, y, state === "かんりょう" ? 1 : 2, 9);
     });
     Gfx.text("A/B: もどる", 130, 272, 1, 9);
+  }
+}
+
+// ============================================================
+// つりぼり ミニゲーム
+// ============================================================
+class FishingScene {
+  constructor(price, onDone) {
+    this.opaque = false;
+    this.price = price;
+    this.onDone = onDone || null;
+    this.state = "ask";   // ask / wait / bite / result
+    this.t = 0;
+    this.waitDur = 0;
+    this.resultText = "";
+    this.bobX = 0;
+  }
+
+  // つれるものの ちゅうせん
+  rollCatch() {
+    const r = Math.random();
+    if (r < 0.05) {
+      G.setFlag("fishKing", 1);
+      G.state.gold += 2000;
+      AudioSys.sfx("levelup");
+      return "ぬしの おおものだ!! 2000ギル!!";
+    }
+    if (r < 0.18) { G.state.gold += 500; AudioSys.sfx("chest"); return "おうごんダイ! 500ギル!"; }
+    if (r < 0.55) { G.state.gold += 100; AudioSys.sfx("chest"); return "しろマスを つった! 100ギル!"; }
+    AudioSys.sfx("cancel");
+    return "ながぐつ だった……。";
+  }
+
+  update(dt) {
+    this.t += dt;
+    if (this.state === "ask") {
+      if (Input.tap("a")) {
+        if (G.state.gold < this.price) {
+          AudioSys.sfx("buzz");
+          this.resultText = "おかねが たりない!";
+          this.state = "result";
+          this.t = 0;
+          return;
+        }
+        G.state.gold -= this.price;
+        AudioSys.sfx("confirm");
+        this.state = "wait";
+        this.t = 0;
+        this.waitDur = 1.2 + Math.random() * 2;
+      } else if (Input.tap("b")) {
+        AudioSys.sfx("cancel");
+        G.pop();
+        if (this.onDone) this.onDone();
+      }
+      return;
+    }
+    if (this.state === "wait") {
+      this.bobX = Math.sin(this.t * 3) * 4;
+      if (Input.tap("a")) {
+        // はやすぎ
+        this.resultText = "はやすぎた…… さかなに にげられた。";
+        AudioSys.sfx("cancel");
+        this.state = "result";
+        this.t = 0;
+        return;
+      }
+      if (this.t >= this.waitDur) {
+        this.state = "bite";
+        this.t = 0;
+        AudioSys.sfx("encounter");
+      }
+      return;
+    }
+    if (this.state === "bite") {
+      if (Input.tap("a")) {
+        this.resultText = this.rollCatch();
+        this.state = "result";
+        this.t = 0;
+        return;
+      }
+      if (this.t > 0.55) {
+        this.resultText = "あたりを のがした……。";
+        AudioSys.sfx("cancel");
+        this.state = "result";
+        this.t = 0;
+      }
+      return;
+    }
+    if (this.state === "result") {
+      if (this.t > 0.6 && (Input.tap("a") || Input.tap("b"))) {
+        AudioSys.sfx("cursor");
+        this.state = "ask";
+        this.t = 0;
+      }
+    }
+  }
+
+  draw() {
+    // うみの まど
+    Gfx.window(60, 56, 200, 120);
+    for (let ty = 0; ty < 6; ty++) {
+      for (let tx = 0; tx < 11; tx++) {
+        Gfx.draw("water", 68 + tx * 16, 66 + ty * 16);
+      }
+    }
+    const c = Gfx.ctx;
+    if (this.state === "wait" || this.state === "bite") {
+      // うき
+      c.fillStyle = PAL[3];
+      c.fillRect(156 + Math.round(this.bobX), this.state === "bite" ? 124 : 118, 6, 6);
+      if (this.state === "bite") {
+        c.font = "bold 22px 'MS Gothic', monospace";
+        c.fillStyle = PAL[3];
+        c.fillText("!", 176, 92);
+      }
+    }
+
+    Gfx.window(4, 218, 312, 66);
+    if (this.state === "ask") {
+      Gfx.text(`1かい ${this.price}ギル (しょじ ${G.state.gold}G)`, 14, 228);
+      Gfx.text("A: つりざおを たらす  B: やめる", 14, 248, 3, 11);
+    } else if (this.state === "wait") {
+      Gfx.text("……………", 14, 228);
+      Gfx.text("(「!」が でたら すかさず A!)", 14, 248, 1, 10);
+    } else if (this.state === "bite") {
+      Gfx.text("きた!!", 14, 228);
+    } else {
+      Gfx.text(this.resultText, 14, 228);
+      if (this.t > 0.6) Gfx.text("A: もういちど  B: やめる", 14, 248, 1, 10);
+    }
   }
 }
 
