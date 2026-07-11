@@ -53,6 +53,8 @@ class BattleScene {
     this.pops = [];
     this.shadowActs = 0;
     this.fleeing = false;
+    this.shake = 0;        // がめんゆれ (おおダメージ/かいしん)
+    this.screenFlash = 0;  // まほうはつどうの ひかり
 
     AudioSys.bgm(opts.music || "battle");
   }
@@ -116,6 +118,8 @@ class BattleScene {
     this.pops = this.pops.filter((p) => (p.t += dt) < 0.9);
     this.enemies.forEach((e) => { if (e.flash > 0) e.flash -= dt; });
     this.party.forEach((p) => { if (p.flash > 0) p.flash -= dt; });
+    if (this.shake > 0) this.shake -= dt;
+    if (this.screenFlash > 0) this.screenFlash -= dt;
 
     if (this.phase === "intro") {
       this.introT += dt;
@@ -381,6 +385,8 @@ class BattleScene {
       target.flash = 0.25;
       AudioSys.sfx(sfx);
       this.pop(pos.x + pos.size / 2, pos.y, dmg);
+      if (sfx === "crit" || dmg >= 100) this.shake = 0.25;
+      if (sfx === "magic") this.screenFlash = 0.15;
       // しれんボス: きずは ふさがる
       if (target.def.trial && target.hp < target.maxhp) {
         target.hp = target.maxhp;
@@ -824,12 +830,17 @@ class BattleScene {
 
   // ---------------- こうどうごの しょり ----------------
   afterAction() {
-    // てきの しぼう
+    // てきの しぼう (くだけちる えんしゅつ)
     for (const e of this.enemies) {
       if (!e.dead && e.hp <= 0) {
         e.dead = true;
         e.casting = null;
         AudioSys.sfx("dead");
+        const pos = this.enemyPos(this.enemies.indexOf(e));
+        for (let k = 0; k < 6; k++) {
+          this.pop(pos.x + (k % 3) * pos.size / 2, pos.y + Math.floor(k / 3) * pos.size / 2, "・", 2);
+        }
+        if (e.def.boss) this.shake = 0.4;
       }
     }
 
@@ -930,6 +941,10 @@ class BattleScene {
   draw() {
     Gfx.clear(0);
     const c = Gfx.ctx;
+    c.save();
+    if (this.shake > 0) {
+      c.translate(Math.round(rnd(-3, 3)), Math.round(rnd(-2, 2)));
+    }
     c.fillStyle = PAL[1];
     c.fillRect(0, 168, SCREEN_W, 8);
     for (let i = 0; i < 10; i++) {
@@ -992,6 +1007,15 @@ class BattleScene {
     this.drawStatus();
 
     if (this.phase === "command") this.drawCommand();
+
+    c.restore();
+    // まほうの ひかり
+    if (this.screenFlash > 0) {
+      c.globalAlpha = Math.min(0.45, this.screenFlash * 3);
+      c.fillStyle = PAL[0];
+      c.fillRect(0, 0, SCREEN_W, 196);
+      c.globalAlpha = 1;
+    }
   }
 
   drawStatus() {

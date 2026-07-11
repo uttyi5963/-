@@ -226,7 +226,7 @@ const AudioSys = {
     }
   },
 
-  // BGM: [ノート(0=きゅうふ), はくすう] のれつ
+  // BGM: notes=[ノート(0=きゅうふ), はくすう] のれつ。bass はていおんパート(さんかくは)
   songs: {
     title:   { tempo: 100, notes: [[60,1],[64,1],[67,1],[72,2],[71,1],[67,1],[64,1],[60,2],[62,1],[65,1],[69,2],[67,1],[64,1],[60,3]] },
     field:   { tempo: 132, notes: [[60,1],[62,1],[64,1.5],[64,0.5],[67,1],[64,1],[62,1],[60,1],[62,1],[64,1],[65,1.5],[65,0.5],[69,1],[67,1],[64,1],[62,1]] },
@@ -239,6 +239,12 @@ const AudioSys = {
     victory: { tempo: 140, notes: [[60,0.5],[60,0.5],[60,0.5],[60,1.5],[56,1],[58,1],[60,1.5],[58,0.5],[60,3]], once: true },
     gameover:{ tempo: 70,  notes: [[64,2],[62,2],[60,2],[59,2],[57,4]], once: true },
     ending:  { tempo: 96,  notes: [[60,1],[64,1],[67,1],[72,2],[71,1],[72,1],[74,2],[72,1],[71,1],[67,2],[69,1],[71,1],[72,4]] },
+    sky:     { tempo: 112, notes: [[72,0.5],[76,0.5],[79,0.5],[76,0.5],[72,0.5],[76,0.5],[81,1],[79,0.5],[76,0.5],[74,0.5],[76,0.5],[77,1],[76,0.5],[74,0.5],[72,2]],
+               bass: [[48,2],[52,2],[53,2],[55,2]] },
+    sea:     { tempo: 84,  notes: [[62,1.5],[65,0.5],[69,2],[67,1],[65,1],[62,2],[60,1.5],[62,0.5],[65,2],[64,1],[62,1],[57,2]],
+               bass: [[38,4],[41,4],[43,4],[38,4]] },
+    last:    { tempo: 152, notes: [[57,0.5],[57,0.5],[60,0.5],[62,0.5],[64,1],[62,0.5],[60,0.5],[64,0.5],[64,0.5],[67,0.5],[69,0.5],[71,1],[69,0.5],[67,0.5],[64,1],[62,1],[60,0.5],[57,1.5]],
+               bass: [[33,1],[33,1],[36,1],[38,1],[40,1],[38,1],[36,1],[33,1]] },
   },
 
   bgm(name) {
@@ -246,7 +252,10 @@ const AudioSys = {
     this.seqName = name;
     this.seq = this.songs[name] || null;
     this.seqPos = 0;
-    this.nextTime = this.ctx ? this.ctx.currentTime + 0.08 : 0;
+    this.bassPos = 0;
+    const t = this.ctx ? this.ctx.currentTime + 0.08 : 0;
+    this.nextTime = t;
+    this.bassNextTime = t;
   },
 
   stopBgm() { this.seq = null; this.seqName = null; },
@@ -263,6 +272,16 @@ const AudioSys = {
       const dur = beats * spb;
       if (note > 0) this.tone(this.freq(note), this.nextTime, Math.min(dur * 0.9, 0.6), 0.028);
       this.nextTime += dur;
+    }
+    // ていおんパート
+    if (this.seq.bass) {
+      while (this.bassNextTime < this.ctx.currentTime + 0.25) {
+        if (this.bassPos >= this.seq.bass.length) this.bassPos = 0;
+        const [note, beats] = this.seq.bass[this.bassPos++];
+        const dur = beats * spb;
+        if (note > 0) this.tone(this.freq(note), this.bassNextTime, Math.min(dur * 0.95, 1.2), 0.02, "triangle");
+        this.bassNextTime += dur;
+      }
     }
   },
 };

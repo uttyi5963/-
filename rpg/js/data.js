@@ -1527,7 +1527,7 @@ DATA.maps.forge = {
 DATA.maps.skyisland = {
   name: "そらのしま",
   outdoor: true,
-  bgm: "shrine",
+  bgm: "sky",
   encounter: "sky",
   legend: {
     "w": { tile: "water", solid: true },
@@ -1569,7 +1569,7 @@ DATA.maps.skyisland = {
 // ---------------- かぜのしんでん ----------------
 DATA.maps.windtemple = {
   name: "かぜのしんでん",
-  bgm: "shrine",
+  bgm: "sky",
   encounter: "sky",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -1614,7 +1614,7 @@ DATA.maps.windtemple = {
 DATA.maps.seafloor = {
   name: "うみのそこ",
   outdoor: true,
-  bgm: "under",
+  bgm: "sea",
   encounter: "sea",
   legend: {
     "m": { tile: "mountain", solid: true },
@@ -1651,7 +1651,7 @@ DATA.maps.seafloor = {
 // ---------------- かいていしんでん ----------------
 DATA.maps.seatemple = {
   name: "かいていしんでん",
-  bgm: "shrine",
+  bgm: "sea",
   encounter: "sea",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -1695,7 +1695,7 @@ DATA.maps.seatemple = {
 // ---------------- ほしのとう (さいしゅうしょう) ----------------
 DATA.maps.startower1 = {
   name: "ほしのとう 1F",
-  bgm: "boss",
+  bgm: "last",
   encounter: "startower",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -1732,7 +1732,7 @@ DATA.maps.startower1 = {
 
 DATA.maps.startower2 = {
   name: "ほしのとう 2F",
-  bgm: "boss",
+  bgm: "last",
   encounter: "startower",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -1767,7 +1767,7 @@ DATA.maps.startower2 = {
 
 DATA.maps.startowertop = {
   name: "ほしのとう さいじょうかい",
-  bgm: "boss",
+  bgm: "last",
   legend: {
     "#": { tile: "wall", solid: true },
     ".": { tile: "carpet" },
@@ -1855,7 +1855,7 @@ DATA.scripts = {
         { msg: "ヴォイドス「ようこそ ほしのとうへ……。\nザルバも おうも わしの ゆびさきに\nすぎなかったと しれ」" },
         { msg: "レオン「すべての げんきょうは おまえか!\nみんな、クリスタルに いのりを!」" },
         { msg: "4つのクリスタルが きょうめいし\nパーティを ひかりが つつんだ!!" },
-        { battle: { group: ["voidos"], boss: true, music: "boss" } },
+        { battle: { group: ["voidos"], boss: true, music: "last" } },
         { flag: ["trueClear", 1] },
         { msg: "ヴォイドスは ほしくずとなって\nよぞらに きえていった……。" },
         { warp: { map: "castle", x: 9, y: 3, dir: "u" } },
