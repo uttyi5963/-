@@ -31,6 +31,7 @@ DATA.spells = {
   e_breath:{ name: "こおりのブレス", mp: 0, type: "dmg", pow: 30, cast: 2.5, elem: "ice", target: "enemy", all: true },
   e_wave:  { name: "おおつなみ",   mp: 0, type: "dmg", pow: 35, cast: 2.8, elem: "ice", target: "enemy", all: true },
   e_ink:   { name: "すみはき",     mp: 0, type: "status", status: "blind", cast: 1.0, target: "enemy" },
+  e_eruption: { name: "ふんか",    mp: 0, type: "dmg", pow: 40, cast: 3.0, elem: "fire", target: "enemy", all: true },
 };
 
 // じょうたいいじょう
@@ -63,6 +64,7 @@ DATA.items = {
   w_mace:    { name: "いやしのつえ",   kind: "weapon", price: 450, atk: 6, int: 2, who: ["celia"] },
   w_crystalrod: { name: "すいしょうロッド", kind: "weapon", price: 1300, atk: 8, int: 4, who: ["celia"] },
   w_flame:   { name: "フレイムソード", kind: "weapon", price: 1200, atk: 19, who: ["leon"], elem: "fire" },
+  w_iceblade:{ name: "こおりのつるぎ", kind: "weapon", price: 1800, atk: 22, who: ["leon"], elem: "ice" },
   w_spear:   { name: "やり",           kind: "weapon", price: 250, atk: 8,  who: ["glen"] },
   w_lance:   { name: "ミスリルのやり", kind: "weapon", price: 850, atk: 15, who: ["glen"] },
   w_dragonlance: { name: "りゅうのやり", kind: "weapon", price: 1500, atk: 17, who: ["glen"], slay: ["dragon"] },
@@ -80,8 +82,10 @@ DATA.items = {
   a_silk:    { name: "シルクのローブ", kind: "armor", price: 400, def: 7, int: 2, who: ["rod", "celia"] },
   a_ice:     { name: "こおりのローブ", kind: "armor", price: 900, def: 9, int: 2, who: ["rod", "celia"] },
   a_aqua:    { name: "アクアメイル",   kind: "armor", price: 1600, def: 15, who: ["leon", "glen"] },
+  a_flame:   { name: "ほのおのローブ", kind: "armor", price: 1400, def: 11, int: 2, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
+  glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
 };
 
 // ---------------- なかま ----------------
@@ -195,6 +199,22 @@ DATA.monsters = {
     resist: ["fire", "ice"],
     acts: [{ spell: "e_wave", rate: 0.3 }, { spell: "e_ink", rate: 0.25 }] },
 
+  // ---- おおあなのそこ (ちていへの いりぐち) ----
+  flamegoblin: { name: "フレイムゴブリン", spr: "goblin", pal: "dark", hp: 55, atk: 26, def: 8, agi: 9, exp: 70, gold: 60,
+    weak: ["ice"] },
+  flamewiz: { name: "ほのおのまじゅつし", spr: "wizard", hp: 70, atk: 20, def: 8, agi: 11, exp: 90, gold: 95,
+    weak: ["ice"], absorb: ["fire"], acts: [{ spell: "e_fire2", rate: 0.35 }] },
+  magmagolem: { name: "マグマゴーレム", spr: "golem", pal: "dark", hp: 160, atk: 34, def: 18, agi: 5, exp: 160, gold: 150,
+    weak: ["ice"], absorb: ["fire"] },
+  flamedemon: { name: "フレイムデーモン", spr: "demon", hp: 110, atk: 32, def: 12, agi: 13, exp: 150, gold: 130,
+    race: "demon", weak: ["ice"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
+  firelizard: { name: "ファイアリザード", spr: "dragon", pal: "dark", hp: 120, atk: 30, def: 12, agi: 9, exp: 140, gold: 120,
+    race: "dragon", weak: ["ice"], acts: [{ spell: "e_fire", rate: 0.3 }] },
+  magmaworm: { name: "マグマウォーム", spr: "worm", boss: true, scale: 4,
+    hp: 600, atk: 34, def: 14, agi: 10, exp: 700, gold: 1000,
+    absorb: ["fire"],
+    acts: [{ spell: "e_eruption", rate: 0.3 }, { spell: "e_fire2", rate: 0.2 }] },
+
   // ボスは 8ばい弱点で とけないよう たいせい/きゅうしゅう ちゅうしん。
   // れいがい: ザルバ しんのすがた だけ せい属性が じゃくてん (せいけんが きめて)
   demonguard: { name: "デーモンガード", spr: "demon", boss: true, scale: 3,
@@ -223,6 +243,7 @@ DATA.encounters = {
   tower:    { rate: 1 / 12, groups: [["ddemon"], ["golem"], ["gargoyle", "gargoyle", "wizard"], ["ddemon", "wizard"]] },
   icecave:  { rate: 1 / 13, groups: [["icegoblin", "icegoblin"], ["icebat", "icebat", "icegoblin"], ["frostwiz", "icebat"], ["frostgar"], ["babydragon"], ["frostwiz", "frostwiz"]] },
   waterway: { rate: 1 / 13, groups: [["mudtoad", "mudtoad"], ["sewerbat", "sewerbat", "sewerbat"], ["waterelem", "sewerbat"], ["sludge"], ["waterelem", "waterelem"], ["sludge", "mudtoad"]] },
+  magma:    { rate: 1 / 13, groups: [["flamegoblin", "flamegoblin"], ["firelizard"], ["flamewiz", "flamegoblin"], ["magmagolem"], ["flamedemon"], ["firelizard", "flamewiz"]] },
 };
 
 // ---------------- ショップ ----------------
@@ -266,6 +287,7 @@ DATA.maps.world = {
     "c": { tile: "icon_cave" },
     "I": { tile: "icon_cave" },
     "U": { tile: "icon_cave" },
+    "H": { tile: "icon_cave" },
     "M": { tile: "icon_shrine" },
     "X": { tile: "icon_tower" },
   },
@@ -298,7 +320,7 @@ DATA.maps.world = {
     "ww...f..........mmmm.ff...........wwwwww",
     "ww.....C........mmmm..f...........wwwwww",
     "ww..............mmmm..............wwwwww",
-    "ww..............mmmm......f.......wwwwww",
+    "ww..............mmmm......f..H....wwwwww",
     "ww...ff.........mmmm.....ff.......wwwwww",
     "ww....f..U......mmmm..............wwwwww",
     "ww..............mmmm..............wwwwww",
@@ -329,6 +351,10 @@ DATA.maps.world = {
     { x: 21, y: 7, type: "enter", warp: { map: "icecave", x: 1, y: 12, dir: "u" } },
     { x: 9, y: 30, type: "enter", warp: { map: "waterway", x: 1, y: 8, dir: "u" } },
     { x: 30, y: 16, type: "enter", warp: { map: "port", x: 10, y: 1, dir: "d" } },
+    { x: 29, y: 28, type: "enter",
+      cond: { flag: "paladin" },
+      failScript: [{ msg: "じめんに おおきな あなが あいている。\nそこから ねっぷうが ふきあげてくる…\n(いまは おりるべきでは なさそうだ)" }],
+      warp: { map: "magma", x: 1, y: 1, dir: "d" } },
   ],
   npcs: [],
   chests: [],
@@ -891,6 +917,23 @@ DATA.maps.port = {
       script: [
         { msg: "しょうにん「ソレイユのみせは\nミストより いいものぞろいだよ!\nぜひ みていっとくれ」" },
       ] },
+    { id: "scholar", x: 18, y: 6, spr: "elder",
+      script: [
+        { cond: { flag: "glowReward" },
+          then: [{ msg: "がくしゃ「かがやくいしの けんきゅうは\nじゅんちょうじゃ。ちていには きっと\nすごい ひみつが ねむっておる…」" }],
+          else: [
+            { cond: { flag: "chest_magma3" },
+              then: [
+                { msg: "がくしゃ「おお! それは まさしく\nちていの 『かがやくいし』!!\nれいの ものだよ、うけとりなさい」" },
+                { give: { gold: 1500 } },
+                { msg: "1500ギルを てにいれた!" },
+                { flag: ["glowReward", 1] },
+              ],
+              else: [
+                { msg: "がくしゃ「みなみの おおあなのそこに\n『かがやくいし』が あるらしい。\nもってきてくれたら 1500ギル はらおう」" },
+              ] },
+          ] },
+      ] },
   ],
   chests: [
     { id: "pier1", x: 10, y: 11, item: "elixir", hidden: true },
@@ -1001,8 +1044,66 @@ DATA.maps.waterway = {
   ],
 };
 
+// ---------------- おおあなのそこ ----------------
+DATA.maps.magma = {
+  name: "おおあなのそこ",
+  bgm: "dungeon",
+  encounter: "magma",
+  legend: {
+    "#": { tile: "mountain", solid: true },
+    ".": { tile: "path" },
+  },
+  rows: [
+    "####################",
+    "#..................#",
+    "#################..#",
+    "#..................#",
+    "#..#################",
+    "#..................#",
+    "#################..#",
+    "#..................#",
+    "#..#################",
+    "#..................#",
+    "#..##############..#",
+    "#..................#",
+    "#..................#",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 1, type: "enter", warp: { map: "world", x: 29, y: 29, dir: "d" } },
+    { x: 1, y: 11, type: "enter", scriptId: "magmaFight" },
+    { x: 2, y: 11, type: "enter", scriptId: "magmaFight" },
+    { x: 17, y: 11, type: "enter", scriptId: "magmaFight" },
+    { x: 18, y: 11, type: "enter", scriptId: "magmaFight" },
+    { x: 18, y: 12, type: "enter", scriptId: "sealedDoor" },
+  ],
+  npcs: [
+    { id: "magmawormnpc", x: 10, y: 12, spr: "worm", hideFlag: "magmaBoss",
+      script: [{ runScript: "magmaFight" }] },
+  ],
+  chests: [
+    { id: "magma1", x: 5, y: 12, item: "w_iceblade" },
+    { id: "magma2", x: 14, y: 12, item: "a_flame" },
+    { id: "magma3", x: 10, y: 11, item: "glowstone" },
+    { id: "magma4", x: 1, y: 12, gold: 1200, hidden: true },
+  ],
+};
+
 // ---------------- きょうつうスクリプト ----------------
 DATA.scripts = {
+  magmaFight: [
+    { cond: { flag: "magmaBoss" },
+      then: [],
+      else: [
+        { msg: "ようがんが うずをまき……\nじひびきとともに マグマウォームが\nはいあがってきた!!" },
+        { battle: { group: ["magmaworm"], boss: true, music: "boss" } },
+        { flag: ["magmaBoss", 1] },
+        { msg: "おおあなの そこに しずけさが もどった。\nおくには かたく とざされた\nおおとびらが みえる……。" },
+      ] },
+  ],
+  sealedDoor: [
+    { msg: "ちていへ つづく おおとびら……\nふしぎな ちからで とざされている。\n(だい2しょう 「ちていへん」に つづく)" },
+  ],
   wwWarn: [
     { cond: { flag: "wwWarned" },
       then: [],
@@ -1055,7 +1156,8 @@ DATA.scripts = {
         { msg: "レオン「おうよ、かおを あげてください。\nすべては ザルバの しわざ。\nミストのむらとの わかいを」" },
         { msg: "セリア「これで みんな もとどおりね」" },
         { msg: "ロッド「オレの けんきゅうも\nこれにて かんりょう、っとね」" },
-        { msg: "こうして クリスタルのひかりは\nせかいに もどった。\nあんこくきしは ひかりのきしとなり\nでんせつは かたりつがれていく……。" },
+        { msg: "こうして クリスタルのひかりは\nせかいに もどった。\nでんせつは かたりつがれていく……。" },
+        { msg: "……だが そのよる、みなみの だいちに\nあかい ひかりが はしったという。\nぼうけんは まだ おわらない――" },
         { ending: true },
       ] },
   ],
