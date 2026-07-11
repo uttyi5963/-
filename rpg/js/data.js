@@ -89,6 +89,11 @@ DATA.items = {
   w_ironclaw:{ name: "タイガークロー", kind: "weapon", price: 700, atk: 13, who: ["gou"] },
   w_thunderclaw: { name: "かみなりのつめ", kind: "weapon", price: 1400, atk: 16, who: ["gou"], elem: "thunder" },
   w_kingclaw: { name: "りゅうおうのつめ", kind: "weapon", price: 0, atk: 34, who: ["gou"], slay: ["dragon"] },
+  // こじんイベントほうしゅう
+  w_kizuna:  { name: "きずなのやり",   kind: "weapon", price: 0, atk: 27, who: ["glen"], slay: ["demon"] },
+  w_truthbook: { name: "しんりのしょ", kind: "weapon", price: 0, atk: 13, int: 7, who: ["rod"] },
+  w_prayrod: { name: "いのりのロッド", kind: "weapon", price: 0, atk: 11, int: 6, who: ["celia"] },
+  a_hachimaki: { name: "せんしのはちまき", kind: "armor", price: 0, def: 18, who: ["gou"] },
   w_boltstaff: { name: "いかずちのつえ", kind: "weapon", price: 1600, atk: 10, int: 4, who: ["rod"] },
 
   a_dark:    { name: "あんこくのよろい", kind: "armor", price: 350, def: 6,  who: ["leon"], dark: true },
@@ -544,6 +549,21 @@ DATA.maps.castle = {
           then: [{ msg: "へいし「おうさまの ようすが\nあきらかに おかしい……。\nきたのとうに なにかあるのでは……」" }],
           else: [{ msg: "へいし「さいきん おうさまは\nひとが かわってしまわれた……」" }] },
       ] },
+    // グレンのこじんイベント (パラディンご)
+    { id: "mia", x: 5, y: 10, spr: "celia", showFlag: "paladin",
+      script: [
+        { cond: { flag: "glenEvent" },
+          then: [{ msg: "ミア「にいさんを よろしくおねがいします。\nいってらっしゃい!」" }],
+          else: [
+            { msg: "ミア「あっ、にいさん!!\nぶじだったのね……!」" },
+            { msg: "グレン「ミア!? むらから でてきたのか。\n……しんぱいかけたな」" },
+            { msg: "ミア「これ、とうさんの やり。\nにいさんが もつべきだと おもって\nもってきたの」" },
+            { msg: "グレン「おやじの……。 ああ、\nたしかに うけとった。 みてろよ、\nおれは りゅうきしを つらぬく」" },
+            { give: { item: "w_kizuna" } },
+            { msg: "きずなのやりを てにいれた!\n(あくましゅぞくに 8ばいの ちからを はっき)" },
+            { flag: ["glenEvent", 1] },
+          ] },
+      ] },
   ],
   chests: [
     { id: "castle1", x: 17, y: 1, gold: 500, hidden: true },
@@ -600,6 +620,21 @@ DATA.maps.town = {
     { id: "vil2", x: 14, y: 12, spr: "villager", wander: true,
       script: [
         { msg: "むらびと「きたのほこらには\n『こころのかがみ』が あるそうじゃ。\nみたものの こころを うつすとか」" },
+      ] },
+    // セリアのこじんイベント (かぜのクリスタルご)
+    { id: "sister", x: 10, y: 12, spr: "celia", showFlag: "windCrystal",
+      script: [
+        { cond: { flag: "celiaEvent" },
+          then: [{ msg: "シスター「セリアの いのりは\nむらの ほこりです」" }],
+          else: [
+            { msg: "シスター「セリア! おおきくなって……。\nちいさいころ ないてばかりだった\nあなたが りっぱに なったのね」" },
+            { msg: "セリア「シスター・マーレ!\nわたし、みんなを まもれるように\nなりたくて……」" },
+            { msg: "シスター「その こころが あれば\nだいじょうぶ。 これは あなたの\nおかあさんの かたみの ロッドよ」" },
+            { msg: "セリア「おかあさんの……。\nありがとう。 たいせつに つかうわ」" },
+            { give: { item: "w_prayrod" } },
+            { msg: "いのりのロッドを てにいれた!" },
+            { flag: ["celiaEvent", 1] },
+          ] },
       ] },
     { id: "board", x: 3, y: 7, spr: "soldier",
       script: [
@@ -1140,6 +1175,21 @@ DATA.maps.port = {
       script: [
         { msg: "しょうにん「ソレイユのみせは\nミストより いいものぞろいだよ!\nぜひ みていっとくれ」" },
       ] },
+    // ゴウのこじんイベント (ちのクリスタルご)
+    { id: "roushi", x: 6, y: 5, spr: "elder", showFlag: "earthCrystal",
+      script: [
+        { cond: { flag: "gouEvent" },
+          then: [{ msg: "ロウシ「こぶしは こころ。\nわすれるでないぞ ゴウよ」" }],
+          else: [
+            { msg: "ロウシ「……そのあしおと、ゴウか」" },
+            { msg: "ゴウ「し、ししょう!? なんで\nこんなところに いるんすか!」" },
+            { msg: "ロウシ「たびの かぜの うわさでな。\nおまえの こぶしが まよいを すてたと\nきいた。 これを さずけよう」" },
+            { msg: "ゴウ「ししょうの はちまき……!\nおれ、もっと つよくなります!!」" },
+            { give: { item: "a_hachimaki" } },
+            { msg: "せんしのはちまきを てにいれた!" },
+            { flag: ["gouEvent", 1] },
+          ] },
+      ] },
     { id: "arena", x: 13, y: 7, spr: "soldier",
       script: [
         { cond: { flag: "arenaGold" },
@@ -1515,6 +1565,21 @@ DATA.maps.muspelinn = {
   npcs: [
     { id: "muspelinnkeep", x: 4, y: 2, spr: "villager", pal: "dark",
       script: [{ inn: 60 }] },
+    // ロッドのこじんイベント (ちていかいほうご)
+    { id: "mentor", x: 7, y: 5, spr: "rod", showFlag: "underOpen",
+      script: [
+        { cond: { flag: "rodEvent" },
+          then: [{ msg: "ガレフ「けんきゅうは あしで かせぐ。\nおまえの くちぐせに なったか?」" }],
+          else: [
+            { msg: "ガレフ「……ロッドじゃないか。\nはもんされた でしが ずいぶん\nりっぱに なったもんだ」" },
+            { msg: "ロッド「ガレフせんせい!\nはもんって、オレは じぶんから\nでていったんすけど!?」" },
+            { msg: "ガレフ「はっはっは。 くちも たつように\nなった。 ならば これを よみこなせるな。\nわしの けんきゅうの すべてだ」" },
+            { msg: "ロッド「せんせいの しょもつ……。\n……うけとります。 ぜんぶ おぼえて\nこえてみせますよ」" },
+            { give: { item: "w_truthbook" } },
+            { msg: "しんりのしょを てにいれた!" },
+            { flag: ["rodEvent", 1] },
+          ] },
+      ] },
   ],
   chests: [],
 };

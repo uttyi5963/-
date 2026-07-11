@@ -536,6 +536,15 @@ class QuestScene {
     }
     if (f("worldtearGiven")) list.push(["ちょうろうの おくりもの", "せかいのしずくを さずかった"]);
     if (f("superBoss")) list.push(["しんえんりゅう ヴァハ", "とうばつ! でんせつの ゆうしゃ"]);
+    // なかまの こじんイベント
+    if (f("paladin")) list.push(["グレンと いもうと",
+      f("glenEvent") ? "かんりょう" : "バロンじょうに だれか きている"]);
+    if (f("earthCrystal")) list.push(["ゴウの しゅぎょう",
+      f("gouEvent") ? "かんりょう" : "ソレイユに みおぼえのある かげ"]);
+    if (f("windCrystal")) list.push(["セリアの おもいで",
+      f("celiaEvent") ? "かんりょう" : "ミストのむらに シスターが"]);
+    if (f("underOpen")) list.push(["ロッドの おんし",
+      f("rodEvent") ? "かんりょう" : "ムスペルのやどに けんきゅうかが"]);
     return list;
   }
 
