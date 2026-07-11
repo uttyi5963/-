@@ -232,6 +232,7 @@ const AudioSys = {
     field:   { tempo: 132, notes: [[60,1],[62,1],[64,1.5],[64,0.5],[67,1],[64,1],[62,1],[60,1],[62,1],[64,1],[65,1.5],[65,0.5],[69,1],[67,1],[64,1],[62,1]] },
     town:    { tempo: 104, notes: [[67,1],[69,1],[71,2],[67,1],[64,2],[65,1],[67,1],[69,2],[65,1],[62,2],[64,1],[65,1],[67,2],[64,1],[60,2],[62,1],[64,1],[62,1],[60,3]] },
     dungeon: { tempo: 90,  notes: [[48,2],[51,1],[53,1],[48,2],[54,1],[53,1],[51,2],[48,1],[46,1],[48,4]] },
+    under:   { tempo: 76,  notes: [[45,2],[48,1],[45,1],[50,2],[48,1],[45,1],[43,2],[41,1],[43,1],[45,4]] },
     battle:  { tempo: 168, notes: [[57,0.5],[57,0.5],[60,0.5],[57,0.5],[62,0.5],[60,0.5],[57,0.5],[55,0.5],[57,0.5],[57,0.5],[60,0.5],[62,0.5],[64,1],[62,0.5],[60,0.5],[57,1]] },
     boss:    { tempo: 160, notes: [[50,0.5],[50,0.5],[50,0.5],[53,0.5],[50,0.5],[56,0.5],[55,0.5],[53,0.5],[50,0.5],[50,0.5],[58,0.5],[56,0.5],[55,1],[53,0.5],[51,0.5],[50,1]] },
     shrine:  { tempo: 80,  notes: [[64,2],[67,2],[71,3],[69,1],[67,2],[64,2],[65,2],[64,2],[62,4]] },
@@ -620,7 +621,10 @@ function runScript(ops, onDone) {
       }
       if (op.flag) { G.setFlag(op.flag[0], op.flag[1]); continue; }
       if (op.cond) {
-        const pass = G.flag(op.cond.flag);
+        // flag または item(しょじひん) で ぶんき
+        const pass = op.cond.item
+          ? (G.state.items[op.cond.item] || 0) > 0
+          : G.flag(op.cond.flag);
         const branch = pass ? (op.then || []) : (op.else || []);
         ops = ops.slice(0, i).concat(branch, ops.slice(i));
         continue;
@@ -629,6 +633,10 @@ function runScript(ops, onDone) {
         if (op.give.item) G.addItem(op.give.item);
         if (op.give.gold) G.state.gold += op.give.gold;
         AudioSys.sfx("chest");
+        continue;
+      }
+      if (op.take) {
+        if (op.take.item) G.removeItem(op.take.item);
         continue;
       }
       if (op.join) {

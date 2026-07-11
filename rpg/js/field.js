@@ -309,7 +309,7 @@ class FieldScene {
         nx += (n.moving.tx - n.x) * TILE * n.moving.t;
         ny += (n.moving.ty - n.y) * TILE * n.moving.t;
       }
-      Gfx.draw(n.def.spr, nx - camx, ny - camy - 2);
+      Gfx.draw(n.def.spr, nx - camx, ny - camy - 2, { variant: n.def.pal });
     }
 
     // プレイヤー (カエル化していたら カエルのすがた)

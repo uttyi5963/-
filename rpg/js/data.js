@@ -65,6 +65,11 @@ DATA.items = {
   w_crystalrod: { name: "すいしょうロッド", kind: "weapon", price: 1300, atk: 8, int: 4, who: ["celia"] },
   w_flame:   { name: "フレイムソード", kind: "weapon", price: 1200, atk: 19, who: ["leon"], elem: "fire" },
   w_iceblade:{ name: "こおりのつるぎ", kind: "weapon", price: 1800, atk: 22, who: ["leon"], elem: "ice" },
+  w_star:    { name: "ほしくずのつるぎ", kind: "weapon", price: 0, atk: 30, who: ["leon"], elem: "holy", slay: ["undead", "demon"] },
+  w_halberd: { name: "ハルバード",     kind: "weapon", price: 2400, atk: 21, who: ["glen"] },
+  w_battleclaw: { name: "ばくれつのつめ", kind: "weapon", price: 2200, atk: 20, who: ["gou"], elem: "fire" },
+  w_sagestaff: { name: "けんじゃのつえ", kind: "weapon", price: 2600, atk: 12, int: 6, who: ["rod"] },
+  w_spiritrod: { name: "せいれいロッド", kind: "weapon", price: 2400, atk: 10, int: 5, who: ["celia"] },
   w_spear:   { name: "やり",           kind: "weapon", price: 250, atk: 8,  who: ["glen"] },
   w_lance:   { name: "ミスリルのやり", kind: "weapon", price: 850, atk: 15, who: ["glen"] },
   w_dragonlance: { name: "りゅうのやり", kind: "weapon", price: 1500, atk: 17, who: ["glen"], slay: ["dragon"] },
@@ -83,6 +88,8 @@ DATA.items = {
   a_ice:     { name: "こおりのローブ", kind: "armor", price: 900, def: 9, int: 2, who: ["rod", "celia"] },
   a_aqua:    { name: "アクアメイル",   kind: "armor", price: 1600, def: 15, who: ["leon", "glen"] },
   a_flame:   { name: "ほのおのローブ", kind: "armor", price: 1400, def: 11, int: 2, who: ["rod", "celia"] },
+  a_dwarf:   { name: "ドヴェルグメイル", kind: "armor", price: 2400, def: 19, who: ["leon", "glen"] },
+  a_sage:    { name: "けんじゃのローブ", kind: "armor", price: 2200, def: 13, int: 3, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
@@ -210,6 +217,10 @@ DATA.monsters = {
     race: "demon", weak: ["ice"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
   firelizard: { name: "ファイアリザード", spr: "dragon", pal: "dark", hp: 120, atk: 30, def: 12, agi: 9, exp: 140, gold: 120,
     race: "dragon", weak: ["ice"], acts: [{ spell: "e_fire", rate: 0.3 }] },
+  darkknight: { name: "あんこくへい", spr: "hero_d", pal: "dark", hp: 130, atk: 36, def: 16, agi: 12, exp: 180, gold: 160,
+    weak: ["holy"] },
+  darksoldier: { name: "やみのへいし", spr: "soldier", pal: "dark", hp: 100, atk: 32, def: 14, agi: 14, exp: 150, gold: 140,
+    weak: ["holy"] },
   magmaworm: { name: "マグマウォーム", spr: "worm", boss: true, scale: 4,
     hp: 600, atk: 34, def: 14, agi: 10, exp: 700, gold: 1000,
     absorb: ["fire"],
@@ -244,10 +255,17 @@ DATA.encounters = {
   icecave:  { rate: 1 / 13, groups: [["icegoblin", "icegoblin"], ["icebat", "icebat", "icegoblin"], ["frostwiz", "icebat"], ["frostgar"], ["babydragon"], ["frostwiz", "frostwiz"]] },
   waterway: { rate: 1 / 13, groups: [["mudtoad", "mudtoad"], ["sewerbat", "sewerbat", "sewerbat"], ["waterelem", "sewerbat"], ["sludge"], ["waterelem", "waterelem"], ["sludge", "mudtoad"]] },
   magma:    { rate: 1 / 13, groups: [["flamegoblin", "flamegoblin"], ["firelizard"], ["flamewiz", "flamegoblin"], ["magmagolem"], ["flamedemon"], ["firelizard", "flamewiz"]] },
+  underworld: { rate: 1 / 14, groups: [["darkknight"], ["darksoldier", "darksoldier"], ["flamedemon", "darksoldier"], ["firelizard", "firelizard"], ["magmagolem", "flamewiz"], ["darkknight", "darksoldier"]] },
 };
 
 // ---------------- ショップ ----------------
 DATA.shops = {
+  muspel: {
+    name: "ムスペルのかじば",
+    stock: ["hipotion", "ether", "elixir", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
+            "w_iceblade", "w_halberd", "w_battleclaw", "w_sagestaff", "w_spiritrod",
+            "a_dwarf", "a_sage"],
+  },
   port: {
     name: "ソレイユのみせ",
     stock: ["potion", "hipotion", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
@@ -922,15 +940,16 @@ DATA.maps.port = {
         { cond: { flag: "glowReward" },
           then: [{ msg: "がくしゃ「かがやくいしの けんきゅうは\nじゅんちょうじゃ。ちていには きっと\nすごい ひみつが ねむっておる…」" }],
           else: [
-            { cond: { flag: "chest_magma3" },
+            { cond: { item: "glowstone" },
               then: [
-                { msg: "がくしゃ「おお! それは まさしく\nちていの 『かがやくいし』!!\nれいの ものだよ、うけとりなさい」" },
+                { msg: "がくしゃ「おお! それは まさしく\nちていの 『かがやくいし』!!\nけんきゅうのため ゆずってくれんか」" },
+                { take: { item: "glowstone" } },
                 { give: { gold: 1500 } },
-                { msg: "1500ギルを てにいれた!" },
+                { msg: "かがやくいしを わたして\n1500ギルを てにいれた!" },
                 { flag: ["glowReward", 1] },
               ],
               else: [
-                { msg: "がくしゃ「みなみの おおあなのそこに\n『かがやくいし』が あるらしい。\nもってきてくれたら 1500ギル はらおう」" },
+                { msg: "がくしゃ「みなみの おおあなのそこに\n『かがやくいし』が あるらしい。\nゆずってくれたら 1500ギル はらおう」" },
               ] },
           ] },
       ] },
@@ -1089,6 +1108,208 @@ DATA.maps.magma = {
   ],
 };
 
+// ---------------- ちていせかい ----------------
+DATA.maps.underworld = {
+  name: "ちていせかい",
+  outdoor: true,
+  bgm: "under",
+  encounter: "underworld",
+  legend: {
+    "m": { tile: "mountain", solid: true },
+    "w": { tile: "water", solid: true },
+    ".": { tile: "path" },
+    "T": { tile: "icon_town" },
+    "D": { tile: "icon_shrine" },
+  },
+  rows: [
+    "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+    "m............................m",
+    "m..mm....wwwww......mmm......m",
+    "m..mm....wwwww......mmm......m",
+    "m............................m",
+    "m.....mm...........www.......m",
+    "m.....mm.....................m",
+    "m............................m",
+    "m...www......................m",
+    "m...www.....T................m",
+    "m............................m",
+    "m.........mmmm...............m",
+    "m.........mmmm.....www.......m",
+    "m............................m",
+    "m....www.....................m",
+    "m....www................D....m",
+    "m............................m",
+    "m.......mmm..................m",
+    "m............................m",
+    "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  ],
+  events: [
+    { x: 3, y: 1, type: "enter", warp: { map: "magma", x: 17, y: 12, dir: "u" } },
+    { x: 12, y: 9, type: "enter", warp: { map: "muspel", x: 10, y: 12, dir: "u" } },
+    { x: 24, y: 15, type: "enter", scriptId: "templeSealed" },
+  ],
+  npcs: [],
+  chests: [
+    { id: "uw1", x: 28, y: 1, gold: 1500, hidden: true },
+  ],
+};
+
+// ---------------- かじやのさと ムスペル ----------------
+DATA.maps.muspel = {
+  name: "かじやのさと ムスペル",
+  bgm: "town",
+  exit: { map: "underworld", x: 12, y: 10, dir: "d" },
+  legend: {
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "grass" },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "D": { tile: "door" },
+    "F": { tile: "door" },
+  },
+  rows: [
+    "mmmmmmmmmmmmmmmmmmmm",
+    "m..................m",
+    "m.WWWWW......WWWWW.m",
+    "m.WWWWW......WWWWW.m",
+    "m.WWdWW......WWDWW.m",
+    "m..................m",
+    "m.......WWWWW......m",
+    "m.......WWWWW......m",
+    "m.......WWFWW......m",
+    "m..................m",
+    "m..................m",
+    "m..................m",
+    "m..................m",
+    "mmmmmmmm....mmmmmmmm",
+  ],
+  events: [
+    { x: 4, y: 4, type: "enter", warp: { map: "muspelinn", x: 4, y: 6, dir: "u" } },
+    { x: 15, y: 4, type: "enter", warp: { map: "muspelshop", x: 4, y: 6, dir: "u" } },
+    { x: 10, y: 8, type: "enter", warp: { map: "forge", x: 5, y: 7, dir: "u" } },
+  ],
+  npcs: [
+    { id: "dwarf1", x: 5, y: 10, spr: "villager", pal: "dark", wander: true,
+      script: [
+        { msg: "ドワーフ「ようこそ ムスペルへ!\nちじょうの ひとが くるのは\nひさしぶりだべ」" },
+      ] },
+    { id: "dwarf2", x: 14, y: 11, spr: "villager", pal: "dark", wander: true,
+      script: [
+        { msg: "ドワーフ「みなみの しんでんには\n『ちのクリスタル』が ねむってるだ。\nだども いんせきの けっかいで\nはいれねえだよ」" },
+      ] },
+  ],
+  chests: [],
+};
+
+DATA.maps.muspelinn = {
+  name: "ムスペルのやどや",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "B": { tile: "bed" },
+    "n": { tile: "counter", solid: true },
+    "d": { tile: "door" },
+  },
+  rows: [
+    "##########",
+    "#B......B#",
+    "#........#",
+    "#..nnnn..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####dd####",
+  ],
+  events: [
+    { x: 4, y: 7, type: "enter", warp: { map: "muspel", x: 4, y: 5, dir: "d" } },
+    { x: 5, y: 7, type: "enter", warp: { map: "muspel", x: 4, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "muspelinnkeep", x: 4, y: 2, spr: "villager", pal: "dark",
+      script: [{ inn: 60 }] },
+  ],
+  chests: [],
+};
+
+DATA.maps.muspelshop = {
+  name: "ムスペルのかじば",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "n": { tile: "counter", solid: true },
+    "d": { tile: "door" },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#........#",
+    "#..nnnn..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####dd####",
+  ],
+  events: [
+    { x: 4, y: 7, type: "enter", warp: { map: "muspel", x: 15, y: 5, dir: "d" } },
+    { x: 5, y: 7, type: "enter", warp: { map: "muspel", x: 15, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "muspelshopkeep", x: 4, y: 2, spr: "villager", pal: "dark",
+      script: [{ shop: "muspel" }] },
+  ],
+  chests: [],
+};
+
+DATA.maps.forge = {
+  name: "ドヴェルグのかじや",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "t": { tile: "table", solid: true },
+    "d": { tile: "door" },
+  },
+  rows: [
+    "############",
+    "#..........#",
+    "#.t......t.#",
+    "#..........#",
+    "#..........#",
+    "#..........#",
+    "#..........#",
+    "#..........#",
+    "#####dd#####",
+  ],
+  events: [
+    { x: 5, y: 8, type: "enter", warp: { map: "muspel", x: 10, y: 9, dir: "d" } },
+    { x: 6, y: 8, type: "enter", warp: { map: "muspel", x: 10, y: 9, dir: "d" } },
+  ],
+  npcs: [
+    { id: "dverg", x: 5, y: 2, spr: "elder",
+      script: [
+        { cond: { flag: "forged" },
+          then: [{ msg: "ドヴェルグ「どうだ ほしくずのつるぎは。\nわしの さいこうけっさくだべ」" }],
+          else: [
+            { cond: { item: "glowstone" },
+              then: [
+                { msg: "ドヴェルグ「そ、それは かがやくいし!!\nわしに あずけてみろ。\nすごいもんを うってやるだ」" },
+                { msg: "カン カン カン……\nカン カン カン……!!" },
+                { take: { item: "glowstone" } },
+                { give: { item: "w_star" } },
+                { flag: ["forged", 1] },
+                { msg: "ほしくずのつるぎを てにいれた!" },
+              ],
+              else: [
+                { msg: "ドヴェルグ「おおあなのそこの\n『かがやくいし』を もってくれば\nでんせつのぶきを うってやるだ」" },
+              ] },
+          ] },
+      ] },
+  ],
+  chests: [],
+};
+
 // ---------------- きょうつうスクリプト ----------------
 DATA.scripts = {
   magmaFight: [
@@ -1102,7 +1323,21 @@ DATA.scripts = {
       ] },
   ],
   sealedDoor: [
-    { msg: "ちていへ つづく おおとびら……\nふしぎな ちからで とざされている。\n(だい2しょう 「ちていへん」に つづく)" },
+    { cond: { flag: "magmaBoss" },
+      then: [
+        { cond: { flag: "underOpen" },
+          then: [{ warp: { map: "underworld", x: 3, y: 1, dir: "d" } }],
+          else: [
+            { msg: "クリスタルが まばゆく かがやき……\nおおとびらが ゆっくりと ひらいた!!" },
+            { flag: ["underOpen", 1] },
+            { msg: "とびらのむこうに、あかく ひかる\nひろがりが みえる。\n―― だい2しょう ちていへん ――" },
+            { warp: { map: "underworld", x: 3, y: 1, dir: "d" } },
+          ] },
+      ],
+      else: [{ msg: "ちていへ つづく おおとびら……\nふしぎな ちからで とざされている。" }] },
+  ],
+  templeSealed: [
+    { msg: "ちていしんでん……。いんせきの けっかいに\nつつまれていて はいれない。\n(つづきの アップデートで かいほう)" },
   ],
   wwWarn: [
     { cond: { flag: "wwWarned" },
