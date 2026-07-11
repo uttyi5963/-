@@ -94,6 +94,7 @@ DATA.items = {
   w_truthbook: { name: "しんりのしょ", kind: "weapon", price: 0, atk: 13, int: 7, who: ["rod"] },
   w_prayrod: { name: "いのりのロッド", kind: "weapon", price: 0, atk: 11, int: 6, who: ["celia"] },
   a_hachimaki: { name: "せんしのはちまき", kind: "armor", price: 0, def: 18, who: ["gou"] },
+  a_fairy:   { name: "フェアリーローブ", kind: "armor", price: 0, def: 14, int: 4, who: ["rod", "celia"] },
   w_boltstaff: { name: "いかずちのつえ", kind: "weapon", price: 1600, atk: 10, int: 4, who: ["rod"] },
 
   a_dark:    { name: "あんこくのよろい", kind: "armor", price: 350, def: 6,  who: ["leon"], dark: true },
@@ -251,6 +252,18 @@ DATA.monsters = {
     weak: ["holy"] },
   darksoldier: { name: "やみのへいし", spr: "soldier", pal: "dark", hp: 100, atk: 32, def: 14, agi: 14, exp: 150, gold: 140,
     weak: ["holy"] },
+  // ---- まよいのもり ----
+  woodgoblin: { name: "もりゴブリン", spr: "goblin", hp: 40, atk: 18, def: 5, agi: 8, exp: 30, gold: 28,
+    weak: ["fire"] },
+  vampbat: { name: "バンパイアバット", spr: "bat", pal: "dark", hp: 35, atk: 16, def: 3, agi: 13, exp: 26, gold: 22,
+    weak: ["fire"], inflict: { status: "blind", rate: 0.25 } },
+  madflower: { name: "マッドフラワー", spr: "toad", pal: "light", hp: 50, atk: 20, def: 6, agi: 6, exp: 38, gold: 34,
+    weak: ["fire"], inflict: { status: "poison", rate: 0.35 }, acts: [{ spell: "e_toad", rate: 0.15 }] },
+  treant: { name: "もりのぬし トレント", spr: "treant", boss: true, scale: 4,
+    hp: 2600, atk: 36, def: 14, agi: 8, exp: 1000, gold: 1200,
+    weak: ["fire"], resist: ["ice", "thunder"],
+    acts: [{ spell: "e_gale", rate: 0.3 }, { spell: "e_toad", rate: 0.2 }] },
+
   // ---- ミスリルけい (レアな かせぎてき。かたくて すぐにげる) ----
   mithrilbaby: { name: "ミスリルベビー", spr: "dragon", pal: "light",
     hp: 6, atk: 10, def: 250, agi: 30, exp: 2500, gold: 500,
@@ -369,6 +382,7 @@ DATA.encounters = {
   sky:      { rate: 1 / 14, groups: [["stormbird"], ["harpy", "harpy"], ["stormbird", "harpy"], ["skydragon"], ["winddemon"], ["winddemon", "harpy"]],
     rare: ["mithrildragon"], rareRate: 0.05 },
   sea:      { rate: 1 / 14, groups: [["octopus"], ["merman", "merman"], ["deepworm"], ["abyssdemon", "merman"], ["octopus", "merman"], ["abyssdemon"]] },
+  lostwoods: { rate: 1 / 12, groups: [["woodgoblin", "woodgoblin"], ["vampbat", "vampbat"], ["madflower"], ["woodgoblin", "vampbat"], ["madflower", "woodgoblin"]] },
   startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"]],
     rare: ["mithrildragon"], rareRate: 0.06 },
 };
@@ -421,6 +435,7 @@ DATA.maps.world = {
     "I": { tile: "icon_cave" },
     "U": { tile: "icon_cave" },
     "H": { tile: "icon_cave" },
+    "F": { tile: "icon_shrine" },
     "M": { tile: "icon_shrine" },
     "X": { tile: "icon_tower" },
   },
@@ -449,7 +464,7 @@ DATA.maps.world = {
     "ww..............mmmm..............wwwwww",
     "ww..............mmmm.......T......wwwwww",
     "ww...f..........mmmm..............wwwwww",
-    "ww..fff.........mmmm..f...........wwwwww",
+    "ww..fFf.........mmmm..f...........wwwwww",
     "ww...f..........mmmm.ff...........wwwwww",
     "ww.....C........mmmm..f...........wwwwww",
     "ww..............mmmm..............wwwwww",
@@ -488,6 +503,7 @@ DATA.maps.world = {
       cond: { flag: "paladin" },
       failScript: [{ msg: "じめんに おおきな あなが あいている。\nそこから ねっぷうが ふきあげてくる…\n(いまは おりるべきでは なさそうだ)" }],
       warp: { map: "magma", x: 1, y: 1, dir: "d" } },
+    { x: 5, y: 24, type: "enter", warp: { map: "lostwoods", x: 5, y: 8, dir: "u" } },
   ],
   npcs: [],
   chests: [],
@@ -1944,6 +1960,79 @@ for (let x = 1; x <= 14; x++) {
   DATA.maps.startowertop.events.push({ x, y: 4, type: "enter", scriptId: "starFight" });
 }
 
+// ---------------- まよいのもり ----------------
+DATA.maps.lostwoods = {
+  name: "まよいのもり",
+  bgm: "dungeon",
+  encounter: "lostwoods",
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+  },
+  rows: [
+    "fffffffffff",
+    "f.........f",
+    "f.........f",
+    "f.........f",
+    "f.........f",
+    "f.........f",
+    "f.........f",
+    "f.........f",
+    "f.........f",
+    "f.........f",
+    "fffffffffff",
+  ],
+  events: [
+    { x: 5, y: 1, type: "enter", scriptId: "lwNorth" },
+    { x: 1, y: 5, type: "enter", scriptId: "lwWest" },
+    { x: 9, y: 5, type: "enter", scriptId: "lwWrong" },
+    { x: 5, y: 9, type: "enter", warp: { map: "world", x: 5, y: 25, dir: "d" } },
+  ],
+  npcs: [
+    { id: "lwstone", x: 3, y: 7, spr: "crystal",
+      script: [
+        { msg: "いしぶみ「とりのこえを おえ……。\nきた、にし、きた と\nふるいうたは うたう」" },
+      ] },
+  ],
+  chests: [],
+};
+
+DATA.maps.lostwoods2 = {
+  name: "もりのおくち",
+  bgm: "shrine",
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+  },
+  rows: [
+    "fffffffffffff",
+    "f...........f",
+    "f...........f",
+    "f...........f",
+    "f...........f",
+    "f...........f",
+    "f...........f",
+    "f...........f",
+    "f...........f",
+    "fffffffffffff",
+  ],
+  events: [
+    { x: 6, y: 8, type: "enter", warp: { map: "world", x: 5, y: 25, dir: "d" } },
+    { x: 5, y: 3, type: "enter", scriptId: "treantFight" },
+    { x: 6, y: 3, type: "enter", scriptId: "treantFight" },
+    { x: 7, y: 3, type: "enter", scriptId: "treantFight" },
+  ],
+  npcs: [
+    { id: "treantnpc", x: 6, y: 2, spr: "treant", hideFlag: "forestBoss",
+      script: [{ runScript: "treantFight" }] },
+  ],
+  chests: [
+    { id: "lw1", x: 2, y: 1, item: "a_fairy" },
+    { id: "lw2", x: 10, y: 1, gold: 2000 },
+    { id: "lw3", x: 6, y: 1, item: "elixir", hidden: true },
+  ],
+};
+
 // ---------------- きょうつうスクリプト ----------------
 DATA.scripts = {
   magmaFight: [
@@ -1969,6 +2058,70 @@ DATA.scripts = {
           ] },
       ],
       else: [{ msg: "ちていへ つづく おおとびら……\nふしぎな ちからで とざされている。" }] },
+  ],
+  // まよいのもり: ただしいじゅんろは きた→にし→きた
+  lwNorth: [
+    { cond: { flag: "lwA" },
+      then: [
+        { cond: { flag: "lwB" },
+          then: [
+            // 3ばんめ: きた → ゴール
+            { flag: ["lwA", 0] },
+            { flag: ["lwB", 0] },
+            { msg: "きりが はれていく……!\nもりの おくちに たどりついた!" },
+            { warp: { map: "lostwoods2", x: 6, y: 7, dir: "u" } },
+          ],
+          else: [
+            // 2ばんめに きた は まちがい
+            { flag: ["lwA", 0] },
+            { msg: "とりのこえが とおざかる……。\nきりに まかれて もどされた!" },
+            { warp: { map: "lostwoods", x: 5, y: 8, dir: "u" } },
+          ] },
+      ],
+      else: [
+        // 1ばんめ: きた ✓
+        { flag: ["lwA", 1] },
+        { msg: "どこかで とりのこえが きこえる……" },
+        { warp: { map: "lostwoods", x: 5, y: 5, dir: "u" } },
+      ] },
+  ],
+  lwWest: [
+    { cond: { flag: "lwA" },
+      then: [
+        { cond: { flag: "lwB" },
+          then: [
+            { flag: ["lwA", 0] },
+            { flag: ["lwB", 0] },
+            { msg: "とりのこえが とおざかる……。\nきりに まかれて もどされた!" },
+            { warp: { map: "lostwoods", x: 5, y: 8, dir: "u" } },
+          ],
+          else: [
+            // 2ばんめ: にし ✓
+            { flag: ["lwB", 1] },
+            { msg: "とりのこえが ちかづいてきた……!" },
+            { warp: { map: "lostwoods", x: 5, y: 5, dir: "u" } },
+          ] },
+      ],
+      else: [
+        { msg: "とりのこえが とおざかる……。\nきりに まかれて もどされた!" },
+        { warp: { map: "lostwoods", x: 5, y: 8, dir: "u" } },
+      ] },
+  ],
+  lwWrong: [
+    { flag: ["lwA", 0] },
+    { flag: ["lwB", 0] },
+    { msg: "とりのこえが とおざかる……。\nきりに まかれて もどされた!" },
+    { warp: { map: "lostwoods", x: 5, y: 8, dir: "u" } },
+  ],
+  treantFight: [
+    { cond: { flag: "forestBoss" },
+      then: [],
+      else: [
+        { msg: "こだいじゅが めをさました……!\nもりのぬし トレントが\nえだを ふりあげる!!" },
+        { battle: { group: ["treant"], boss: true, music: "boss" } },
+        { flag: ["forestBoss", 1] },
+        { msg: "もりが しずかに ざわめいた。\nどこかで とりが ないている。" },
+      ] },
   ],
   arenaEntry: [
     { msg: "うけつけ「ソレイユとうぎじょうへ ようこそ!\n3れんせんを かちぬけば しょうきんだ。\nランクを えらびな!」" },

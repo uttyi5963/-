@@ -536,6 +536,7 @@ class QuestScene {
     }
     if (f("worldtearGiven")) list.push(["ちょうろうの おくりもの", "せかいのしずくを さずかった"]);
     if (f("fishKing")) list.push(["つりぼりの ぬし", "つりあげた!"]);
+    if (f("forestBoss")) list.push(["まよいのもりの ぬし", "とうばつ かんりょう"]);
     if (f("superBoss")) list.push(["しんえんりゅう ヴァハ", "とうばつ! でんせつの ゆうしゃ"]);
     // なかまの こじんイベント
     if (f("paladin")) list.push(["グレンと いもうと",
