@@ -95,6 +95,8 @@ DATA.items = {
   w_prayrod: { name: "いのりのロッド", kind: "weapon", price: 0, atk: 11, int: 6, who: ["celia"] },
   a_hachimaki: { name: "せんしのはちまき", kind: "armor", price: 0, def: 18, who: ["gou"] },
   a_fairy:   { name: "フェアリーローブ", kind: "armor", price: 0, def: 14, int: 4, who: ["rod", "celia"] },
+  a_royalmail: { name: "おうこくのよろい", kind: "armor", price: 5000, def: 24, who: ["leon", "glen"] },
+  a_royal:   { name: "おうけのローブ",   kind: "armor", price: 4200, def: 19, int: 5, who: ["rod", "celia"] },
   w_boltstaff: { name: "いかずちのつえ", kind: "weapon", price: 1600, atk: 10, int: 4, who: ["rod"] },
 
   a_dark:    { name: "あんこくのよろい", kind: "armor", price: 350, def: 6,  who: ["leon"], dark: true },
@@ -389,6 +391,11 @@ DATA.encounters = {
 
 // ---------------- ショップ ----------------
 DATA.shops = {
+  royal: {
+    name: "おうきゅうごようたし",
+    stock: ["megapotion", "elixir", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
+            "a_royalmail", "a_royal"],
+  },
   muspel: {
     name: "ムスペルのかじば",
     stock: ["hipotion", "megapotion", "ether", "elixir", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
@@ -568,6 +575,49 @@ DATA.maps.castle = {
               then: [{ msg: "へいし「おうさまの ようすが\nあきらかに おかしい……。\nきたのとうに なにかあるのでは……」" }],
               else: [{ msg: "へいし「さいきん おうさまは\nひとが かわってしまわれた……」" }] },
           ] },
+      ] },
+    // じょうの ふっこうイベント (ザルバとうばつご)
+    { id: "bukan", x: 14, y: 9, spr: "soldier", showFlag: "clear",
+      script: [
+        { cond: { flag: "castleReward" },
+          then: [{ msg: "ぶかんちょう「じょうかまちも にぎわいを\nとりもどした。すべて きみたちの\nおかげだ」" }],
+          else: [
+            { cond: { flag: "castleFund" },
+              then: [
+                { cond: { flag: "trueClear" },
+                  then: [
+                    { msg: "ぶかんちょう「おうさまから きみたちへ\nほうしょうを あずかっている。\nふっこうしえんの れいも こめてだ」" },
+                    { give: { gold: 10000 } },
+                    { msg: "10000ギルを てにいれた!!" },
+                    { flag: ["castleReward", 1] },
+                  ],
+                  else: [{ msg: "ぶかんちょう「しきんの おかげで\nふっこうは じゅんちょうだ。\nおうきゅうに みせも ひらいたぞ」" }] },
+              ],
+              else: [
+                { msg: "ぶかんちょう「ザルバの いっけんで\nじょうかは あれてしまった。\nふっこうの しきんが たりんのだ…」" },
+                { msg: "ぶかんちょう「2000ギル えんじょして\nもらえないだろうか?」" },
+                { menu: { options: [
+                  { label: "えんじょする", ops: [
+                    { payGold: { amount: 2000,
+                      ok: [
+                        { msg: "ぶかんちょう「かたじけない!!\nこの ごおんは わすれんぞ。\nかならず じょうを たてなおす!」" },
+                        { flag: ["castleFund", 1] },
+                        { msg: "(おうきゅうに みせが ひらいたようだ)" },
+                      ],
+                      ng: [{ msg: "ぶかんちょう「むりを いってすまん。\nまた こんど たのむ」" }] } },
+                  ] },
+                  { label: "やめておく", ops: [
+                    { msg: "ぶかんちょう「そうか……。\nきが むいたら たのむ」" },
+                  ] },
+                ] } },
+              ] },
+          ] },
+      ] },
+    // おうきゅうごようたし (ふっこうしえんご)
+    { id: "royalshop", x: 5, y: 4, spr: "villager", showFlag: "castleFund",
+      script: [
+        { msg: "ごようたし「ふっこうしえんの おかたと\nおみうけします。とくべつな しなを\nごらんください」" },
+        { shop: "royal" },
       ] },
     // グレンのこじんイベント (パラディンご)
     { id: "mia", x: 5, y: 10, spr: "celia", showFlag: "paladin",
