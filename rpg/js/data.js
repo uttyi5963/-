@@ -34,6 +34,9 @@ DATA.spells = {
   e_eruption: { name: "ふんか",    mp: 0, type: "dmg", pow: 40, cast: 3.0, elem: "fire", target: "enemy", all: true },
   e_bolt:  { name: "サンダー",     mp: 0, type: "dmg", pow: 22, cast: 1.2, elem: "thunder", target: "enemy" },
   e_quake: { name: "じしん",       mp: 0, type: "dmg", pow: 45, cast: 3.0, elem: "none", target: "enemy", all: true },
+  e_gale:  { name: "かまいたち",   mp: 0, type: "dmg", pow: 30, cast: 1.5, elem: "none", target: "enemy" },
+  e_tornado: { name: "たつまき",   mp: 0, type: "dmg", pow: 50, cast: 3.4, elem: "none", target: "enemy", all: true },
+  e_bolt2: { name: "いなずま",     mp: 0, type: "dmg", pow: 45, cast: 2.0, elem: "thunder", target: "enemy" },
 };
 
 // じょうたいいじょう
@@ -75,6 +78,7 @@ DATA.items = {
   w_spear:   { name: "やり",           kind: "weapon", price: 250, atk: 8,  who: ["glen"] },
   w_lance:   { name: "ミスリルのやり", kind: "weapon", price: 850, atk: 15, who: ["glen"] },
   w_dragonlance: { name: "りゅうのやり", kind: "weapon", price: 1500, atk: 17, who: ["glen"], slay: ["dragon"] },
+  w_windspear: { name: "かぜのやり",   kind: "weapon", price: 3000, atk: 26, who: ["glen"] },
   w_claw:    { name: "てつのつめ",     kind: "weapon", price: 200, atk: 6,  who: ["gou"] },
   w_ironclaw:{ name: "タイガークロー", kind: "weapon", price: 700, atk: 13, who: ["gou"] },
   w_thunderclaw: { name: "かみなりのつめ", kind: "weapon", price: 1400, atk: 16, who: ["gou"], elem: "thunder" },
@@ -92,11 +96,13 @@ DATA.items = {
   a_flame:   { name: "ほのおのローブ", kind: "armor", price: 1400, def: 11, int: 2, who: ["rod", "celia"] },
   a_dwarf:   { name: "ドヴェルグメイル", kind: "armor", price: 2400, def: 19, who: ["leon", "glen"] },
   a_gaia:    { name: "だいちのよろい",   kind: "armor", price: 3200, def: 22, who: ["leon", "glen"] },
+  a_sylph:   { name: "シルフのローブ",   kind: "armor", price: 3000, def: 16, int: 4, who: ["rod", "celia"] },
   a_sage:    { name: "けんじゃのローブ", kind: "armor", price: 2200, def: 13, int: 3, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
   earthcrystal: { name: "ちのクリスタル", kind: "key", price: 0, desc: "だいちのちからを やどす けっしょう" },
+  windcrystal: { name: "かぜのクリスタル", kind: "key", price: 0, desc: "あらしのちからを やどす けっしょう" },
 };
 
 // ---------------- なかま ----------------
@@ -225,6 +231,20 @@ DATA.monsters = {
     weak: ["holy"] },
   darksoldier: { name: "やみのへいし", spr: "soldier", pal: "dark", hp: 100, atk: 32, def: 14, agi: 14, exp: 150, gold: 140,
     weak: ["holy"] },
+  // ---- そらのしま / かぜのしんでん ----
+  stormbird: { name: "ストームバード", spr: "bird", hp: 150, atk: 40, def: 14, agi: 18, exp: 280, gold: 250,
+    weak: ["thunder"] },
+  harpy: { name: "スカイハーピー", spr: "bird", pal: "light", hp: 130, atk: 36, def: 12, agi: 20, exp: 260, gold: 240,
+    weak: ["thunder"], acts: [{ spell: "e_silence", rate: 0.3 }] },
+  skydragon: { name: "スカイドラゴン", spr: "dragon", pal: "light", hp: 200, atk: 42, def: 16, agi: 14, exp: 320, gold: 300,
+    race: "dragon", acts: [{ spell: "e_bolt", rate: 0.3 }] },
+  winddemon: { name: "ウィンドデーモン", spr: "demon", hp: 170, atk: 40, def: 15, agi: 17, exp: 300, gold: 280,
+    race: "demon", weak: ["holy"], acts: [{ spell: "e_gale", rate: 0.35 }] },
+  tempest: { name: "あらしのおう テンペスト", spr: "bird", boss: true, scale: 4,
+    hp: 1100, atk: 42, def: 18, agi: 16, exp: 1800, gold: 2200,
+    absorb: ["thunder"], resist: ["ice"],
+    acts: [{ spell: "e_tornado", rate: 0.3 }, { spell: "e_bolt2", rate: 0.25 }] },
+
   // ---- ちていしんでん ----
   darkpriest: { name: "ダークプリースト", spr: "wizard", pal: "light", hp: 90, atk: 24, def: 10, agi: 12, exp: 200, gold: 180,
     weak: ["holy"], acts: [{ spell: "e_bolt", rate: 0.35 }, { spell: "e_silence", rate: 0.2 }] },
@@ -278,6 +298,7 @@ DATA.encounters = {
   magma:    { rate: 1 / 13, groups: [["flamegoblin", "flamegoblin"], ["firelizard"], ["flamewiz", "flamegoblin"], ["magmagolem"], ["flamedemon"], ["firelizard", "flamewiz"]] },
   underworld: { rate: 1 / 14, groups: [["darkknight"], ["darksoldier", "darksoldier"], ["flamedemon", "darksoldier"], ["firelizard", "firelizard"], ["magmagolem", "flamewiz"], ["darkknight", "darksoldier"]] },
   temple:   { rate: 1 / 13, groups: [["darkpriest", "darkpriest"], ["guardian"], ["deathknight"], ["shadowbeast", "darkpriest"], ["deathknight", "shadowbeast"], ["guardian", "darkpriest"]] },
+  sky:      { rate: 1 / 14, groups: [["stormbird"], ["harpy", "harpy"], ["stormbird", "harpy"], ["skydragon"], ["winddemon"], ["winddemon", "harpy"]] },
 };
 
 // ---------------- ショップ ----------------
@@ -942,6 +963,7 @@ DATA.maps.port = {
   events: [
     { x: 4, y: 4, type: "enter", warp: { map: "portinn", x: 4, y: 6, dir: "u" } },
     { x: 16, y: 4, type: "enter", warp: { map: "portshop", x: 4, y: 6, dir: "u" } },
+    { x: 10, y: 10, type: "enter", scriptId: "airshipBoard" },
   ],
   npcs: [
     { id: "sailor", x: 9, y: 7, spr: "villager",
@@ -1268,7 +1290,18 @@ DATA.maps.muspel = {
       ] },
     { id: "dwarf2", x: 14, y: 11, spr: "villager", pal: "dark", wander: true,
       script: [
-        { msg: "ドワーフ「みなみの しんでんには\n『ちのクリスタル』が ねむってるだ。\nだども いんせきの けっかいで\nはいれねえだよ」" },
+        { cond: { flag: "airship" },
+          then: [{ msg: "ドワーフ「そらのたびは どうだ?\nソレイユの さんばしから のれるだよ」" }],
+          else: [
+            { cond: { flag: "earthCrystal" },
+              then: [
+                { msg: "ドワーフ「ちのクリスタルを\nてにいれただか!! それが あれば\nきゅうひこうせんが うごくだ!」" },
+                { msg: "ドワーフ「ソレイユの おきに ういてた\nふるい ひこうせんを なおして\nどうりょくを くみこんでおいただ!」" },
+                { flag: ["airship", 1] },
+                { msg: "ひこうせんが つかえるように なった!\n(ソレイユの さんばしから とべます)" },
+              ],
+              else: [{ msg: "ドワーフ「みなみの しんでんに\n『ちのクリスタル』が ねむってるだ。\nだども けっかいで はいれねえだ」" }] },
+          ] },
       ] },
   ],
   chests: [],
@@ -1383,6 +1416,88 @@ DATA.maps.forge = {
   chests: [],
 };
 
+// ---------------- そらのしま ----------------
+DATA.maps.skyisland = {
+  name: "そらのしま",
+  outdoor: true,
+  bgm: "shrine",
+  encounter: "sky",
+  legend: {
+    "w": { tile: "water", solid: true },
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "grass" },
+    "D": { tile: "icon_shrine" },
+  },
+  rows: [
+    "wwwwwwwwwwwwwwwwwwwwwwww",
+    "wwww........wwwwwwwwwwww",
+    "ww............wwwwwwwwww",
+    "ww..mm..........wwwwwwww",
+    "ww..mm...........wwwwwww",
+    "www........mm....wwwwwww",
+    "wwww.......mm.....wwwwww",
+    "wwww...............wwwww",
+    "www......D.........wwwww",
+    "www................wwwww",
+    "wwww......mm......wwwwww",
+    "wwwww.....mm.....wwwwwww",
+    "wwwwww..........wwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwww",
+  ],
+  events: [
+    { x: 3, y: 9, type: "enter", scriptId: "airshipBoard" },
+    { x: 9, y: 8, type: "enter", warp: { map: "windtemple", x: 2, y: 12, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "sky1", x: 17, y: 7, gold: 2500, hidden: true },
+  ],
+};
+
+// ---------------- かぜのしんでん ----------------
+DATA.maps.windtemple = {
+  name: "かぜのしんでん",
+  bgm: "shrine",
+  encounter: "sky",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+  },
+  rows: [
+    "##################",
+    "#................#",
+    "#..############..#",
+    "#................#",
+    "#..###############",
+    "#................#",
+    "###############..#",
+    "#................#",
+    "#..###############",
+    "#................#",
+    "###############..#",
+    "#................#",
+    "#................#",
+    "##################",
+  ],
+  events: [
+    { x: 2, y: 12, type: "enter", warp: { map: "skyisland", x: 9, y: 9, dir: "d" } },
+    { x: 1, y: 2, type: "enter", scriptId: "tempestFight" },
+    { x: 2, y: 2, type: "enter", scriptId: "tempestFight" },
+    { x: 15, y: 2, type: "enter", scriptId: "tempestFight" },
+    { x: 16, y: 2, type: "enter", scriptId: "tempestFight" },
+  ],
+  npcs: [
+    { id: "tempestnpc", x: 8, y: 1, spr: "bird", hideFlag: "skyBoss",
+      script: [{ runScript: "tempestFight" }] },
+  ],
+  chests: [
+    { id: "wt1", x: 12, y: 1, item: "w_windspear" },
+    { id: "wt2", x: 5, y: 1, item: "elixir", hidden: true },
+    { id: "wt3", x: 1, y: 7, item: "a_sylph" },
+    { id: "wt4", x: 16, y: 7, gold: 2500 },
+  ],
+};
+
 // ---------------- きょうつうスクリプト ----------------
 DATA.scripts = {
   magmaFight: [
@@ -1408,6 +1523,33 @@ DATA.scripts = {
           ] },
       ],
       else: [{ msg: "ちていへ つづく おおとびら……\nふしぎな ちからで とざされている。" }] },
+  ],
+  airshipBoard: [
+    { cond: { flag: "airship" },
+      then: [
+        { msg: "ひこうせんに のりこんだ!\nどこへ とぶ?" },
+        { menu: { options: [
+          { label: "バロンじょう", ops: [{ warp: { map: "world", x: 7, y: 27, dir: "d" } }] },
+          { label: "ミストのむら", ops: [{ warp: { map: "world", x: 27, y: 23, dir: "d" } }] },
+          { label: "ソレイユ",     ops: [{ warp: { map: "port", x: 10, y: 7, dir: "u" } }] },
+          { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
+        ] } },
+      ],
+      else: [{ msg: "おきに ふるびた ひこうせんが\nういている。うごきそうにない。" }] },
+  ],
+  tempestFight: [
+    { cond: { flag: "skyBoss" },
+      then: [],
+      else: [
+        { msg: "テンペスト「クエーッ!!\nわが そらを みだすものよ……\nあらしの えじきと なれい!!」" },
+        { battle: { group: ["tempest"], boss: true, music: "boss" } },
+        { flag: ["skyBoss", 1] },
+        { msg: "あらしが やみ、さいだんに\nみどりいろの けっしょうが あらわれた。" },
+        { give: { item: "windcrystal" } },
+        { flag: ["windCrystal", 1] },
+        { msg: "かぜのクリスタルを てにいれた!!" },
+        { msg: "のこるは みずのクリスタル……。\nふかき うみのそこが よんでいる。\n―― だい4しょうへ つづく ――" },
+      ] },
   ],
   meteoFight: [
     { cond: { flag: "meteorDown" },

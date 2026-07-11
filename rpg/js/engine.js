@@ -639,6 +639,17 @@ function runScript(ops, onDone) {
         if (op.take.item) G.removeItem(op.take.item);
         continue;
       }
+      if (op.menu) {
+        // せんたくし: えらんだ options[n].ops を さしこんで つづける
+        const m = op.menu;
+        G.push(new ChoiceScene(m.options.map((o) => o.label), (sel) => {
+          if (sel >= 0) {
+            ops = ops.slice(0, i).concat(m.options[sel].ops || [], ops.slice(i));
+          }
+          next();
+        }, { x: m.x ?? 190, y: m.y ?? 120 }));
+        return;
+      }
       if (op.join) {
         if (!G.state.party.some((h) => h.id === op.join) && G.state.party.length < 5) {
           const lv = Math.max(G.state.party[0].lv, 1);
