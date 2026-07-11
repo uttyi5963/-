@@ -38,6 +38,7 @@ DATA.spells = {
   e_tornado: { name: "たつまき",   mp: 0, type: "dmg", pow: 50, cast: 3.4, elem: "none", target: "enemy", all: true },
   e_bolt2: { name: "いなずま",     mp: 0, type: "dmg", pow: 45, cast: 2.0, elem: "thunder", target: "enemy" },
   e_bigwave: { name: "だいかいしょう", mp: 0, type: "dmg", pow: 55, cast: 3.5, elem: "ice", target: "enemy", all: true },
+  e_starfall: { name: "ほしくずのあめ", mp: 0, type: "dmg", pow: 60, cast: 3.8, elem: "none", target: "enemy", all: true },
 };
 
 // じょうたいいじょう
@@ -81,6 +82,7 @@ DATA.items = {
   w_dragonlance: { name: "りゅうのやり", kind: "weapon", price: 1500, atk: 17, who: ["glen"], slay: ["dragon"] },
   w_windspear: { name: "かぜのやり",   kind: "weapon", price: 3000, atk: 26, who: ["glen"] },
   w_trident: { name: "トライデント",   kind: "weapon", price: 3600, atk: 28, who: ["glen"], elem: "thunder" },
+  w_gigalance: { name: "ぎんがのやり", kind: "weapon", price: 0, atk: 32, who: ["glen"], elem: "holy" },
   w_claw:    { name: "てつのつめ",     kind: "weapon", price: 200, atk: 6,  who: ["gou"] },
   w_ironclaw:{ name: "タイガークロー", kind: "weapon", price: 700, atk: 13, who: ["gou"] },
   w_thunderclaw: { name: "かみなりのつめ", kind: "weapon", price: 1400, atk: 16, who: ["gou"], elem: "thunder" },
@@ -100,6 +102,8 @@ DATA.items = {
   a_gaia:    { name: "だいちのよろい",   kind: "armor", price: 3200, def: 22, who: ["leon", "glen"] },
   a_sylph:   { name: "シルフのローブ",   kind: "armor", price: 3000, def: 16, int: 4, who: ["rod", "celia"] },
   a_abyss:   { name: "しんかいのローブ", kind: "armor", price: 3400, def: 18, int: 5, who: ["rod", "celia"] },
+  a_star:    { name: "ほしのよろい",     kind: "armor", price: 0, def: 26, who: ["leon", "glen"] },
+  a_cosmos:  { name: "コスモスのローブ", kind: "armor", price: 0, def: 20, int: 6, who: ["rod", "celia"] },
   a_sage:    { name: "けんじゃのローブ", kind: "armor", price: 2200, def: 13, int: 3, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
@@ -235,6 +239,24 @@ DATA.monsters = {
     weak: ["holy"] },
   darksoldier: { name: "やみのへいし", spr: "soldier", pal: "dark", hp: 100, atk: 32, def: 14, agi: 14, exp: 150, gold: 140,
     weak: ["holy"] },
+  // ---- ほしのとう (さいしゅうしょう) ----
+  arcdemon: { name: "アークデーモン", spr: "demon", pal: "dark", hp: 260, atk: 48, def: 18, agi: 18, exp: 450, gold: 400,
+    race: "demon", weak: ["holy"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
+  chaosknight: { name: "カオスナイト", spr: "hero_d", pal: "dark", hp: 280, atk: 52, def: 22, agi: 16, exp: 480, gold: 430,
+    race: "undead", weak: ["fire", "holy"] },
+  nebulabird: { name: "ネビュラバード", spr: "bird", pal: "dark", hp: 240, atk: 46, def: 16, agi: 22, exp: 440, gold: 380,
+    weak: ["thunder"], acts: [{ spell: "e_gale", rate: 0.3 }] },
+  voidgolem: { name: "ヴォイドゴーレム", spr: "golem", pal: "dark", hp: 320, atk: 50, def: 28, agi: 8, exp: 520, gold: 480,
+    weak: ["thunder"], absorb: ["fire", "ice"] },
+  voidos: { name: "ほしくらい ヴォイドス", spr: "voidos", boss: true, scale: 4,
+    hp: 1800, atk: 48, def: 20, agi: 16, exp: 0, gold: 0,
+    absorb: ["fire", "ice", "thunder"],
+    acts: [{ spell: "e_starfall", rate: 0.25 }, { spell: "e_bigwave", rate: 0.2 }], phase2: "voidos2" },
+  voidos2: { name: "ヴォイドス しんのすがた", spr: "voidos", pal: "dark", boss: true, scale: 4,
+    hp: 1500, atk: 54, def: 22, agi: 20, exp: 0, gold: 0,
+    race: "demon", weak: ["holy"], absorb: ["fire", "ice", "thunder"],
+    acts: [{ spell: "e_starfall", rate: 0.3 }, { spell: "e_tornado", rate: 0.2 }] },
+
   // ---- うみのそこ / かいていしんでん ----
   octopus: { name: "オクトパス", spr: "kraken", pal: "light", hp: 180, atk: 40, def: 14, agi: 15, exp: 340, gold: 300,
     weak: ["thunder"], acts: [{ spell: "e_ink", rate: 0.3 }] },
@@ -318,6 +340,7 @@ DATA.encounters = {
   temple:   { rate: 1 / 13, groups: [["darkpriest", "darkpriest"], ["guardian"], ["deathknight"], ["shadowbeast", "darkpriest"], ["deathknight", "shadowbeast"], ["guardian", "darkpriest"]] },
   sky:      { rate: 1 / 14, groups: [["stormbird"], ["harpy", "harpy"], ["stormbird", "harpy"], ["skydragon"], ["winddemon"], ["winddemon", "harpy"]] },
   sea:      { rate: 1 / 14, groups: [["octopus"], ["merman", "merman"], ["deepworm"], ["abyssdemon", "merman"], ["octopus", "merman"], ["abyssdemon"]] },
+  startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"]] },
 };
 
 // ---------------- ショップ ----------------
@@ -1457,11 +1480,12 @@ DATA.maps.skyisland = {
     "m": { tile: "mountain", solid: true },
     ".": { tile: "grass" },
     "D": { tile: "icon_shrine" },
+    "X": { tile: "icon_tower" },
   },
   rows: [
     "wwwwwwwwwwwwwwwwwwwwwwww",
     "wwww........wwwwwwwwwwww",
-    "ww............wwwwwwwwww",
+    "ww......X.....wwwwwwwwww",
     "ww..mm..........wwwwwwww",
     "ww..mm...........wwwwwww",
     "www........mm....wwwwwww",
@@ -1477,6 +1501,10 @@ DATA.maps.skyisland = {
   events: [
     { x: 3, y: 9, type: "enter", scriptId: "airshipBoard" },
     { x: 9, y: 8, type: "enter", warp: { map: "windtemple", x: 2, y: 12, dir: "u" } },
+    { x: 8, y: 2, type: "enter",
+      cond: { flag: "allCrystals" },
+      failScript: [{ msg: "そらが かすかに ゆらいでいる……。\nなにかが あらわれる よかんがする。" }],
+      warp: { map: "startower1", x: 6, y: 10, dir: "u" } },
   ],
   npcs: [],
   chests: [
@@ -1610,6 +1638,111 @@ DATA.maps.seatemple = {
   ],
 };
 
+// ---------------- ほしのとう (さいしゅうしょう) ----------------
+DATA.maps.startower1 = {
+  name: "ほしのとう 1F",
+  bgm: "boss",
+  encounter: "startower",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "S": { tile: "stairs" },
+    "d": { tile: "door" },
+  },
+  rows: [
+    "################",
+    "#............S.#",
+    "#..............#",
+    "###########....#",
+    "#..............#",
+    "#....###########",
+    "#..............#",
+    "###########....#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "######dd########",
+  ],
+  events: [
+    { x: 6, y: 11, type: "enter", warp: { map: "skyisland", x: 8, y: 3, dir: "d" } },
+    { x: 7, y: 11, type: "enter", warp: { map: "skyisland", x: 8, y: 3, dir: "d" } },
+    { x: 13, y: 1, type: "enter", warp: { map: "startower2", x: 12, y: 10, dir: "l" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "sw1a", x: 1, y: 1, item: "w_gigalance" },
+    { id: "sw1b", x: 14, y: 8, item: "a_cosmos" },
+    { id: "sw1c", x: 8, y: 4, item: "elixir", hidden: true },
+  ],
+};
+
+DATA.maps.startower2 = {
+  name: "ほしのとう 2F",
+  bgm: "boss",
+  encounter: "startower",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "S": { tile: "stairs" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#.S............#",
+    "#..............#",
+    "#....###########",
+    "#..............#",
+    "###########....#",
+    "#..............#",
+    "#....###########",
+    "#..............#",
+    "#..............#",
+    "#............s.#",
+    "################",
+  ],
+  events: [
+    { x: 13, y: 10, type: "enter", warp: { map: "startower1", x: 12, y: 1, dir: "l" } },
+    { x: 2, y: 1, type: "enter", warp: { map: "startowertop", x: 7, y: 7, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "sw2a", x: 14, y: 4, item: "a_star" },
+    { id: "sw2b", x: 1, y: 8, gold: 5000 },
+  ],
+};
+
+DATA.maps.startowertop = {
+  name: "ほしのとう さいじょうかい",
+  bgm: "boss",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "carpet" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#......s.......#",
+    "################",
+  ],
+  events: [
+    { x: 7, y: 7, type: "enter", warp: { map: "startower2", x: 2, y: 2, dir: "d" } },
+  ],
+  npcs: [
+    { id: "voidosnpc", x: 7, y: 2, spr: "voidos", hideFlag: "trueClear",
+      script: [{ runScript: "starFight" }] },
+  ],
+  chests: [],
+};
+for (let x = 1; x <= 14; x++) {
+  DATA.maps.startowertop.events.push({ x, y: 4, type: "enter", scriptId: "starFight" });
+}
+
 // ---------------- きょうつうスクリプト ----------------
 DATA.scripts = {
   magmaFight: [
@@ -1660,6 +1793,24 @@ DATA.scripts = {
           ] },
       ],
       else: [{ msg: "おきに ふるびた ひこうせんが\nういている。うごきそうにない。" }] },
+  ],
+  starFight: [
+    { cond: { flag: "trueClear" },
+      then: [],
+      else: [
+        { msg: "ヴォイドス「ようこそ ほしのとうへ……。\nザルバも おうも わしの ゆびさきに\nすぎなかったと しれ」" },
+        { msg: "レオン「すべての げんきょうは おまえか!\nみんな、クリスタルに いのりを!」" },
+        { msg: "4つのクリスタルが きょうめいし\nパーティを ひかりが つつんだ!!" },
+        { battle: { group: ["voidos"], boss: true, music: "boss" } },
+        { flag: ["trueClear", 1] },
+        { msg: "ヴォイドスは ほしくずとなって\nよぞらに きえていった……。" },
+        { warp: { map: "castle", x: 9, y: 3, dir: "u" } },
+        { msg: "バロンおう「すべて おわったのだな……。\nレオン、そなたらは このくにの\nいや、せかいの きゅうせいしゅだ」" },
+        { msg: "セリア「ながい たびだったわね」\nロッド「けんきゅうざいりょうは\nたっぷり あつまったぜ」" },
+        { msg: "ゴウ「うでが なっちまうな!」\nグレン「なあ レオン、つぎは どこへ\nとぶ?」" },
+        { msg: "レオン「……そうだな。クリスタルの\nひかりが とどく かぎり、どこへでも」" },
+        { ending: true },
+      ] },
   ],
   leviaFight: [
     { cond: { flag: "seaBoss" },
