@@ -1,7 +1,7 @@
 // ============================================================
 // クリスタルナイツ - ATBバトル (FF4スタイル アクティブタイムバトル)
-// ・コマンド選択中も時間は流れる (本家仕様)
-// ・ウェイトモード: じゅもん/どうぐ サブメニュー中のみ時間停止
+// ・アクティブ: コマンド選択中も時間は流れる
+// ・ウェイト: コマンド選択中は時間が完全に停止する
 // ・じゅもんには えいしょう時間があり、完了時に発動する
 // ============================================================
 
@@ -56,8 +56,23 @@ class BattleScene {
     this.fleeing = false;
     this.shake = 0;        // がめんゆれ (おおダメージ/かいしん)
     this.screenFlash = 0;  // まほうはつどうの ひかり
+    this.fx = [];          // ヒットエフェクト {x,y,kind,t}
+    this.bgTheme = this.pickBgTheme();
 
     AudioSys.bgm(opts.music || "battle");
+  }
+
+  // げんざいの マップから せんとうはいけいを きめる
+  pickBgTheme() {
+    const m = String(G.state.map || "");
+    if (/^icecave/.test(m)) return "ice";
+    if (/^magma/.test(m)) return "fire";
+    if (/^(cave|waterway|underworld)/.test(m)) return "cave";
+    if (/^(tower|startower|skyisland)/.test(m)) return "tower";
+    if (/^(temple|shrine|windtemple|seatemple)/.test(m)) return "temple";
+    if (/^seafloor/.test(m)) return "sea";
+    if (/^(world|lostwoods)/.test(m)) return "grass";
+    return "interior";
   }
 
   // ---------------- ユーティリティ ----------------
@@ -117,6 +132,7 @@ class BattleScene {
   // ---------------- こうしん ----------------
   update(dt) {
     this.pops = this.pops.filter((p) => (p.t += dt) < 0.9);
+    this.fx = this.fx.filter((f) => (f.t += dt) < 0.32);
     this.enemies.forEach((e) => { if (e.flash > 0) e.flash -= dt; });
     this.party.forEach((p) => { if (p.flash > 0) p.flash -= dt; });
     if (this.shake > 0) this.shake -= dt;
@@ -143,11 +159,10 @@ class BattleScene {
       return;
     }
 
-    // ウェイトモード: サブメニューちゅうだけ 時間がとまる
-    const submenuPause = this.waitMode && this.phase === "command" &&
-      (this.menu === "spell" || this.menu === "item");
+    // ウェイトモード: コマンドにゅうりょくちゅうは 時間がかんぜんに とまる
+    const waitPause = this.waitMode && this.phase === "command";
 
-    if (!submenuPause) {
+    if (!waitPause) {
       // ATBゲージ (えいしょう/ジャンプちゅうは たまらない)
       for (const p of this.aliveParty()) {
         if (!p.casting && !p.airborne) p.atb = Math.min(100, p.atb + (25 + p.h.agi * 3) * dt);
@@ -386,6 +401,7 @@ class BattleScene {
       target.flash = 0.25;
       AudioSys.sfx(sfx);
       this.pop(pos.x + pos.size / 2, pos.y, dmg);
+      this.fx.push({ x: pos.x + pos.size / 2, y: pos.y + pos.size / 2, kind: sfx === "magic" ? "burst" : "slash", t: 0 });
       if (sfx === "crit" || dmg >= 100) this.shake = 0.25;
       if (sfx === "magic") this.screenFlash = 0.15;
       // しれんボス: きずは ふさがる
@@ -764,6 +780,7 @@ class BattleScene {
       victim.flash = 0.25;
       const pos = this.partyPos(this.party.indexOf(victim));
       this.pop(pos.x, pos.y, dmg, 2);
+      this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind: "slash", t: 0 });
       AudioSys.sfx("hit");
       // ついかこうか (どく/くらやみ など)。みがわり時は はつどうしない
       const inf = e.def.inflict || (e.def.poison ? { status: "poison", rate: e.def.poison } : null);
@@ -824,6 +841,7 @@ class BattleScene {
         p.flash = 0.25;
         const pos = this.partyPos(this.party.indexOf(p));
         this.pop(pos.x, pos.y, dmg, 2);
+        this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind: "burst", t: 0 });
         AudioSys.sfx("hit");
         if (p.h.hp <= 0) {
           p.atb = 0; p.casting = null;
@@ -960,18 +978,18 @@ class BattleScene {
     if (this.shake > 0) {
       c.translate(Math.round(rnd(-3, 3)), Math.round(rnd(-2, 2)));
     }
-    c.fillStyle = PAL[1];
-    c.fillRect(0, 168, SCREEN_W, 8);
-    for (let i = 0; i < 10; i++) {
-      c.fillRect(12 + i * 32, 160 + (i % 3) * 2, 10, 2);
-    }
+    this.drawBg(c);
 
-    // てき
+    // てき (ゆっくり じょうげに ゆれて いきているかんじに)
     this.enemies.forEach((e, i) => {
       if (e.dead) return;
       const pos = this.enemyPos(i);
+      const bob = Math.floor(performance.now() / 600 + i) % 2;
       const variant = e.flash > 0 ? "flash" : (e.def.pal || undefined);
-      Gfx.draw(e.def.spr, pos.x, pos.y, { scale: pos.scale, variant });
+      // あしもとの かげ
+      c.fillStyle = PAL[1];
+      c.fillRect(pos.x + 3, pos.y + pos.size - 1 + bob, pos.size - 6, 3);
+      Gfx.draw(e.def.spr, pos.x, pos.y + bob, { scale: pos.scale, variant });
       // えいしょうちゅうの しるし
       if (e.casting) {
         const n = 1 + Math.floor(performance.now() / 250) % 3;
@@ -1004,6 +1022,9 @@ class BattleScene {
       }
     });
 
+    // ヒットエフェクト
+    this.drawFx(c);
+
     // ダメージポップ
     this.pops.forEach((p) => {
       const dy = -Math.min(14, p.t * 40);
@@ -1033,11 +1054,146 @@ class BattleScene {
     }
   }
 
+  // せんとうはいけい (エリアごとに ふんいきを かえる)
+  drawBg(c) {
+    const t = this.bgTheme;
+    // じめん
+    c.fillStyle = PAL[1];
+    c.fillRect(0, 168, SCREEN_W, 8);
+
+    if (t === "grass") {
+      // とおくの やまなみ と くも
+      c.fillStyle = PAL[1];
+      for (let i = 0; i < 5; i++) {
+        const x = 20 + i * 66, w = 56, h = 26 + (i % 3) * 10;
+        c.beginPath();
+        c.moveTo(x, 160); c.lineTo(x + w / 2, 160 - h); c.lineTo(x + w, 160);
+        c.fill();
+      }
+      c.fillStyle = PAL[1];
+      c.fillRect(40, 28, 34, 6); c.fillRect(50, 24, 18, 5);
+      c.fillRect(210, 40, 40, 6); c.fillRect(222, 36, 20, 5);
+      c.fillStyle = PAL[2];
+      for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 160 + (i % 3) * 2, 10, 2);
+    }
+    else if (t === "cave") {
+      // つららじょうの いわてんじょう と いわかげ
+      c.fillStyle = PAL[2];
+      c.fillRect(0, 0, SCREEN_W, 10);
+      for (let i = 0; i < 11; i++) {
+        const x = i * 30 + 6, h = 10 + (i * 7) % 18;
+        c.beginPath();
+        c.moveTo(x, 10); c.lineTo(x + 9, 10 + h); c.lineTo(x + 18, 10);
+        c.fill();
+      }
+      c.fillStyle = PAL[1];
+      c.fillRect(0, 150, 42, 18); c.fillRect(120, 156, 60, 12); c.fillRect(268, 148, 52, 20);
+      c.fillStyle = PAL[2];
+      for (let i = 0; i < 8; i++) c.fillRect(20 + i * 40, 162 + (i % 2) * 3, 12, 3);
+    }
+    else if (t === "ice") {
+      // こおりの けっしょう と ひかるゆか
+      c.fillStyle = PAL[1];
+      for (let i = 0; i < 6; i++) {
+        const x = 16 + i * 54, y = 18 + (i * 13) % 40, s = 8 + (i % 3) * 4;
+        c.beginPath();
+        c.moveTo(x, y - s); c.lineTo(x + s, y); c.lineTo(x, y + s); c.lineTo(x - s, y);
+        c.fill();
+      }
+      c.fillStyle = PAL[2];
+      for (let i = 0; i < 12; i++) c.fillRect(8 + i * 27, 158 + (i % 3) * 3, 14, 2);
+    }
+    else if (t === "fire") {
+      // ようがんの あわ と ねつのゆらぎ
+      c.fillStyle = PAL[2];
+      c.fillRect(0, 156, SCREEN_W, 20);
+      c.fillStyle = PAL[1];
+      const ph = Math.floor(performance.now() / 400) % 2;
+      for (let i = 0; i < 9; i++) {
+        const x = 14 + i * 36, r = 3 + ((i + ph) % 3) * 2;
+        c.beginPath(); c.arc(x, 164 + (i % 2) * 5, r, 0, Math.PI * 2); c.fill();
+      }
+      for (let i = 0; i < 5; i++) {
+        c.fillRect(30 + i * 64, 20 + ((i + ph) % 2) * 6, 2, 14);
+        c.fillRect(46 + i * 64, 34 - ((i + ph) % 2) * 6, 2, 12);
+      }
+    }
+    else if (t === "tower") {
+      // いしのはしら と ほしぞら
+      c.fillStyle = PAL[1];
+      for (let i = 0; i < 14; i++) {
+        const x = (i * 47 + 23) % SCREEN_W, y = (i * 31 + 9) % 120;
+        c.fillRect(x, y, 2, 2);
+      }
+      c.fillStyle = PAL[2];
+      c.fillRect(6, 20, 14, 148); c.fillRect(300, 20, 14, 148);
+      c.fillStyle = PAL[1];
+      for (let y = 26; y < 168; y += 14) { c.fillRect(6, y, 14, 2); c.fillRect(300, y, 14, 2); }
+    }
+    else if (t === "temple") {
+      // しんでんの はしら
+      c.fillStyle = PAL[1];
+      [30, 130, 250].forEach((x) => {
+        c.fillRect(x, 30, 16, 138);
+        c.fillRect(x - 3, 24, 22, 6);
+        c.fillRect(x - 3, 162, 22, 6);
+      });
+      c.fillStyle = PAL[2];
+      c.fillRect(0, 24, SCREEN_W, 3);
+      for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 162 + (i % 2) * 3, 10, 2);
+    }
+    else if (t === "sea") {
+      // かいていの なみもよう と あわ
+      c.fillStyle = PAL[1];
+      const ph = Math.floor(performance.now() / 500) % 2;
+      for (let y = 20; y < 150; y += 26) {
+        for (let x = 0; x < SCREEN_W; x += 24) {
+          c.fillRect(x + (ph ? 12 : 0) + (y % 52 ? 6 : 0), y, 12, 2);
+        }
+      }
+      c.fillStyle = PAL[2];
+      for (let i = 0; i < 6; i++) {
+        c.beginPath(); c.arc(30 + i * 52, 60 + ((i * 17 + ph * 10) % 80), 3, 0, Math.PI * 2); c.fill();
+      }
+    }
+    else {
+      // しつない: かべのライン と いしだたみ
+      c.fillStyle = PAL[2];
+      c.fillRect(0, 14, SCREEN_W, 3);
+      c.fillStyle = PAL[1];
+      for (let i = 0; i < 8; i++) c.fillRect(4 + i * 40, 20, 2, 10);
+      for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 160 + (i % 3) * 2, 10, 2);
+    }
+  }
+
+  drawFx(c) {
+    this.fx.forEach((f) => {
+      const p = Math.min(1, f.t / 0.3);
+      c.fillStyle = PAL[3];
+      if (f.kind === "slash") {
+        // ななめに はしる きりせん
+        const r = 3 + p * 13;
+        for (let k = -1; k <= 1; k++) {
+          const px = Math.round(f.x - r + k * 2), py = Math.round(f.y - r - k * 2);
+          for (let s = 0; s < r * 2; s += 2) c.fillRect(px + s, py + s, 2, 2);
+        }
+      } else {
+        // ほうしゃじょうに とびちる ひかり
+        const r = 3 + p * 12;
+        for (let k = 0; k < 8; k++) {
+          const a = k * Math.PI / 4;
+          c.fillRect(Math.round(f.x + Math.cos(a) * r) - 1, Math.round(f.y + Math.sin(a) * r) - 1, 3, 3);
+        }
+      }
+    });
+  }
+
   drawStatus() {
     // てきめい (ひだりした)
     Gfx.window(4, 196, 100, 88);
     this.aliveEnemies().slice(0, 4).forEach((e, i) => {
       Gfx.text(e.name, 10, 204 + i * 19, 3, 10);
+      Gfx.bar(10, 216 + i * 19, 88, 3, e.hp / e.maxhp, 2);
     });
 
     // パーティステータス (みぎした)

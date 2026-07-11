@@ -76,7 +76,7 @@ class MenuScene {
     this.scroll = 0;
     this.target = 0;
     this.picked = null;
-    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "たいれつ", "ずかん", "クエスト", "せってい", "セーブ"];
+    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "たいれつ", "ずかん", "クエスト", "せってい", "パスワード", "セーブ"];
   }
 
   update() {
@@ -116,15 +116,43 @@ class MenuScene {
         G.state.config.atbWait = G.state.config.atbWait === false;
         const mode = G.state.config.atbWait ? "ウェイト" : "アクティブ";
         G.push(new MessageScene(
-          `ATBモード: ${mode}\n` +
+          `せんとうモード: ${mode}\n` +
           (G.state.config.atbWait
-            ? "(じゅもん/どうぐ えらびちゅうは\n じかんが とまります)"
-            : "(メニューちゅうも てきは うごきます!)")));
+            ? "(コマンドを えらんでいるあいだ\n じかんが とまります)"
+            : "(コマンドちゅうも てきは うごきます!)")));
+      }
+      else if (cmd === "パスワード") {
+        G.push(new ChoiceScene(["かきだす", "よみこむ"], (pick) => {
+          if (pick < 0) return;
+          if (pick === 0) {
+            G.push(new SlotPickScene("load", (slot) => {
+              if (slot < 0) return;
+              const code = G.exportCode(slot);
+              if (code) CodeOverlay.show("export", code);
+              else G.push(new MessageScene("その スロットは からっぽだ。"));
+            }));
+          } else {
+            G.push(new SlotPickScene("save", (slot) => {
+              if (slot < 0) return;
+              CodeOverlay.show("import", "", (text) => {
+                if (G.importCode(text, slot)) {
+                  G.push(new MessageScene(`スロット${slot}に よみこんだ!`));
+                } else {
+                  G.push(new MessageScene("パスワードが ちがうようだ……"));
+                }
+              });
+            }));
+          }
+        }, { x: 180, y: 130 }));
       }
       else if (cmd === "セーブ") {
         G.push(new SlotPickScene("save", (slot) => {
           if (slot < 0) return;
-          if (G.save(slot)) G.push(new MessageScene(`スロット${slot}に きろくした!`));
+          if (G.save(slot)) {
+            const msgs = [`スロット${slot}に きろくした!`];
+            if (!Store.ok) msgs.push("※このかんきょうでは きろくが きえる\n ことがあります。メニューの\n「パスワード」で かきだせます!");
+            G.push(new MessageScene(msgs));
+          }
           else G.push(new MessageScene("セーブに しっぱいした……"));
         }));
       }
@@ -288,9 +316,9 @@ class MenuScene {
     // コマンド (みぎうえ)
     Gfx.window(204, 4, 112, 184);
     this.commands.forEach((c, i) => {
-      Gfx.text(c, 226, 14 + i * 19);
+      Gfx.text(c, 226, 12 + i * 17, 3, 11);
     });
-    if (this.state === "main") Gfx.cursor(212, 17 + this.sel * 19);
+    if (this.state === "main") Gfx.cursor(212, 15 + this.sel * 17);
 
     // しょじきん (みぎした)
     Gfx.window(204, 192, 112, 46);

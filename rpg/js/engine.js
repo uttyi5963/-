@@ -6,6 +6,33 @@ const SCREEN_W = 320, SCREEN_H = 288, TILE = 16;
 // ゲームボーイ 4かいちょう パレット (あかるい -> くらい)
 const PAL = ["#9bbc0f", "#8bac0f", "#306230", "#0f380f"];
 
+// ---------------- ストレージ ----------------
+// localStorage がつかえない環境 (プライベートブラウズ/サンドボックス等) では
+// メモリに保存してゲームを続行できるようにする。パスワード機能で永続化を補う。
+const Store = {
+  mem: {},
+  ok: (() => {
+    try {
+      const k = "__ck_probe";
+      localStorage.setItem(k, "1");
+      localStorage.removeItem(k);
+      return true;
+    } catch (e) { return false; }
+  })(),
+  get(k) {
+    if (this.ok) { try { return localStorage.getItem(k); } catch (e) { /* fallthrough */ } }
+    return Object.prototype.hasOwnProperty.call(this.mem, k) ? this.mem[k] : null;
+  },
+  set(k, v) {
+    this.mem[k] = v;
+    if (this.ok) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
+  },
+  del(k) {
+    delete this.mem[k];
+    if (this.ok) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
+  },
+};
+
 // ---------------- 描画 ----------------
 const Gfx = {
   canvas: null, ctx: null,
@@ -93,9 +120,18 @@ const Gfx = {
     c.fillRect(x, y, w, h);
     c.fillStyle = PAL[0];
     c.fillRect(x + 2, y + 2, w - 4, h - 4);
+    // うちがわの かざりわく
     c.fillStyle = PAL[3];
     c.fillRect(x + 4, y + 4, w - 8, 1);
     c.fillRect(x + 4, y + h - 5, w - 8, 1);
+    c.fillRect(x + 4, y + 4, 1, h - 8);
+    c.fillRect(x + w - 5, y + 4, 1, h - 8);
+    // よすみの アクセント
+    c.fillStyle = PAL[2];
+    c.fillRect(x, y, 2, 2);
+    c.fillRect(x + w - 2, y, 2, 2);
+    c.fillRect(x, y + h - 2, 2, 2);
+    c.fillRect(x + w - 2, y + h - 2, 2, 2);
   },
 
   cursor(x, y, pi = 3) {
@@ -136,6 +172,8 @@ const Input = {
 
   init() {
     addEventListener("keydown", (e) => {
+      // パスワード入力ちゅうは ゲームそうさを うけつけない
+      if (e.target && (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT")) return;
       AudioSys.unlock();
       if (e.key === "m" || e.key === "M") { AudioSys.toggleMute(); return; }
       const k = this.keyName(e);
@@ -464,17 +502,41 @@ const G = {
   // むかしの 1スロットセーブを スロット1へ ひっこし
   migrateLegacy() {
     try {
-      const old = localStorage.getItem(this.SAVE_KEY);
-      if (old && !localStorage.getItem(this.slotKey(1))) {
-        localStorage.setItem(this.slotKey(1), old);
-        localStorage.removeItem(this.SAVE_KEY);
+      const old = Store.get(this.SAVE_KEY);
+      if (old && !Store.get(this.slotKey(1))) {
+        Store.set(this.slotKey(1), old);
+        Store.del(this.SAVE_KEY);
       }
     } catch (e) { /* ignore */ }
   },
 
   save(slot = 1) {
     try {
-      localStorage.setItem(this.slotKey(slot), JSON.stringify(this.state));
+      Store.set(this.slotKey(slot), JSON.stringify(this.state));
+      return true;
+    } catch (e) { return false; }
+  },
+
+  // ---------- パスワード (セーブコードの かきだし/よみこみ) ----------
+  // スマホなど localStorage がのこらない環境や 機種変更むけの ひきつぎ機能
+  CODE_PREFIX: "CK1.",
+
+  exportCode(slot) {
+    const raw = Store.get(this.slotKey(slot));
+    if (!raw) return null;
+    try {
+      return this.CODE_PREFIX + btoa(unescape(encodeURIComponent(raw)));
+    } catch (e) { return null; }
+  },
+
+  importCode(text, slot) {
+    try {
+      const t = String(text || "").trim();
+      if (!t.startsWith(this.CODE_PREFIX)) return false;
+      const raw = decodeURIComponent(escape(atob(t.slice(this.CODE_PREFIX.length))));
+      const s = JSON.parse(raw);
+      if (!s || !s.party || !s.party[0] || !s.party[0].id) return false;
+      Store.set(this.slotKey(slot), raw);
       return true;
     } catch (e) { return false; }
   },
@@ -487,7 +549,7 @@ const G = {
   // スロットのようやく (からっぽなら null)
   slotInfo(n) {
     try {
-      const s = JSON.parse(localStorage.getItem(this.slotKey(n)));
+      const s = JSON.parse(Store.get(this.slotKey(n)));
       if (!s || !s.party || !s.party[0]) return null;
       return {
         name: s.party[0].name, lv: s.party[0].lv,
@@ -502,7 +564,7 @@ const G = {
   // つよくてニューゲーム: クリアデータから レベル/そうび/ギル/ずかんを ひきつぎ
   newGamePlus(slot) {
     let src;
-    try { src = JSON.parse(localStorage.getItem(this.slotKey(slot))); } catch (e) { return false; }
+    try { src = JSON.parse(Store.get(this.slotKey(slot))); } catch (e) { return false; }
     if (!src || !src.party || !src.flags || !src.flags.trueClear) return false;
 
     this.newGame();
@@ -536,7 +598,7 @@ const G = {
 
   load(slot = 1) {
     try {
-      const s = JSON.parse(localStorage.getItem(this.slotKey(slot)));
+      const s = JSON.parse(Store.get(this.slotKey(slot)));
       if (!s || !s.party) return false;
       if (!s.config) s.config = { atbWait: true };
       if (!s.bestiary) s.bestiary = {};
@@ -676,6 +738,99 @@ class SlotPickScene {
     }
   }
 }
+
+// ---------------- パスワードオーバーレイ ----------------
+// セーブコードの コピー/はりつけ用 DOM UI (スマホでも つかえる)
+const CodeOverlay = {
+  el: null,
+  open: false,
+
+  btn(label) {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.style.cssText =
+      "padding:10px 18px;border:2px solid #0f380f;border-radius:6px;" +
+      "background:#9bbc0f;color:#0f380f;font-weight:bold;font-size:14px;" +
+      "font-family:monospace;cursor:pointer;";
+    return b;
+  },
+
+  // mode: "export"(コードをみせる) | "import"(コードをうけとる)
+  show(mode, code, onImport) {
+    this.hide();
+    this.open = true;
+    const wrap = document.createElement("div");
+    wrap.style.cssText =
+      "position:fixed;inset:0;z-index:100;background:rgba(15,56,15,.92);" +
+      "display:flex;align-items:center;justify-content:center;padding:16px;";
+    const panel = document.createElement("div");
+    panel.style.cssText =
+      "background:#8bac0f;border:4px solid #0f380f;border-radius:8px;" +
+      "padding:14px;width:min(440px,100%);display:flex;flex-direction:column;gap:10px;";
+    const title = document.createElement("div");
+    title.textContent = mode === "export"
+      ? "パスワード (コピーして ほかの端末の「よみこむ」に はりつけてください)"
+      : "パスワードを はりつけてください";
+    title.style.cssText = "color:#0f380f;font-weight:bold;font-size:13px;font-family:monospace;";
+    const ta = document.createElement("textarea");
+    ta.value = code || "";
+    ta.readOnly = mode === "export";
+    ta.rows = 6;
+    ta.style.cssText =
+      "width:100%;resize:none;background:#9bbc0f;color:#0f380f;" +
+      "border:2px solid #0f380f;border-radius:4px;font-family:monospace;" +
+      "font-size:11px;padding:6px;word-break:break-all;";
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:10px;justify-content:flex-end;";
+    const note = document.createElement("div");
+    note.style.cssText = "color:#306230;font-size:11px;font-family:monospace;min-height:14px;";
+
+    if (mode === "export") {
+      const copy = this.btn("コピー");
+      copy.addEventListener("click", () => {
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        const done = () => { note.textContent = "コピーしました!"; };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(ta.value).then(done, () => {
+            try { document.execCommand("copy"); done(); } catch (e) { note.textContent = "ながおしで コピーしてください"; }
+          });
+        } else {
+          try { document.execCommand("copy"); done(); } catch (e) { note.textContent = "ながおしで コピーしてください"; }
+        }
+      });
+      row.appendChild(copy);
+    } else {
+      const ok = this.btn("よみこむ");
+      ok.addEventListener("click", () => {
+        const v = ta.value;
+        this.hide();
+        if (onImport) onImport(v);
+      });
+      row.appendChild(ok);
+    }
+    const close = this.btn("とじる");
+    close.style.background = "#306230";
+    close.style.color = "#9bbc0f";
+    close.addEventListener("click", () => this.hide());
+    row.appendChild(close);
+
+    panel.appendChild(title);
+    panel.appendChild(ta);
+    panel.appendChild(note);
+    panel.appendChild(row);
+    wrap.appendChild(panel);
+    document.body.appendChild(wrap);
+    this.el = wrap;
+    if (mode === "import") ta.focus();
+    else { ta.focus(); ta.select(); }
+  },
+
+  hide() {
+    if (this.el) { this.el.remove(); this.el = null; }
+    this.open = false;
+  },
+};
 
 // ---------------- スクリプトじっこう ----------------
 // ops: data.js の イベントていぎ を じゅんばんに しょり

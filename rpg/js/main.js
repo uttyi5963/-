@@ -17,7 +17,20 @@ class TitleScene {
       const info = G.slotInfo(n);
       if (info && info.trueClear) { opts.push("つよくてニューゲーム"); break; }
     }
+    opts.push("パスワード");
     return opts;
+  }
+
+  // せんとうモード (ウェイト/アクティブ) を えらんでから かいし
+  pickBattleMode(then) {
+    G.push(new MessageScene(
+      "せんとうモードを えらんでください。\nウェイト: コマンドちゅう じかんが とまる\nアクティブ: てきは まちません (上級者)",
+      () => {
+        G.push(new ChoiceScene(["ウェイト", "アクティブ"], (sel) => {
+          then(sel !== 1); // キャンセルは ウェイトあつかい
+        }, { x: 104, y: 190, cancelable: false }));
+      }
+    ));
   }
   update(dt) {
     this.t += dt;
@@ -51,12 +64,38 @@ class TitleScene {
             });
           }
         }));
+      } else if (pick === "パスワード") {
+        G.push(new ChoiceScene(["よみこむ", "かきだす"], (sel) => {
+          if (sel < 0) return;
+          if (sel === 0) {
+            G.push(new SlotPickScene("save", (slot) => {
+              if (slot < 0) return;
+              CodeOverlay.show("import", "", (text) => {
+                if (G.importCode(text, slot)) {
+                  G.push(new MessageScene(`スロット${slot}に よみこんだ!\n「つづきから」で あそべます。`));
+                } else {
+                  G.push(new MessageScene("パスワードが ちがうようだ……"));
+                }
+              });
+            }));
+          } else {
+            G.push(new SlotPickScene("load", (slot) => {
+              if (slot < 0) return;
+              const code = G.exportCode(slot);
+              if (code) CodeOverlay.show("export", code);
+              else G.push(new MessageScene("その スロットは からっぽだ。"));
+            }));
+          }
+        }, { x: 104, y: 190 }));
       } else {
-        G.newGame();
-        G.fade(() => {
-          G.replace(new FieldScene());
-          const boot = DATA.scripts[DATA.newGame.runScript];
-          if (boot) runScript(boot);
+        this.pickBattleMode((wait) => {
+          G.newGame();
+          G.state.config.atbWait = wait;
+          G.fade(() => {
+            G.replace(new FieldScene());
+            const boot = DATA.scripts[DATA.newGame.runScript];
+            if (boot) runScript(boot);
+          });
         });
       }
     }
@@ -82,9 +121,9 @@ class TitleScene {
     Gfx.text("〜 あんこくきしの ものがたり 〜", 74, 152, 1, 12);
 
     const opts = this.options();
-    Gfx.window(104, 190, 112, opts.length * 20 + 16);
-    opts.forEach((o, i) => Gfx.text(o, 130, 200 + i * 20));
-    Gfx.cursor(116, 203 + this.sel * 20);
+    Gfx.window(88, 176, 144, opts.length * 18 + 14);
+    opts.forEach((o, i) => Gfx.text(o, 114, 184 + i * 18, 3, 11));
+    Gfx.cursor(100, 187 + this.sel * 18);
 
     Gfx.text("Z:けってい X:キャンセル M:おと", 60, 268, 1, 10);
   }
@@ -210,7 +249,7 @@ function bootGame() {
 
     const fading = G.updateFade(dt);
     const top = G.top();
-    if (top && !fading) top.update(dt);
+    if (top && !fading && !CodeOverlay.open) top.update(dt);
 
     // いちばんうえの opaque シーンから じゅんに えがく
     let start = 0;
