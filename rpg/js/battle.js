@@ -25,6 +25,7 @@ class BattleScene {
         seen[id] = (seen[id] || 0);
         name += "ABCD"[seen[id]++];
       }
+      G.recordSeen(id);
       return {
         id, def, name,
         hp: def.hp, maxhp: def.hp,
@@ -835,6 +836,7 @@ class BattleScene {
       if (!e.dead && e.hp <= 0) {
         e.dead = true;
         e.casting = null;
+        G.recordKill(e.id);
         AudioSys.sfx("dead");
         const pos = this.enemyPos(this.enemies.indexOf(e));
         for (let k = 0; k < 6; k++) {

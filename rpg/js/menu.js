@@ -76,7 +76,7 @@ class MenuScene {
     this.scroll = 0;
     this.target = 0;
     this.picked = null;
-    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "たいれつ", "せってい", "セーブ"];
+    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "たいれつ", "ずかん", "せってい", "セーブ"];
   }
 
   update() {
@@ -109,6 +109,7 @@ class MenuScene {
       else if (cmd === "どうぐ") { this.state = "item"; this.sub = 0; this.scroll = 0; }
       else if (cmd === "そうび") { this.state = "heroPick"; this.mode = "equip"; this.sub = 0; }
       else if (cmd === "たいれつ") { this.state = "heroPick"; this.mode = "row"; this.sub = 0; }
+      else if (cmd === "ずかん") { G.push(new BestiaryScene()); }
       else if (cmd === "せってい") {
         if (!G.state.config) G.state.config = { atbWait: true };
         G.state.config.atbWait = G.state.config.atbWait === false;
@@ -284,16 +285,16 @@ class MenuScene {
     });
 
     // コマンド (みぎうえ)
-    Gfx.window(204, 4, 112, 146);
+    Gfx.window(204, 4, 112, 164);
     this.commands.forEach((c, i) => {
       Gfx.text(c, 226, 14 + i * 19);
     });
     if (this.state === "main") Gfx.cursor(212, 17 + this.sel * 19);
 
     // しょじきん (みぎした)
-    Gfx.window(204, 154, 112, 46);
-    Gfx.textR(`${G.state.gold} ギル`, 306, 164);
-    Gfx.text(DATA.maps[G.state.map].name, 212, 181, 3, 10);
+    Gfx.window(204, 172, 112, 46);
+    Gfx.textR(`${G.state.gold} ギル`, 306, 182);
+    Gfx.text(DATA.maps[G.state.map].name, 212, 199, 3, 10);
 
     if (this.state === "item") this.drawItemList();
     if (this.state === "spellList") this.drawSpellList();
@@ -377,6 +378,108 @@ class MenuScene {
       Gfx.text(String(k), 44, 84 + i * 17, 3, 11);
       Gfx.textR(String(v), 276, 84 + i * 17, 3, 11);
     });
+  }
+}
+
+// ============================================================
+// モンスターずかん
+// ============================================================
+class BestiaryScene {
+  constructor() {
+    this.opaque = true;
+    this.ids = Object.keys(DATA.monsters);
+    this.sel = 0;
+    this.scroll = 0;
+    this.detail = false;
+  }
+
+  entry(id) {
+    return (G.state.bestiary && G.state.bestiary[id]) || { seen: 0, killed: 0 };
+  }
+
+  update() {
+    if (this.detail) {
+      if (Input.tap("a") || Input.tap("b")) { AudioSys.sfx("cancel"); this.detail = false; }
+      return;
+    }
+    const n = this.ids.length;
+    if (Input.tap("up")) { this.sel = (this.sel + n - 1) % n; AudioSys.sfx("cursor"); }
+    if (Input.tap("down")) { this.sel = (this.sel + 1) % n; AudioSys.sfx("cursor"); }
+    if (Input.tap("b")) { AudioSys.sfx("cancel"); G.pop(); return; }
+    if (Input.tap("a")) {
+      if (this.entry(this.ids[this.sel]).seen > 0) {
+        AudioSys.sfx("confirm");
+        this.detail = true;
+      } else {
+        AudioSys.sfx("buzz");
+      }
+    }
+  }
+
+  draw() {
+    Gfx.clear(0);
+    const killedCount = this.ids.filter((id) => this.entry(id).killed > 0).length;
+    Gfx.window(4, 4, 312, 30);
+    Gfx.text("モンスターずかん", 14, 12);
+    Gfx.textR(`とうばつ ${killedCount}/${this.ids.length}`, 306, 12);
+
+    if (this.detail) {
+      this.drawDetail();
+      return;
+    }
+
+    Gfx.window(4, 38, 312, 246);
+    const view = 12;
+    if (this.sel < this.scroll) this.scroll = this.sel;
+    if (this.sel >= this.scroll + view) this.scroll = this.sel - view + 1;
+    this.ids.slice(this.scroll, this.scroll + view).forEach((id, i) => {
+      const y = 48 + i * 19;
+      const idx = this.scroll + i;
+      const e = this.entry(id);
+      const def = DATA.monsters[id];
+      const name = e.seen > 0 ? def.name : "???????";
+      Gfx.text(`No.${String(idx + 1).padStart(2, "0")}`, 20, y, 1, 10);
+      Gfx.text(name, 70, y, e.seen > 0 ? 3 : 1, 11);
+      if (e.killed > 0) Gfx.textR(`x${e.killed}`, 300, y, 3, 10);
+      if (idx === this.sel) Gfx.cursor(8, y + 3);
+    });
+    Gfx.text("A:くわしく  B:もどる", 100, 272, 1, 9);
+  }
+
+  drawDetail() {
+    const id = this.ids[this.sel];
+    const def = DATA.monsters[id];
+    const e = this.entry(id);
+    Gfx.window(20, 44, 280, 220);
+    Gfx.draw(def.spr, 44, 64, { scale: 3, variant: def.pal });
+    Gfx.text(def.name, 110, 60);
+    if (def.boss) Gfx.text("ボス", 110, 78, 2, 10);
+    if (def.race) Gfx.text("しゅぞく: " + { dragon: "りゅう", undead: "アンデッド", demon: "まぞく" }[def.race], 110, 94, 3, 10);
+    const rows = [
+      ["HP", def.hp],
+      ["こうげき", def.atk],
+      ["ぼうぎょ", def.def],
+      ["すばやさ", def.agi],
+      ["けいけんち", def.exp],
+      ["ギル", def.gold],
+      ["たおしたかず", e.killed],
+    ];
+    rows.forEach(([k, v], i) => {
+      Gfx.text(String(k), 44, 126 + i * 16, 3, 10);
+      Gfx.textR(String(v), 180, 126 + i * 16, 3, 10);
+    });
+    // じゃくてんは 1どでも たおすと ひょうじ
+    const elemName = { fire: "ほのお", ice: "こおり", thunder: "かみなり", holy: "せい" };
+    const fmt = (arr) => (arr || []).map((x) => elemName[x] || x).join(" ") || "なし";
+    if (e.killed > 0) {
+      Gfx.text("じゃくてん: " + fmt(def.weak), 196, 126, 2, 10);
+      Gfx.text("たいせい: " + fmt(def.resist), 196, 146, 3, 10);
+      Gfx.text("きゅうしゅう: " + fmt(def.absorb), 196, 166, 3, 10);
+    } else {
+      Gfx.text("じゃくてん: ??????", 196, 126, 1, 10);
+      Gfx.text("(たおすと わかる)", 196, 146, 1, 9);
+    }
+    Gfx.text("A/B: もどる", 130, 244, 1, 9);
   }
 }
 

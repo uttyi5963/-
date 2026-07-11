@@ -429,6 +429,15 @@ const G = {
   flag(k) { return !!this.state.flags[k]; },
   setFlag(k, v) { this.state.flags[k] = v; },
 
+  // ---------- モンスターずかん ----------
+  bestiaryEntry(id) {
+    if (!this.state.bestiary) this.state.bestiary = {};
+    if (!this.state.bestiary[id]) this.state.bestiary[id] = { seen: 0, killed: 0 };
+    return this.state.bestiary[id];
+  },
+  recordSeen(id) { this.bestiaryEntry(id).seen++; },
+  recordKill(id) { this.bestiaryEntry(id).killed++; },
+
   // ---------- ニューゲーム/セーブ ----------
   newGame() {
     const ng = DATA.newGame;
@@ -440,6 +449,7 @@ const G = {
       map: ng.map, x: ng.x, y: ng.y, dir: ng.dir,
       steps: 0, playtime: 0,
       config: { atbWait: true },
+      bestiary: {},
     };
   },
 
@@ -490,6 +500,7 @@ const G = {
       const s = JSON.parse(localStorage.getItem(this.slotKey(slot)));
       if (!s || !s.party) return false;
       if (!s.config) s.config = { atbWait: true };
+      if (!s.bestiary) s.bestiary = {};
       for (const h of s.party) {
         if (!h.row) h.row = (DATA.heroes[h.id] && DATA.heroes[h.id].row) || "front";
         if (h.command === undefined) {
