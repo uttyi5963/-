@@ -32,6 +32,8 @@ DATA.spells = {
   e_wave:  { name: "おおつなみ",   mp: 0, type: "dmg", pow: 35, cast: 2.8, elem: "ice", target: "enemy", all: true },
   e_ink:   { name: "すみはき",     mp: 0, type: "status", status: "blind", cast: 1.0, target: "enemy" },
   e_eruption: { name: "ふんか",    mp: 0, type: "dmg", pow: 40, cast: 3.0, elem: "fire", target: "enemy", all: true },
+  e_bolt:  { name: "サンダー",     mp: 0, type: "dmg", pow: 22, cast: 1.2, elem: "thunder", target: "enemy" },
+  e_quake: { name: "じしん",       mp: 0, type: "dmg", pow: 45, cast: 3.0, elem: "none", target: "enemy", all: true },
 };
 
 // じょうたいいじょう
@@ -89,10 +91,12 @@ DATA.items = {
   a_aqua:    { name: "アクアメイル",   kind: "armor", price: 1600, def: 15, who: ["leon", "glen"] },
   a_flame:   { name: "ほのおのローブ", kind: "armor", price: 1400, def: 11, int: 2, who: ["rod", "celia"] },
   a_dwarf:   { name: "ドヴェルグメイル", kind: "armor", price: 2400, def: 19, who: ["leon", "glen"] },
+  a_gaia:    { name: "だいちのよろい",   kind: "armor", price: 3200, def: 22, who: ["leon", "glen"] },
   a_sage:    { name: "けんじゃのローブ", kind: "armor", price: 2200, def: 13, int: 3, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
+  earthcrystal: { name: "ちのクリスタル", kind: "key", price: 0, desc: "だいちのちからを やどす けっしょう" },
 };
 
 // ---------------- なかま ----------------
@@ -221,6 +225,23 @@ DATA.monsters = {
     weak: ["holy"] },
   darksoldier: { name: "やみのへいし", spr: "soldier", pal: "dark", hp: 100, atk: 32, def: 14, agi: 14, exp: 150, gold: 140,
     weak: ["holy"] },
+  // ---- ちていしんでん ----
+  darkpriest: { name: "ダークプリースト", spr: "wizard", pal: "light", hp: 90, atk: 24, def: 10, agi: 12, exp: 200, gold: 180,
+    weak: ["holy"], acts: [{ spell: "e_bolt", rate: 0.35 }, { spell: "e_silence", rate: 0.2 }] },
+  guardian: { name: "ガーディアン", spr: "golem", pal: "light", hp: 180, atk: 36, def: 20, agi: 6, exp: 240, gold: 220,
+    weak: ["thunder"] },
+  deathknight: { name: "デスナイト", spr: "hero_d", pal: "dark", hp: 160, atk: 40, def: 18, agi: 13, exp: 260, gold: 240,
+    race: "undead", weak: ["fire", "holy"] },
+  shadowbeast: { name: "シャドウビースト", spr: "gargoyle", pal: "dark", hp: 140, atk: 38, def: 14, agi: 16, exp: 230, gold: 200,
+    weak: ["holy"] },
+  meteogolem: { name: "いんせきのばんにん", spr: "golem", pal: "light", boss: true, scale: 3,
+    hp: 700, atk: 38, def: 20, agi: 6, exp: 900, gold: 1200,
+    resist: ["fire", "ice"],
+    acts: [{ spell: "e_quake", rate: 0.3 }] },
+  glad: { name: "ちていのまじん グラード", spr: "demon", pal: "light", boss: true, scale: 4,
+    hp: 900, atk: 38, def: 16, agi: 12, exp: 1200, gold: 1500,
+    race: "demon", resist: ["fire"],
+    acts: [{ spell: "e_quake", rate: 0.25 }, { spell: "e_silence", rate: 0.2 }, { spell: "e_fire2", rate: 0.2 }] },
   magmaworm: { name: "マグマウォーム", spr: "worm", boss: true, scale: 4,
     hp: 600, atk: 34, def: 14, agi: 10, exp: 700, gold: 1000,
     absorb: ["fire"],
@@ -256,6 +277,7 @@ DATA.encounters = {
   waterway: { rate: 1 / 13, groups: [["mudtoad", "mudtoad"], ["sewerbat", "sewerbat", "sewerbat"], ["waterelem", "sewerbat"], ["sludge"], ["waterelem", "waterelem"], ["sludge", "mudtoad"]] },
   magma:    { rate: 1 / 13, groups: [["flamegoblin", "flamegoblin"], ["firelizard"], ["flamewiz", "flamegoblin"], ["magmagolem"], ["flamedemon"], ["firelizard", "flamewiz"]] },
   underworld: { rate: 1 / 14, groups: [["darkknight"], ["darksoldier", "darksoldier"], ["flamedemon", "darksoldier"], ["firelizard", "firelizard"], ["magmagolem", "flamewiz"], ["darkknight", "darksoldier"]] },
+  temple:   { rate: 1 / 13, groups: [["darkpriest", "darkpriest"], ["guardian"], ["deathknight"], ["shadowbeast", "darkpriest"], ["deathknight", "shadowbeast"], ["guardian", "darkpriest"]] },
 };
 
 // ---------------- ショップ ----------------
@@ -1146,11 +1168,62 @@ DATA.maps.underworld = {
   events: [
     { x: 3, y: 1, type: "enter", warp: { map: "magma", x: 17, y: 12, dir: "u" } },
     { x: 12, y: 9, type: "enter", warp: { map: "muspel", x: 10, y: 12, dir: "u" } },
-    { x: 24, y: 15, type: "enter", scriptId: "templeSealed" },
+    { x: 24, y: 15, type: "enter", scriptId: "templeEnter" },
+    // しんでんの まわりは いんせきのばんにんが まもっている
+    { x: 24, y: 14, type: "enter", scriptId: "meteoFight" },
+    { x: 24, y: 16, type: "enter", scriptId: "meteoFight" },
+    { x: 23, y: 15, type: "enter", scriptId: "meteoFight" },
+    { x: 25, y: 15, type: "enter", scriptId: "meteoFight" },
   ],
-  npcs: [],
+  npcs: [
+    { id: "meteonpc", x: 23, y: 14, spr: "golem", pal: "light", hideFlag: "meteorDown",
+      script: [{ runScript: "meteoFight" }] },
+  ],
   chests: [
     { id: "uw1", x: 28, y: 1, gold: 1500, hidden: true },
+  ],
+};
+
+// ---------------- ちていしんでん ----------------
+DATA.maps.temple = {
+  name: "ちていしんでん",
+  bgm: "shrine",
+  encounter: "temple",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "carpet" },
+  },
+  rows: [
+    "##################",
+    "#................#",
+    "#..############..#",
+    "#................#",
+    "#..###############",
+    "#................#",
+    "###############..#",
+    "#................#",
+    "#..###############",
+    "#................#",
+    "###############..#",
+    "#................#",
+    "#................#",
+    "##################",
+  ],
+  events: [
+    { x: 2, y: 12, type: "enter", warp: { map: "underworld", x: 24, y: 16, dir: "d" } },
+    { x: 1, y: 2, type: "enter", scriptId: "gladFight" },
+    { x: 2, y: 2, type: "enter", scriptId: "gladFight" },
+    { x: 15, y: 2, type: "enter", scriptId: "gladFight" },
+    { x: 16, y: 2, type: "enter", scriptId: "gladFight" },
+  ],
+  npcs: [
+    { id: "gladnpc", x: 8, y: 1, spr: "demon", pal: "light", hideFlag: "templeBoss",
+      script: [{ runScript: "gladFight" }] },
+  ],
+  chests: [
+    { id: "tp1", x: 12, y: 1, item: "a_gaia" },
+    { id: "tp2", x: 5, y: 1, item: "elixir", hidden: true },
+    { id: "tp3", x: 16, y: 7, gold: 2000 },
   ],
 };
 
@@ -1336,8 +1409,34 @@ DATA.scripts = {
       ],
       else: [{ msg: "ちていへ つづく おおとびら……\nふしぎな ちからで とざされている。" }] },
   ],
-  templeSealed: [
-    { msg: "ちていしんでん……。いんせきの けっかいに\nつつまれていて はいれない。\n(つづきの アップデートで かいほう)" },
+  meteoFight: [
+    { cond: { flag: "meteorDown" },
+      then: [],
+      else: [
+        { msg: "いわが うごきだした……!?\nいんせきのばんにんが しんでんへの\nみちを ふさいでいる!!" },
+        { battle: { group: ["meteogolem"], boss: true, music: "boss" } },
+        { flag: ["meteorDown", 1] },
+        { msg: "ばんにんが くだけると ともに\nいんせきの けっかいが きえていく……!" },
+      ] },
+  ],
+  templeEnter: [
+    { cond: { flag: "meteorDown" },
+      then: [{ warp: { map: "temple", x: 2, y: 12, dir: "u" } }],
+      else: [{ msg: "ちていしんでん……。\nいんせきの けっかいに つつまれていて\nはいれない。" }] },
+  ],
+  gladFight: [
+    { cond: { flag: "templeBoss" },
+      then: [],
+      else: [
+        { msg: "グラード「よくぞ ここまできた\nちじょうの ものども……。\nちのクリスタルは わたさぬ!!」" },
+        { battle: { group: ["glad"], boss: true, music: "boss" } },
+        { flag: ["templeBoss", 1] },
+        { msg: "さいだんの おくで だいちいろの\nけっしょうが かがやいている……。" },
+        { give: { item: "earthcrystal" } },
+        { flag: ["earthCrystal", 1] },
+        { msg: "ちのクリスタルを てにいれた!!" },
+        { msg: "のこる クリスタルは あと2つ……。\nものがたりは だい3しょうへ つづく。" },
+      ] },
   ],
   wwWarn: [
     { cond: { flag: "wwWarned" },
