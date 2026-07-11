@@ -561,9 +561,13 @@ DATA.maps.castle = {
       ] },
     { id: "guard2", x: 11, y: 9, spr: "soldier",
       script: [
-        { cond: { flag: "paladin" },
-          then: [{ msg: "へいし「おうさまの ようすが\nあきらかに おかしい……。\nきたのとうに なにかあるのでは……」" }],
-          else: [{ msg: "へいし「さいきん おうさまは\nひとが かわってしまわれた……」" }] },
+        { cond: { flag: "clear" },
+          then: [{ msg: "へいし「おうさまが もとに\nもどられた! ぶかんちょうも\nうれしなきして おりました」" }],
+          else: [
+            { cond: { flag: "paladin" },
+              then: [{ msg: "へいし「おうさまの ようすが\nあきらかに おかしい……。\nきたのとうに なにかあるのでは……」" }],
+              else: [{ msg: "へいし「さいきん おうさまは\nひとが かわってしまわれた……」" }] },
+          ] },
       ] },
     // グレンのこじんイベント (パラディンご)
     { id: "mia", x: 5, y: 10, spr: "celia", showFlag: "paladin",
@@ -635,7 +639,27 @@ DATA.maps.town = {
       ] },
     { id: "vil2", x: 14, y: 12, spr: "villager", wander: true,
       script: [
-        { msg: "むらびと「きたのほこらには\n『こころのかがみ』が あるそうじゃ。\nみたものの こころを うつすとか」" },
+        { cond: { flag: "trueClear" },
+          then: [{ msg: "むらびと「ほしのとうの かがやきが\nきえたのう。あんたたちの おかげじゃと\nみんな いうておるよ」" }],
+          else: [
+            { cond: { flag: "earthCrystal" },
+              then: [{ msg: "むらびと「ちていに くにが あったとは\nおどろきじゃ。ドワーフの さけは\nうまいと きくがのう」" }],
+              else: [
+                { cond: { flag: "clear" },
+                  then: [{ msg: "むらびと「まてんろうの くろいくもが\nはれたのう! これで はたけしごとも\nはかどるわい」" }],
+                  else: [{ msg: "むらびと「きたのほこらには\n『こころのかがみ』が あるそうじゃ。\nみたものの こころを うつすとか」" }] },
+              ] },
+          ] },
+      ] },
+    { id: "kid", x: 8, y: 6, spr: "villager", pal: "light", wander: true,
+      script: [
+        { cond: { flag: "trueClear" },
+          then: [{ msg: "こども「でんせつの ゆうしゃだー!!\nぼく、おおきくなったら\nクリスタルナイツに はいるんだ!」" }],
+          else: [
+            { cond: { flag: "paladin" },
+              then: [{ msg: "こども「ひかりの きしさまだー!\nかっこいい! やりの おにいちゃんも\nこぶしの おじちゃんも すごーい!」" }],
+              else: [{ msg: "こども「ぼうけんしゃだ!\nねえねえ、まものと たたかったこと\nある? こわくないの?」" }] },
+          ] },
       ] },
     // セリアのこじんイベント (かぜのクリスタルご)
     { id: "sister", x: 10, y: 12, spr: "celia", showFlag: "windCrystal",
@@ -1185,11 +1209,19 @@ DATA.maps.port = {
       ] },
     { id: "obaba", x: 5, y: 6, spr: "villager", wander: true,
       script: [
-        { msg: "おばあさん「さんばしの さきっぽで\nなにかが ひかったのを みたんだよ。\nしらべてみたら どうだい?」" },
+        { cond: { flag: "chest_pier1" },
+          then: [{ msg: "おばあさん「さんばしの ひかりもの、\nみつけたんだってね。 めが いいねえ。\nわかいって いいことだよ」" }],
+          else: [{ msg: "おばあさん「さんばしの さきっぽで\nなにかが ひかったのを みたんだよ。\nしらべてみたら どうだい?」" }] },
       ] },
     { id: "merchant", x: 14, y: 6, spr: "villager", wander: true,
       script: [
-        { msg: "しょうにん「ソレイユのみせは\nミストより いいものぞろいだよ!\nぜひ みていっとくれ」" },
+        { cond: { flag: "arenaGold" },
+          then: [{ msg: "しょうにん「とうぎじょうの チャンピオン!\nうちの みせの しなも つかってくれて\nこうえいだよ!」" }],
+          else: [
+            { cond: { flag: "submarine" },
+              then: [{ msg: "しょうにん「うみのそこへ いける\nおきゃくは はじめてだよ。\nしんかいの おみやげ まってるよ!」" }],
+              else: [{ msg: "しょうにん「ソレイユのみせは\nミストより いいものぞろいだよ!\nぜひ みていっとくれ」" }] },
+          ] },
       ] },
     // つりぼり
     { id: "fisher", x: 11, y: 7, spr: "villager",
@@ -1561,6 +1593,13 @@ DATA.maps.muspel = {
   ],
   chests: [],
 };
+DATA.maps.muspel.npcs.push(
+  { id: "dwarfkid", x: 9, y: 10, spr: "villager", pal: "light", wander: true,
+    script: [
+      { cond: { flag: "waterCrystal" },
+        then: [{ msg: "ドワーフのこ「クリスタルを 4つも!?\nすげえだ! おら、ちじょうの そらって\nいつか みてみたいだよ」" }],
+        else: [{ msg: "ドワーフのこ「ちじょうの ひと\nはじめて みただ! せが たかいだなあ」" }] },
+    ] });
 
 DATA.maps.muspelinn = {
   name: "ムスペルのやどや",
