@@ -705,6 +705,17 @@ class BattleScene {
       return;
     }
 
+    // おくびょうな てき(ミスリルけい)は にげることがある
+    if (e.def.flees && Math.random() < e.def.flees) {
+      e.dead = true;
+      e.fled = true;
+      e.casting = null;
+      this.log = `${e.name}は にげだした!!`;
+      AudioSys.sfx("cancel");
+      this.checkEnd();
+      return;
+    }
+
     // しれんボス: 6かい こうどうしたら しずまる
     if (e.def.trial) this.shadowActs++;
 
@@ -919,8 +930,10 @@ class BattleScene {
   }
 
   win() {
-    const exp = this.enemies.reduce((s, e) => s + (DATA.monsters[e.id].exp || 0), 0);
-    const gold = this.enemies.reduce((s, e) => s + (DATA.monsters[e.id].gold || 0), 0);
+    // にげた てきは けいけんちに ならない
+    const beaten = this.enemies.filter((e) => !e.fled);
+    const exp = beaten.reduce((s, e) => s + (DATA.monsters[e.id].exp || 0), 0);
+    const gold = beaten.reduce((s, e) => s + (DATA.monsters[e.id].gold || 0), 0);
     AudioSys.bgm("victory");
     const msgs = ["まものたちを やっつけた!"];
     if (exp > 0 || gold > 0) msgs.push(`けいけんち ${exp} かくとく!\n${gold}ギルを てにいれた!`);

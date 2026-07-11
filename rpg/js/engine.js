@@ -437,6 +437,9 @@ const G = {
   },
   recordSeen(id) { this.bestiaryEntry(id).seen++; },
   recordKill(id) { this.bestiaryEntry(id).killed++; },
+  killsOf(id) {
+    return (this.state.bestiary && this.state.bestiary[id] && this.state.bestiary[id].killed) || 0;
+  },
 
   // ---------- ニューゲーム/セーブ ----------
   newGame() {
@@ -687,10 +690,11 @@ function runScript(ops, onDone) {
       }
       if (op.flag) { G.setFlag(op.flag[0], op.flag[1]); continue; }
       if (op.cond) {
-        // flag または item(しょじひん) で ぶんき
-        const pass = op.cond.item
-          ? (G.state.items[op.cond.item] || 0) > 0
-          : G.flag(op.cond.flag);
+        // flag / item(しょじひん) / kills(ずかんの とうばつすう) で ぶんき
+        let pass;
+        if (op.cond.item) pass = (G.state.items[op.cond.item] || 0) > 0;
+        else if (op.cond.kills) pass = G.killsOf(op.cond.kills.id) >= op.cond.kills.n;
+        else pass = G.flag(op.cond.flag);
         const branch = pass ? (op.then || []) : (op.else || []);
         ops = ops.slice(0, i).concat(branch, ops.slice(i));
         continue;

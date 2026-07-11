@@ -182,7 +182,13 @@ class FieldScene {
     }
     if (!table) return;
     if (Math.random() < table.rate) {
-      const group = table.groups[Math.floor(Math.random() * table.groups.length)];
+      // レアぐんたい (ミスリルけい など) の ちゅうせん
+      let group;
+      if (table.rare && Math.random() < (table.rareRate || 0.06)) {
+        group = table.rare;
+      } else {
+        group = table.groups[Math.floor(Math.random() * table.groups.length)];
+      }
       AudioSys.sfx("encounter");
       G.push(new BattleScene(group, {}));
     }

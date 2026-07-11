@@ -246,6 +246,14 @@ DATA.monsters = {
     weak: ["holy"] },
   darksoldier: { name: "やみのへいし", spr: "soldier", pal: "dark", hp: 100, atk: 32, def: 14, agi: 14, exp: 150, gold: 140,
     weak: ["holy"] },
+  // ---- ミスリルけい (レアな かせぎてき。かたくて すぐにげる) ----
+  mithrilbaby: { name: "ミスリルベビー", spr: "dragon", pal: "light",
+    hp: 6, atk: 10, def: 250, agi: 30, exp: 2500, gold: 500,
+    race: "dragon", absorb: ["fire", "ice", "thunder"], flees: 0.35 },
+  mithrildragon: { name: "ミスリルドラゴン", spr: "dragon", pal: "light",
+    hp: 12, atk: 20, def: 400, agi: 40, exp: 8000, gold: 2000,
+    race: "dragon", absorb: ["fire", "ice", "thunder"], flees: 0.35 },
+
   // ---- かくしボス ----
   vaha: { name: "しんえんりゅう ヴァハ", spr: "dragon", pal: "dark", boss: true, scale: 4,
     hp: 9000, atk: 60, def: 26, agi: 20, exp: 5000, gold: 10000,
@@ -341,7 +349,8 @@ DATA.monsters = {
 // ---------------- エンカウントテーブル ----------------
 DATA.encounters = {
   plains_w: { rate: 1 / 15, groups: [["goblin"], ["goblin", "goblin"], ["bat", "bat"], ["toad", "goblin"]] },
-  plains_e: { rate: 1 / 14, groups: [["goblin", "goblin", "bat"], ["toad", "toad"], ["skeleton"], ["wizard", "bat"]] },
+  plains_e: { rate: 1 / 14, groups: [["goblin", "goblin", "bat"], ["toad", "toad"], ["skeleton"], ["wizard", "bat"]],
+    rare: ["mithrilbaby"], rareRate: 0.06 },
   north:    { rate: 1 / 13, groups: [["skeleton", "skeleton"], ["wizard", "wizard"], ["gargoyle"], ["skeleton", "wizard"]] },
   cave:     { rate: 1 / 13, groups: [["bat", "bat"], ["skeleton"], ["toad", "toad", "bat"], ["skeleton", "bat", "bat"]] },
   shrine:   { rate: 1 / 13, groups: [["skeleton", "skeleton"], ["gargoyle", "wizard"], ["gargoyle", "gargoyle"]] },
@@ -349,11 +358,14 @@ DATA.encounters = {
   icecave:  { rate: 1 / 13, groups: [["icegoblin", "icegoblin"], ["icebat", "icebat", "icegoblin"], ["frostwiz", "icebat"], ["frostgar"], ["babydragon"], ["frostwiz", "frostwiz"]] },
   waterway: { rate: 1 / 13, groups: [["mudtoad", "mudtoad"], ["sewerbat", "sewerbat", "sewerbat"], ["waterelem", "sewerbat"], ["sludge"], ["waterelem", "waterelem"], ["sludge", "mudtoad"]] },
   magma:    { rate: 1 / 13, groups: [["flamegoblin", "flamegoblin"], ["firelizard"], ["flamewiz", "flamegoblin"], ["magmagolem"], ["flamedemon"], ["firelizard", "flamewiz"]] },
-  underworld: { rate: 1 / 14, groups: [["darkknight"], ["darksoldier", "darksoldier"], ["flamedemon", "darksoldier"], ["firelizard", "firelizard"], ["magmagolem", "flamewiz"], ["darkknight", "darksoldier"]] },
+  underworld: { rate: 1 / 14, groups: [["darkknight"], ["darksoldier", "darksoldier"], ["flamedemon", "darksoldier"], ["firelizard", "firelizard"], ["magmagolem", "flamewiz"], ["darkknight", "darksoldier"]],
+    rare: ["mithrilbaby", "mithrilbaby"], rareRate: 0.06 },
   temple:   { rate: 1 / 13, groups: [["darkpriest", "darkpriest"], ["guardian"], ["deathknight"], ["shadowbeast", "darkpriest"], ["deathknight", "shadowbeast"], ["guardian", "darkpriest"]] },
-  sky:      { rate: 1 / 14, groups: [["stormbird"], ["harpy", "harpy"], ["stormbird", "harpy"], ["skydragon"], ["winddemon"], ["winddemon", "harpy"]] },
+  sky:      { rate: 1 / 14, groups: [["stormbird"], ["harpy", "harpy"], ["stormbird", "harpy"], ["skydragon"], ["winddemon"], ["winddemon", "harpy"]],
+    rare: ["mithrildragon"], rareRate: 0.05 },
   sea:      { rate: 1 / 14, groups: [["octopus"], ["merman", "merman"], ["deepworm"], ["abyssdemon", "merman"], ["octopus", "merman"], ["abyssdemon"]] },
-  startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"]] },
+  startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"]],
+    rare: ["mithrildragon"], rareRate: 0.06 },
 };
 
 // ---------------- ショップ ----------------
@@ -588,6 +600,55 @@ DATA.maps.town = {
     { id: "vil2", x: 14, y: 12, spr: "villager", wander: true,
       script: [
         { msg: "むらびと「きたのほこらには\n『こころのかがみ』が あるそうじゃ。\nみたものの こころを うつすとか」" },
+      ] },
+    { id: "board", x: 3, y: 7, spr: "soldier",
+      script: [
+        { msg: "ぼしゅうがかり「むらの まものたいじに\nほうびを だしているよ。\nどの たいじを ほうこくするんだい?」" },
+        { menu: { options: [
+          { label: "ガーゴイル5", ops: [
+            { cond: { flag: "qGar" },
+              then: [{ msg: "ぼしゅうがかり「それは もう\nほうびを わたしたよ」" }],
+              else: [
+                { cond: { kills: { id: "gargoyle", n: 5 } },
+                  then: [
+                    { msg: "ぼしゅうがかり「ガーゴイル 5たい かくにん!\nほうびを うけとりな!」" },
+                    { give: { gold: 800 } },
+                    { msg: "800ギルを てにいれた!" },
+                    { flag: ["qGar", 1] },
+                  ],
+                  else: [{ msg: "ぼしゅうがかり「ガーゴイルを 5たい\nたおしてきておくれ。きたのもりや\nほこらに でるやつだ」" }] },
+              ] },
+          ] },
+          { label: "ゴーレム5", ops: [
+            { cond: { flag: "qGolem" },
+              then: [{ msg: "ぼしゅうがかり「それは もう\nほうびを わたしたよ」" }],
+              else: [
+                { cond: { kills: { id: "golem", n: 5 } },
+                  then: [
+                    { msg: "ぼしゅうがかり「ゴーレム 5たい かくにん!\nたいしたもんだ!」" },
+                    { give: { gold: 1500 } },
+                    { msg: "1500ギルを てにいれた!" },
+                    { flag: ["qGolem", 1] },
+                  ],
+                  else: [{ msg: "ぼしゅうがかり「ゴーレムを 5たい\nたのむよ。まてんろうの あたりに\nでる いわの きょじんだ」" }] },
+              ] },
+          ] },
+          { label: "スカイドラゴン3", ops: [
+            { cond: { flag: "qSkyD" },
+              then: [{ msg: "ぼしゅうがかり「それは もう\nほうびを わたしたよ」" }],
+              else: [
+                { cond: { kills: { id: "skydragon", n: 3 } },
+                  then: [
+                    { msg: "ぼしゅうがかり「スカイドラゴン 3たい!?\nでんせつの りゅうがりだ!!」" },
+                    { give: { gold: 3000 } },
+                    { msg: "3000ギルを てにいれた!" },
+                    { flag: ["qSkyD", 1] },
+                  ],
+                  else: [{ msg: "ぼしゅうがかり「そらのしまの\nスカイドラゴンを 3たい。\nむちゃは しなさんなよ」" }] },
+              ] },
+          ] },
+          { label: "やめる", ops: [] },
+        ] } },
       ] },
     { id: "hunter", x: 16, y: 11, spr: "villager",
       script: [
