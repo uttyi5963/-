@@ -124,9 +124,12 @@ class FieldScene {
     // イベントタイル (ワープは ふみこむまえに はんてい)
     const ev = this.eventAt(nx, ny);
     if (ev) {
-      if (ev.cond && !G.flag(ev.cond.flag)) {
-        if (ev.failScript) runScript(ev.failScript);
-        return;
+      if (ev.cond) {
+        const pass = ev.cond.all ? ev.cond.all.every((k) => G.flag(k)) : G.flag(ev.cond.flag);
+        if (!pass) {
+          if (ev.failScript) runScript(ev.failScript);
+          return;
+        }
       }
       if (ev.warp) {
         const w = ev.warp;

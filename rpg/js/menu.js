@@ -693,6 +693,9 @@ class QuestScene {
       list.push(["けんおうガロン",
         f("garonBeat") ? "かんりょう" : "しれんのやまの ちょうじょうで さいせん"]);
     }
+    if (f("phantomBoss")) {
+      list.push(["まぼろしのしろ", "おうのけんを うけついだ"]);
+    }
     if (f("craterBoss")) {
       list.push(["ほしのはか",
         f("graveBoss") ? "ぬしを しずめた" : "ふういんの とけた はかの さいしんぶへ"]);

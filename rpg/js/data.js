@@ -182,6 +182,10 @@ DATA.items = {
   w_sandlance: { name: "すなあらしのやり", kind: "weapon", price: 0, atk: 52, who: ["glen"] },
   oasiswater: { name: "オアシスのみず",  kind: "use", price: 300, heal: 400, desc: "HPを 400 かいふく" },
   a_unity:   { name: "きずなのマント",   kind: "armor", price: 0, def: 30, int: 6, who: ["leon", "glen", "gou", "rod", "celia"] },
+  // まぼろしのしろの かくしそうび
+  w_regalia: { name: "おうのつるぎ レガリア", kind: "weapon", price: 0, atk: 65, who: ["leon"],
+    elem: "holy", slay: ["demon", "undead", "dragon"] },
+  a_phantom: { name: "まぼろしのマント",  kind: "armor", price: 0, def: 34, int: 9, who: ["rod", "celia"] },
   // みどりのぐんとう ティア
   w_leafblade: { name: "こかげのつるぎ", kind: "weapon", price: 13500, atk: 48, who: ["leon"] },
   w_junglerod: { name: "みどりのつえ",   kind: "weapon", price: 11500, atk: 18, int: 10, who: ["rod"] },
@@ -494,6 +498,11 @@ DATA.monsters = {
     hp: 6400, atk: 90, def: 38, agi: 28, exp: 35000, gold: 12000,
     absorb: ["thunder"], weak: ["holy"],
     acts: [{ spell: "e_starfall", rate: 0.22 }, { spell: "e_quake", rate: 0.22 }] },
+  // まぼろしのしろの うらボス
+  regalia: { name: "まぼろしのおう レガリア", spr: "king", pal: "light", boss: true, scale: 4,
+    hp: 14000, atk: 105, def: 50, agi: 30, exp: 70000, gold: 30000,
+    absorb: ["fire", "ice", "thunder"], weak: ["holy"],
+    acts: [{ spell: "e_meteo", rate: 0.22 }, { spell: "e_starfall", rate: 0.2 }, { spell: "e_toad", rate: 0.12 }] },
   // ほしのはかの ぬし (さいきょうの かくしボス)
   granstella: { name: "ほしぼしのおう グランステラ", spr: "voidos", pal: "light", boss: true, scale: 4,
     hp: 12000, atk: 95, def: 40, agi: 26, exp: 50000, gold: 20000,
@@ -736,12 +745,13 @@ DATA.maps.world = {
     "M": { tile: "icon_shrine" },
     "X": { tile: "icon_tower" },
     "A": { tile: "icon_cave" },
+    "Q": { tile: "icon_castle" },
   },
   rows: [
     "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
     "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
     "wwmmmmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwm...........mwwwwwwwwwww.....wwwwwwwww",
+    "wwm..........Qmwwwwwwwwwww.....wwwwwwwww",
     "wwm.....M.....mwwwwwwwwwww..X..wwwwwwwww",
     "wwmmmmmm.mmmmmmwwwwwwwwwww.....wwwwwwwww",
     "wwffffff.ffffffmmmmffffffwwwwbwwwwwwwwww",
@@ -787,6 +797,10 @@ DATA.maps.world = {
     { x: 16, y: 20, type: "enter", warp: { map: "cave", x: 1, y: 10, dir: "r" } },
     { x: 19, y: 20, type: "enter", warp: { map: "cave", x: 22, y: 10, dir: "l" } },
     { x: 16, y: 10, type: "enter", warp: { map: "trialmt1", x: 7, y: 10, dir: "u" } },
+    { x: 13, y: 3, type: "enter",
+      cond: { all: ["craterBoss", "mirrorBoss", "glacierBoss", "tombBoss", "ruinsBoss", "stormBoss"] },
+      failScript: [{ msg: "きたの そらに しろのような しんきろうが\nゆらめいている……。すべての ちいきの ぬしが\nしずまるとき とびらは ひらくという。" }],
+      warp: { map: "phantomhall", x: 7, y: 10, dir: "u" } },
     { x: 8, y: 4, type: "enter",
       cond: { flag: "crystal" },
       failScript: [{ msg: "ほこらのとびらは かたく とざされている。\n(せいなる クリスタルが ひつようだ)" }],
@@ -4170,6 +4184,88 @@ DATA.maps.house4 = {
   chests: [
     { id: "h4c", x: 8, y: 5, item: "ether", hidden: true },
   ],
+};
+
+// ---------------- まぼろしのしろ (うらダンジョン) ----------------
+DATA.maps.phantomhall = {
+  name: "まぼろしのしろ",
+  bgm: "shrine",
+  encounter: "stargrave",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "p": { tile: "pillar", solid: true },
+    "r": { tile: "carpet" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#......s.......#",
+    "#.p...rr....p..#",
+    "#.....rr.......#",
+    "#..............#",
+    "#.p.........p..#",
+    "#..............#",
+    "#.p.........p..#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 7, y: 10, type: "enter", warp: { map: "world", x: 13, y: 4, dir: "d" } },
+    { x: 7, y: 1, type: "enter", warp: { map: "phantomthrone", x: 7, y: 9, dir: "u" } },
+  ],
+  npcs: [
+    { id: "ph_ghost1", x: 3, y: 4, spr: "villager", pal: "light",
+      script: [{ msg: "ぼんやりした ひとかげ「ここは まぼろしの\nおうこく……。おうは えいえんに\nたみを まちつづけて おられる……」" }] },
+    { id: "ph_ghost2", x: 12, y: 8, spr: "soldier", pal: "light",
+      script: [{ msg: "ぼんやりした えいへい「おうの けんは\nすべてを つらぬく ひかりの けん……。\nかてる ものにのみ ゆずられる……」" }] },
+  ],
+  chests: [
+    { id: "ph1", x: 14, y: 10, gold: 20000, hidden: true },
+    { id: "ph2", x: 1, y: 10, item: "a_phantom", hidden: true },
+  ],
+};
+
+DATA.maps.phantomthrone = {
+  name: "まぼろしのぎょくざ",
+  bgm: "shrine",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "r": { tile: "carpet" },
+  },
+  rows: [
+    "################",
+    "#..............#",
+    "#..##.rr...##..#",
+    "#.....rr.......#",
+    "#.....rr.......#",
+    "#..............#",
+    "#..##......##..#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 7, y: 9, type: "enter", warp: { map: "phantomhall", x: 7, y: 2, dir: "d" } },
+  ],
+  npcs: [
+    { id: "regalianpc", x: 7, y: 3, spr: "king", pal: "light", hideFlag: "phantomBoss",
+      script: [
+        { msg: "ぎょくざの おうが しずかに たちあがる。\nその すがたは ひかりに すけていた……。" },
+        { msg: "『よくぞ まいった、わかき えいゆうたちよ。\nわしは まぼろしの おう レガリア。\nわが けんに いどむ しかくを しめせ』" },
+        { battle: { group: ["regalia"], boss: true, music: "spirit" } },
+        { flag: ["phantomBoss", 1] },
+        { msg: "『……みごとじゃ。 この けんは もはや\nまぼろしに あらず。 なんじの てで\nげんじつの ひかりと なるがよい』" },
+        { give: { item: "w_regalia" } },
+        { msg: "おうのつるぎ レガリアを てにいれた!!\n(こうげき65・せい・3しゅぞくとっこう)" },
+        { msg: "おうと しろは ほのかな ひかりに つつまれ\nしずかに きえていった……。" },
+      ] },
+  ],
+  chests: [],
 };
 
 // ---------------- でんどうのま (じっせきの ホール) ----------------
