@@ -5626,12 +5626,60 @@ DATA.maps.startower2 = {
   ],
   events: [
     { x: 13, y: 10, type: "enter", warp: { map: "startower1", x: 12, y: 1, dir: "l" } },
-    { x: 2, y: 1, type: "enter", warp: { map: "startowertop", x: 7, y: 7, dir: "u" } },
+    { x: 2, y: 1, type: "enter", warp: { map: "startower3", x: 13, y: 9, dir: "u" } },
   ],
   npcs: [],
   chests: [
     { id: "sw2a", x: 14, y: 4, item: "a_star" },
     { id: "sw2b", x: 1, y: 8, gold: 5000 },
+  ],
+};
+
+DATA.maps.startower3 = {
+  name: "星のとう 天層",
+  bgm: "last",
+  encounter: "startower",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "S": { tile: "stairs" },
+    "s": { tile: "stairs" },
+    "T": { tile: "torch", solid: true },
+  },
+  rows: [
+    "################",
+    "#S.............#",
+    "#..######......#",
+    "#..#....#..T...#",
+    "#..#....#......#",
+    "#..#....#####..#",
+    "#..#........#..#",
+    "#..##########..#",
+    "#..............#",
+    "#....T....T....#",
+    "#............s.#",
+    "################",
+  ],
+  events: [
+    { x: 1, y: 1, type: "enter", warp: { map: "startowertop", x: 7, y: 6, dir: "u" } },
+    { x: 13, y: 10, type: "enter", warp: { map: "startower2", x: 2, y: 2, dir: "d" } },
+  ],
+  npcs: [
+    { id: "resting_crystal", x: 5, y: 4, spr: "crystal",
+      script: [
+        { msg: "天層の静けさの中、小さなクリスタルが\nやわらかな星あかりを放っている……。" },
+        { menu: { x: 150, y: 150, options: [
+          { label: "祈る", ops: [
+            { healParty: 1 },
+            { msg: "星の光が体を包み、\n仲間全員の傷が癒えた!\n(HPが全回復した)" },
+          ] },
+          { label: "立ち去る", ops: [] },
+        ] } },
+      ] },
+  ],
+  chests: [
+    { id: "sw3a", x: 4, y: 6, item: "elixir" },
+    { id: "sw3b", x: 14, y: 3, gold: 20000, hidden: true },
   ],
 };
 
@@ -5655,7 +5703,7 @@ DATA.maps.startowertop = {
     "################",
   ],
   events: [
-    { x: 7, y: 7, type: "enter", warp: { map: "startower2", x: 2, y: 2, dir: "d" } },
+    { x: 7, y: 7, type: "enter", warp: { map: "startower3", x: 1, y: 2, dir: "d" } },
   ],
   npcs: [
     { id: "voidosnpc", x: 7, y: 2, spr: "voidos", hideFlag: "trueClear",
