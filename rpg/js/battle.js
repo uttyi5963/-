@@ -281,7 +281,7 @@ class BattleScene {
         const cmd = cmds[this.sel];
         AudioSys.sfx("confirm");
         const h = this.ready.h;
-        if (cmd.id === "fight") { this.menu = "targetE"; this.targetSel = 0; this.pendingAct = { type: "fight" }; }
+        if (cmd.id === "fight") { this.menu = "targetE"; this.targetSel = 0; this.targetAll = false; this.pendingAct = { type: "fight" }; }
         else if (cmd.id === "dark") {
           const cost = Math.floor(h.maxhp / 8);
           if (h.hp <= cost) { AudioSys.sfx("buzz"); return; }
@@ -321,7 +321,7 @@ class BattleScene {
         this.pendingAct = { type: "spell", spell: sp };
         if (sp.def.target === "enemy") {
           if (sp.def.all) this.doPlayerAction(this.pendingAct);
-          else { this.menu = "targetE"; this.targetSel = 0; }
+          else { this.menu = "targetE"; this.targetSel = 0; this.targetAll = false; }
         } else if (sp.def.all) {
           // みかたぜんたい: ターゲットせんたく なし
           this.doPlayerAction(this.pendingAct);
@@ -352,12 +352,22 @@ class BattleScene {
     if (this.menu === "targetE") {
       const es = this.aliveEnemies();
       if (es.length === 0) { this.menu = "root"; return; }
-      if (Input.tap("up") || Input.tap("left")) { this.targetSel = (this.targetSel + es.length - 1) % es.length; AudioSys.sfx("cursor"); }
-      if (Input.tap("down") || Input.tap("right")) { this.targetSel = (this.targetSel + 1) % es.length; AudioSys.sfx("cursor"); }
-      if (Input.tap("b")) { AudioSys.sfx("cancel"); this.menu = this.pendingAct.type === "spell" ? "spell" : "root"; return; }
+      // ぜんたいか: こうげきじゅもんは ←→で 単体⇔全体 (いりょくは はんぶん)
+      const canAll = this.pendingAct.type === "spell" &&
+        this.pendingAct.spell.def.type === "dmg" && !this.pendingAct.spell.def.all && es.length > 1;
+      if (canAll && (Input.tap("left") || Input.tap("right"))) {
+        this.targetAll = !this.targetAll;
+        AudioSys.sfx("cursor");
+      } else {
+        if (Input.tap("up") || (!canAll && Input.tap("left"))) { this.targetSel = (this.targetSel + es.length - 1) % es.length; AudioSys.sfx("cursor"); }
+        if (Input.tap("down") || (!canAll && Input.tap("right"))) { this.targetSel = (this.targetSel + 1) % es.length; AudioSys.sfx("cursor"); }
+      }
+      if (Input.tap("b")) { AudioSys.sfx("cancel"); this.targetAll = false; this.menu = this.pendingAct.type === "spell" ? "spell" : "root"; return; }
       if (Input.tap("a")) {
         AudioSys.sfx("confirm");
         this.pendingAct.target = es[Math.min(this.targetSel, es.length - 1)];
+        this.pendingAct.allOverride = this.targetAll;
+        this.targetAll = false;
         this.doPlayerAction(this.pendingAct);
       }
       return;
@@ -677,19 +687,31 @@ class BattleScene {
 
     if (sp.type === "dmg") {
       // 発動時点で ターゲットが たおれていたら 生きているてきに うちなおす
+      // ぜんたいか (allOverride) は いりょく はんぶんで ぜんたいに
       let targets;
-      if (sp.all) targets = this.aliveEnemies();
+      if (sp.all || act.allOverride) targets = this.aliveEnemies();
       else {
         let t = act.target;
         if (!t || t.dead) t = this.aliveEnemies()[0];
         targets = t ? [t] : [];
       }
+      const spreadMul = act.allOverride && targets.length > 1 ? 0.5 : 1;
       if (targets.length === 0) {
         events.push({ t: 0.4, fn: () => { this.log = "しかし てきは いなかった!"; } });
       }
       targets.forEach((e) => {
-        const dmg = Math.round(sp.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1) * this.elemMod(e.def, sp.elem));
+        const dmg = Math.round(sp.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1) * this.elemMod(e.def, sp.elem) * spreadMul);
         this.queueHitEnemy(events, e, dmg, "magic");
+        // ドレイン: あたえたダメージぶん じぶんが かいふく
+        if (sp.drain && dmg > 0) {
+          events.push({ t: 0.55, fn: () => {
+            if (h.hp <= 0) return;
+            const v = Math.min(dmg, h.maxhp - h.hp);
+            h.hp += v;
+            const pos = this.partyPos(this.party.indexOf(p));
+            if (v > 0) this.pop(pos.x, pos.y, v, 3);
+          } });
+        }
       });
     } else {
       const t = act.targetP;
@@ -716,9 +738,10 @@ class BattleScene {
           had.forEach((s) => { t.h[s] = false; });
           this.log = `${t.h.name}の ${had.map((s) => DATA.statuses[s].name).join("・")}が きえた!`;
         } else if (sp.type === "buff") {
-          if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
-          t.protect = true;
-          this.log = `${t.h.name}の ぼうぎょが あがった!`;
+          const bs = (sp.all ? this.aliveParty() : [t]).filter((q) => q && q.h.hp > 0);
+          if (bs.length === 0) { this.log = "しかし きかなかった!"; return; }
+          bs.forEach((q) => { q.protect = true; });
+          this.log = sp.all ? "なかまぜんいんの ぼうぎょが あがった!" : `${t.h.name}の ぼうぎょが あがった!`;
         }
       } });
     }
@@ -1297,14 +1320,31 @@ class BattleScene {
     else if (this.menu === "targetE") {
       const es = this.aliveEnemies();
       if (es.length === 0) return;
-      const t = es[Math.min(this.targetSel, es.length - 1)];
-      const i = this.enemies.indexOf(t);
-      const pos = this.enemyPos(i);
-      if (Math.floor(performance.now() / 200) % 2 === 0) {
-        Gfx.cursor(pos.x + pos.size + 4, pos.y + pos.size / 2 - 4);
+      const canAll = this.pendingAct && this.pendingAct.type === "spell" &&
+        this.pendingAct.spell.def.type === "dmg" && !this.pendingAct.spell.def.all && es.length > 1;
+      const blink = Math.floor(performance.now() / 200) % 2 === 0;
+      if (this.targetAll) {
+        // ぜんたいか: すべての てきに カーソル
+        if (blink) {
+          es.forEach((e) => {
+            const pos = this.enemyPos(this.enemies.indexOf(e));
+            Gfx.cursor(pos.x + pos.size + 4, pos.y + pos.size / 2 - 4);
+          });
+        }
+        Gfx.window(4, 96, 128, 28);
+        Gfx.text("てき ぜんたい", 14, 103, 3, 11);
+        Gfx.text("(いりょく 1/2)", 14, 114, 1, 8);
+      } else {
+        const t = es[Math.min(this.targetSel, es.length - 1)];
+        const i = this.enemies.indexOf(t);
+        const pos = this.enemyPos(i);
+        if (blink) {
+          Gfx.cursor(pos.x + pos.size + 4, pos.y + pos.size / 2 - 4);
+        }
+        Gfx.window(4, 96, 128, 28);
+        Gfx.text(t.name, 14, 103, 3, 11);
+        if (canAll) Gfx.text("←→: ぜんたいか", 14, 114, 1, 8);
       }
-      Gfx.window(4, 96, 110, 28);
-      Gfx.text(t.name, 14, 103, 3, 11);
     }
     else if (this.menu === "targetP") {
       const t = this.party[this.targetSel];

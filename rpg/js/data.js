@@ -28,6 +28,9 @@ DATA.spells = {
   cure3:   { name: "ケアルガ",   mp: 20, type: "heal", pow: 220, cast: 1.8, target: "ally",  field: true },
   rain:    { name: "いやしのあめ", mp: 32, type: "heal", pow: 110, cast: 2.2, target: "ally", all: true, field: true },
   saint:   { name: "セイントレイ", mp: 40, type: "dmg", pow: 260, cast: 3.4, elem: "holy",  target: "enemy" },
+  drain:   { name: "ドレイン",   mp: 12, type: "dmg", pow: 60,  cast: 1.4, elem: "none",  target: "enemy", drain: true },
+  quake:   { name: "クエイク",   mp: 34, type: "dmg", pow: 120, cast: 3.0, elem: "none",  target: "enemy", all: true },
+  protect2: { name: "プロテガ",  mp: 24, type: "buff", cast: 2.0, target: "ally", all: true },
   // てきせんよう
   e_fire:  { name: "ファイア",   mp: 0, type: "dmg", pow: 16, cast: 1.2, elem: "fire",    target: "enemy" },
   e_ice_all:{ name: "つめたいいき", mp: 0, type: "dmg", pow: 15, elem: "ice",  target: "enemy", all: true },
@@ -205,7 +208,7 @@ DATA.heroes = {
     weapon: "w_staff", armor: "a_cloth",
     command: "pray", // いのる: MP0。50%で ぜんいん さいだいHPの30%かいふく
     spells: ["cure1"],
-    learn: { 4: "poisona", 6: "protect", 9: "cure2", 10: "esuna", 12: "raise", 16: "cure3", 20: "rain", 26: "saint" },
+    learn: { 4: "poisona", 6: "protect", 9: "cure2", 10: "esuna", 12: "raise", 16: "cure3", 20: "rain", 22: "protect2", 26: "saint" },
   },
   rod: {
     name: "ロッド", cls: "くろまどうし", spr: "rod", row: "back",
@@ -213,7 +216,7 @@ DATA.heroes = {
     growth: { hp: 6, mp: 6, str: 1, agi: 1, vit: 1, int: 3 },
     weapon: "w_staff", armor: "a_cloth",
     spells: ["fire1"],
-    learn: { 4: "ice1", 6: "bolt1", 9: "fire2", 12: "ice2", 15: "fire3", 19: "ice3", 24: "bolt3", 32: "flare" },
+    learn: { 4: "ice1", 6: "bolt1", 9: "fire2", 12: "ice2", 15: "fire3", 19: "ice3", 21: "drain", 24: "bolt3", 28: "quake", 32: "flare" },
   },
 };
 
