@@ -40,6 +40,7 @@ class BattleScene {
       airborne: null,   // ジャンプちゅう {t, dur, target, double}
       jumpCount: 0,     // 2かいめからは ダブルジャンプ
       charge: 0,        // ためる (0..3) → こうげき 2/4/8ばい
+      focus: 0,         // かくせい (0..3) → まほう 2/4/8ばい
       coverIdx: -1,     // かばっている なかまの ばんごう
     }));
 
@@ -134,7 +135,7 @@ class BattleScene {
     if (p.pose && p.pose.t > 0) return p.pose.name;
     if (p.casting) return "cast";
     if (p.flash > 0) return "hit";
-    if (p.charge > 0 || p.coverIdx >= 0) return "skill";
+    if (p.charge > 0 || p.focus > 0 || p.coverIdx >= 0) return "skill";
     if (p.h.hp < p.h.maxhp / 4) return "weak";
     return "idle";
   }
@@ -285,6 +286,7 @@ class BattleScene {
     if (h.special === "holy") cmds.push({ id: "holy", name: "せいけん" });
     if (h.command === "jump") cmds.push({ id: "jump", name: p.jumpCount > 0 ? "ダブルジャンプ" : "ジャンプ" });
     if (h.command === "charge") cmds.push({ id: "charge", name: "ためる" });
+    if (h.command === "focus") cmds.push({ id: "focus", name: "かくせい" });
     if (h.command === "pray") cmds.push({ id: "pray", name: "いのる" });
     if (h.command === "cover") cmds.push({ id: "cover", name: "かばう" });
     if (h.spells.length > 0) cmds.push({ id: "spell", name: "じゅもん" });
@@ -317,6 +319,10 @@ class BattleScene {
         else if (cmd.id === "charge") {
           if (this.ready.charge >= 3) { AudioSys.sfx("buzz"); return; }
           this.doPlayerAction({ type: "charge" });
+        }
+        else if (cmd.id === "focus") {
+          if (this.ready.focus >= 3) { AudioSys.sfx("buzz"); return; }
+          this.doPlayerAction({ type: "focus" });
         }
         else if (cmd.id === "pray") this.doPlayerAction({ type: "pray" });
         else if (cmd.id === "cover") { this.menu = "targetP"; this.targetSel = 0; this.pendingAct = { type: "cover" }; }
@@ -455,7 +461,7 @@ class BattleScene {
 
     // こうどうにあわせた たちえ
     const poseByAct = {
-      fight: ["atk", 0.9], jump: ["skill", 0.7], charge: ["skill", 0.6],
+      fight: ["atk", 0.9], jump: ["skill", 0.7], charge: ["skill", 0.6], focus: ["skill", 0.6],
       pray: ["skill", 1.2], cover: ["skill", 0.5], dark: ["skill", 1.2],
       holy: ["skill", 1.0], item: ["cast", 0.8], run: ["hit", 0.6],
     };
@@ -531,6 +537,14 @@ class BattleScene {
       } });
       dur = 0.7;
     }
+    else if (act.type === "focus") {
+      p.focus = Math.min(3, p.focus + 1);
+      events.push({ t: 0, fn: () => {
+        this.log = `${h.name}は まりょくを ときはなつ じゅんびをした!\n(かくせい${p.focus}: まほう ${Math.pow(2, p.focus)}ばい)`;
+        AudioSys.sfx("magic");
+      } });
+      dur = 0.6;
+    }
     else if (act.type === "charge") {
       p.charge = Math.min(3, p.charge + 1);
       events.push({ t: 0, fn: () => {
@@ -542,15 +556,30 @@ class BattleScene {
     else if (act.type === "pray") {
       events.push({ t: 0, fn: () => { this.log = `${h.name}は てんに いのった……`; AudioSys.sfx("cursor"); } });
       events.push({ t: 0.6, fn: () => {
-        if (Math.random() < 0.5) {
-          this.log = "いのりが とどいた!";
+        // せいこうりつ 75%。レベルが あがると ときおり きせきが おきる
+        if (Math.random() < 0.75) {
+          const full = h.lv >= 30 && Math.random() < 0.25;   // かんぜんかいふく
+          const revive = h.lv >= 45 && Math.random() < 0.25; // そせい
           AudioSys.sfx("heal");
+          if (revive) {
+            this.party.forEach((q) => {
+              if (q.h.hp <= 0) {
+                q.h.hp = Math.max(1, Math.floor(q.h.maxhp * 0.5));
+                const pos = this.partyPos(this.party.indexOf(q));
+                this.pop(pos.x, pos.y, q.h.hp, 3);
+              }
+            });
+          }
           this.aliveParty().forEach((q) => {
-            const v = Math.max(1, Math.round(q.h.maxhp * 0.3));
+            const v = full ? q.h.maxhp - q.h.hp : Math.max(1, Math.round(q.h.maxhp * 0.3));
             q.h.hp = Math.min(q.h.maxhp, q.h.hp + v);
             const pos = this.partyPos(this.party.indexOf(q));
-            this.pop(pos.x, pos.y, v, 3);
+            if (v > 0) this.pop(pos.x, pos.y, v, 3);
           });
+          this.log = revive ? "きせきが おきた!!\nたおれた なかまが たちあがる!"
+            : full ? "おおいなる いのりが とどいた!!\nぜんいん かんぜんかいふく!"
+            : "いのりが とどいた!";
+          if (full || revive) this.screenFlash = 0.3;
         } else {
           this.log = "……いのりは とどかなかった";
           AudioSys.sfx("cancel");
@@ -728,11 +757,17 @@ class BattleScene {
         targets = t ? [t] : [];
       }
       const spreadMul = act.allOverride && targets.length > 1 ? 0.5 : 1;
+      // かくせい: つぎの こうげきまほうが 2/4/8ばい (つかったら リセット)
+      const focusMul = Math.pow(2, p.focus || 0);
+      if (p.focus > 0) {
+        events.push({ t: 0.1, fn: () => { this.log = `かくせいした まりょくが ほとばしる! (${focusMul}ばい)`; } });
+        p.focus = 0;
+      }
       if (targets.length === 0) {
         events.push({ t: 0.4, fn: () => { this.log = "しかし てきは いなかった!"; } });
       }
       targets.forEach((e) => {
-        const dmg = Math.round(sp.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1) * this.elemMod(e.def, sp.elem) * spreadMul);
+        const dmg = Math.round(sp.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1) * this.elemMod(e.def, sp.elem) * spreadMul * focusMul);
         this.queueHitEnemy(events, e, dmg, "magic");
         // ドレイン: あたえたダメージぶん じぶんが かいふく
         if (sp.drain && dmg > 0) {
@@ -867,9 +902,11 @@ class BattleScene {
     if (counter) {
       events.push({ t: 0.95, fn: () => {
         if (guardian.h.hp <= 0 || e.dead) return;
-        this.log = `${guardian.h.name}の カウンター!`;
+        this.log = `${guardian.h.name}の カウンターせいけん!`;
       } });
-      const cdmg = Math.max(1, Math.round(this.physDmg(G.atkOf(guardian.h), e.def.def)));
+      // せいけんと おなじ 1.6ばい + せいぞくせい (アンデッドに 8ばい)
+      const cmod = Math.max(this.elemMod(e.def, "holy"), this.weaponMod(guardian.h, e.def));
+      const cdmg = Math.max(1, Math.round(this.physDmg(Math.round(G.atkOf(guardian.h) * 1.6), e.def.def) * cmod));
       this.queueHitEnemy(events, e, cdmg, "crit");
       events[events.length - 1].t = 1.25;
     }
@@ -1357,6 +1394,7 @@ class BattleScene {
       const st = Object.keys(DATA.statuses).find((s) => p.h[s]);
       if (st) Gfx.text(DATA.statuses[st].mark, 160, y, 2, 8);
       if (p.charge > 0) Gfx.text(`た${p.charge}`, 172, y, 2, 8);
+      if (p.focus > 0) Gfx.text(`か${p.focus}`, 172, y, 2, 8);
       Gfx.textR(`${p.h.hp}`, 218, y, dead ? 2 : 3, fs);
       Gfx.text(`/${p.h.maxhp}`, 220, y, 3, compact ? 8 : 9);
       if (p.airborne) {

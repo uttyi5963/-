@@ -616,13 +616,16 @@ const G = {
       if (!s || !s.party) return false;
       if (!s.config) s.config = { atbWait: true };
       if (!s.bestiary) s.bestiary = {};
-      for (const h of s.party) {
+      const patchHero = (h) => {
         if (!h.row) h.row = (DATA.heroes[h.id] && DATA.heroes[h.id].row) || "front";
-        if (h.command === undefined) {
+        // ふるいセーブは command が null のことがある (ロッドのかくせい等を補完)
+        if (h.command == null) {
           h.command = h.paladin ? DATA.paladin.command
             : (DATA.heroes[h.id] && DATA.heroes[h.id].command) || null;
         }
-      }
+      };
+      s.party.forEach(patchHero);
+      if (s.ngHeroes) Object.values(s.ngHeroes).forEach(patchHero);
       this.state = s;
       return true;
     } catch (e) { return false; }

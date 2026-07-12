@@ -247,6 +247,7 @@ DATA.heroes = {
     base:   { hp: 27, mp: 22, str: 5, agi: 7, vit: 5, int: 13 },
     growth: { hp: 6, mp: 6, str: 1, agi: 1, vit: 1, int: 3 },
     weapon: "w_staff", armor: "a_cloth",
+    command: "focus", // かくせい: さいだい3かい。つぎのこうげきまほうが 2/4/8ばい
     spells: ["fire1"],
     learn: { 4: "ice1", 6: "bolt1", 9: "fire2", 12: "ice2", 15: "fire3", 19: "ice3", 21: "drain", 24: "bolt3", 28: "quake", 32: "flare" },
   },
