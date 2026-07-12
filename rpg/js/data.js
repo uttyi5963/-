@@ -31,6 +31,7 @@ DATA.spells = {
   drain:   { name: "ドレイン",   mp: 12, type: "dmg", pow: 60,  cast: 1.4, elem: "none",  target: "enemy", drain: true },
   quake:   { name: "クエイク", fx: "quake",   mp: 34, type: "dmg", pow: 120, cast: 3.0, elem: "none",  target: "enemy", all: true },
   protect2: { name: "プロテガ",  mp: 24, type: "buff", cast: 2.0, target: "ally", all: true },
+  haste:    { name: "ヘイスト",  mp: 18, type: "buff", buff: "haste", cast: 1.2, target: "ally" },
   // てきせんよう
   e_fire:  { name: "ファイア",   mp: 0, type: "dmg", pow: 16, cast: 1.2, elem: "fire",    target: "enemy" },
   e_ice_all:{ name: "つめたいいき", mp: 0, type: "dmg", pow: 15, elem: "ice",  target: "enemy", all: true },
@@ -291,7 +292,7 @@ DATA.heroes = {
     weapon: "w_staff", armor: "a_cloth",
     command: "pray", // いのる: MP0。50%で ぜんいん さいだいHPの30%かいふく
     spells: ["cure1"],
-    learn: { 4: "poisona", 6: "protect", 9: "cure2", 10: "esuna", 12: "raise", 16: "cure3", 20: "rain", 22: "protect2", 26: "saint" },
+    learn: { 4: "poisona", 6: "protect", 9: "cure2", 10: "esuna", 12: "raise", 16: "cure3", 18: "haste", 20: "rain", 22: "protect2", 26: "saint" },
   },
   rod: {
     name: "ロッド", cls: "くろまどうし", spr: "rod", row: "back",

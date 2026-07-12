@@ -212,7 +212,7 @@ class BattleScene {
       for (const p of this.aliveParty()) {
         if (p.casting || p.airborne) continue;
         const was = p.atb;
-        p.atb = Math.min(100, p.atb + (25 + G.agiOf(p.h) * 3) * dt);
+        p.atb = Math.min(100, p.atb + (25 + G.agiOf(p.h) * 3) * (p.haste ? 1.5 : 1) * dt);
         // いのちのたま: ターンが まわってくるたび HPかいふく
         if (was < 100 && p.atb >= 100 && G.accAbil(p.h, "regen") && p.h.hp < p.h.maxhp) {
           const heal = Math.max(1, Math.round(p.h.maxhp * 0.05));
@@ -1020,8 +1020,13 @@ class BattleScene {
         } else if (sp.type === "buff") {
           const bs = (sp.all || act.allOverrideP ? this.aliveParty() : [t]).filter((q) => q && q.h.hp > 0);
           if (bs.length === 0) { this.log = "しかし きかなかった!"; return; }
-          bs.forEach((q) => { q.protect = true; this.partyFx(q, "shield"); });
-          this.log = sp.all ? "なかまぜんいんの ぼうぎょが あがった!" : `${t.h.name}の ぼうぎょが あがった!`;
+          const isHaste = sp.buff === "haste";
+          bs.forEach((q) => {
+            if (isHaste) q.haste = true; else q.protect = true;
+            this.partyFx(q, isHaste ? "heal" : "shield");
+          });
+          const who = (sp.all || act.allOverrideP) ? "なかまぜんいんの" : `${t.h.name}の`;
+          this.log = isHaste ? `${who} うごきが はやくなった!` : `${who} ぼうぎょが あがった!`;
         }
       } });
     }
@@ -1761,6 +1766,8 @@ class BattleScene {
       if (st) Gfx.text(DATA.statuses[st].mark, 160, y, 2, 8);
       if (p.charge > 0) Gfx.text(`た${p.charge}`, 172, y, 2, 8);
       if (p.focus > 0) Gfx.text(`か${p.focus}`, 172, y, 2, 8);
+      if (p.protect && !dead) Gfx.text("プ", 184, y, 2, 8);
+      if (p.haste && !dead) Gfx.text("ヘ", 194, y, 2, 8);
       Gfx.textR(`${p.h.hp}`, 218, y, dead ? 2 : 3, fs);
       Gfx.text(`/${p.h.maxhp}`, 220, y, 3, compact ? 8 : 9);
       if (p.airborne) {
