@@ -978,13 +978,15 @@ DATA.maps.castle = {
   bgm: "town",
   legend: {
     "#": { tile: "wall", solid: true },
+    "B": { tile: "banner", solid: true },
+    "T": { tile: "torch", solid: true },
     ".": { tile: "floor" },
     "c": { tile: "carpet" },
     "P": { tile: "pillar", solid: true },
     "d": { tile: "door" },
   },
   rows: [
-    "####################",
+    "##B#T##B#cc#B##T#B##",
     "#........cc........#",
     "#..P.....cc.....P..#",
     "#........cc........#",
@@ -1169,6 +1171,7 @@ DATA.maps.town = {
   exit: { map: "world", x: 27, y: 23, dir: "d" },
   legend: {
     "f": { tile: "forest", solid: true },
+    "F": { tile: "fountain", solid: true },
     ".": { tile: "grass" },
     "W": { tile: "wall", solid: true },
     "d": { tile: "door" },
@@ -1184,7 +1187,7 @@ DATA.maps.town = {
     "f.WWWWW......WWWWW.f",
     "f.WWdWW......WWDWW.f",
     "f..................f",
-    "f..................f",
+    "f....F.............f",
     "f.......WWWWW......f",
     "f.......WWWWW......f",
     "f.......WWEWW......f",
@@ -1430,12 +1433,13 @@ DATA.maps.elder = {
   bgm: "town",
   legend: {
     "#": { tile: "wall", solid: true },
+    "s": { tile: "shelf", solid: true },
     ".": { tile: "floor" },
     "t": { tile: "table", solid: true },
     "d": { tile: "door" },
   },
   rows: [
-    "############",
+    "#ss##ss##ss#",
     "#..........#",
     "#.t......t.#",
     "#..........#",
@@ -1568,11 +1572,13 @@ DATA.maps.shrine = {
   encounter: "shrine",
   legend: {
     "#": { tile: "wall", solid: true },
+    "S": { tile: "statue", solid: true },
+    "T": { tile: "torch", solid: true },
     ".": { tile: "floor" },
     "d": { tile: "door" },
   },
   rows: [
-    "##############",
+    "##S#T####T#S##",
     "#............#",
     "#............#",
     "#########....#",
@@ -1793,6 +1799,7 @@ DATA.maps.port = {
   bgm: "town",
   exit: { map: "world", x: 30, y: 17, dir: "d" },
   legend: {
+    "F": { tile: "fountain", solid: true },
     "f": { tile: "forest", solid: true },
     ".": { tile: "grass" },
     "W": { tile: "wall", solid: true },
@@ -1808,7 +1815,7 @@ DATA.maps.port = {
     "f.WWWWW.......WWWWW..f",
     "f.WWdWW.......WWDWW..f",
     "f....................f",
-    "f....................f",
+    "f.......F............f",
     "f....................f",
     "wwwwwwwwwwbwwwwwwwwwww",
     "wwwwwwwwwwbwwwwwwwwwww",
@@ -2163,12 +2170,13 @@ DATA.maps.dwarfhall = {
   bgm: "hall",
   legend: {
     "#": { tile: "wall", solid: true },
+    "B": { tile: "banner", solid: true },
     ".": { tile: "floor" },
     "p": { tile: "pillar", solid: true },
     "r": { tile: "carpet" },
   },
   rows: [
-    "################",
+    "##B###B##B###B##",
     "#..............#",
     "#.p..........p.#",
     "#..............#",
@@ -2250,9 +2258,10 @@ DATA.maps.temple = {
   legend: {
     "#": { tile: "wall", solid: true },
     ".": { tile: "carpet" },
+    "T": { tile: "torch", solid: true },
   },
   rows: [
-    "##################",
+    "##T#####TT#####T##",
     "#................#",
     "#..############..#",
     "#................#",
@@ -2986,12 +2995,14 @@ DATA.maps.cathedral1 = {
   bgm: "under",
   encounter: "cathedral",
   legend: {
+    "S": { tile: "statue", solid: true },
+    "T": { tile: "torch", solid: true },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "s": { tile: "stairs" },
   },
   rows: [
-    "################",
+    "##S##T####T##S##",
     "#...........s..#",
     "#..######..##..#",
     "#.......#......#",
