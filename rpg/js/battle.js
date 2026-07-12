@@ -65,7 +65,7 @@ class BattleScene {
   // げんざいの マップから せんとうはいけいを きめる
   pickBgTheme() {
     const m = String(G.state.map || "");
-    if (/^icecave/.test(m)) return "ice";
+    if (/^(icecave|world3|glaciercave)/.test(m)) return "ice";
     if (/^magma/.test(m)) return "fire";
     if (/^(cave|waterway|underworld)/.test(m)) return "cave";
     if (/^(tower|startower|skyisland)/.test(m)) return "tower";

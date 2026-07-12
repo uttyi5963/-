@@ -639,6 +639,14 @@ class QuestScene {
       list.push(["おうの いらい",
         f("dvergReward") ? "かんりょう" : `マグマトカゲたいじ (${Math.min(5, G.killsOf("firelizard"))}/5)`]);
     }
+    if (f("glacierQuest")) {
+      list.push(["ひょうがのめがみ",
+        f("glacierReward") ? "かんりょう" : f("glacierBoss") ? "フリムのむらおさに ほうこく" : "ひょうがのどうくつの さいだんへ"]);
+    }
+    if (f("wolfQuest")) {
+      list.push(["ゆきおおかみ たいじ",
+        f("wolfReward") ? "かんりょう" : `ゆきおおかみを たおす (${Math.min(3, G.killsOf("snowwolf"))}/3)`]);
+    }
     if (f("twinQuest")) {
       list.push(["かがみのぬし たいじ",
         f("twinReward") ? "かんりょう" : f("mirrorBoss") ? "トワインのおさに ほうこく" : "かがみのどうくつの おくへ"]);

@@ -170,6 +170,11 @@ DATA.items = {
   a_lake:    { name: "みずうみのローブ", kind: "armor", price: 9800, def: 26, int: 7, who: ["rod", "celia"] },
   w_mirror:  { name: "ミラーブレード",   kind: "weapon", price: 0, atk: 50, who: ["leon"], elem: "ice" },
   a_chrono:  { name: "ときのよろい",     kind: "armor", price: 0, def: 34, who: ["leon", "glen"] },
+  // こおりのれっとう ティア
+  w_icefang: { name: "こおりのキバ",     kind: "weapon", price: 12500, atk: 48, who: ["gou"], elem: "ice" },
+  a_frostmail: { name: "フロストメイル", kind: "armor", price: 11000, def: 32, who: ["leon", "glen"] },
+  w_blizzard: { name: "ふぶきのやり",    kind: "weapon", price: 0, atk: 49, who: ["glen"], elem: "ice" },
+  a_aurora:  { name: "オーロラのマント", kind: "armor", price: 0, def: 31, int: 8, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   heroproof: { name: "えいゆうのあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
@@ -380,6 +385,23 @@ DATA.monsters = {
     hp: 3300, atk: 72, def: 30, agi: 22, exp: 8500, gold: 4200,
     absorb: ["ice"], weak: ["thunder"],
     acts: [{ spell: "e_bigwave", rate: 0.25 }, { spell: "e_wave", rate: 0.3 }] },
+  // こおりのれっとう (Lv50〜70たい)
+  snowwolf: { name: "ゆきおおかみ", spr: "gargoyle", pal: "light", hp: 680, atk: 70, def: 30, agi: 28, exp: 1200, gold: 880,
+    weak: ["fire"] },
+  icemaiden: { name: "こおりのまいひめ", spr: "celia", pal: "light", hp: 640, atk: 64, def: 28, agi: 24, exp: 1150, gold: 840,
+    weak: ["fire"], acts: [{ spell: "e_breath", rate: 0.25 }] },
+  glacierworm: { name: "ひょうがワーム", spr: "worm", pal: "light", hp: 760, atk: 72, def: 36, agi: 14, exp: 1300, gold: 950,
+    absorb: ["ice"], weak: ["fire"] },
+  frostogre: { name: "フロストオーガ", spr: "golem", pal: "light", hp: 800, atk: 78, def: 38, agi: 10, exp: 1400, gold: 1050,
+    weak: ["fire"] },
+  aurorawisp: { name: "オーロラウィスプ", spr: "wizard", pal: "light", hp: 600, atk: 62, def: 26, agi: 26, exp: 1100, gold: 800,
+    absorb: ["ice"], weak: ["fire"], acts: [{ spell: "e_breath", rate: 0.3 }] },
+  blizzardhawk: { name: "ふぶきタカ", spr: "bird", pal: "light", hp: 620, atk: 68, def: 24, agi: 34, exp: 1150, gold: 820,
+    weak: ["fire"], acts: [{ spell: "e_gale", rate: 0.3 }] },
+  glaciella: { name: "ひょうけつのめがみ グラシエラ", spr: "celia", pal: "light", boss: true, scale: 3,
+    hp: 7500, atk: 92, def: 40, agi: 26, exp: 40000, gold: 14000,
+    absorb: ["ice"], resist: ["thunder"], weak: ["fire"],
+    acts: [{ spell: "e_bigwave", rate: 0.22 }, { spell: "e_breath", rate: 0.25 }, { spell: "e_starfall", rate: 0.15 }] },
   // ひがしのたいりく (Lv40〜60たい)
   mirrorling: { name: "ミラーリング", spr: "eye", pal: "light", hp: 500, atk: 60, def: 28, agi: 22, exp: 850, gold: 640,
     weak: ["thunder"] },
@@ -523,6 +545,10 @@ DATA.encounters = {
     rare: ["kingslime"], rareRate: 0.07 },
   startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"], ["voideye", "voideye"]],
     rare: ["mithrildragon"], rareRate: 0.06 },
+  world3: { rate: 1 / 14, groups: [["snowwolf", "snowwolf"], ["blizzardhawk"], ["icemaiden", "snowwolf"], ["aurorawisp", "aurorawisp"], ["frostogre"], ["blizzardhawk", "icemaiden"]],
+    rare: ["mithrildragon"], rareRate: 0.05 },
+  glaciercave: { rate: 1 / 12, groups: [["glacierworm"], ["frostogre", "aurorawisp"], ["icemaiden", "icemaiden"], ["glacierworm", "aurorawisp"], ["frostogre", "frostogre"], ["snowwolf", "snowwolf", "blizzardhawk"]],
+    rare: ["mithrildragon"], rareRate: 0.07 },
   world2: { rate: 1 / 14, groups: [["mirrorling", "mirrorling"], ["twinfang"], ["dunebird", "dunebird"], ["echowisp", "mirrorling"], ["twinfang", "dunebird"], ["lakeserpent"]],
     rare: ["mithrildragon"], rareRate: 0.05 },
   mirrorcave: { rate: 1 / 13, groups: [["mirrorling", "mirrorling"], ["echowisp", "echowisp"], ["chronomite"], ["lakeserpent", "mirrorling"], ["chronomite", "echowisp"]],
@@ -540,6 +566,11 @@ DATA.encounters = {
 
 // ---------------- ショップ ----------------
 DATA.shops = {
+  frim: {
+    name: "フリムの みせ",
+    stock: ["hipotion", "megapotion", "xpotion", "ether", "hiether", "phoenix", "remedy",
+            "w_icefang", "a_frostmail"],
+  },
   twine: {
     name: "トワインの みせ",
     stock: ["hipotion", "megapotion", "ether", "phoenix", "remedy", "xpotion",
@@ -2390,6 +2421,271 @@ DATA.maps.crater2 = {
   ],
 };
 
+// ---------------- こおりのれっとう (だい4のちいき) ----------------
+DATA.maps.world3 = {
+  name: "こおりのれっとう",
+  outdoor: true,
+  bgm: "field",
+  encounter: "world3",
+  legend: {
+    "w": { tile: "water", solid: true },
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "path" },
+    "f": { tile: "forest" },
+    "T": { tile: "icon_town" },
+    "C": { tile: "icon_cave" },
+    "G": { tile: "icon_shrine" },
+  },
+  rows: [
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ww......................wwww",
+    "w....mm.......ff.........www",
+    "w....mm..T...............www",
+    "w..........................w",
+    "ww...www.......mm.....G...ww",
+    "ww...www.......mm.........ww",
+    "w..........................w",
+    "w...ff.........C...........w",
+    "w...ff.....................w",
+    "w..........................w",
+    "ww.....mm..........ff.....ww",
+    "ww.....mm..........ff.....ww",
+    "w..........................w",
+    "ww........................ww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  ],
+  events: [
+    { x: 22, y: 5, type: "enter", scriptId: "airshipBoard" },
+    { x: 9, y: 3, type: "enter", warp: { map: "frim", x: 9, y: 9, dir: "u" } },
+    { x: 15, y: 8, type: "enter", warp: { map: "glaciercave1", x: 2, y: 10, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "w3a", x: 1, y: 13, gold: 7000, hidden: true },
+    { id: "w3b", x: 26, y: 4, item: "elixir", hidden: true },
+  ],
+};
+
+// ---------------- ゆきのむら フリム ----------------
+DATA.maps.frim = {
+  name: "ゆきのむら フリム",
+  bgm: "town",
+  exit: { map: "world3", x: 9, y: 4, dir: "d" },
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "D": { tile: "door" },
+  },
+  rows: [
+    "ffffffffffffffffffff",
+    "f..................f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWdWW......WWDWW.f",
+    "f..................f",
+    "f..................f",
+    "f..................f",
+    "f..................f",
+    "f..................f",
+    "ffffffff....ffffffff",
+  ],
+  events: [
+    { x: 4, y: 4, type: "enter", warp: { map: "friminn", x: 4, y: 5, dir: "u" } },
+    { x: 15, y: 4, type: "enter", warp: { map: "frimshop", x: 4, y: 5, dir: "u" } },
+  ],
+  npcs: [
+    { id: "frim_elder", x: 10, y: 6, spr: "elder",
+      script: [
+        { cond: { flag: "glacierBoss" },
+          then: [
+            { cond: { flag: "glacierReward" },
+              then: [{ msg: "むらおさ「ひょうがの めがみが しずまり\nふぶきも やわらいだ。むらの おんじんよ、\nいつでも たずねてきなされ」" }],
+              else: [
+                { msg: "むらおさ「めがみを しずめてくれたか!\nこれは むらからの こころばかりの れいじゃ」" },
+                { give: { gold: 3000 } },
+                { msg: "3000ギルを てにいれた!" },
+                { flag: ["glacierReward", 1] },
+              ] },
+          ],
+          else: [
+            { msg: "むらおさ「ひょうがの おくに ねむる めがみが\nめざめてしもうた。ふぶきが やまず\nりょうにも でられん……」" },
+            { msg: "「どうか めがみを しずめて くだされ。\nほのおの ちからが あれば\nみちは ひらけるはずじゃ」" },
+            { flag: ["glacierQuest", 1] },
+          ] },
+      ] },
+    { id: "frim_hunter", x: 5, y: 7, spr: "soldier",
+      script: [
+        { cond: { flag: "wolfReward" },
+          then: [{ msg: "かりゅうど「ゆきおおかみの むれが へって\nむらの こどもも そとで あそべるように\nなった。おかげさまだ」" }],
+          else: [
+            { cond: { flag: "wolfQuest" },
+              then: [
+                { cond: { kills: { id: "snowwolf", n: 3 } },
+                  then: [
+                    { msg: "かりゅうど「ゆきおおかみを 3とうも!?\nあんた ほんものの かりゅうどだ。\nやくそくの ほうびだ、うけとってくれ」" },
+                    { give: { gold: 3500 } },
+                    { give: { item: "xpotion" } },
+                    { msg: "3500ギルと エクスポーションを てにいれた!" },
+                    { flag: ["wolfReward", 1] },
+                  ],
+                  else: [{ msg: "かりゅうど「ゆきおおかみは しまの あちこちに\nいる。3とう たおしたら もどってきてくれ。\nずかんで かずを かぞえられるぞ」" }] },
+              ],
+              else: [
+                { msg: "かりゅうど「ゆきおおかみが ふえすぎて\nこまっている。3とう たいじして\nくれないか? ほうびは はずむぞ」" },
+                { flag: ["wolfQuest", 1] },
+              ] },
+          ] },
+      ] },
+    { id: "frim_kid", x: 14, y: 8, spr: "villager", pal: "light", wander: true,
+      script: [{ msg: "こども「ゆきだるま つくったら\nいちばん うえの たまが ころがって\nいっちゃったの! さがしてるの!」" }] },
+    { id: "frim_granny", x: 3, y: 8, spr: "villager", wander: true,
+      script: [{ msg: "おばあさん「ひょうがの おくには むかし、\nうつくしい めがみさまが すんでいたと\nいいつたえに あるんだよ」" }] },
+    { id: "frim_guard", x: 16, y: 6, spr: "soldier",
+      script: [{ msg: "ばんにん「ひょうがのどうくつは このさきだ。\nこおりの まものは ほのおに よわい。\nじゅんびは いいか?」" }] },
+  ],
+  chests: [
+    { id: "fr1", x: 17, y: 9, item: "hiether", hidden: true },
+  ],
+};
+
+DATA.maps.friminn = {
+  name: "フリムのやどや",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "b": { tile: "bed" },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.bb..c..#",
+    "#.bb.....#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "frim", x: 4, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "frim", x: 4, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "frim_inn", x: 7, y: 2, spr: "innkeep", script: [{ inn: 350 }] },
+  ],
+  chests: [],
+};
+
+DATA.maps.frimshop = {
+  name: "フリムのみせ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "t": { tile: "table", solid: true },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.t...c..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "frim", x: 15, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "frim", x: 15, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "frim_shop", x: 7, y: 2, spr: "shopkeep", script: [{ shop: "frim" }] },
+  ],
+  chests: [],
+};
+
+// ---------------- ひょうがのどうくつ ----------------
+DATA.maps.glaciercave1 = {
+  name: "ひょうがのどうくつ",
+  bgm: "dungeon",
+  encounter: "glaciercave",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#...........s..#",
+    "#..######..##..#",
+    "#.......#......#",
+    "######..#..#####",
+    "#.......#......#",
+    "#..######..##..#",
+    "#..#...........#",
+    "#..#..######..##",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 2, y: 10, type: "enter", warp: { map: "world3", x: 15, y: 9, dir: "d" } },
+    { x: 12, y: 1, type: "enter", warp: { map: "glaciercave2", x: 3, y: 1, dir: "d" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "gc1", x: 14, y: 3, gold: 6000 },
+    { id: "gc2", x: 1, y: 7, item: "xpotion" },
+    { id: "gc3", x: 6, y: 10, item: "w_blizzard", hidden: true },
+  ],
+};
+
+DATA.maps.glaciercave2 = {
+  name: "めがみのさいだん",
+  bgm: "dungeon",
+  encounter: "glaciercave",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#..s...........#",
+    "#..#########...#",
+    "#...........#..#",
+    "#..#######..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..##.####..#..#",
+    "#...........#..#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 3, y: 1, type: "enter", warp: { map: "glaciercave1", x: 12, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "glaciellanpc", x: 6, y: 6, spr: "celia", pal: "light", hideFlag: "glacierBoss",
+      script: [
+        { msg: "さいだんの こおりが ひかり、\nうつくしい かげが たちあがる……。" },
+        { msg: "『……ふぶきの こもりうたを みだすのは\nだれ。 わたくしの ねむりを さまたげるもの、\nこおりに とけて きえなさい』" },
+        { battle: { group: ["glaciella"], boss: true, music: "spirit" } },
+        { flag: ["glacierBoss", 1] },
+        { msg: "『……あたたかい ちから。 ながい ゆめは\nおわったのね。 ふぶきは やみ、\nはるが おとずれるでしょう』" },
+        { give: { item: "a_aurora" } },
+        { msg: "オーロラのマントを てにいれた!" },
+      ] },
+  ],
+  chests: [
+    { id: "gc4", x: 8, y: 5, item: "elixir" },
+    { id: "gc5", x: 4, y: 5, gold: 9000, hidden: true },
+  ],
+};
+
 // ---------------- ひがしのたいりく (だい3のちいき) ----------------
 DATA.maps.world2 = {
   name: "ひがしのたいりく",
@@ -3614,6 +3910,7 @@ DATA.scripts = {
               { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
               { label: "うみのそこ",   ops: [{ warp: { map: "seafloor", x: 3, y: 11, dir: "d" } }] },
               { label: "ひがしのたいりく", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
+              { label: "こおりのれっとう", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
             ] } },
           ],
           else: [
@@ -3623,6 +3920,7 @@ DATA.scripts = {
               { label: "ソレイユ",     ops: [{ warp: { map: "port", x: 10, y: 7, dir: "u" } }] },
               { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
               { label: "ひがしのたいりく", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
+              { label: "こおりのれっとう", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
             ] } },
           ] },
       ],
