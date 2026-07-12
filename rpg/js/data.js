@@ -104,6 +104,10 @@ DATA.items = {
   a_hachimaki2: { name: "けんおうのはちまき", kind: "armor", price: 0, def: 22, who: ["gou"] },
   w_dverg:   { name: "ドヴェルグアクス", kind: "weapon", price: 0, atk: 38, who: ["leon", "glen"] },
   a_dverg2:  { name: "ドヴェルグのたて", kind: "armor", price: 0, def: 27, who: ["leon", "glen"] },
+  // げんじゅうの ほうしゅう
+  a_sylphid: { name: "かぜのマント",     kind: "armor", price: 0, def: 29, int: 6, who: ["rod", "celia"] },
+  a_gnomos:  { name: "だいちのおおたて", kind: "armor", price: 0, def: 31, who: ["leon", "glen"] },
+  w_undina:  { name: "うみなりのつえ",   kind: "weapon", price: 0, atk: 16, int: 10, who: ["celia"] },
   // こじんイベントほうしゅう
   w_kizuna:  { name: "きずなのやり",   kind: "weapon", price: 0, atk: 27, who: ["glen"], slay: ["demon"] },
   w_truthbook: { name: "しんりのしょ", kind: "weapon", price: 0, atk: 13, int: 7, who: ["rod"] },
@@ -352,6 +356,19 @@ DATA.monsters = {
     weak: ["fire"] },
   stareater: { name: "スターイーター", spr: "eye", pal: "light", hp: 640, atk: 70, def: 28, agi: 22, exp: 1600, gold: 1300,
     weak: ["holy"], inflict: { status: "toad", rate: 0.15 } },
+  // げんじゅう (そら/ちてい/うみに ひそむ せいれいがたの レアボス)
+  sylphid: { name: "かぜのげんじゅう シルフィド", spr: "bird", pal: "light", boss: true, scale: 3,
+    hp: 3000, atk: 68, def: 26, agi: 34, exp: 8000, gold: 4000,
+    resist: ["thunder"], weak: ["ice"],
+    acts: [{ spell: "e_tornado", rate: 0.25 }, { spell: "e_gale", rate: 0.3 }] },
+  gnomos: { name: "つちのげんじゅう ノーモス", spr: "golem", boss: true, scale: 3,
+    hp: 3600, atk: 76, def: 44, agi: 10, exp: 9000, gold: 4500,
+    resist: ["fire"], weak: ["thunder"],
+    acts: [{ spell: "e_quake", rate: 0.3 }] },
+  undina: { name: "みずのげんじゅう ウンディナ", spr: "kraken", pal: "light", boss: true, scale: 3,
+    hp: 3300, atk: 72, def: 30, agi: 22, exp: 8500, gold: 4200,
+    absorb: ["ice"], weak: ["thunder"],
+    acts: [{ spell: "e_bigwave", rate: 0.25 }, { spell: "e_wave", rate: 0.3 }] },
   // しれんのやまの ぬし (かくとうかの ライバル)
   garon: { name: "けんおう ガロン", spr: "gou", pal: "dark", boss: true, scale: 2,
     hp: 1400, atk: 46, def: 20, agi: 22, exp: 3000, gold: 0,
@@ -1624,6 +1641,16 @@ DATA.maps.underworld = {
   npcs: [
     { id: "meteonpc", x: 23, y: 14, spr: "golem", pal: "light", hideFlag: "meteorDown",
       script: [{ runScript: "meteoFight" }] },
+    { id: "gnomosnpc", x: 5, y: 17, spr: "golem",
+      showFlag: "allCrystals", hideFlag: "gnomosDown",
+      script: [
+        { msg: "だいちが もりあがり きょだいな かげが\nたちはだかる……! つちのげんじゅう ノーモス!!" },
+        { battle: { group: ["gnomos"], boss: true, music: "boss" } },
+        { flag: ["gnomosDown", 1] },
+        { msg: "ノーモスは だいちに かえっていった。\nあとに おおきな たてが のこされた。" },
+        { give: { item: "a_gnomos" } },
+        { msg: "だいちのおおたてを てにいれた!" },
+      ] },
   ],
   chests: [
     { id: "uw1", x: 28, y: 1, gold: 1500, hidden: true },
@@ -1982,7 +2009,18 @@ DATA.maps.skyisland = {
       failScript: [{ msg: "そらに ちいさな ひかりのわが\nうかんでいる。 いまは とおれない。" }],
       warp: { map: "starworld", x: 11, y: 12, dir: "u" } },
   ],
-  npcs: [],
+  npcs: [
+    { id: "sylphidnpc", x: 15, y: 4, spr: "bird", pal: "light",
+      showFlag: "allCrystals", hideFlag: "sylphidDown",
+      script: [
+        { msg: "かぜが うずを まいて けもののかたちに……!\nかぜのげんじゅう シルフィドだ!!" },
+        { battle: { group: ["sylphid"], boss: true, music: "boss" } },
+        { flag: ["sylphidDown", 1] },
+        { msg: "シルフィドは かぜにとけて きえた。\nあとに マントが ひらりと まいおちた。" },
+        { give: { item: "a_sylphid" } },
+        { msg: "かぜのマントを てにいれた!" },
+      ] },
+  ],
   chests: [
     { id: "sky1", x: 17, y: 7, gold: 2500, hidden: true },
   ],
@@ -2381,7 +2419,18 @@ DATA.maps.seafloor = {
     { x: 3, y: 11, type: "enter", scriptId: "airshipBoard" },
     { x: 9, y: 7, type: "enter", warp: { map: "seatemple", x: 2, y: 12, dir: "u" } },
   ],
-  npcs: [],
+  npcs: [
+    { id: "undinanpc", x: 18, y: 3, spr: "kraken", pal: "light",
+      showFlag: "allCrystals", hideFlag: "undinaDown",
+      script: [
+        { msg: "うずしおが たかまき ひかりのけものが\nすがたを あらわす……! みずのげんじゅう ウンディナ!!" },
+        { battle: { group: ["undina"], boss: true, music: "boss" } },
+        { flag: ["undinaDown", 1] },
+        { msg: "ウンディナは しぶきとなって きえた。\nうずの なかから つえが うかびあがる。" },
+        { give: { item: "w_undina" } },
+        { msg: "うみなりのつえを てにいれた!" },
+      ] },
+  ],
   chests: [
     { id: "sea1", x: 22, y: 1, gold: 3000, hidden: true },
   ],

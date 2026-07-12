@@ -333,10 +333,12 @@ class MenuScene {
     });
     if (this.state === "main") Gfx.cursor(212, 15 + this.sel * 17);
 
-    // しょじきん (みぎした)
-    Gfx.window(204, 192, 112, 46);
-    Gfx.textR(`${G.state.gold} ギル`, 306, 202);
-    Gfx.text(DATA.maps[G.state.map].name, 212, 219, 3, 10);
+    // しょじきん / プレイじかん (みぎした)
+    Gfx.window(204, 192, 112, 58);
+    Gfx.textR(`${G.state.gold} ギル`, 306, 200);
+    const pmin = Math.floor((G.state.playtime || 0) / 60);
+    Gfx.textR(`${Math.floor(pmin / 60)}じかん${pmin % 60}ふん`, 306, 216, 3, 10);
+    Gfx.text(DATA.maps[G.state.map].name, 212, 232, 3, 10);
 
     if (this.state === "item") this.drawItemList();
     if (this.state === "spellList") this.drawSpellList();
@@ -578,6 +580,11 @@ class QuestScene {
     if (f("starGate")) {
       list.push(["クレーターのぬし たいじ",
         f("craterBoss") ? "かんりょう" : "ほしのせかいの だいクレーターへ"]);
+    }
+    if (f("allCrystals")) {
+      const gj = (f("sylphidDown") ? 1 : 0) + (f("gnomosDown") ? 1 : 0) + (f("undinaDown") ? 1 : 0);
+      list.push(["げんじゅう たいじ",
+        gj >= 3 ? "かんりょう" : `そら/ちてい/うみに けはい (${gj}/3)`]);
     }
     if (f("dvergQuest")) {
       list.push(["おうの いらい",

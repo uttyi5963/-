@@ -973,6 +973,13 @@ class BattleScene {
     const mult = 1 + fallen * 0.5;
     const gain = Math.round(exp * mult);
     AudioSys.bgm("victory");
+    // しょうりの きらめき
+    this.screenFlash = 0.25;
+    this.party.forEach((p, i) => {
+      if (p.h.hp <= 0) return;
+      const pos = this.partyPos(i);
+      this.fx.push({ x: pos.x + 16, y: pos.y + 10, kind: "burst", t: -i * 0.08 });
+    });
     const msgs = ["まものたちを やっつけた!"];
     if (exp > 0 || gold > 0) {
       msgs.push(`けいけんち ${gain} かくとく!` + (mult > 1 ? `\n(生きのこりボーナス ${mult}ばい!)` : "") + `\n${gold}ギルを てにいれた!`);
@@ -1201,6 +1208,7 @@ class BattleScene {
 
   drawFx(c) {
     this.fx.forEach((f) => {
+      if (f.t < 0) return; // ちえんスタートの エフェクト
       const p = Math.min(1, f.t / 0.3);
       c.fillStyle = PAL[3];
       if (f.kind === "slash") {
