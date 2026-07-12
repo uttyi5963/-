@@ -936,7 +936,7 @@ function runScript(ops, onDone) {
         continue;
       }
       if (op.fishing) {
-        G.push(new FishingScene(op.fishing.price || 50, next));
+        G.push(new FishingScene(op.fishing.price || 50, next, op.fishing.table));
         return;
       }
       if (op.healParty) {

@@ -4180,13 +4180,14 @@ DATA.maps.world2 = {
     ".": { tile: "grass" },
     "f": { tile: "forest" },
     "T": { tile: "icon_town" },
+    "P": { tile: "icon_town" },
     "C": { tile: "icon_cave" },
     "X": { tile: "icon_tower" },
     "G": { tile: "icon_shrine" },
   },
   rows: [
     "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "ww......................wwww",
+    "ww.........P............wwww",
     "w...mmm.........ff.......www",
     "w...m.m....T....ff........ww",
     "w...mmm..................www",
@@ -4207,6 +4208,7 @@ DATA.maps.world2 = {
   events: [
     { x: 12, y: 7, type: "enter", scriptId: "airshipBoard" },
     { x: 11, y: 3, type: "enter", warp: { map: "twine", x: 9, y: 9, dir: "u" } },
+    { x: 11, y: 1, type: "enter", warp: { map: "lakepier", x: 6, y: 7, dir: "u" } },
     { x: 6, y: 12, type: "enter", warp: { map: "mirrorcave1", x: 2, y: 10, dir: "u" } },
     { x: 19, y: 8, type: "enter",
       cond: { flag: "mirrorBoss" },
@@ -4783,6 +4785,58 @@ DATA.maps.phantomthrone = {
   ],
   chests: [
     { id: "pt1", x: 14, y: 9, item: "acc_windpin", hidden: true },
+  ],
+};
+
+// ---------------- みずうみのさんばし (トワインきたの つりば) ----------------
+DATA.maps.lakepier = {
+  name: "みずうみのさんばし",
+  bgm: "town",
+  legend: {
+    "w": { tile: "water", solid: true },
+    "b": { tile: "bridge" },
+    ".": { tile: "grass" },
+    "f": { tile: "forest", solid: true },
+  },
+  rows: [
+    "wwwwwwwwwwwwww",
+    "wwwwwwwwwwwwww",
+    "wwwwwbbwwwwwww",
+    "wwwwwbbwwwwwww",
+    "wwwwwbbwwwwwww",
+    "f....bb......f",
+    "f............f",
+    "f............f",
+    "ffffff..ffffff",
+  ],
+  events: [
+    { x: 6, y: 8, type: "enter", warp: { map: "world2", x: 11, y: 2, dir: "d" } },
+    { x: 7, y: 8, type: "enter", warp: { map: "world2", x: 11, y: 2, dir: "d" } },
+    { x: 5, y: 2, type: "enter", scriptId: "lakeFishing" },
+    { x: 6, y: 2, type: "enter", scriptId: "lakeFishing" },
+  ],
+  npcs: [
+    { id: "angler_lolo", x: 9, y: 5, spr: "villager",
+      script: [
+        { cond: { all: ["fishKing", "lakeKing"] },
+          then: [
+            { cond: { flag: "anglerKing" },
+              then: [{ msg: "つりびとロロ「そらと みずうみ、ふたりのぬしを\nつりあげた でんせつの つりし……。\nいっしょに つれて こうえいだよ」" }],
+              else: [
+                { msg: "つりびとロロ「そらのぬしも みずうみのぬしも\nつりあげたのかい!? たまげた!!\nこいつは わたしの きもちだ、うけとってくれ」" },
+                { give: { gold: 5000 } },
+                { msg: "5000ギルを てにいれた!" },
+                { flag: ["anglerKing", 1] },
+              ] },
+          ],
+          else: [
+            { msg: "つりびとロロ「この みずうみには でっかい\nぬしが すんでいてね。さんばしの さきで\nさおを たらして ごらんよ」" },
+            { msg: "「そういえば そらのしまにも つりばが\nあるらしいね。りょうほうの ぬしを つったら\nたいしたもんだ」" },
+          ] },
+      ] },
+  ],
+  chests: [
+    { id: "lp1", x: 1, y: 7, gold: 600, hidden: true },
   ],
 };
 
@@ -5618,6 +5672,10 @@ DATA.maps.lostwoods2 = {
 
 // ---------------- きょうつうスクリプト ----------------
 DATA.scripts = {
+  lakeFishing: [
+    { msg: "しずかな みなも。 さかなの かげが みえる。" },
+    { fishing: { price: 80, table: "lake" } },
+  ],
   towerView: [
     { msg: "とおめがねを のぞいてみた……。" },
     { cond: { flag: "trueClear" },

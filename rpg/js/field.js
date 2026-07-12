@@ -78,7 +78,7 @@ class FieldScene {
     this.updateNpcs(dt);
 
     if (this.moving) {
-      this.moving.t += dt * 5.2;
+      this.moving.t += dt * 5.2 * (G.state.config && G.state.config.wspeed === 2 ? 1.45 : 1);
       if (this.moving.t >= 1) {
         G.state.x += this.moving.dx;
         G.state.y += this.moving.dy;

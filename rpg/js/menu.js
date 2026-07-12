@@ -125,14 +125,7 @@ class MenuScene {
       else if (cmd === "ずかん") { G.push(new BestiaryScene()); }
       else if (cmd === "クエスト") { G.push(new QuestScene()); }
       else if (cmd === "せってい") {
-        if (!G.state.config) G.state.config = { atbWait: true };
-        G.state.config.atbWait = G.state.config.atbWait === false;
-        const mode = G.state.config.atbWait ? "ウェイト" : "アクティブ";
-        G.push(new MessageScene(
-          `せんとうモード: ${mode}\n` +
-          (G.state.config.atbWait
-            ? "(コマンドを えらんでいるあいだ\n じかんが とまります)"
-            : "(コマンドちゅうも てきは うごきます!)")));
+        G.push(new ConfigScene());
       }
       else if (cmd === "パスワード") {
         G.push(new ChoiceScene(["かきだす", "よみこむ"], (pick) => {
@@ -812,10 +805,65 @@ class QuestScene {
 // ============================================================
 // つりぼり ミニゲーム
 // ============================================================
+// ---------------- コンフィグ ----------------
+class ConfigScene {
+  constructor() {
+    this.opaque = false;
+    this.sel = 0;
+  }
+
+  get cfg() {
+    if (!G.state.config) G.state.config = { atbWait: true };
+    return G.state.config;
+  }
+
+  rows() {
+    const c = this.cfg;
+    return [
+      ["せんとうモード", c.atbWait !== false ? "ウェイト" : "アクティブ", "ウェイト: コマンドちゅう じかんていし"],
+      ["カーソルきおく", c.memory !== false ? "ON" : "OFF", "まえの ターンの コマンドいちを おぼえる"],
+      ["せんとうそくど", (c.bspeed || 1) === 2 ? "2ばい" : "ふつう", "2ばいなら レベルあげが はかどる"],
+      ["いどうそくど", c.wspeed === 2 ? "はやい" : "ふつう", "フィールドを きびきび あるく"],
+      ["おと", AudioSys.muted ? "OFF" : "ON", "BGMと こうかおん (Mキーでも きりかえ)"],
+    ];
+  }
+
+  toggle(i) {
+    const c = this.cfg;
+    if (i === 0) c.atbWait = c.atbWait === false;
+    else if (i === 1) c.memory = c.memory === false;
+    else if (i === 2) c.bspeed = (c.bspeed || 1) === 2 ? 1 : 2;
+    else if (i === 3) c.wspeed = c.wspeed === 2 ? 1 : 2;
+    else if (i === 4) AudioSys.toggleMute();
+    AudioSys.sfx("cursor");
+  }
+
+  update() {
+    const n = this.rows().length;
+    if (Input.tap("up")) { this.sel = (this.sel + n - 1) % n; AudioSys.sfx("cursor"); }
+    if (Input.tap("down")) { this.sel = (this.sel + 1) % n; AudioSys.sfx("cursor"); }
+    if (Input.tap("a") || Input.tap("left") || Input.tap("right")) this.toggle(this.sel);
+    if (Input.tap("b")) { AudioSys.sfx("cancel"); G.pop(); }
+  }
+
+  draw() {
+    Gfx.window(30, 46, 260, 196);
+    Gfx.text("コンフィグ", 44, 54);
+    this.rows().forEach(([name, val], i) => {
+      const y = 80 + i * 26;
+      Gfx.text(name, 58, y, 3, 11);
+      Gfx.textR(val, 276, y, 3, 11);
+      if (i === this.sel) Gfx.cursor(44, y + 3);
+    });
+    Gfx.text(this.rows()[this.sel][2], 40, 226, 3, 9);
+  }
+}
+
 class FishingScene {
-  constructor(price, onDone) {
+  constructor(price, onDone, table) {
     this.opaque = false;
     this.price = price;
+    this.table = table || "sky";
     this.onDone = onDone || null;
     this.state = "ask";   // ask / wait / bite / result
     this.t = 0;
@@ -827,6 +875,19 @@ class FishingScene {
   // つれるものの ちゅうせん
   rollCatch() {
     const r = Math.random();
+    if (this.table === "lake") {
+      // みずうみのさんばし: べつの さかなが つれる
+      if (r < 0.05) {
+        G.setFlag("lakeKing", 1);
+        G.state.gold += 4000;
+        AudioSys.sfx("levelup");
+        return "みずうみのぬしだ!! 4000ギル!!";
+      }
+      if (r < 0.2) { G.state.gold += 800; AudioSys.sfx("chest"); return "にじマス! 800ギル!"; }
+      if (r < 0.58) { G.state.gold += 150; AudioSys.sfx("chest"); return "あおブナを つった! 150ギル!"; }
+      AudioSys.sfx("cancel");
+      return "みずくさ だった……。";
+    }
     if (r < 0.05) {
       G.setFlag("fishKing", 1);
       G.state.gold += 2000;

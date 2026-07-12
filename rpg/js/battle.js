@@ -204,6 +204,7 @@ class BattleScene {
     }
 
     // ウェイトモード: コマンドにゅうりょくちゅうは 時間がかんぜんに とまる
+    dt *= (G.state.config && G.state.config.bspeed) || 1; // せんとうそくど設定
     const waitPause = this.waitMode && this.phase === "command";
 
     if (!waitPause) {
@@ -284,6 +285,12 @@ class BattleScene {
       this.phase = "command";
       this.menu = "root";
       this.sel = 0;
+      // カーソルきおく: まえに つかった コマンドの いちから
+      if (!G.state.config || G.state.config.memory !== false) {
+        const cmds = this.rootCommands();
+        const idx = cmds.findIndex((cc) => cc.id === p.h.lastCmd);
+        if (idx >= 0) this.sel = idx;
+      }
       AudioSys.sfx("cursor");
       return;
     }
@@ -338,6 +345,7 @@ class BattleScene {
         const cmd = cmds[this.sel];
         AudioSys.sfx("confirm");
         const h = this.ready.h;
+        if (cmd.id !== "limit") h.lastCmd = cmd.id; // カーソルきおく (ひっさつは一回きりなので除外)
         if (cmd.id === "fight") { this.menu = "targetE"; this.targetSel = 0; this.targetAll = false; this.pendingAct = { type: "fight" }; }
         else if (cmd.id === "dark") {
           const cost = Math.floor(h.maxhp / 8);
@@ -402,7 +410,7 @@ class BattleScene {
           // みかたぜんたい: ターゲットせんたく なし
           this.doPlayerAction(this.pendingAct);
         } else {
-          this.menu = "targetP"; this.targetSel = 0;
+          this.menu = "targetP"; this.targetSel = 0; this.targetAllP = false;
         }
       }
       return;
@@ -454,8 +462,14 @@ class BattleScene {
     }
 
     if (this.menu === "targetP") {
-      if (Input.tap("up") || Input.tap("left")) { this.targetSel = (this.targetSel + this.party.length - 1) % this.party.length; AudioSys.sfx("cursor"); }
-      if (Input.tap("down") || Input.tap("right")) { this.targetSel = (this.targetSel + 1) % this.party.length; AudioSys.sfx("cursor"); }
+      const spDef = this.pendingAct.type === "spell" ? this.pendingAct.spell.def : null;
+      const canAllP = !!(spDef && !spDef.all && ["heal", "cure", "buff"].includes(spDef.type));
+      if (Input.tap("up")) { this.targetSel = (this.targetSel + this.party.length - 1) % this.party.length; AudioSys.sfx("cursor"); }
+      if (Input.tap("down")) { this.targetSel = (this.targetSel + 1) % this.party.length; AudioSys.sfx("cursor"); }
+      if (Input.tap("left") || Input.tap("right")) {
+        if (canAllP) { this.targetAllP = !this.targetAllP; AudioSys.sfx("cursor"); }
+        else { this.targetSel = (this.targetSel + 1) % this.party.length; AudioSys.sfx("cursor"); }
+      }
       if (Input.tap("b")) {
         AudioSys.sfx("cancel");
         this.menu = this.pendingAct.type === "item" ? "item"
@@ -472,6 +486,7 @@ class BattleScene {
         }
         AudioSys.sfx("confirm");
         this.pendingAct.targetP = t;
+        this.pendingAct.allOverrideP = canAllP && this.targetAllP;
         this.doPlayerAction(this.pendingAct);
       }
       return;
@@ -970,12 +985,13 @@ class BattleScene {
       const t = act.targetP;
       events.push({ t: 0.45, fn: () => {
         if (sp.type === "heal") {
-          // ぜんたいかいふく (いやしのあめ) は いきているぜんいんに
-          const ts = sp.all ? this.aliveParty() : [t];
+          // ぜんたいかいふく (いやしのあめ / ←→で全体化) は いきているぜんいんに
+          const spreadP = sp.all || act.allOverrideP;
+          const ts = spreadP ? this.aliveParty() : [t];
           const alive = ts.filter((q) => q && q.h.hp > 0);
           if (alive.length === 0) { this.log = "しかし きかなかった!"; return; }
           alive.forEach((q) => {
-            const v = G.calcHeal(h, sp);
+            const v = Math.max(1, Math.round(G.calcHeal(h, sp) * (act.allOverrideP ? 0.5 : 1)));
             q.h.hp = Math.min(q.h.maxhp, q.h.hp + v);
             const pos = this.partyPos(this.party.indexOf(q));
             this.pop(pos.x, pos.y, v, 3);
@@ -988,13 +1004,21 @@ class BattleScene {
           this.log = `${t.h.name}は いきかえった!`;
         } else if (sp.type === "cure") {
           const sts = sp.cureAll ? Object.keys(DATA.statuses) : ["poison"];
-          const had = sts.filter((s) => t.h[s]);
-          if (t.h.hp <= 0 || had.length === 0) { this.log = "しかし きかなかった!"; return; }
-          had.forEach((s) => { t.h[s] = false; });
-          this.partyFx(t, "heal");
-          this.log = `${t.h.name}の ${had.map((s) => DATA.statuses[s].name).join("・")}が きえた!`;
+          const cts = (act.allOverrideP ? this.aliveParty() : [t]).filter((q) => q && q.h.hp > 0);
+          let curedAny = [];
+          cts.forEach((q) => {
+            const had = sts.filter((s) => q.h[s]);
+            if (had.length === 0) return;
+            had.forEach((s) => { q.h[s] = false; });
+            this.partyFx(q, "heal");
+            curedAny = curedAny.concat(had);
+          });
+          if (curedAny.length === 0) { this.log = "しかし きかなかった!"; return; }
+          this.log = act.allOverrideP
+            ? "なかまたちの わるい じょうたいが きえた!"
+            : `${t.h.name}の ${curedAny.map((s) => DATA.statuses[s].name).join("・")}が きえた!`;
         } else if (sp.type === "buff") {
-          const bs = (sp.all ? this.aliveParty() : [t]).filter((q) => q && q.h.hp > 0);
+          const bs = (sp.all || act.allOverrideP ? this.aliveParty() : [t]).filter((q) => q && q.h.hp > 0);
           if (bs.length === 0) { this.log = "しかし きかなかった!"; return; }
           bs.forEach((q) => { q.protect = true; this.partyFx(q, "shield"); });
           this.log = sp.all ? "なかまぜんいんの ぼうぎょが あがった!" : `${t.h.name}の ぼうぎょが あがった!`;
@@ -1841,13 +1865,22 @@ class BattleScene {
       }
     }
     else if (this.menu === "targetP") {
-      const t = this.party[this.targetSel];
-      const pos = this.partyPos(this.targetSel);
-      if (Math.floor(performance.now() / 200) % 2 === 0) {
-        Gfx.cursor(pos.x - 12, pos.y + 12);
+      const blink = Math.floor(performance.now() / 200) % 2 === 0;
+      if (this.targetAllP) {
+        if (blink) {
+          this.party.forEach((q, i) => {
+            if (q.h.hp > 0) Gfx.cursor(this.partyPos(i).x - 12, this.partyPos(i).y + 12);
+          });
+        }
+        Gfx.window(4, 96, 110, 28);
+        Gfx.text("なかま ぜんたい", 14, 103, 3, 11);
+      } else {
+        const t = this.party[this.targetSel];
+        const pos = this.partyPos(this.targetSel);
+        if (blink) Gfx.cursor(pos.x - 12, pos.y + 12);
+        Gfx.window(4, 96, 110, 28);
+        Gfx.text(t.h.name, 14, 103, 3, 11);
       }
-      Gfx.window(4, 96, 110, 28);
-      Gfx.text(t.h.name, 14, 103, 3, 11);
     }
   }
 }
