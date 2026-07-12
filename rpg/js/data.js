@@ -897,6 +897,7 @@ DATA.maps.world = {
     "A": { tile: "icon_cave" },
     "Q": { tile: "icon_castle" },
     "D": { tile: "icon_town" },
+    "V": { tile: "icon_tower" },
   },
   rows: [
     "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
@@ -913,7 +914,7 @@ DATA.maps.world = {
     "ww....fff.......mmmm...ffff.......wwwwww",
     "ww.....f........mmmm....ff........wwwwww",
     "ww..............mmmm..............wwwwww",
-    "ww..f...........mmmm..............wwwwww",
+    "ww..f..........Vmmmm..............wwwwww",
     "ww.ff...........mmmm......ff......wwwwww",
     "ww..............mmmm.....ffff.P...wwwwww",
     "ww..............mmmm......ff......wwwwww",
@@ -945,6 +946,7 @@ DATA.maps.world = {
   events: [
     { x: 7, y: 26, type: "enter", warp: { map: "castle", x: 9, y: 10, dir: "u" } },
     { x: 10, y: 28, type: "enter", warp: { map: "airdock", x: 9, y: 8, dir: "u" } },
+    { x: 15, y: 14, type: "enter", warp: { map: "watchtower1", x: 5, y: 7, dir: "u" } },
     { x: 27, y: 22, type: "enter", warp: { map: "town", x: 9, y: 14, dir: "u" } },
     { x: 16, y: 20, type: "enter", warp: { map: "cave", x: 1, y: 10, dir: "r" } },
     { x: 19, y: 20, type: "enter", warp: { map: "cave", x: 22, y: 10, dir: "l" } },
@@ -4784,6 +4786,87 @@ DATA.maps.phantomthrone = {
   ],
 };
 
+// ---------------- みはりのとう (ちゅうおうさんみゃくの 見張り塔) ----------------
+DATA.maps.watchtower1 = {
+  name: "みはりのとう",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "d": { tile: "door" },
+    "S": { tile: "stairs" },
+    "T": { tile: "torch", solid: true },
+    "t": { tile: "table", solid: true },
+  },
+  rows: [
+    "############",
+    "#T........T#",
+    "#..........#",
+    "#......t...#",
+    "#..........#",
+    "#....S.....#",
+    "#..........#",
+    "#T........T#",
+    "#####dd#####",
+  ],
+  events: [
+    { x: 5, y: 8, type: "enter", warp: { map: "world", x: 15, y: 15, dir: "d" } },
+    { x: 6, y: 8, type: "enter", warp: { map: "world", x: 15, y: 15, dir: "d" } },
+    { x: 5, y: 5, type: "enter", warp: { map: "watchtower2", x: 5, y: 5, dir: "u" } },
+  ],
+  npcs: [
+    { id: "tower_guard", x: 8, y: 3, spr: "villager", pal: "dark",
+      script: [
+        { msg: "とうもり「ここは ちゅうおうさんみゃくの\nみはりのとう。うえの かいから\nせかいじゅうが みわたせるぞ」" },
+      ] },
+  ],
+  chests: [
+    { id: "wt1", x: 2, y: 2, item: "hipotion" },
+  ],
+};
+
+DATA.maps.watchtower2 = {
+  name: "みはりのとう ちょうじょう",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "S": { tile: "stairs" },
+    "T": { tile: "torch", solid: true },
+    "t": { tile: "table", solid: true },
+  },
+  rows: [
+    "############",
+    "#..t.......#",
+    "#..........#",
+    "#..........#",
+    "#....S.....#",
+    "#..........#",
+    "#T........T#",
+    "############",
+  ],
+  events: [
+    { x: 5, y: 4, type: "enter", warp: { map: "watchtower1", x: 5, y: 5, dir: "d" } },
+    { x: 3, y: 2, type: "enter", scriptId: "towerView" },
+  ],
+  npcs: [
+    { id: "watchman", x: 8, y: 2, spr: "soldier",
+      script: [
+        { cond: { flag: "trueClear" },
+          then: [{ msg: "ものみのワッツ「せかいは しずかだ。\nこの けしきを まもったのは\nあんたたちだよ」" }],
+          else: [
+            { cond: { flag: "airship" },
+              then: [{ msg: "ものみのワッツ「きのう そらとぶ ふねが\nくもを きって とんでいくのを みたぞ!\nありゃあ たまげた!」" }],
+              else: [{ msg: "ものみのワッツ「きたの そらが なんだか\nさわがしい。バロンの ほうかくも\nちかごろ ようすが おかしい……」" }] },
+          ] },
+        { msg: "「そうそう、かぜの つよい ひは たいまつの\nかげも ゆれる…… とうの かげは\nよくよく しらべてみる もんだ」" },
+      ] },
+  ],
+  chests: [
+    { id: "wt2", x: 10, y: 5, gold: 1500, hidden: true },
+  ],
+};
+
 // ---------------- そらのふなつきば (ひこうせいび場) ----------------
 DATA.maps.airdock = {
   name: "そらのふなつきば",
@@ -5535,6 +5618,26 @@ DATA.maps.lostwoods2 = {
 
 // ---------------- きょうつうスクリプト ----------------
 DATA.scripts = {
+  towerView: [
+    { msg: "とおめがねを のぞいてみた……。" },
+    { cond: { flag: "trueClear" },
+      then: [
+        { msg: "みずうみは かがみのように しずまり、\nむらむらから ゆうげの けむりが のぼる。\nおだやかな せかいが ひろがっていた。" },
+      ],
+      else: [
+        { cond: { flag: "airship" },
+          then: [{ msg: "とおくの そらに ひこうせんの かげ。\nうみの むこうには みたことのない\nたいりくが かすんで みえる……。" }],
+          else: [{ msg: "きたに バロンじょうの ほうかく。\nみなみの もりの おくに、ちいさな むらの\nやねが ちらりと みえる。" }] },
+      ] },
+    { cond: { flag: "towerView" },
+      then: [],
+      else: [
+        { msg: "とおめがねの だいざの すきまに\nだれかの わすれものが はさまっている。" },
+        { give: { item: "elixir" } },
+        { msg: "エリクサーを てにいれた!" },
+        { flag: ["towerView", 1] },
+      ] },
+  ],
   magmaFight: [
     { cond: { flag: "magmaBoss" },
       then: [],
