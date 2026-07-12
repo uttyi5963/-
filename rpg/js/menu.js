@@ -639,6 +639,14 @@ class QuestScene {
       list.push(["おうの いらい",
         f("dvergReward") ? "かんりょう" : `マグマトカゲたいじ (${Math.min(5, G.killsOf("firelizard"))}/5)`]);
     }
+    if (f("twinQuest")) {
+      list.push(["かがみのぬし たいじ",
+        f("twinReward") ? "かんりょう" : f("mirrorBoss") ? "トワインのおさに ほうこく" : "かがみのどうくつの おくへ"]);
+    }
+    if (f("mirrorBoss")) {
+      list.push(["とこしえのとう",
+        f("chronoBoss") ? "ときのばんにんを しずめた" : "ふういんのとけた とうの ちょうじょうへ"]);
+    }
     if (f("garonSeen")) {
       list.push(["けんおうガロン",
         f("garonBeat") ? "かんりょう" : "しれんのやまの ちょうじょうで さいせん"]);

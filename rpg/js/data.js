@@ -165,6 +165,11 @@ DATA.items = {
   a_stellar: { name: "ほしのまもり",     kind: "armor", price: 0, def: 28, int: 8, who: ["rod", "celia"] },
   a_crown:   { name: "ほしのおうかん",   kind: "armor", price: 0, def: 33, int: 10, who: ["rod", "celia"] },
   a_bell:    { name: "ねこのすず",       kind: "armor", price: 0, def: 15, int: 5, who: ["leon", "glen", "gou", "rod", "celia"] },
+  // ひがしのたいりく ティア
+  w_twin:    { name: "ふたごのやり",     kind: "weapon", price: 12000, atk: 46, who: ["glen"] },
+  a_lake:    { name: "みずうみのローブ", kind: "armor", price: 9800, def: 26, int: 7, who: ["rod", "celia"] },
+  w_mirror:  { name: "ミラーブレード",   kind: "weapon", price: 0, atk: 50, who: ["leon"], elem: "ice" },
+  a_chrono:  { name: "ときのよろい",     kind: "armor", price: 0, def: 34, who: ["leon", "glen"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   heroproof: { name: "えいゆうのあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
@@ -375,6 +380,26 @@ DATA.monsters = {
     hp: 3300, atk: 72, def: 30, agi: 22, exp: 8500, gold: 4200,
     absorb: ["ice"], weak: ["thunder"],
     acts: [{ spell: "e_bigwave", rate: 0.25 }, { spell: "e_wave", rate: 0.3 }] },
+  // ひがしのたいりく (Lv40〜60たい)
+  mirrorling: { name: "ミラーリング", spr: "eye", pal: "light", hp: 500, atk: 60, def: 28, agi: 22, exp: 850, gold: 640,
+    weak: ["thunder"] },
+  twinfang: { name: "ツインファング", spr: "mantis", pal: "dark", hp: 560, atk: 66, def: 26, agi: 26, exp: 950, gold: 700 },
+  lakeserpent: { name: "みずうみのおろち", spr: "kraken", hp: 700, atk: 64, def: 30, agi: 16, exp: 1100, gold: 850,
+    absorb: ["ice"], weak: ["thunder"], acts: [{ spell: "e_wave", rate: 0.25 }] },
+  chronomite: { name: "クロノマイト", spr: "slime", pal: "dark", hp: 620, atk: 62, def: 34, agi: 20, exp: 1000, gold: 760,
+    resist: ["fire", "ice"] },
+  echowisp: { name: "こだまのウィスプ", spr: "wizard", pal: "dark", hp: 540, atk: 58, def: 24, agi: 24, exp: 900, gold: 680,
+    weak: ["holy"], acts: [{ spell: "e_bolt2", rate: 0.3 }] },
+  dunebird: { name: "すなあらしどり", spr: "bird", hp: 520, atk: 60, def: 22, agi: 30, exp: 880, gold: 660,
+    acts: [{ spell: "e_gale", rate: 0.3 }] },
+  mirrorfiend: { name: "かがみのぬし ミラーフィエンド", spr: "eye", pal: "dark", boss: true, scale: 3,
+    hp: 5200, atk: 84, def: 36, agi: 24, exp: 28000, gold: 9000,
+    resist: ["ice", "thunder"], weak: ["fire"],
+    acts: [{ spell: "e_bolt2", rate: 0.25 }, { spell: "e_tornado", rate: 0.2 }] },
+  chronova: { name: "ときのばんにん クロノヴァ", spr: "wizard", pal: "light", boss: true, scale: 3,
+    hp: 6400, atk: 90, def: 38, agi: 28, exp: 35000, gold: 12000,
+    absorb: ["thunder"], weak: ["holy"],
+    acts: [{ spell: "e_starfall", rate: 0.22 }, { spell: "e_quake", rate: 0.22 }] },
   // ほしのはかの ぬし (さいきょうの かくしボス)
   granstella: { name: "ほしぼしのおう グランステラ", spr: "voidos", pal: "light", boss: true, scale: 4,
     hp: 12000, atk: 95, def: 40, agi: 26, exp: 50000, gold: 20000,
@@ -498,6 +523,12 @@ DATA.encounters = {
     rare: ["kingslime"], rareRate: 0.07 },
   startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"], ["voideye", "voideye"]],
     rare: ["mithrildragon"], rareRate: 0.06 },
+  world2: { rate: 1 / 14, groups: [["mirrorling", "mirrorling"], ["twinfang"], ["dunebird", "dunebird"], ["echowisp", "mirrorling"], ["twinfang", "dunebird"], ["lakeserpent"]],
+    rare: ["mithrildragon"], rareRate: 0.05 },
+  mirrorcave: { rate: 1 / 13, groups: [["mirrorling", "mirrorling"], ["echowisp", "echowisp"], ["chronomite"], ["lakeserpent", "mirrorling"], ["chronomite", "echowisp"]],
+    rare: ["mithrilbaby", "mithrilbaby"], rareRate: 0.06 },
+  eternaltower: { rate: 1 / 12, groups: [["chronomite", "chronomite"], ["echowisp", "twinfang"], ["mirrorling", "mirrorling", "echowisp"], ["chronomite", "twinfang"], ["lakeserpent", "chronomite"]],
+    rare: ["mithrildragon"], rareRate: 0.06 },
   stargrave: { rate: 1 / 12, groups: [["deathknight", "deathknight"], ["chaosknight", "voideye"], ["stareater"], ["abyssgazer", "abyssgazer"], ["stareater", "voideye"], ["chaosknight", "chaosknight"]],
     rare: ["mithrildragon"], rareRate: 0.08 },
   trialmt: { rate: 1 / 13, groups: [["gargoyle", "gargoyle"], ["dunestalker", "dunestalker"], ["gazer"], ["golem"], ["gazer", "dunestalker"], ["golem", "gargoyle"]] },
@@ -509,6 +540,11 @@ DATA.encounters = {
 
 // ---------------- ショップ ----------------
 DATA.shops = {
+  twine: {
+    name: "トワインの みせ",
+    stock: ["hipotion", "megapotion", "ether", "phoenix", "remedy", "xpotion",
+            "w_twin", "a_lake"],
+  },
   selene: {
     name: "つきのみやこの みせ",
     stock: ["xpotion", "megapotion", "elixir", "hiether", "phoenix", "remedy",
@@ -2354,6 +2390,340 @@ DATA.maps.crater2 = {
   ],
 };
 
+// ---------------- ひがしのたいりく (だい3のちいき) ----------------
+DATA.maps.world2 = {
+  name: "ひがしのたいりく",
+  outdoor: true,
+  bgm: "field",
+  encounter: "world2",
+  legend: {
+    "w": { tile: "water", solid: true },
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "grass" },
+    "f": { tile: "forest" },
+    "T": { tile: "icon_town" },
+    "C": { tile: "icon_cave" },
+    "X": { tile: "icon_tower" },
+    "G": { tile: "icon_shrine" },
+  },
+  rows: [
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ww......................wwww",
+    "w...mmm.........ff.......www",
+    "w...m.m....T....ff........ww",
+    "w...mmm..................www",
+    "w.........................ww",
+    "ww....ff.........mmmm.....ww",
+    "ww....ff....G....m..m.....ww",
+    "w................m.Xm......w",
+    "w................mmmm......w",
+    "w....m.m...................w",
+    "w....m.m..........ff.......w",
+    "w....mCm..........ff.......w",
+    "w....m.m...................w",
+    "w....mmm...........mm......w",
+    "w..................mm......w",
+    "ww........................ww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  ],
+  events: [
+    { x: 12, y: 7, type: "enter", scriptId: "airshipBoard" },
+    { x: 11, y: 3, type: "enter", warp: { map: "twine", x: 9, y: 9, dir: "u" } },
+    { x: 6, y: 12, type: "enter", warp: { map: "mirrorcave1", x: 2, y: 10, dir: "u" } },
+    { x: 19, y: 8, type: "enter",
+      cond: { flag: "mirrorBoss" },
+      failScript: [{ msg: "とうの とびらには かがみのもんしょう。\nかがみのどうくつの ぬしの けはいが\nきえれば ひらきそうだ。" }],
+      warp: { map: "eternaltower1", x: 8, y: 11, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "w2a", x: 2, y: 16, gold: 6000, hidden: true },
+    { id: "w2b", x: 24, y: 2, item: "elixir", hidden: true },
+  ],
+};
+
+// ---------------- みずうみのまち トワイン ----------------
+DATA.maps.twine = {
+  name: "みずうみのまち トワイン",
+  bgm: "town",
+  exit: { map: "world2", x: 11, y: 4, dir: "d" },
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "D": { tile: "door" },
+    "w": { tile: "water", solid: true },
+  },
+  rows: [
+    "ffffffffffffffffffff",
+    "f..................f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWdWW......WWDWW.f",
+    "f..................f",
+    "f.....www..........f",
+    "f.....www..........f",
+    "f..................f",
+    "f..................f",
+    "ffffffff....ffffffff",
+  ],
+  events: [
+    { x: 4, y: 4, type: "enter", warp: { map: "twineinn", x: 4, y: 5, dir: "u" } },
+    { x: 15, y: 4, type: "enter", warp: { map: "twineshop", x: 4, y: 5, dir: "u" } },
+  ],
+  npcs: [
+    { id: "twine_elder", x: 10, y: 6, spr: "elder",
+      script: [
+        { cond: { flag: "mirrorBoss" },
+          then: [
+            { cond: { flag: "twinReward" },
+              then: [{ msg: "まちのおさ「かがみのぬしは もう いない。\nみずうみに うつる そらが\nこんなに あおいとはのう……」" }],
+              else: [
+                { msg: "まちのおさ「かがみのぬしを たおして\nくれたのか! まちの みんなに かわって\nれいを いわせてくれ」" },
+                { give: { gold: 2000 } },
+                { msg: "2000ギルを てにいれた!" },
+                { flag: ["twinReward", 1] },
+              ] },
+          ],
+          else: [
+            { msg: "まちのおさ「にしの どうくつには かがみの\nまものが すみついておる。みずうみに\nうつる かげまで ぬすまれる ありさまじゃ」" },
+            { msg: "「たびのかた、どうか ぬしを\nたいじして くださらんか」" },
+            { flag: ["twinQuest", 1] },
+          ] },
+      ] },
+    { id: "twine_fisher", x: 5, y: 8, spr: "villager",
+      script: [{ msg: "つりびと「この みずうみには おろちが\nすんでいてね。ちいさい ふねじゃ\nこわくて こげないんだ」" }] },
+    { id: "twine_kid", x: 14, y: 8, spr: "villager", pal: "light", wander: true,
+      script: [{ msg: "こども「とうの てっぺんには『ときの ばんにん』が\nいるんだって! じかんを とめられるって\nほんとかなー?」" }] },
+    { id: "twine_merchant", x: 3, y: 9, spr: "villager", wander: true,
+      script: [{ msg: "しょうにん「ふたごのやりは この まちの\nめいぶつさ。みずうみに うつる かげと\nふたりで たたかえるって わけ」" }] },
+    { id: "twine_guard", x: 16, y: 6, spr: "soldier",
+      script: [
+        { cond: { flag: "chronoBoss" },
+          then: [{ msg: "けいびへい「とうの ひかりが しずまった……。\nあんたたちが やったのか。 たいしたもんだ」" }],
+          else: [{ msg: "けいびへい「ひがしの とうには ちかづくな。\nよるな よるな、じかんが くるうぞ」" }] },
+      ] },
+  ],
+  chests: [
+    { id: "tw1", x: 17, y: 9, item: "xpotion", hidden: true },
+  ],
+};
+
+DATA.maps.twineinn = {
+  name: "トワインのやどや",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "b": { tile: "bed" },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.bb..c..#",
+    "#.bb.....#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "twine", x: 4, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "twine", x: 4, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "twine_inn", x: 7, y: 2, spr: "innkeep", script: [{ inn: 300 }] },
+  ],
+  chests: [],
+};
+
+DATA.maps.twineshop = {
+  name: "トワインのみせ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "t": { tile: "table", solid: true },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.t...c..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "twine", x: 15, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "twine", x: 15, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "twine_shop", x: 7, y: 2, spr: "shopkeep", script: [{ shop: "twine" }] },
+  ],
+  chests: [],
+};
+
+// ---------------- かがみのどうくつ ----------------
+DATA.maps.mirrorcave1 = {
+  name: "かがみのどうくつ",
+  bgm: "dungeon",
+  encounter: "mirrorcave",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#...........s..#",
+    "#..######..##..#",
+    "#.......#......#",
+    "######..#..#####",
+    "#.......#......#",
+    "#..######..##..#",
+    "#..#...........#",
+    "#..#..######..##",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 2, y: 10, type: "enter", warp: { map: "world2", x: 6, y: 11, dir: "d" } },
+    { x: 12, y: 1, type: "enter", warp: { map: "mirrorcave2", x: 3, y: 1, dir: "d" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "mc1", x: 14, y: 3, gold: 5000 },
+    { id: "mc2", x: 1, y: 7, item: "xpotion" },
+    { id: "mc3", x: 6, y: 10, item: "elixir", hidden: true },
+  ],
+};
+
+DATA.maps.mirrorcave2 = {
+  name: "かがみのま",
+  bgm: "dungeon",
+  encounter: "mirrorcave",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#..s...........#",
+    "#..#########...#",
+    "#...........#..#",
+    "#..#######..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..##.####..#..#",
+    "#...........#..#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 3, y: 1, type: "enter", warp: { map: "mirrorcave1", x: 12, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "mirrorfiendnpc", x: 6, y: 6, spr: "eye", pal: "dark", hideFlag: "mirrorBoss",
+      script: [
+        { msg: "かがみの おくで ひとみが ひらく……。\nかがみのぬし ミラーフィエンド!!" },
+        { battle: { group: ["mirrorfiend"], boss: true, music: "boss" } },
+        { flag: ["mirrorBoss", 1] },
+        { msg: "かがみは くだけ、とらわれていた\nまちの かげたちが かえっていった。" },
+        { give: { item: "w_mirror" } },
+        { msg: "ミラーブレードを てにいれた!\n(ひがしの とうの ふういんも とけたようだ)" },
+      ] },
+  ],
+  chests: [
+    { id: "mc4", x: 8, y: 5, item: "worldtear" },
+    { id: "mc5", x: 4, y: 5, gold: 7000, hidden: true },
+  ],
+};
+
+// ---------------- とこしえのとう ----------------
+DATA.maps.eternaltower1 = {
+  name: "とこしえのとう",
+  bgm: "dungeon",
+  encounter: "eternaltower",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#s....#........#",
+    "#.##.##.#####..#",
+    "#.#...........##",
+    "#.#.#########..#",
+    "#.#.#.......#..#",
+    "#.#.#.#####.#..#",
+    "#.#...#...#.#..#",
+    "#.#####.#.#.#..#",
+    "#.......#...#..#",
+    "#.#######.###..#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 8, y: 11, type: "enter", warp: { map: "world2", x: 18, y: 8, dir: "d" } },
+    { x: 1, y: 1, type: "enter", warp: { map: "eternaltower2", x: 7, y: 2, dir: "d" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "et1", x: 8, y: 7, item: "elixir" },
+    { id: "et2", x: 14, y: 5, gold: 9000, hidden: true },
+    { id: "et3", x: 13, y: 3, item: "hiether" },
+  ],
+};
+
+DATA.maps.eternaltower2 = {
+  name: "ときのちょうじょう",
+  bgm: "dungeon",
+  encounter: "eternaltower",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#......s.......#",
+    "#..............#",
+    "#..##......##..#",
+    "#..............#",
+    "#..............#",
+    "#..##......##..#",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 7, y: 1, type: "enter", warp: { map: "eternaltower1", x: 1, y: 2, dir: "d" } },
+  ],
+  npcs: [
+    { id: "chronovanpc", x: 7, y: 5, spr: "wizard", pal: "light", hideFlag: "chronoBoss",
+      script: [
+        { msg: "とうの ちょうじょうで すなどけいが\nひっくりかえる おとが した……。" },
+        { msg: "『ときを みだす ものども……。\nわれは ときのばんにん クロノヴァ。\nこの ときを こえてみせよ』" },
+        { battle: { group: ["chronova"], boss: true, music: "spirit" } },
+        { flag: ["chronoBoss", 1] },
+        { msg: "『……ときは ふたたび ながれはじめた。\nなんじらの あゆみに しゅくふくを』\nばんにんは すなに かえっていった。" },
+        { give: { item: "a_chrono" } },
+        { msg: "ときのよろいを てにいれた!" },
+      ] },
+  ],
+  chests: [
+    { id: "et4", x: 2, y: 8, item: "xpotion" },
+    { id: "et5", x: 13, y: 8, item: "elixir", hidden: true },
+  ],
+};
+
 // ---------------- まちの みんか ----------------
 DATA.maps.house1 = {
   name: "みならいきしのいえ",
@@ -3243,6 +3613,7 @@ DATA.scripts = {
               { label: "ソレイユ",     ops: [{ warp: { map: "port", x: 10, y: 7, dir: "u" } }] },
               { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
               { label: "うみのそこ",   ops: [{ warp: { map: "seafloor", x: 3, y: 11, dir: "d" } }] },
+              { label: "ひがしのたいりく", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
             ] } },
           ],
           else: [
@@ -3251,6 +3622,7 @@ DATA.scripts = {
               { label: "ミストのむら", ops: [{ warp: { map: "world", x: 27, y: 23, dir: "d" } }] },
               { label: "ソレイユ",     ops: [{ warp: { map: "port", x: 10, y: 7, dir: "u" } }] },
               { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
+              { label: "ひがしのたいりく", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
             ] } },
           ] },
       ],
