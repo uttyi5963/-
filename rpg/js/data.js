@@ -1532,6 +1532,7 @@ DATA.maps.cave = {
   bgm: "dungeon",
   encounter: "cave",
   legend: {
+    "D": { tile: "stairs" },
     "#": { tile: "mountain", solid: true },
     ".": { tile: "path" },
   },
@@ -1546,7 +1547,7 @@ DATA.maps.cave = {
     "#.........####.........#",
     "#......................#",
     "#####.....####....######",
-    "#......................#",
+    "#D....................D#",
     "#####.....####....######",
     "#......................#",
     "#..##......##.....##...#",
@@ -1772,6 +1773,7 @@ DATA.maps.icecave = {
   bgm: "dungeon",
   encounter: "icecave",
   legend: {
+    "D": { tile: "stairs" },
     "#": { tile: "mountain", solid: true },
     ".": { tile: "floor" },
   },
@@ -1788,7 +1790,7 @@ DATA.maps.icecave = {
     "#..................#",
     "#################..#",
     "#..................#",
-    "#..................#",
+    "#D.................#",
     "####################",
   ],
   events: [
@@ -2037,6 +2039,7 @@ DATA.maps.waterway = {
   bgm: "dungeon",
   encounter: "waterway",
   legend: {
+    "D": { tile: "stairs" },
     "#": { tile: "wall", solid: true },
     "~": { tile: "water", solid: true },
     ".": { tile: "floor" },
@@ -2050,7 +2053,7 @@ DATA.maps.waterway = {
     "#....................#",
     "#.~~~~~~~~~~~~~~~~~~.#",
     "#.~~~~~~~~~~~~~~~~~~.#",
-    "#....................#",
+    "#D...................#",
     "######################",
   ],
   events: [
@@ -2080,12 +2083,13 @@ DATA.maps.magma = {
   bgm: "dungeon",
   encounter: "magma",
   legend: {
+    "D": { tile: "stairs" },
     "#": { tile: "mountain", solid: true },
     ".": { tile: "path" },
   },
   rows: [
     "####################",
-    "#..................#",
+    "#D.................#",
     "#################..#",
     "#..................#",
     "#..#################",
@@ -2126,6 +2130,7 @@ DATA.maps.underworld = {
   bgm: "under",
   encounter: "underworld",
   legend: {
+    "Z": { tile: "stairs" },
     "m": { tile: "mountain", solid: true },
     "w": { tile: "water", solid: true },
     ".": { tile: "path" },
@@ -2135,7 +2140,7 @@ DATA.maps.underworld = {
   },
   rows: [
     "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
-    "m............................m",
+    "m..Z.........................m",
     "m..mm....wwwww......mmm......m",
     "m..mm....wwwww......mmm......m",
     "m............................m",
@@ -2190,6 +2195,7 @@ DATA.maps.dwarfhall = {
   name: "ドヴェルグ王宮",
   bgm: "hall",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     "B": { tile: "banner", solid: true },
     ".": { tile: "floor" },
@@ -2207,7 +2213,7 @@ DATA.maps.dwarfhall = {
     "#..............#",
     "#..##......##..#",
     "#..#........#..#",
-    "#..............#",
+    "#......DD......#",
     "################",
   ],
   events: [
@@ -2277,6 +2283,7 @@ DATA.maps.temple = {
   bgm: "shrine",
   encounter: "temple",
   legend: {
+    "D": { tile: "stairs" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "carpet" },
     "T": { tile: "torch", solid: true },
@@ -2294,7 +2301,7 @@ DATA.maps.temple = {
     "#................#",
     "###############..#",
     "#................#",
-    "#................#",
+    "#.D..............#",
     "##################",
   ],
   events: [
@@ -2661,6 +2668,7 @@ DATA.maps.moonpalace = {
   name: "月のみやこ セレーネ",
   bgm: "star",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "p": { tile: "pillar", solid: true },
@@ -2680,7 +2688,7 @@ DATA.maps.moonpalace = {
     "#.c.........t..#",
     "#..............#",
     "#....p....p....#",
-    "#..............#",
+    "#......DD......#",
     "################",
   ],
   events: [
@@ -2767,7 +2775,7 @@ DATA.maps.crater1 = {
     "#..#...........#",
     "#..#..######..##",
     "#..............#",
-    "#..............#",
+    "#.s............#",
     "################",
   ],
   events: [
@@ -2961,6 +2969,7 @@ DATA.maps.noxinn = {
   name: "ノクスの宿屋",
   bgm: "star",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "b": { tile: "bed" },
@@ -2973,7 +2982,7 @@ DATA.maps.noxinn = {
     "#.bb.....#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "nox", x: 4, y: 5, dir: "d" } },
@@ -2989,6 +2998,7 @@ DATA.maps.noxshop = {
   name: "ノクスの店",
   bgm: "star",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "t": { tile: "table", solid: true },
@@ -3001,7 +3011,7 @@ DATA.maps.noxshop = {
     "#........#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "nox", x: 15, y: 5, dir: "d" } },
@@ -3036,7 +3046,7 @@ DATA.maps.cathedral1 = {
     "#..#...........#",
     "#..#..######..##",
     "#..............#",
-    "#..............#",
+    "#.s............#",
     "################",
   ],
   events: [
@@ -3233,6 +3243,7 @@ DATA.maps.volteinn = {
   name: "ボルテの宿屋",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "b": { tile: "bed" },
@@ -3245,7 +3256,7 @@ DATA.maps.volteinn = {
     "#.bb.....#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "volte", x: 4, y: 5, dir: "d" } },
@@ -3261,6 +3272,7 @@ DATA.maps.volteshop = {
   name: "ボルテの店",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "t": { tile: "table", solid: true },
@@ -3273,7 +3285,7 @@ DATA.maps.volteshop = {
     "#........#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "volte", x: 15, y: 5, dir: "d" } },
@@ -3306,7 +3318,7 @@ DATA.maps.stormshrine1 = {
     "#..#...........#",
     "#..#..######..##",
     "#..............#",
-    "#..............#",
+    "#.s............#",
     "################",
   ],
   events: [
@@ -3499,6 +3511,7 @@ DATA.maps.liefeinn = {
   name: "リーフェの宿屋",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "b": { tile: "bed" },
@@ -3511,7 +3524,7 @@ DATA.maps.liefeinn = {
     "#.bb.....#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "liefe", x: 4, y: 5, dir: "d" } },
@@ -3527,6 +3540,7 @@ DATA.maps.liefeshop = {
   name: "リーフェの店",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "t": { tile: "table", solid: true },
@@ -3539,7 +3553,7 @@ DATA.maps.liefeshop = {
     "#........#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "liefe", x: 15, y: 5, dir: "d" } },
@@ -3572,7 +3586,7 @@ DATA.maps.ruins1 = {
     "#..#...........#",
     "#..#..######..##",
     "#..............#",
-    "#..............#",
+    "#.s............#",
     "################",
   ],
   events: [
@@ -3777,6 +3791,7 @@ DATA.maps.zahrainn = {
   name: "ザハラの宿屋",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "b": { tile: "bed" },
@@ -3789,7 +3804,7 @@ DATA.maps.zahrainn = {
     "#.bb.....#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "zahra", x: 4, y: 5, dir: "d" } },
@@ -3805,6 +3820,7 @@ DATA.maps.zahrashop = {
   name: "ザハラの店",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "t": { tile: "table", solid: true },
@@ -3817,7 +3833,7 @@ DATA.maps.zahrashop = {
     "#........#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "zahra", x: 15, y: 5, dir: "d" } },
@@ -3850,7 +3866,7 @@ DATA.maps.sandtomb1 = {
     "#..#...........#",
     "#..#..######..##",
     "#..............#",
-    "#..............#",
+    "#.s............#",
     "################",
   ],
   events: [
@@ -4055,6 +4071,7 @@ DATA.maps.friminn = {
   name: "フリムの宿屋",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "b": { tile: "bed" },
@@ -4067,7 +4084,7 @@ DATA.maps.friminn = {
     "#.bb.....#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "frim", x: 4, y: 5, dir: "d" } },
@@ -4083,6 +4100,7 @@ DATA.maps.frimshop = {
   name: "フリムの店",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "t": { tile: "table", solid: true },
@@ -4095,7 +4113,7 @@ DATA.maps.frimshop = {
     "#........#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "frim", x: 15, y: 5, dir: "d" } },
@@ -4128,7 +4146,7 @@ DATA.maps.glaciercave1 = {
     "#..#...........#",
     "#..#..######..##",
     "#..............#",
-    "#..............#",
+    "#.s............#",
     "################",
   ],
   events: [
@@ -4323,6 +4341,7 @@ DATA.maps.twineinn = {
   name: "トワインの宿屋",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "b": { tile: "bed" },
@@ -4335,7 +4354,7 @@ DATA.maps.twineinn = {
     "#.bb.....#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "twine", x: 4, y: 5, dir: "d" } },
@@ -4351,6 +4370,7 @@ DATA.maps.twineshop = {
   name: "トワインの店",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "t": { tile: "table", solid: true },
@@ -4363,7 +4383,7 @@ DATA.maps.twineshop = {
     "#........#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "twine", x: 15, y: 5, dir: "d" } },
@@ -4396,7 +4416,7 @@ DATA.maps.mirrorcave1 = {
     "#..#...........#",
     "#..#..######..##",
     "#..............#",
-    "#..............#",
+    "#.s............#",
     "################",
   ],
   events: [
@@ -4477,7 +4497,7 @@ DATA.maps.eternaltower1 = {
     "#.#####.#.#.#..#",
     "#.......#...#..#",
     "#.#######.###..#",
-    "#..............#",
+    "#.......s......#",
     "################",
   ],
   events: [
@@ -4541,6 +4561,7 @@ DATA.maps.house1 = {
   name: "みならいきしのいえ",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "b": { tile: "bed" },
@@ -4553,7 +4574,7 @@ DATA.maps.house1 = {
     "#........#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "town", x: 3, y: 14, dir: "d" } },
@@ -4587,6 +4608,7 @@ DATA.maps.house2 = {
   name: "ねこずきのいえ",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "b": { tile: "bed" },
@@ -4599,7 +4621,7 @@ DATA.maps.house2 = {
     "#........#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "town", x: 16, y: 14, dir: "d" } },
@@ -4638,6 +4660,7 @@ DATA.maps.house3 = {
   name: "こうざんふうふのいえ",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "b": { tile: "bed" },
@@ -4650,7 +4673,7 @@ DATA.maps.house3 = {
     "#........#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "muspel", x: 3, y: 12, dir: "d" } },
@@ -4684,6 +4707,7 @@ DATA.maps.house4 = {
   name: "しゅうしゅうかのいえ",
   bgm: "town",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "b": { tile: "bed" },
@@ -4696,7 +4720,7 @@ DATA.maps.house4 = {
     "#........#",
     "#........#",
     "#........#",
-    "####..####",
+    "####DD####",
   ],
   events: [
     { x: 4, y: 6, type: "enter", warp: { map: "muspel", x: 16, y: 12, dir: "d" } },
@@ -4730,6 +4754,7 @@ DATA.maps.phantomhall = {
   bgm: "shrine",
   encounter: "stargrave",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "p": { tile: "pillar", solid: true },
@@ -4747,7 +4772,7 @@ DATA.maps.phantomhall = {
     "#.p.........p..#",
     "#..............#",
     "#..............#",
-    "#..............#",
+    "#......D.......#",
     "################",
   ],
   events: [
@@ -4770,6 +4795,7 @@ DATA.maps.phantomthrone = {
   name: "幻の玉座",
   bgm: "shrine",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "r": { tile: "carpet" },
@@ -4784,7 +4810,7 @@ DATA.maps.phantomthrone = {
     "#..##......##..#",
     "#..............#",
     "#..............#",
-    "#..............#",
+    "#......D.......#",
     "################",
   ],
   events: [
@@ -5088,6 +5114,7 @@ DATA.maps.halloffame = {
   name: "殿堂の間",
   bgm: "shrine",
   legend: {
+    "D": { tile: "door" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
     "p": { tile: "pillar", solid: true },
@@ -5102,7 +5129,7 @@ DATA.maps.halloffame = {
     "#.p........p.#",
     "#............#",
     "#............#",
-    "#............#",
+    "#.....DD.....#",
     "##############",
   ],
   events: [
@@ -5266,7 +5293,7 @@ DATA.maps.stargrave1 = {
     "#.#####.#.#.#..#",
     "#.......#...#..#",
     "#.#######.###..#",
-    "#..............#",
+    "#.......s......#",
     "################",
   ],
   events: [
@@ -5348,7 +5375,7 @@ DATA.maps.trialmt1 = {
     "m..............m",
     "m..mmmmmmmmmmmmm",
     "m..............m",
-    "m..............m",
+    "m......s.......m",
     "mmmmmmmmmmmmmmmm",
   ],
   events: [
@@ -5434,6 +5461,7 @@ DATA.maps.windtemple = {
   bgm: "sky",
   encounter: "sky",
   legend: {
+    "D": { tile: "stairs" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
   },
@@ -5450,7 +5478,7 @@ DATA.maps.windtemple = {
     "#................#",
     "###############..#",
     "#................#",
-    "#................#",
+    "#.D..............#",
     "##################",
   ],
   events: [
@@ -5542,6 +5570,7 @@ DATA.maps.seatemple = {
   bgm: "sea",
   encounter: "sea",
   legend: {
+    "D": { tile: "stairs" },
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
   },
@@ -5558,7 +5587,7 @@ DATA.maps.seatemple = {
     "#................#",
     "###############..#",
     "#................#",
-    "#................#",
+    "#.D..............#",
     "##################",
   ],
   events: [
