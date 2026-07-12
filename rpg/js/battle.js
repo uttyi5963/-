@@ -156,7 +156,7 @@ class BattleScene {
     if (p.pose && p.pose.t > 0) return p.pose.name;
     if (p.casting) return "cast";
     if (p.flash > 0) return "hit";
-    if (p.charge > 0 || p.focus > 0 || p.coverIdx >= 0) return "skill";
+    if (p.charge > 0 || p.focus > 0 || p.coverIdx >= 0 || p.coverAll) return "skill";
     if (p.h.hp < p.h.maxhp / 4) return "weak";
     return "idle";
   }
@@ -293,6 +293,34 @@ class BattleScene {
       } else if (p.fatigue > 0) {
         p.fatigue--;
       }
+      // せいなるけっかい: レオンのターンごとに 全体を いやす
+      if (p.barrier > 0) {
+        p.barrier--;
+        this.aliveParty().forEach((q) => {
+          q.protect = true;
+          if (q.h.hp < q.h.maxhp) {
+            const v = Math.max(1, Math.round(q.h.maxhp * 0.06));
+            q.h.hp = Math.min(q.h.maxhp, q.h.hp + v);
+            const pos2 = this.partyPos(this.party.indexOf(q));
+            this.pop(pos2.x, pos2.y, "+" + v, 3);
+          }
+        });
+        if (p.barrier === 0) this.log = "せいなるけっかいが しずかに きえていく……";
+      }
+      // しゅごれい: セリアのターンごとに いちばん よわった なかまを いやす
+      if (p.spirit > 0) {
+        p.spirit--;
+        const weak = this.aliveParty().slice().sort((a, b) => a.h.hp / a.h.maxhp - b.h.hp / b.h.maxhp)[0];
+        if (weak && weak.h.hp < weak.h.maxhp) {
+          const v = Math.max(1, Math.round(weak.h.maxhp * 0.15));
+          weak.h.hp = Math.min(weak.h.maxhp, weak.h.hp + v);
+          this.partyFx(weak, "heal");
+          const pos3 = this.partyPos(this.party.indexOf(weak));
+          this.pop(pos3.x, pos3.y, "+" + v, 3);
+          AudioSys.sfx("heal");
+        }
+        if (p.spirit === 0) this.log = "しゅごれいは ひかりとなって かえっていった";
+      }
       if (this.poisonTick(p)) { this.ready = null; return; }
       this.phase = "command";
       this.menu = "root";
@@ -346,6 +374,11 @@ class BattleScene {
     if (h.command === "pray") cmds.push({ id: "pray", name: "いのる" });
     if (h.command === "cover") cmds.push({ id: "cover", name: "かばう" });
     if (h.ascended && !p.boostUsed) cmds.push({ id: "boost", name: "げんかいかいほう" });
+    if (h.ascended && h.id === "leon") cmds.push({ id: "barrier", name: "けっかい" });
+    if (h.ascended && h.id === "celia") cmds.push({ id: "spirit", name: "しゅごれい" });
+    if (h.ascended && h.id === "rod") {
+      cmds.push({ id: "onmyo", name: p.onmyoLast === "yin" ? "ようのしき" : "いんのしき" });
+    }
     if (h.spells.length > 0) cmds.push({ id: "spell", name: "じゅもん" });
     cmds.push({ id: "guard", name: "ぼうぎょ" });
     cmds.push({ id: "item", name: "どうぐ" });
@@ -383,13 +416,26 @@ class BattleScene {
           this.doPlayerAction({ type: "focus" });
         }
         else if (cmd.id === "pray") this.doPlayerAction({ type: "pray" });
-        else if (cmd.id === "cover") { this.menu = "targetP"; this.targetSel = 0; this.pendingAct = { type: "cover" }; }
+        else if (cmd.id === "cover") { this.menu = "targetP"; this.targetSel = 0; this.targetAllP = false; this.pendingAct = { type: "cover" }; }
         else if (cmd.id === "limit") { this.menu = "limit"; this.sel2 = 0; }
         else if (cmd.id === "spell") {
           if (h.silence || h.toad) { AudioSys.sfx("buzz"); this.log = "こえが でない!"; return; }
           this.menu = "spell"; this.sel2 = 0;
         }
         else if (cmd.id === "boost") this.doPlayerAction({ type: "boost" });
+        else if (cmd.id === "barrier") {
+          if (h.mp < 20) { AudioSys.sfx("buzz"); return; }
+          this.doPlayerAction({ type: "barrier" });
+        }
+        else if (cmd.id === "spirit") {
+          if (h.mp < 25) { AudioSys.sfx("buzz"); return; }
+          this.doPlayerAction({ type: "spirit" });
+        }
+        else if (cmd.id === "onmyo") {
+          if (h.mp < 22) { AudioSys.sfx("buzz"); return; }
+          if (p.onmyoLast !== "yin") { this.menu = "targetE"; this.targetSel = 0; this.targetAll = false; this.pendingAct = { type: "onmyo" }; }
+          else this.doPlayerAction({ type: "onmyo" });
+        }
         else if (cmd.id === "guard") this.doPlayerAction({ type: "guard" });
         else if (cmd.id === "item") { this.menu = "item"; this.sel2 = 0; }
         else if (cmd.id === "run") this.doPlayerAction({ type: "run" });
@@ -446,7 +492,7 @@ class BattleScene {
       if (Input.tap("a")) {
         AudioSys.sfx("confirm");
         this.pendingAct = { type: "item", item: items[Math.min(this.sel2, items.length - 1)] };
-        this.menu = "targetP"; this.targetSel = 0;
+        this.menu = "targetP"; this.targetSel = 0; this.targetAllP = false;
       }
       return;
     }
@@ -481,7 +527,8 @@ class BattleScene {
 
     if (this.menu === "targetP") {
       const spDef = this.pendingAct.type === "spell" ? this.pendingAct.spell.def : null;
-      const canAllP = !!(spDef && !spDef.all && ["heal", "cure", "buff"].includes(spDef.type));
+      const canAllP = !!(spDef && !spDef.all && ["heal", "cure", "buff"].includes(spDef.type))
+        || this.pendingAct.type === "cover";
       if (Input.tap("up")) { this.targetSel = (this.targetSel + this.party.length - 1) % this.party.length; AudioSys.sfx("cursor"); }
       if (Input.tap("down")) { this.targetSel = (this.targetSel + 1) % this.party.length; AudioSys.sfx("cursor"); }
       if (Input.tap("left") || Input.tap("right")) {
@@ -496,9 +543,10 @@ class BattleScene {
       }
       if (Input.tap("a")) {
         const t = this.party[this.targetSel];
+        const coverAll = this.pendingAct.type === "cover" && this.targetAllP;
         // ジャンプちゅうの なかまは えらべない / かばうは じぶんいがいの いきているなかま
-        if (t.airborne ||
-            (this.pendingAct.type === "cover" && (t === this.ready || t.h.hp <= 0))) {
+        if (!coverAll && (t.airborne ||
+            (this.pendingAct.type === "cover" && (t === this.ready || t.h.hp <= 0)))) {
           AudioSys.sfx("buzz");
           return;
         }
@@ -774,6 +822,69 @@ class BattleScene {
       } });
       dur = 1.0;
     }
+    else if (act.type === "barrier") {
+      // せいなるけっかい: 3ターンのあいだ レオンのターンごとに 全体をまもり いやす
+      h.mp -= 20;
+      p.barrier = 3;
+      this.setPose(p, "skill", 1.0);
+      this.screenFlash = 0.25;
+      events.push({ t: 0, fn: () => {
+        this.aliveParty().forEach((q) => { q.protect = true; this.partyFx(q, "holy"); });
+        this.log = `${h.name}は せいなるけっかいを はった!\n(3ターン なかまを まもり いやす)`;
+        AudioSys.sfx("heal");
+      } });
+      dur = 1.0;
+    }
+    else if (act.type === "spirit") {
+      // しゅごれいしょうかん: 3ターンのあいだ セリアのターンごとに よわった なかまを いやす
+      h.mp -= 25;
+      p.spirit = 3;
+      this.setPose(p, "cast", 1.0);
+      events.push({ t: 0, fn: () => {
+        this.partyFx(p, "holy");
+        this.log = `${h.name}は しゅごれいを よびだした!\n(3ターン よわった なかまを みまもる)`;
+        AudioSys.sfx("magic");
+      } });
+      dur = 1.0;
+    }
+    else if (act.type === "onmyo") {
+      // いんようの2式: しゅうそくの「いん」と かくさんの「よう」をかわるがわる。
+      // いん→よう と つなげると ごうせい「むそうのしき」が はつどう
+      h.mp -= 22;
+      this.setPose(p, "cast", 1.2);
+      const yin = p.onmyoLast !== "yin";
+      if (yin) {
+        p.onmyoLast = "yin";
+        let t = act.target;
+        if (!t || t.dead) t = this.aliveEnemies()[0];
+        events.push({ t: 0, fn: () => { this.log = `${h.name}の いんのしき!\nしゅうそくの ちからが つらぬく!`; AudioSys.sfx("magic"); } });
+        if (t) {
+          const dmg = Math.round(300 * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
+          this.queueHitEnemy(events, t, dmg, "magic", "flare");
+        }
+        dur = 1.1;
+      } else {
+        p.onmyoLast = "yang";
+        events.push({ t: 0, fn: () => { this.log = `${h.name}の ようのしき!\nかくさんの ちからが ふきあれる!`; AudioSys.sfx("magic"); } });
+        this.aliveEnemies().forEach((e) => {
+          const dmg = Math.round(150 * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
+          this.queueHitEnemy(events, e, dmg, "magic", "fire");
+        });
+        // ごうせい: いん→よう で むそうのしき
+        events.push({ t: 0.9, fn: () => {
+          const es = this.aliveEnemies();
+          if (es.length === 0) return;
+          const t2 = es.reduce((a, b) => (a.hp > b.hp ? a : b));
+          this.log = "いんと ようが かさなり…… むそうのしき!!";
+          this.screenFlash = 0.35;
+          const dmg = Math.round(440 * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
+          const ev2 = [];
+          this.queueHitEnemy(ev2, t2, dmg, "magic", "thunder");
+          ev2.forEach((e2) => { e2.t = 0; e2.fn(); });
+        } });
+        dur = 1.6;
+      }
+    }
     else if (act.type === "focus") {
       p.focus = Math.min(3, p.focus + 1);
       events.push({ t: 0, fn: () => {
@@ -827,11 +938,21 @@ class BattleScene {
     }
     else if (act.type === "cover") {
       const t = act.targetP;
-      p.coverIdx = this.party.indexOf(t);
-      events.push({ t: 0, fn: () => {
-        this.log = `${h.name}は ${t.h.name}を かばう かまえだ!`;
-        AudioSys.sfx("confirm");
-      } });
+      if (act.allOverrideP) {
+        p.coverAll = true;
+        p.coverIdx = -1;
+        events.push({ t: 0, fn: () => {
+          this.log = `${h.name}は なかま ぜんいんを\nかばう かまえだ!!`;
+          AudioSys.sfx("confirm");
+        } });
+      } else {
+        p.coverAll = false;
+        p.coverIdx = this.party.indexOf(t);
+        events.push({ t: 0, fn: () => {
+          this.log = `${h.name}は ${t.h.name}を かばう かまえだ!`;
+          AudioSys.sfx("confirm");
+        } });
+      }
       dur = 0.5;
     }
     else if (act.type === "dark") {
@@ -1123,7 +1244,7 @@ class BattleScene {
 
     // かばう: べつのなかまが みがわりになる (ぶつりのみ)
     const guardian = this.party.find((q) =>
-      q !== p && q.h.hp > 0 && !q.airborne && q.coverIdx === this.party.indexOf(p));
+      q !== p && q.h.hp > 0 && !q.airborne && (q.coverAll || q.coverIdx === this.party.indexOf(p)));
     const covered = !!guardian;
     const victim = covered ? guardian : p;
     // カウンターは 50%
@@ -1814,6 +1935,8 @@ class BattleScene {
       if (p.haste && !dead) Gfx.text("ヘ", 194, y, 2, 8);
       if (p.boost > 0 && !dead) Gfx.text(`かい${p.boost}`, 204, y, 2, 8);
       if (p.fatigue > 0 && !dead) Gfx.text("つかれ", 204, y, 2, 8);
+      if (p.barrier > 0 && !dead) Gfx.text(`けか${p.barrier}`, 147, y, 2, 8);
+      if (p.spirit > 0 && !dead) Gfx.text(`れい${p.spirit}`, 147, y, 2, 8);
       Gfx.textR(`${p.h.hp}`, 218, y, dead ? 2 : 3, fs);
       Gfx.text(`/${p.h.maxhp}`, 220, y, 3, compact ? 8 : 9);
       if (p.airborne) {

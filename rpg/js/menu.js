@@ -824,6 +824,7 @@ class ConfigScene {
       ["カーソルきおく", c.memory !== false ? "ON" : "OFF", "まえの ターンの コマンドいちを おぼえる"],
       ["せんとうそくど", (c.bspeed || 1) === 2 ? "2ばい" : "ふつう", "2ばいなら レベルあげが はかどる"],
       ["いどうそくど", c.wspeed === 2 ? "はやい" : "ふつう", "フィールドを きびきび あるく"],
+      ["エンカウント", c.encOff ? "OFF" : "ON", "OFFにすると ざこてきが でなくなる"],
       ["おと", AudioSys.muted ? "OFF" : "ON", "BGMと こうかおん (Mキーでも きりかえ)"],
     ];
   }
@@ -834,7 +835,8 @@ class ConfigScene {
     else if (i === 1) c.memory = c.memory === false;
     else if (i === 2) c.bspeed = (c.bspeed || 1) === 2 ? 1 : 2;
     else if (i === 3) c.wspeed = c.wspeed === 2 ? 1 : 2;
-    else if (i === 4) AudioSys.toggleMute();
+    else if (i === 4) c.encOff = !c.encOff;
+    else if (i === 5) AudioSys.toggleMute();
     AudioSys.sfx("cursor");
   }
 
@@ -847,15 +849,15 @@ class ConfigScene {
   }
 
   draw() {
-    Gfx.window(30, 46, 260, 196);
-    Gfx.text("コンフィグ", 44, 54);
+    Gfx.window(30, 38, 260, 216);
+    Gfx.text("コンフィグ", 44, 46);
     this.rows().forEach(([name, val], i) => {
-      const y = 80 + i * 26;
+      const y = 72 + i * 26;
       Gfx.text(name, 58, y, 3, 11);
       Gfx.textR(val, 276, y, 3, 11);
       if (i === this.sel) Gfx.cursor(44, y + 3);
     });
-    Gfx.text(this.rows()[this.sel][2], 40, 226, 3, 9);
+    Gfx.text(this.rows()[this.sel][2], 40, 234, 3, 9);
   }
 }
 

@@ -180,6 +180,7 @@ class FieldScene {
 
   checkEncounter() {
     if (window.CKDEBUG && window.CKDEBUG.noEncounters) return;
+    if (G.state.config && G.state.config.encOff) return; // コンフィグ: エンカウントOFF
     const m = this.map;
     let table = null;
     if (m.encounter) table = DATA.encounters[m.encounter];
