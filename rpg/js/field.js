@@ -365,10 +365,67 @@ class FieldScene {
     const bob = this.moving && this.moving.t > 0.25 && this.moving.t < 0.75 ? -1 : 0;
     Gfx.draw(sprName, px - camx, py - camy - 2 + bob, { flip });
 
+    // てんこう (あめ/ゆき/すなあらし)
+    this.drawWeather();
+
     // マップめい
     if (this.nameTimer > 0) {
       Gfx.window(4, 4, 150, 26);
       Gfx.text(m.name, 14, 11);
     }
+  }
+
+  // マップの weather プロパティに おうじた パーティクルを かさねる
+  // (じょうたいを もたず じつじかんから けっていてきに けいさん)
+  drawWeather() {
+    const m = this.map;
+    const w = m.weather;
+    if (!w) return;
+    const c = Gfx.ctx;
+    const now = performance.now();
+    const W = 320, H = 288;
+    const hash = (k) => ((k * 2654435761) >>> 8) % 1000 / 1000;
+    // マップの みえている はんいだけに ふらせる
+    const px = G.state.x * TILE, py = G.state.y * TILE;
+    const mw = m.rows[0].length, mh = m.rows.length;
+    let camx = Math.max(0, Math.min(mw * TILE - W, px - W / 2 + TILE / 2));
+    let camy = Math.max(0, Math.min(mh * TILE - H, py - H / 2 + TILE / 2));
+    if (mw * TILE < W) camx = (mw * TILE - W) / 2;
+    if (mh * TILE < H) camy = (mh * TILE - H) / 2;
+    c.save();
+    c.beginPath();
+    c.rect(Math.max(0, -camx), Math.max(0, -camy),
+      Math.min(W, mw * TILE), Math.min(H, mh * TILE));
+    c.clip();
+    if (w === "rain") {
+      c.fillStyle = PAL[3];
+      for (let k = 0; k < 46; k++) {
+        const sp = 260 + hash(k) * 160;
+        const x = Math.round((hash(k + 100) * W + now * 0.045 * sp * 0.2) % W);
+        const y = Math.round((hash(k + 200) * H + now * 0.001 * sp) % H);
+        c.fillRect(W - x, y, 1, 5);
+        c.fillRect(W - x - 1, y + 3, 1, 3);
+      }
+    } else if (w === "snow") {
+      for (let k = 0; k < 34; k++) {
+        const sp = 34 + hash(k) * 30;
+        const x = Math.round(((hash(k + 100) * W + Math.sin(now * 0.0012 + k) * 14) % W + W) % W);
+        const y = Math.round((hash(k + 200) * H + now * 0.001 * sp) % H);
+        const s = k % 3 === 0 ? 2 : 1;
+        c.fillStyle = PAL[2]; // かげで くさちでも みえるように
+        c.fillRect(x + 1, y + 1, s, s);
+        c.fillStyle = PAL[0];
+        c.fillRect(x, y, s, s);
+      }
+    } else if (w === "sand") {
+      for (let k = 0; k < 40; k++) {
+        const sp = 190 + hash(k) * 150;
+        const x = W - ((hash(k + 100) * W + now * 0.001 * sp) % W);
+        const y = (hash(k + 200) * H + Math.sin(now * 0.002 + k * 2) * 6) % H;
+        c.fillStyle = PAL[k % 3 === 0 ? 3 : 2];
+        c.fillRect(Math.round(x), Math.round((y + H) % H), 4, 1);
+      }
+    }
+    c.restore();
   }
 }

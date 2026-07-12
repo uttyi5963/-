@@ -3079,6 +3079,7 @@ DATA.maps.cathedral2 = {
 // ---------------- らいめいのしま (だい7のちいき) ----------------
 DATA.maps.world6 = {
   name: "らいめいのしま",
+  weather: "rain",
   outdoor: true,
   bgm: "field",
   encounter: "world6",
@@ -3124,6 +3125,7 @@ DATA.maps.world6 = {
 // ---------------- あらしのむら ボルテ ----------------
 DATA.maps.volte = {
   name: "あらしのむら ボルテ",
+  weather: "rain",
   bgm: "town",
   exit: { map: "world6", x: 9, y: 4, dir: "d" },
   legend: {
@@ -3611,6 +3613,7 @@ DATA.maps.ruins2 = {
 // ---------------- すなのおうこく (だい5のちいき) ----------------
 DATA.maps.world4 = {
   name: "すなのおうこく",
+  weather: "sand",
   outdoor: true,
   bgm: "field",
   encounter: "world4",
@@ -3656,6 +3659,7 @@ DATA.maps.world4 = {
 // ---------------- さばくのみやこ ザハラ ----------------
 DATA.maps.zahra = {
   name: "さばくのみやこ ザハラ",
+  weather: "sand",
   bgm: "town",
   exit: { map: "world4", x: 9, y: 4, dir: "d" },
   legend: {
@@ -3888,6 +3892,7 @@ DATA.maps.sandtomb2 = {
 // ---------------- こおりのれっとう (だい4のちいき) ----------------
 DATA.maps.world3 = {
   name: "こおりのれっとう",
+  weather: "snow",
   outdoor: true,
   bgm: "field",
   encounter: "world3",
@@ -3933,6 +3938,7 @@ DATA.maps.world3 = {
 // ---------------- ゆきのむら フリム ----------------
 DATA.maps.frim = {
   name: "ゆきのむら フリム",
+  weather: "snow",
   bgm: "town",
   exit: { map: "world3", x: 9, y: 4, dir: "d" },
   legend: {
