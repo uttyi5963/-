@@ -123,6 +123,22 @@ class BattleScene {
     return { x: 28 + (i % 2) * 14, y: 40 + i * 44, size, scale };
   }
 
+  // いちじポーズを セット (こうどうに あわせた たちえ)
+  setPose(p, name, dur) {
+    p.pose = { name, t: dur };
+  }
+
+  // いまの じょうたいから せんとうポーズを きめる
+  poseOf(p) {
+    if (p.h.hp <= 0) return "down";
+    if (p.pose && p.pose.t > 0) return p.pose.name;
+    if (p.casting) return "cast";
+    if (p.flash > 0) return "hit";
+    if (p.charge > 0 || p.coverIdx >= 0) return "skill";
+    if (p.h.hp < p.h.maxhp / 4) return "weak";
+    return "idle";
+  }
+
   partyPos(i) {
     const n = this.party.length;
     const gap = n <= 3 ? 50 : 34;
@@ -137,7 +153,10 @@ class BattleScene {
     this.pops = this.pops.filter((p) => (p.t += dt) < 0.9);
     this.fx = this.fx.filter((f) => (f.t += dt) < 0.32);
     this.enemies.forEach((e) => { if (e.flash > 0) e.flash -= dt; });
-    this.party.forEach((p) => { if (p.flash > 0) p.flash -= dt; });
+    this.party.forEach((p) => {
+      if (p.flash > 0) p.flash -= dt;
+      if (p.pose && p.pose.t > 0) p.pose.t -= dt;
+    });
     if (this.shake > 0) this.shake -= dt;
     if (this.screenFlash > 0) this.screenFlash -= dt;
 
@@ -434,6 +453,14 @@ class BattleScene {
     const h = p.h;
     p.atb = 0;
 
+    // こうどうにあわせた たちえ
+    const poseByAct = {
+      fight: ["atk", 0.9], jump: ["skill", 0.7], charge: ["skill", 0.6],
+      pray: ["skill", 1.2], cover: ["skill", 0.5], dark: ["skill", 1.2],
+      holy: ["skill", 1.0], item: ["cast", 0.8], run: ["hit", 0.6],
+    };
+    if (poseByAct[act.type]) this.setPose(p, poseByAct[act.type][0], poseByAct[act.type][1]);
+
     // えいしょうが ひつような じゅもん
     if (act.type === "spell") {
       const sp = act.spell.def;
@@ -651,6 +678,7 @@ class BattleScene {
   // ジャンプの ちゃくち攻撃。ダブルジャンプは 2れんげき。列のえいきょうなし
   resolveJump(p) {
     const h = p.h;
+    this.setPose(p, "atk", 1.0);
     const double = p.airborne.double;
     let target = p.airborne.target;
     p.airborne = null;
@@ -679,6 +707,7 @@ class BattleScene {
   // じゅもんの発動 (えいしょう完了 or 即時)。payMp=true なら ここでMPをはらう
   execSpell(p, act, payMp) {
     const h = p.h;
+    this.setPose(p, "cast", 1.0);
     const sp = act.spell.def;
     const events = [];
 
@@ -1062,10 +1091,15 @@ class BattleScene {
         c.fillRect(pos.x + 8, pos.y + 26, 16, 3);
         return;
       }
-      let spr = p.h.spr;
-      if (spr === "hero" || spr === "pal") spr += "_s";
+      // せんとうポーズ (つうじょう/こうげき/まほう/ひだん/ひんし/せんとうふのう/こゆうわざ)
+      const pose = this.poseOf(p);
+      let spr = p.h.spr + "_b_" + pose;
+      if (!SPR.chars[spr]) {
+        spr = p.h.spr;
+        if (spr === "hero" || spr === "pal") spr += "_s";
+      }
       if (p.h.toad) spr = "toad"; // カエルのすがた
-      const variant = p.flash > 0 ? "flash" : (p.h.hp <= 0 ? "dark" : undefined);
+      const variant = p.flash > 0 ? "flash" : (p.h.toad && p.h.hp <= 0 ? "dark" : undefined);
       Gfx.draw(spr, pos.x, pos.y, { scale: 2, variant });
       if (this.phase === "command" && this.ready === p) {
         Gfx.cursor(pos.x - 10, pos.y + 12);
