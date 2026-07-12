@@ -914,6 +914,14 @@ function runScript(ops, onDone) {
         G.push(new FishingScene(op.fishing.price || 50, next));
         return;
       }
+      if (op.healParty) {
+        // れんせん用: いきているぜんいんを わりあいで かいふく
+        G.state.party.forEach((h) => {
+          if (h.hp > 0) h.hp = Math.min(h.maxhp, h.hp + Math.round(h.maxhp * op.healParty));
+        });
+        AudioSys.sfx("heal");
+        continue;
+      }
       if (op.achievements) {
         G.push(new AchievementScene(next));
         return;

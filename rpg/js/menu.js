@@ -706,6 +706,11 @@ class QuestScene {
       list.push(["けんおうガロン",
         f("garonBeat") ? "かんりょう" : "しれんのやまの ちょうじょうで さいせん"]);
     }
+    if (f("trueClear")) {
+      const rush = (f("rush1") ? 1 : 0) + (f("rush2") ? 1 : 0) + (f("rush3") ? 1 : 0);
+      list.push(["けいしょうのま",
+        rush >= 3 ? "ぜんみち せいは!" : `ボスれんせんに いどむ (${rush}/3)`]);
+    }
     if (f("phantomBoss")) {
       list.push(["まぼろしのしろ", "おうのけんを うけついだ"]);
     }
