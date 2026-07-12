@@ -293,11 +293,33 @@ class FieldScene {
 
     const x0 = Math.floor(camx / TILE), y0 = Math.floor(camy / TILE);
     const x1 = x0 + Math.ceil(SCREEN_W / TILE) + 1, y1 = y0 + Math.ceil(SCREEN_H / TILE) + 1;
+    const wphase = Math.floor(performance.now() / 600) % 2; // みずの ゆらぎ
+    const gctx = Gfx.ctx;
     for (let ty = y0; ty <= y1; ty++) {
       for (let tx = x0; tx <= x1; tx++) {
         const t = this.tileAt(tx, ty);
         if (!t) continue;
-        Gfx.draw(t.tile, tx * TILE - camx, ty * TILE - camy);
+        const tn = t.tile === "water" && wphase ? "water2" : t.tile;
+        Gfx.draw(tn, tx * TILE - camx, ty * TILE - camy);
+        // くさはらに はな と くさむらを まばらに (けっていてきハッシュ)
+        if (t.tile === "grass" && m.outdoor) {
+          const h = (tx * 7 + ty * 13) % 19;
+          const dx = tx * TILE - camx, dy = ty * TILE - camy;
+          if (h === 0) {
+            gctx.fillStyle = PAL[3];
+            gctx.fillRect(dx + 6, dy + 6, 2, 2);
+            gctx.fillRect(dx + 4, dy + 8, 2, 2);
+            gctx.fillRect(dx + 8, dy + 8, 2, 2);
+            gctx.fillRect(dx + 6, dy + 10, 2, 2);
+            gctx.fillStyle = PAL[0];
+            gctx.fillRect(dx + 6, dy + 8, 2, 2);
+          } else if (h === 9) {
+            gctx.fillStyle = PAL[2];
+            gctx.fillRect(dx + 4, dy + 10, 2, 4);
+            gctx.fillRect(dx + 8, dy + 9, 2, 5);
+            gctx.fillRect(dx + 12, dy + 11, 2, 3);
+          }
+        }
       }
     }
 
@@ -313,11 +335,13 @@ class FieldScene {
       if (n.def.hideFlag && G.flag(n.def.hideFlag)) continue;
       if (n.def.showFlag && !G.flag(n.def.showFlag)) continue;
       let nx = n.x * TILE, ny = n.y * TILE;
+      let nbob = 0;
       if (n.moving) {
         nx += (n.moving.tx - n.x) * TILE * n.moving.t;
         ny += (n.moving.ty - n.y) * TILE * n.moving.t;
+        if (n.moving.t > 0.25 && n.moving.t < 0.75) nbob = -1;
       }
-      Gfx.draw(n.def.spr, nx - camx, ny - camy - 2, { variant: n.def.pal });
+      Gfx.draw(n.def.spr, nx - camx, ny - camy - 2 + nbob, { variant: n.def.pal });
     }
 
     // プレイヤー (カエル化していたら カエルのすがた)

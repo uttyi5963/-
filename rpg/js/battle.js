@@ -1053,6 +1053,17 @@ class BattleScene {
       Gfx.text(p.txt, p.x, p.y + dy, p.pi, 13);
     });
 
+    // せんとうとつにゅう ブラインドえんしゅつ
+    if (this.phase === "intro" && this.introT < 0.4) {
+      const p = this.introT / 0.4;
+      c.fillStyle = PAL[3];
+      const strip = 24;
+      for (let y = 0; y < SCREEN_H; y += strip) {
+        const h = Math.max(0, strip * (1 - p));
+        c.fillRect(0, y + (strip - h) / 2, SCREEN_W, h);
+      }
+    }
+
     // ログ
     if (this.phase === "intro") {
       Gfx.window(4, 4, 312, 30);

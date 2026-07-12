@@ -110,6 +110,37 @@ class TitleScene {
       const y = (i * 37 + 11) % 160;
       if ((i + Math.floor(this.t)) % 5 !== 0) c.fillRect(x, y, 2, 2);
     }
+    // ながれる くも
+    c.fillStyle = PAL[2];
+    for (let i = 0; i < 3; i++) {
+      const cx = (this.t * (8 + i * 4) + i * 130) % (SCREEN_W + 60) - 60;
+      const cy = 24 + i * 26;
+      c.fillRect(cx, cy, 44, 5);
+      c.fillRect(cx + 8, cy - 3, 26, 3);
+    }
+    // とおくの やまなみ
+    c.fillStyle = PAL[2];
+    for (let i = 0; i < 6; i++) {
+      const x = i * 58 - 10, h = 26 + (i % 3) * 12;
+      c.beginPath();
+      c.moveTo(x, 172); c.lineTo(x + 34, 172 - h); c.lineTo(x + 68, 172);
+      c.fill();
+    }
+    c.fillStyle = PAL[1];
+    c.fillRect(0, 170, SCREEN_W, 3);
+    // クリスタルの こどう (ひかりのわ)
+    const pulse = (this.t % 2) / 2;
+    if (pulse < 0.6) {
+      const r = 26 + pulse * 40;
+      c.strokeStyle = PAL[1];
+      c.lineWidth = 2;
+      c.globalAlpha = 0.6 - pulse;
+      c.beginPath();
+      const cx0 = SCREEN_W / 2, cy0 = 72;
+      c.moveTo(cx0, cy0 - r); c.lineTo(cx0 + r, cy0); c.lineTo(cx0, cy0 + r); c.lineTo(cx0 - r, cy0);
+      c.closePath(); c.stroke();
+      c.globalAlpha = 1;
+    }
     const bob = Math.sin(this.t * 2) * 3;
     Gfx.draw("crystal", SCREEN_W / 2 - 24, 40 + bob, { scale: 3 });
 
