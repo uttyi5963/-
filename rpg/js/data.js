@@ -2601,6 +2601,7 @@ DATA.maps.starworld = {
     "T": { tile: "icon_town" },
     "C": { tile: "icon_cave" },
     "G": { tile: "icon_shrine" },
+    "P": { tile: "icon_shrine" },
     "V": { tile: "icon_shrine" },
   },
   rows: [
@@ -2611,7 +2612,7 @@ DATA.maps.starworld = {
     "w..........T...mm......w",
     "w...ff.................w",
     "w...ff.......mmm.....C.w",
-    "ww......mm...m.m......ww",
+    "ww......mm...m.mP.....ww",
     "ww......mm...mmm......ww",
     "w.V...................ww",
     "w....mm.......ff......ww",
@@ -2623,6 +2624,7 @@ DATA.maps.starworld = {
     { x: 11, y: 12, type: "enter", warp: { map: "skyisland", x: 13, y: 3, dir: "d" } },
     { x: 11, y: 4, type: "enter", warp: { map: "moonpalace", x: 7, y: 10, dir: "u" } },
     { x: 21, y: 6, type: "enter", warp: { map: "crater1", x: 2, y: 10, dir: "u" } },
+    { x: 16, y: 7, type: "enter", warp: { map: "powertemple", x: 6, y: 7, dir: "u" } },
     { x: 2, y: 9, type: "enter",
       cond: { flag: "craterBoss" },
       failScript: [{ msg: "ふるい はかの とびらは かたく とざされている。\nクレーターの ぬしの けはいが きえれば\nひらきそうだ……。" }],
@@ -4789,6 +4791,73 @@ DATA.maps.phantomthrone = {
   ],
 };
 
+// ---------------- ちからのしんでん (じょういジョブの せいち) ----------------
+DATA.maps.powertemple = {
+  name: "ちからのしんでん",
+  bgm: "shrine",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "carpet" },
+    "S": { tile: "statue", solid: true },
+    "T": { tile: "torch", solid: true },
+    "d": { tile: "door" },
+  },
+  rows: [
+    "##S##T##T##S##",
+    "#............#",
+    "#..S......S..#",
+    "#............#",
+    "#............#",
+    "#..S......S..#",
+    "#............#",
+    "######d#######",
+  ],
+  events: [
+    { x: 6, y: 7, type: "enter", warp: { map: "starworld", x: 16, y: 8, dir: "d" } },
+  ],
+  npcs: [
+    { id: "power_sage", x: 6, y: 2, spr: "elder",
+      script: [
+        { cond: { flag: "ascended" },
+          then: [
+            { msg: "しんでんのけんじゃ「めざめし ちからは\nもう なんじらのもの。 その かがやき、\nほしぼしにも まけておらぬ」" },
+          ],
+          else: [
+            { cond: { flag: "trueClear" },
+              then: [
+                { msg: "しんでんのけんじゃ「ここは ちからのしんでん。\nほしを すくいし えいゆうにのみ、その とびらは\nひらかれる」" },
+                { msg: "「せかいのしずくを 3つ ささげよ。\nさすれば たましいの きゅうきょくの すがたへ\nみちびこう」" },
+                { cond: { itemCount: { id: "worldtear", n: 3 } },
+                  then: [
+                    { menu: { x: 130, y: 150, options: [
+                      { label: "ささげる", ops: [
+                        { take: { item: "worldtear" } },
+                        { take: { item: "worldtear" } },
+                        { take: { item: "worldtear" } },
+                        { msg: "3つの しずくが うかびあがり、\nまばゆい ひかりが 5にんを つつむ……!!" },
+                        { ascend: 1 },
+                        { msg: "けんじゃ「これぞ きゅうきょくの ジョブ。\nちからは みなぎり、あらたな わざも\nじきに めざめよう……」" },
+                      ] },
+                      { label: "やめておく", ops: [
+                        { msg: "けんじゃ「こころの じゅんびが できたら\nまた くるがよい」" },
+                      ] },
+                    ] } },
+                  ],
+                  else: [
+                    { msg: "「……まだ しずくが たりぬようだな。\nせかいのしずくは かくちの ぬしの もとや\nふかき ダンジョンに ねむっておる」" },
+                  ] },
+              ],
+              else: [
+                { msg: "しんでんのけんじゃ「ほしの やみを はらいし もの\nのみが この しんでんの こえを きける。\nいまは まだ そのときに あらず」" },
+              ] },
+          ] },
+      ] },
+  ],
+  chests: [
+    { id: "pw1", x: 1, y: 6, item: "elixir", hidden: true },
+  ],
+};
+
 // ---------------- みずうみのさんばし (トワインきたの つりば) ----------------
 DATA.maps.lakepier = {
   name: "みずうみのさんばし",
@@ -5672,6 +5741,15 @@ DATA.maps.lostwoods2 = {
 };
 
 // ---------------- きょうつうスクリプト ----------------
+// ---------------- 上位ジョブ (ちからのしんでん) ----------------
+DATA.ascendJobs = {
+  leon:  { cls: "ゴッドパラディン" },
+  glen:  { cls: "りゅうていきし" },
+  gou:   { cls: "けんせい" },
+  celia: { cls: "せいじょ" },
+  rod:   { cls: "おんみょうじ" },
+};
+
 DATA.scripts = {
   lakeFishing: [
     { msg: "しずかな みなも。 さかなの かげが みえる。" },

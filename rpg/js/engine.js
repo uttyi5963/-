@@ -409,6 +409,12 @@ const G = {
       const b = DATA.paladin.bonus;
       h.maxhp += b.hp; h.maxmp += b.mp; h.str += b.str; h.vit += b.vit;
     }
+    if (h.ascended) {
+      // きゅうきょくジョブ: 全ステータス+8、HP/MP 15%アップ
+      h.maxhp = Math.round(h.maxhp * 1.15);
+      h.maxmp = Math.round(h.maxmp * 1.15);
+      h.str += 8; h.agi += 8; h.vit += 8; h.int += 8;
+    }
   },
 
   expTotalFor(lv) {
@@ -903,6 +909,7 @@ function runScript(ops, onDone) {
         // flag / item(しょじひん) / kills(ずかんの とうばつすう) / all(ぜんフラグ) で ぶんき
         let pass;
         if (op.cond.item) pass = (G.state.items[op.cond.item] || 0) > 0;
+        else if (op.cond.itemCount) pass = (G.state.items[op.cond.itemCount.id] || 0) >= op.cond.itemCount.n;
         else if (op.cond.kills) pass = G.killsOf(op.cond.kills.id) >= op.cond.kills.n;
         else if (op.cond.all) pass = op.cond.all.every((k) => G.flag(k));
         else pass = G.flag(op.cond.flag);
@@ -938,6 +945,19 @@ function runScript(ops, onDone) {
       if (op.fishing) {
         G.push(new FishingScene(op.fishing.price || 50, next, op.fishing.table));
         return;
+      }
+      if (op.ascend) {
+        // 上位ジョブ: 全ステータス強化+ジョブ名変更+全回復
+        G.state.party.forEach((h) => {
+          h.ascended = true;
+          const up = DATA.ascendJobs[h.id];
+          if (up) h.cls = up.cls;
+          G.applyStats(h);
+          h.hp = h.maxhp; h.mp = h.maxmp;
+        });
+        G.setFlag("ascended", 1);
+        AudioSys.sfx("levelup");
+        continue;
       }
       if (op.healParty) {
         // れんせん用: いきているぜんいんを わりあいで かいふく
