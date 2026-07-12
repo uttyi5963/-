@@ -289,7 +289,7 @@ const AudioSys = {
     // ドヴェルグ王宮: ちからづよい こうしんきょく
     hall:    { tempo: 108, notes: [[55,1],[55,0.5],[57,0.5],[59,1],[62,1],[59,1],[57,1],[55,1.5],[53,0.5],[55,1],[57,1.5],[59,0.5],[60,2],[59,1],[57,1],[55,2]],
                bass: [[43,1],[50,1],[43,1],[50,1],[41,1],[48,1],[43,1],[50,1]] },
-    // げんじゅうせん: うずまく はやい みつどの 戦い
+    // 幻獣せん: うずまく はやい みつどの 戦い
     spirit:  { tempo: 172, notes: [[62,0.5],[65,0.5],[69,0.5],[70,0.5],[69,0.5],[65,0.5],[62,0.5],[60,0.5],[62,0.5],[65,0.5],[70,0.5],[72,1],[70,0.5],[69,0.5],[65,0.5],[62,0.5],[63,0.5],[62,1.5]],
                bass: [[38,0.5],[38,0.5],[45,0.5],[38,0.5],[36,0.5],[36,0.5],[43,0.5],[36,0.5]] },
   },
@@ -507,7 +507,7 @@ const G = {
   flag(k) { return !!this.state.flags[k]; },
   setFlag(k, v) { this.state.flags[k] = v; },
 
-  // ---------- モンスターずかん ----------
+  // ---------- モンスター図鑑 ----------
   bestiaryEntry(id) {
     if (!this.state.bestiary) this.state.bestiary = {};
     if (!this.state.bestiary[id]) this.state.bestiary[id] = { seen: 0, killed: 0 };
@@ -614,7 +614,7 @@ const G = {
     } catch (e) { return null; }
   },
 
-  // つよくてニューゲーム: クリアデータから レベル/そうび/ギル/ずかんを ひきつぎ
+  // つよくてニューゲーム: クリアデータから レベル/そうび/ギル/図鑑を ひきつぎ
   newGamePlus(slot) {
     let src;
     try { src = JSON.parse(Store.get(this.slotKey(slot))); } catch (e) { return false; }
@@ -911,7 +911,7 @@ function runScript(ops, onDone) {
       }
       if (op.flag) { G.setFlag(op.flag[0], op.flag[1]); continue; }
       if (op.cond) {
-        // flag / item(しょじひん) / kills(ずかんの 討伐すう) / all(ぜんフラグ) で ぶんき
+        // flag / item(しょじひん) / kills(図鑑の 討伐すう) / all(ぜんフラグ) で ぶんき
         let pass;
         if (op.cond.item) pass = (G.state.items[op.cond.item] || 0) > 0;
         else if (op.cond.itemCount) pass = (G.state.items[op.cond.itemCount.id] || 0) >= op.cond.itemCount.n;
@@ -1028,11 +1028,11 @@ function runScript(ops, onDone) {
       }
       if (op.inn !== undefined) {
         const price = op.inn;
-        G.push(new MessageScene(`やどや「いらっしゃい!\nひとばん ${price}ギルだよ。とまるかい?」`, () => {
+        G.push(new MessageScene(`宿屋「いらっしゃい!\nひとばん ${price}ギルだよ。とまるかい?」`, () => {
           G.push(new ChoiceScene(["はい", "いいえ"], (sel) => {
             if (sel === 0) {
               if (G.state.gold < price) {
-                G.push(new MessageScene("やどや「お金が たりないよ!」", next));
+                G.push(new MessageScene("宿屋「お金が たりないよ!」", next));
               } else {
                 G.state.gold -= price;
                 G.fade(() => {
@@ -1041,7 +1041,7 @@ function runScript(ops, onDone) {
                     Object.keys(DATA.statuses).forEach((s) => { h[s] = false; });
                   });
                   AudioSys.sfx("heal");
-                  G.push(new MessageScene("やどや「おはよう! げんきに なったね」", next));
+                  G.push(new MessageScene("宿屋「おはよう! げんきに なったね」", next));
                 });
               }
             } else next();

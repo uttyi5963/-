@@ -214,7 +214,7 @@ class BattleScene {
         const was = p.atb;
         const spd = (p.haste ? 1.5 : 1) * (p.boost > 0 ? 1.4 : 1) * (p.fatigue > 0 ? 0.5 : 1);
         p.atb = Math.min(100, p.atb + (25 + G.agiOf(p.h) * 3) * spd * dt);
-        // 命のたま: ターンが まわってくるたび HP回復
+        // 命の珠: ターンが まわってくるたび HP回復
         if (was < 100 && p.atb >= 100 && G.accAbil(p.h, "regen") && p.h.hp < p.h.maxhp) {
           const heal = Math.max(1, Math.round(p.h.maxhp * 0.05));
           p.h.hp = Math.min(p.h.maxhp, p.h.hp + heal);
@@ -560,7 +560,7 @@ class BattleScene {
   }
 
   // てきに あたえるダメージを イベントれつに つむ (dmg<0 は きゅうしゅう=回復)
-  // 回復/ま森の きらめきを 仲間のいちに
+  // 回復/守りの きらめきを 仲間のいちに
   partyFx(q, kind) {
     const pos = this.partyPos(this.party.indexOf(q));
     this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind, t: 0 });
@@ -733,7 +733,7 @@ class BattleScene {
             this.pop(pos.x, pos.y, v, 3);
             this.partyFx(q, "heal");
           });
-          this.log = t.cure ? "光が ぜんいんを つつみこんだ!!" : "いやしの風が ふきぬけた!";
+          this.log = t.cure ? "光が ぜんいんを つつみこんだ!!" : "癒しの風が ふきぬけた!";
         } });
       }
       else if (t.kind === "miracle") {
@@ -1150,7 +1150,7 @@ class BattleScene {
       const t = act.targetP;
       events.push({ t: 0.45, fn: () => {
         if (sp.type === "heal") {
-          // 全体回復 (いやしのあめ / ←→で全体化) は いきているぜんいんに
+          // 全体回復 (癒しのあめ / ←→で全体化) は いきているぜんいんに
           const spreadP = sp.all || act.allOverrideP;
           const ts = spreadP ? this.aliveParty() : [t];
           const alive = ts.filter((q) => q && q.h.hp > 0);
@@ -1255,7 +1255,7 @@ class BattleScene {
       if (victim.h.hp <= 0) return;
       let dmg = this.physDmg(e.def.atk, G.defOf(victim.h));
       if (covered) {
-        // みがわり時は ま森をかため ダメージは かならず 1けた
+        // みがわり時は 守りをかため ダメージは かならず 1けた
         dmg = Math.max(1, Math.min(9, dmg));
         this.log = `${victim.h.name}が ${p.h.name}を かばった!`;
       } else {
@@ -1416,7 +1416,7 @@ class BattleScene {
       const nid = phaser.def.phase2;
       const ndef = DATA.monsters[nid];
       G.push(new MessageScene(
-        `${phaser.name}「ぐ ぐぬぬ……\nまだだ…… まだ おわらんぞ!!\nこれが わしの しんのすがた だ!!」`,
+        `${phaser.name}「ぐ ぐぬぬ……\nまだだ…… まだ おわらんぞ!!\nこれが わしの 真の姿 だ!!」`,
         () => {
           phaser.id = nid; phaser.def = ndef; phaser.name = ndef.name;
           phaser.hp = ndef.hp; phaser.maxhp = ndef.hp;
@@ -1455,7 +1455,7 @@ class BattleScene {
     // (5人パーティで 1人のこりなら 3ばい。倒れた 仲間には はいらない)
     const fallen = this.party.length - this.aliveParty().length;
     const mult = 1 + fallen * 0.5;
-    // けいけんのしるし: もっているだけで 経験値 2ばい
+    // 経験のしるし: もっているだけで 経験値 2ばい
     const charm = (G.state.items.expcharm || 0) > 0 ? 2 : 1;
     const gain = Math.round(exp * mult * charm);
     AudioSys.bgm("victory");
@@ -1891,7 +1891,7 @@ class BattleScene {
           }
         }
       } else if (f.kind === "shield") {
-        // ま森の かこい: まえがわに 光の こが ならぶ
+        // 守りの かこい: まえがわに 光の こが ならぶ
         const ps = Math.min(1, f.t / 0.5);
         const r = 10 + ps * 7;
         for (let k = 0; k < 7; k++) {

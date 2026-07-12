@@ -89,7 +89,7 @@ class MenuScene {
     this.scroll = 0;
     this.target = 0;
     this.picked = null;
-    this.commands = ["強さ", "呪文", "道具", "そうび", "たいれつ", "ずかん", "クエスト", "せってい", "パスワード", "セーブ"];
+    this.commands = ["強さ", "呪文", "道具", "そうび", "たいれつ", "図鑑", "クエスト", "せってい", "パスワード", "セーブ"];
   }
 
   update() {
@@ -122,7 +122,7 @@ class MenuScene {
       else if (cmd === "道具") { this.state = "item"; this.sub = 0; this.scroll = 0; }
       else if (cmd === "そうび") { this.state = "heroPick"; this.mode = "equip"; this.sub = 0; }
       else if (cmd === "たいれつ") { this.state = "heroPick"; this.mode = "row"; this.sub = 0; }
-      else if (cmd === "ずかん") { G.push(new BestiaryScene()); }
+      else if (cmd === "図鑑") { G.push(new BestiaryScene()); }
       else if (cmd === "クエスト") { G.push(new QuestScene()); }
       else if (cmd === "せってい") {
         G.push(new ConfigScene());
@@ -439,9 +439,9 @@ class MenuScene {
 }
 
 // ============================================================
-// モンスターずかん
+// モンスター図鑑
 // ============================================================
-// ---------------- でんどうのま (じっせき いちらん) ----------------
+// ---------------- 殿堂の間 (実績 いちらん) ----------------
 class AchievementScene {
   constructor(onDone) {
     this.opaque = true;
@@ -458,15 +458,15 @@ class AchievementScene {
     return [
       ["魔王 ザルバを 倒した", f("clear")],
       ["しんのてき ヴォイドスを 倒した", f("trueClear")],
-      ["しんえんりゅう ヴァハを 倒した", f("superBoss")],
-      ["星々のおう グランステラ", f("graveBoss")],
-      ["けんおう ガロンに かった", f("garonBeat")],
+      ["深淵竜 ヴァハを 倒した", f("superBoss")],
+      ["星々の王 グランステラ", f("graveBoss")],
+      ["拳王 ガロンに かった", f("garonBeat")],
       [`かくちの ぬしを しずめた (${lords}/6)`, lords >= 6],
-      [`げんじゅうを たいじした (${genju}/3)`, genju >= 3],
+      [`幻獣を たいじした (${genju}/3)`, genju >= 3],
       ["世界会議を ひらいた", f("summitDone")],
       [`闘技場 さいこうい: ${arena}`, f("arenaPlatinum")],
       ["ねこあつめを かんせいさせた", f("catDone")],
-      [`ずかんに とうろくした (${seen}/${monsTotal})`, seen >= monsTotal],
+      [`図鑑に とうろくした (${seen}/${monsTotal})`, seen >= monsTotal],
       [`宝箱を あけた (${chests}こ)`, chests >= 60],
       ["つりぼりの ぬしを つった", f("fishKing")],
     ];
@@ -530,7 +530,7 @@ class BestiaryScene {
     Gfx.clear(0);
     const killedCount = this.ids.filter((id) => this.entry(id).killed > 0).length;
     Gfx.window(4, 4, 312, 30);
-    Gfx.text("モンスターずかん", 14, 12);
+    Gfx.text("モンスター図鑑", 14, 12);
     Gfx.textR(`討伐 ${killedCount}/${this.ids.length}`, 306, 12);
 
     if (this.detail) {
@@ -621,7 +621,7 @@ class QuestScene {
     for (const [flag, text] of steps) {
       if (!G.flag(flag)) return text;
     }
-    return "世界は すくわれた!\nかくしボスや ずかんかんせいに 挑戦!";
+    return "世界は すくわれた!\nかくしボスや 図鑑かんせいに 挑戦!";
   }
 
   quests() {
@@ -632,7 +632,7 @@ class QuestScene {
         f("iceReward") ? "かんりょう" : f("iceBoss") ? "ハンターに ほうこく" : "氷の洞窟の りゅうを 倒す"]);
     }
     if (f("magmaBoss")) {
-      list.push(["かがやくいし",
+      list.push(["輝く石",
         f("glowReward") ? "がくしゃに ゆずった" : f("forged") ? "つるぎに きたえた"
           : "がくしゃに ゆずるか 鍛冶屋で きたえるか"]);
     }
@@ -647,7 +647,7 @@ class QuestScene {
     if (f("summitQuest")) {
       const inv = ["inviteTwine", "inviteFrim", "inviteZahra", "inviteDverg"].filter(f).length;
       list.push(["世界会議",
-        f("summitDone") ? "かいさい された!" : `おさたちに しょうたいを とどける (${inv}/4)`]);
+        f("summitDone") ? "開催 された!" : `おさたちに 招待を とどける (${inv}/4)`]);
     }
     if (f("starGate")) {
       list.push(["クレーターのぬし たいじ",
@@ -655,7 +655,7 @@ class QuestScene {
     }
     if (f("allCrystals")) {
       const gj = (f("sylphidDown") ? 1 : 0) + (f("gnomosDown") ? 1 : 0) + (f("undinaDown") ? 1 : 0);
-      list.push(["げんじゅう たいじ",
+      list.push(["幻獣 たいじ",
         gj >= 3 ? "かんりょう" : `そら/地底/うみに けはい (${gj}/3)`]);
     }
     if (f("dvergQuest")) {
@@ -672,7 +672,7 @@ class QuestScene {
         eps >= 5 ? "かんりょう" : `仲間の 物語を たどる (${eps}/5)`]);
     }
     if (f("nightQuest")) {
-      list.push(["じょおうの かなしみ",
+      list.push(["女王の かなしみ",
         f("nightReward") ? "かんりょう" : f("nightBoss") ? "ノクスのまちのおさに ほうこく" : "闇の大聖堂の おくへ"]);
     }
     if (f("duskQuest")) {
@@ -681,35 +681,35 @@ class QuestScene {
     }
     if (f("stormQuest")) {
       list.push(["らいじんの いかり",
-        f("stormReward") ? "かんりょう" : f("stormBoss") ? "ボルテのむらおさに ほうこく" : "らいでんのほこらの さいしんぶへ"]);
+        f("stormReward") ? "かんりょう" : f("stormBoss") ? "ボルテのむらおさに ほうこく" : "雷電のほこらの さいしんぶへ"]);
     }
     if (f("hawkQuest")) {
       list.push(["らいめいタカ たいじ",
         f("hawkReward") ? "かんりょう" : `らいめいタカを おとす (${Math.min(4, G.killsOf("thunderhawk"))}/4)`]);
     }
     if (f("ruinsQuest")) {
-      list.push(["守りがみの ぼうそう",
+      list.push(["守り神の ぼうそう",
         f("ruinsReward") ? "かんりょう" : f("ruinsBoss") ? "リーフェのむらおさに ほうこく" : "こだいのいせきの さいしんぶへ"]);
     }
     if (f("catQuest2")) {
-      list.push(["みどりのひょう たいじ",
-        f("catReward2") ? "かんりょう" : `みどりのひょうを 倒す (${Math.min(4, G.killsOf("junglecat"))}/4)`]);
+      list.push(["緑のヒョウ たいじ",
+        f("catReward2") ? "かんりょう" : `緑のヒョウを 倒す (${Math.min(4, G.killsOf("junglecat"))}/4)`]);
     }
     if (f("tombQuest")) {
-      list.push(["よみがえった すなのおう",
+      list.push(["よみがえった 砂の王",
         f("tombReward") ? "かんりょう" : f("tombBoss") ? "ザハラのぞくちょうに ほうこく" : "すなのだいびょうの げんしつへ"]);
     }
     if (f("wormQuest")) {
-      list.push(["すなワーム たいじ",
-        f("wormReward") ? "かんりょう" : `すなワームを 倒す (${Math.min(4, G.killsOf("sandworm2"))}/4)`]);
+      list.push(["砂ワーム たいじ",
+        f("wormReward") ? "かんりょう" : `砂ワームを 倒す (${Math.min(4, G.killsOf("sandworm2"))}/4)`]);
     }
     if (f("glacierQuest")) {
       list.push(["ひょうがのめがみ",
         f("glacierReward") ? "かんりょう" : f("glacierBoss") ? "フリムのむらおさに ほうこく" : "ひょうがの洞窟の さいだんへ"]);
     }
     if (f("wolfQuest")) {
-      list.push(["ゆきおおかみ たいじ",
-        f("wolfReward") ? "かんりょう" : `ゆきおおかみを 倒す (${Math.min(3, G.killsOf("snowwolf"))}/3)`]);
+      list.push(["雪オオカミ たいじ",
+        f("wolfReward") ? "かんりょう" : `雪オオカミを 倒す (${Math.min(3, G.killsOf("snowwolf"))}/3)`]);
     }
     if (f("twinQuest")) {
       list.push(["かがみのぬし たいじ",
@@ -717,23 +717,23 @@ class QuestScene {
     }
     if (f("mirrorBoss")) {
       list.push(["とこしえのとう",
-        f("chronoBoss") ? "ときの番人を しずめた" : "ふういんのとけた とうの 頂上へ"]);
+        f("chronoBoss") ? "時の番人を しずめた" : "封印のとけた とうの 頂上へ"]);
     }
     if (f("garonSeen")) {
-      list.push(["けんおうガロン",
+      list.push(["拳王ガロン",
         f("garonBeat") ? "かんりょう" : "試練の山の 頂上で さいせん"]);
     }
     if (f("trueClear")) {
       const rush = (f("rush1") ? 1 : 0) + (f("rush2") ? 1 : 0) + (f("rush3") ? 1 : 0);
-      list.push(["けいしょうのま",
+      list.push(["継承の間",
         rush >= 3 ? "ぜんみち せいは!" : `ボスれんせんに いどむ (${rush}/3)`]);
     }
     if (f("phantomBoss")) {
-      list.push(["まぼろしのしろ", "おうのけんを うけついだ"]);
+      list.push(["幻のしろ", "おうのけんを うけついだ"]);
     }
     if (f("craterBoss")) {
       list.push(["星のはか",
-        f("graveBoss") ? "ぬしを しずめた" : "ふういんの とけた はかの さいしんぶへ"]);
+        f("graveBoss") ? "ぬしを しずめた" : "封印の とけた はかの さいしんぶへ"]);
     }
     if (f("stellaQuest")) {
       list.push(["まいごのステラ",
@@ -755,7 +755,7 @@ class QuestScene {
       f("castleReward") ? "ほうしょう うけとりずみ"
         : f("castleFund") ? "しえんずみ (王宮に みせ)"
         : "ぶかんちょうが しきんを さがしている"]);
-    if (f("superBoss")) list.push(["しんえんりゅう ヴァハ", "討伐! 伝説の 勇者"]);
+    if (f("superBoss")) list.push(["深淵竜 ヴァハ", "討伐! 伝説の 勇者"]);
     // 仲間の こじんイベント
     if (f("paladin")) list.push(["グレンと いもうと",
       f("glenEvent") ? "かんりょう" : "バロン城に だれか きている"]);
@@ -896,7 +896,7 @@ class FishingScene {
       AudioSys.sfx("levelup");
       return "ぬしの おおものだ!! 2000ギル!!";
     }
-    if (r < 0.18) { G.state.gold += 500; AudioSys.sfx("chest"); return "おうごんダイ! 500ギル!"; }
+    if (r < 0.18) { G.state.gold += 500; AudioSys.sfx("chest"); return "黄金ダイ! 500ギル!"; }
     if (r < 0.55) { G.state.gold += 100; AudioSys.sfx("chest"); return "しろマスを つった! 100ギル!"; }
     AudioSys.sfx("cancel");
     return "ながぐつ だった……。";
