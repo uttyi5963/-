@@ -175,6 +175,12 @@ DATA.items = {
   a_frostmail: { name: "フロストメイル", kind: "armor", price: 11000, def: 32, who: ["leon", "glen"] },
   w_blizzard: { name: "ふぶきのやり",    kind: "weapon", price: 0, atk: 49, who: ["glen"], elem: "ice" },
   a_aurora:  { name: "オーロラのマント", kind: "armor", price: 0, def: 31, int: 8, who: ["rod", "celia"] },
+  // すなのおうこく ティア
+  w_scimitar: { name: "えんげつとう",    kind: "weapon", price: 13000, atk: 46, who: ["leon"], elem: "fire" },
+  a_desert:  { name: "さばくのころも",   kind: "armor", price: 10500, def: 28, int: 7, who: ["rod", "celia"] },
+  a_sandgi:  { name: "すなのどうぎ",     kind: "armor", price: 9500, def: 30, who: ["gou"] },
+  w_sandlance: { name: "すなあらしのやり", kind: "weapon", price: 0, atk: 52, who: ["glen"] },
+  oasiswater: { name: "オアシスのみず",  kind: "use", price: 300, heal: 400, desc: "HPを 400 かいふく" },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   heroproof: { name: "えいゆうのあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
@@ -385,6 +391,23 @@ DATA.monsters = {
     hp: 3300, atk: 72, def: 30, agi: 22, exp: 8500, gold: 4200,
     absorb: ["ice"], weak: ["thunder"],
     acts: [{ spell: "e_bigwave", rate: 0.25 }, { spell: "e_wave", rate: 0.3 }] },
+  // すなのおうこく (Lv55〜75たい)
+  sandworm2: { name: "すなワーム", spr: "worm", pal: "dark", hp: 820, atk: 76, def: 34, agi: 16, exp: 1350, gold: 1000,
+    weak: ["ice"] },
+  scarab: { name: "おうごんスカラベ", spr: "slime", pal: "dark", hp: 700, atk: 70, def: 44, agi: 22, exp: 1300, gold: 1400,
+    resist: ["fire", "thunder"], weak: ["ice"] },
+  mummy: { name: "ミイラへい", spr: "skeleton", pal: "dark", hp: 780, atk: 74, def: 32, agi: 18, exp: 1400, gold: 1050,
+    race: "undead", weak: ["fire", "holy"], inflict: { status: "poison", rate: 0.25 } },
+  desertghost: { name: "さばくのぼうれい", spr: "wizard", pal: "dark", hp: 680, atk: 68, def: 28, agi: 26, exp: 1300, gold: 950,
+    race: "undead", weak: ["holy"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
+  vulture: { name: "おおハゲタカ", spr: "bird", pal: "dark", hp: 660, atk: 72, def: 26, agi: 36, exp: 1250, gold: 900,
+    acts: [{ spell: "e_gale", rate: 0.3 }] },
+  sandgolem: { name: "サンドゴーレム", spr: "golem", pal: "dark", hp: 880, atk: 80, def: 42, agi: 8, exp: 1500, gold: 1150,
+    absorb: ["thunder"], weak: ["ice"], acts: [{ spell: "e_quake", rate: 0.2 }] },
+  kham: { name: "すなのおう カーム", spr: "king", pal: "dark", boss: true, scale: 3,
+    hp: 8200, atk: 96, def: 42, agi: 24, exp: 45000, gold: 16000,
+    race: "undead", resist: ["ice", "thunder"], weak: ["fire", "holy"],
+    acts: [{ spell: "e_quake", rate: 0.25 }, { spell: "e_meteo", rate: 0.18 }, { spell: "e_toad", rate: 0.15 }] },
   // こおりのれっとう (Lv50〜70たい)
   snowwolf: { name: "ゆきおおかみ", spr: "gargoyle", pal: "light", hp: 680, atk: 70, def: 30, agi: 28, exp: 1200, gold: 880,
     weak: ["fire"] },
@@ -545,6 +568,10 @@ DATA.encounters = {
     rare: ["kingslime"], rareRate: 0.07 },
   startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"], ["voideye", "voideye"]],
     rare: ["mithrildragon"], rareRate: 0.06 },
+  world4: { rate: 1 / 14, groups: [["sandworm2", "sandworm2"], ["vulture"], ["scarab", "sandworm2"], ["desertghost", "vulture"], ["sandgolem"], ["scarab", "scarab"]],
+    rare: ["mithrildragon"], rareRate: 0.05 },
+  sandtomb: { rate: 1 / 12, groups: [["mummy", "mummy"], ["desertghost", "desertghost"], ["sandgolem", "mummy"], ["scarab", "desertghost"], ["mummy", "mummy", "desertghost"], ["sandgolem", "sandgolem"]],
+    rare: ["mithrildragon"], rareRate: 0.07 },
   world3: { rate: 1 / 14, groups: [["snowwolf", "snowwolf"], ["blizzardhawk"], ["icemaiden", "snowwolf"], ["aurorawisp", "aurorawisp"], ["frostogre"], ["blizzardhawk", "icemaiden"]],
     rare: ["mithrildragon"], rareRate: 0.05 },
   glaciercave: { rate: 1 / 12, groups: [["glacierworm"], ["frostogre", "aurorawisp"], ["icemaiden", "icemaiden"], ["glacierworm", "aurorawisp"], ["frostogre", "frostogre"], ["snowwolf", "snowwolf", "blizzardhawk"]],
@@ -566,6 +593,11 @@ DATA.encounters = {
 
 // ---------------- ショップ ----------------
 DATA.shops = {
+  zahra: {
+    name: "ザハラの みせ",
+    stock: ["oasiswater", "hipotion", "megapotion", "xpotion", "hiether", "phoenix", "remedy",
+            "w_scimitar", "a_desert", "a_sandgi"],
+  },
   frim: {
     name: "フリムの みせ",
     stock: ["hipotion", "megapotion", "xpotion", "ether", "hiether", "phoenix", "remedy",
@@ -2421,6 +2453,272 @@ DATA.maps.crater2 = {
   ],
 };
 
+// ---------------- すなのおうこく (だい5のちいき) ----------------
+DATA.maps.world4 = {
+  name: "すなのおうこく",
+  outdoor: true,
+  bgm: "field",
+  encounter: "world4",
+  legend: {
+    "w": { tile: "water", solid: true },
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "path" },
+    "f": { tile: "forest" },
+    "T": { tile: "icon_town" },
+    "C": { tile: "icon_cave" },
+    "G": { tile: "icon_shrine" },
+  },
+  rows: [
+    "mmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+    "m..........................m",
+    "m....mm.......ww.........mmm",
+    "m....mm..T....ww..........mm",
+    "m..........................m",
+    "mm...................G....mm",
+    "mm..........mm............mm",
+    "m...........mm.............m",
+    "m...ww.........C...........m",
+    "m...ww.....................m",
+    "m..........................m",
+    "mm.....mm..........ff.....mm",
+    "mm.....mm..........ff.....mm",
+    "m..........................m",
+    "mm........................mm",
+    "mmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  ],
+  events: [
+    { x: 21, y: 5, type: "enter", scriptId: "airshipBoard" },
+    { x: 9, y: 3, type: "enter", warp: { map: "zahra", x: 9, y: 9, dir: "u" } },
+    { x: 15, y: 8, type: "enter", warp: { map: "sandtomb1", x: 2, y: 10, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "w4a", x: 1, y: 13, gold: 8000, hidden: true },
+    { id: "w4b", x: 25, y: 1, item: "elixir", hidden: true },
+  ],
+};
+
+// ---------------- さばくのみやこ ザハラ ----------------
+DATA.maps.zahra = {
+  name: "さばくのみやこ ザハラ",
+  bgm: "town",
+  exit: { map: "world4", x: 9, y: 4, dir: "d" },
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "D": { tile: "door" },
+    "w": { tile: "water", solid: true },
+  },
+  rows: [
+    "ffffffffffffffffffff",
+    "f..................f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWdWW......WWDWW.f",
+    "f..................f",
+    "f........ww........f",
+    "f........ww........f",
+    "f..................f",
+    "f..................f",
+    "ffffffff....ffffffff",
+  ],
+  events: [
+    { x: 4, y: 4, type: "enter", warp: { map: "zahrainn", x: 4, y: 5, dir: "u" } },
+    { x: 15, y: 4, type: "enter", warp: { map: "zahrashop", x: 4, y: 5, dir: "u" } },
+  ],
+  npcs: [
+    { id: "zahra_chief", x: 12, y: 6, spr: "elder",
+      script: [
+        { cond: { flag: "tombBoss" },
+          then: [
+            { cond: { flag: "tombReward" },
+              then: [{ msg: "ぞくちょう「だいびょうの おうが しずまり\nすなあらしも おさまった。オアシスは\nいつでも あなたがたを むかえよう」" }],
+              else: [
+                { msg: "ぞくちょう「よみがえった おうを もういちど\nねむりに つかせて くれたのだな。\nこれは いちぞくからの れいだ」" },
+                { give: { gold: 4000 } },
+                { msg: "4000ギルを てにいれた!" },
+                { flag: ["tombReward", 1] },
+              ] },
+          ],
+          else: [
+            { msg: "ぞくちょう「だいびょうに ねむる いにしえの\nおうが よみがえってしもうた。よるごとに\nすなあらしが まちを おそうのだ」" },
+            { msg: "「おうは ほのおと せいなる ちからを\nおそれている。どうか ふたたび\nねむらせて やってくれ」" },
+            { flag: ["tombQuest", 1] },
+          ] },
+      ] },
+    { id: "zahra_hunter", x: 5, y: 8, spr: "soldier",
+      script: [
+        { cond: { flag: "wormReward" },
+          then: [{ msg: "すなかりびと「すなワームが へって\nキャラバンも あんしんして とおれる。\nあんたの おかげだ」" }],
+          else: [
+            { cond: { flag: "wormQuest" },
+              then: [
+                { cond: { kills: { id: "sandworm2", n: 4 } },
+                  then: [
+                    { msg: "すなかりびと「4ひきも しとめたか!\nたいした うでまえだ。 やくそくの\nほうびを うけとってくれ」" },
+                    { give: { gold: 4000 } },
+                    { give: { item: "remedy" } },
+                    { msg: "4000ギルと ばんのうやくを てにいれた!" },
+                    { flag: ["wormReward", 1] },
+                  ],
+                  else: [{ msg: "すなかりびと「すなワームは さばくの\nあちこちに いる。4ひき たのんだぞ。\nずかんで かずを かくにんできる」" }] },
+              ],
+              else: [
+                { msg: "すなかりびと「すなワームどもが キャラバンを\nおそって こまっている。4ひき たいじして\nくれたら ほうびを だそう」" },
+                { flag: ["wormQuest", 1] },
+              ] },
+          ] },
+      ] },
+    { id: "zahra_dancer", x: 14, y: 8, spr: "celia", wander: true,
+      script: [{ msg: "おどりこ「オアシスの よるは おどりと\nうたで あける。あなたも いちど\nみていくと いいわ」" }] },
+    { id: "zahra_kid", x: 3, y: 9, spr: "villager", pal: "light", wander: true,
+      script: [{ msg: "こども「だいびょうには おうさまの たからが\nねむってるんだって! でも おばけが\nでるから だれも ちかづかないの」" }] },
+    { id: "zahra_merchant", x: 16, y: 6, spr: "villager",
+      script: [{ msg: "しょうにん「えんげつとうは さばくの ほこり。\nほのおを やどす きっさきは\nこおりの まものに よくきくぞ」" }] },
+  ],
+  chests: [
+    { id: "za1", x: 17, y: 9, item: "xpotion", hidden: true },
+  ],
+};
+
+DATA.maps.zahrainn = {
+  name: "ザハラのやどや",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "b": { tile: "bed" },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.bb..c..#",
+    "#.bb.....#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "zahra", x: 4, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "zahra", x: 4, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "zahra_inn", x: 7, y: 2, spr: "innkeep", script: [{ inn: 400 }] },
+  ],
+  chests: [],
+};
+
+DATA.maps.zahrashop = {
+  name: "ザハラのみせ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "t": { tile: "table", solid: true },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.t...c..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "zahra", x: 15, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "zahra", x: 15, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "zahra_shop", x: 7, y: 2, spr: "shopkeep", script: [{ shop: "zahra" }] },
+  ],
+  chests: [],
+};
+
+// ---------------- すなのだいびょう ----------------
+DATA.maps.sandtomb1 = {
+  name: "すなのだいびょう",
+  bgm: "under",
+  encounter: "sandtomb",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#...........s..#",
+    "#..######..##..#",
+    "#.......#......#",
+    "######..#..#####",
+    "#.......#......#",
+    "#..######..##..#",
+    "#..#...........#",
+    "#..#..######..##",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 2, y: 10, type: "enter", warp: { map: "world4", x: 15, y: 9, dir: "d" } },
+    { x: 12, y: 1, type: "enter", warp: { map: "sandtomb2", x: 3, y: 1, dir: "d" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "st1", x: 14, y: 3, gold: 7000 },
+    { id: "st2", x: 1, y: 7, item: "hiether" },
+    { id: "st3", x: 6, y: 10, item: "elixir", hidden: true },
+  ],
+};
+
+DATA.maps.sandtomb2 = {
+  name: "おうのげんしつ",
+  bgm: "under",
+  encounter: "sandtomb",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#..s...........#",
+    "#..#########...#",
+    "#...........#..#",
+    "#..#######..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..##.####..#..#",
+    "#...........#..#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 3, y: 1, type: "enter", warp: { map: "sandtomb1", x: 12, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "khamnpc", x: 6, y: 6, spr: "king", pal: "dark", hideFlag: "tombBoss",
+      script: [
+        { msg: "ひつぎの ふたが おちる おとが\nげんしつに ひびきわたる……。" },
+        { msg: "『……わが ねむりを さまたげ、わが たからを\nねらう ふとどきもの。 すなの おきてに より\nさばきを くだす』" },
+        { battle: { group: ["kham"], boss: true, music: "boss" } },
+        { flag: ["tombBoss", 1] },
+        { msg: "『……ながき ゆめで あった。 とわの やすらぎを\nくれた なんじらに、わが やりを たくす』\nおうは しずかに ねむりに ついた。" },
+        { give: { item: "w_sandlance" } },
+        { msg: "すなあらしのやりを てにいれた!" },
+      ] },
+  ],
+  chests: [
+    { id: "st4", x: 8, y: 5, item: "worldtear" },
+    { id: "st5", x: 4, y: 5, gold: 12000, hidden: true },
+  ],
+};
+
 // ---------------- こおりのれっとう (だい4のちいき) ----------------
 DATA.maps.world3 = {
   name: "こおりのれっとう",
@@ -3911,6 +4209,7 @@ DATA.scripts = {
               { label: "うみのそこ",   ops: [{ warp: { map: "seafloor", x: 3, y: 11, dir: "d" } }] },
               { label: "ひがしのたいりく", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
               { label: "こおりのれっとう", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
+              { label: "すなのおうこく", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
             ] } },
           ],
           else: [
@@ -3921,6 +4220,7 @@ DATA.scripts = {
               { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
               { label: "ひがしのたいりく", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
               { label: "こおりのれっとう", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
+              { label: "すなのおうこく", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
             ] } },
           ] },
       ],

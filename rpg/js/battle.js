@@ -66,6 +66,7 @@ class BattleScene {
   pickBgTheme() {
     const m = String(G.state.map || "");
     if (/^(icecave|world3|glaciercave)/.test(m)) return "ice";
+    if (/^(world4|sandtomb)/.test(m)) return "desert";
     if (/^magma/.test(m)) return "fire";
     if (/^(cave|waterway|underworld)/.test(m)) return "cave";
     if (/^(tower|startower|skyisland)/.test(m)) return "tower";
@@ -1204,6 +1205,19 @@ class BattleScene {
       c.fillStyle = PAL[2];
       c.fillRect(0, 24, SCREEN_W, 3);
       for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 162 + (i % 2) * 3, 10, 2);
+    }
+    else if (t === "desert") {
+      // さきゅうの うねりと ぎらつく たいよう
+      c.fillStyle = PAL[1];
+      for (let i = 0; i < 5; i++) {
+        const x = i * 70 - 20, w = 90, h = 14 + (i % 2) * 8;
+        c.beginPath();
+        c.moveTo(x, 168); c.quadraticCurveTo(x + w / 2, 168 - h, x + w, 168);
+        c.fill();
+      }
+      c.beginPath(); c.arc(270, 28, 12, 0, Math.PI * 2); c.fill();
+      c.fillStyle = PAL[2];
+      for (let i = 0; i < 8; i++) c.fillRect(16 + i * 40, 162 + (i % 2) * 3, 12, 2);
     }
     else if (t === "sea") {
       // かいていの なみもよう と あわ

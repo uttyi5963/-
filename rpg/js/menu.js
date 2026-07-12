@@ -639,6 +639,14 @@ class QuestScene {
       list.push(["おうの いらい",
         f("dvergReward") ? "かんりょう" : `マグマトカゲたいじ (${Math.min(5, G.killsOf("firelizard"))}/5)`]);
     }
+    if (f("tombQuest")) {
+      list.push(["よみがえった すなのおう",
+        f("tombReward") ? "かんりょう" : f("tombBoss") ? "ザハラのぞくちょうに ほうこく" : "すなのだいびょうの げんしつへ"]);
+    }
+    if (f("wormQuest")) {
+      list.push(["すなワーム たいじ",
+        f("wormReward") ? "かんりょう" : `すなワームを たおす (${Math.min(4, G.killsOf("sandworm2"))}/4)`]);
+    }
     if (f("glacierQuest")) {
       list.push(["ひょうがのめがみ",
         f("glacierReward") ? "かんりょう" : f("glacierBoss") ? "フリムのむらおさに ほうこく" : "ひょうがのどうくつの さいだんへ"]);
