@@ -586,6 +586,7 @@ class BestiaryScene {
 class QuestScene {
   constructor() {
     this.opaque = true;
+    this.scroll = 0;
   }
 
   // メインストーリーの「つぎのもくてき」(みたされていない さいしょのもの)
@@ -730,6 +731,10 @@ class QuestScene {
   }
 
   update() {
+    const qn = this.quests().length;
+    const maxScroll = Math.max(0, qn - 6);
+    if (Input.tap("up")) { this.scroll = Math.max(0, this.scroll - 1); if (qn > 6) AudioSys.sfx("cursor"); }
+    if (Input.tap("down")) { this.scroll = Math.min(maxScroll, this.scroll + 1); if (qn > 6) AudioSys.sfx("cursor"); }
     if (Input.tap("a") || Input.tap("b")) { AudioSys.sfx("cancel"); G.pop(); }
   }
 
@@ -746,12 +751,16 @@ class QuestScene {
     Gfx.text("▼ サブクエスト", 14, 120, 2, 10);
     const qs = this.quests();
     if (qs.length === 0) Gfx.text("(まだ なにも うけていない)", 24, 140, 1, 10);
-    qs.slice(0, 6).forEach(([name, state], i) => {
+    const view = 6;
+    qs.slice(this.scroll, this.scroll + view).forEach(([name, state], i) => {
       const y = 140 + i * 21;
       Gfx.text(name, 20, y, 3, 10);
       Gfx.textR(state, 300, y, state === "かんりょう" ? 1 : 2, 9);
     });
-    Gfx.text("A/B: もどる", 130, 272, 1, 9);
+    // スクロールできる ほうこうを しるしで
+    if (this.scroll > 0) Gfx.text("▲", 152, 128, 2, 9);
+    if (this.scroll + view < qs.length) Gfx.text("▼", 152, 262, 2, 9);
+    Gfx.text(qs.length > view ? "↑↓:スクロール A/B:もどる" : "A/B: もどる", 100, 272, 1, 9);
   }
 }
 

@@ -1347,26 +1347,38 @@ class BattleScene {
       Gfx.cursor(12, 97 + this.sel * 16);
     }
     else if (this.menu === "spell") {
+      // 8こずつの スクロールひょうじ (じゅもんが おおくても がめんに おさまる)
       const spells = this.ready.h.spells.map((id) => ({ id, def: DATA.spells[id] }));
-      const h = spells.length * 16 + 14;
+      const view = 8;
+      const sc = Math.max(0, Math.min(this.sel2 - view + 1, spells.length - view));
+      const shown = spells.slice(Math.max(0, sc), Math.max(0, sc) + view);
+      const h = shown.length * 16 + 14;
       Gfx.window(4, 60, 150, h);
-      spells.forEach((s, i) => {
+      shown.forEach((s, i) => {
         const ok = this.ready.h.mp >= s.def.mp;
         Gfx.text(s.def.name, 26, 67 + i * 16, ok ? 3 : 1, 11);
-        Gfx.textR(String(s.def.mp), 144, 67 + i * 16, ok ? 3 : 1, 10);
+        Gfx.textR(String(s.def.mp), 138, 67 + i * 16, ok ? 3 : 1, 10);
       });
-      Gfx.cursor(12, 70 + this.sel2 * 16);
+      if (sc > 0) Gfx.text("▲", 142, 63, 2, 8);
+      if (Math.max(0, sc) + view < spells.length) Gfx.text("▼", 142, 60 + h - 12, 2, 8);
+      Gfx.cursor(12, 70 + (this.sel2 - Math.max(0, sc)) * 16);
     }
     else if (this.menu === "item") {
       const items = itemList().filter((it) => it.def.kind === "use");
-      const h = Math.max(1, items.length) * 16 + 14;
+      const view = 8;
+      const sel = Math.min(this.sel2, Math.max(0, items.length - 1));
+      const sc = Math.max(0, Math.min(sel - view + 1, items.length - view));
+      const shown = items.slice(sc, sc + view);
+      const h = Math.max(1, shown.length) * 16 + 14;
       Gfx.window(4, 60, 170, h);
       if (items.length === 0) Gfx.text("つかえるものが ない", 16, 67, 3, 10);
-      items.forEach((it, i) => {
+      shown.forEach((it, i) => {
         Gfx.text(it.def.name, 26, 67 + i * 16, 3, 11);
-        Gfx.textR("x" + it.count, 160, 67 + i * 16, 3, 10);
+        Gfx.textR("x" + it.count, 154, 67 + i * 16, 3, 10);
       });
-      if (items.length > 0) Gfx.cursor(12, 70 + Math.min(this.sel2, items.length - 1) * 16);
+      if (sc > 0) Gfx.text("▲", 160, 63, 2, 8);
+      if (sc + view < items.length) Gfx.text("▼", 160, 60 + h - 12, 2, 8);
+      if (items.length > 0) Gfx.cursor(12, 70 + (sel - sc) * 16);
     }
     else if (this.menu === "targetE") {
       const es = this.aliveEnemies();
