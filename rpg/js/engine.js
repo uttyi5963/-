@@ -671,6 +671,10 @@ const G = {
             : (DATA.heroes[h.id] && DATA.heroes[h.id].command) || null;
         }
       };
+      // 7章化: 星の塔の開放フラグを旧セーブに補完
+      if ((s.flags.trueClear || s.flags.nightBoss || s.flags.clear2) && !s.flags.towerOpen) {
+        s.flags.towerOpen = 1;
+      }
       s.party.forEach(patchHero);
       if (s.ngHeroes) Object.values(s.ngHeroes).forEach(patchHero);
       this.state = s;
@@ -971,6 +975,10 @@ function runScript(ops, onDone) {
         });
         AudioSys.sfx("heal");
         continue;
+      }
+      if (op.chapter) {
+        G.push(new ChapterTitleScene(op.chapter, next));
+        return;
       }
       if (op.achievements) {
         G.push(new AchievementScene(next));

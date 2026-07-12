@@ -185,6 +185,37 @@ class GameOverScene {
   }
 }
 
+// ---------------- 章タイトルカード ----------------
+class ChapterTitleScene {
+  constructor(title, onDone) {
+    this.opaque = true;
+    this.title = title;
+    this.onDone = onDone || null;
+    this.t = 0;
+  }
+  update(dt) {
+    this.t += dt;
+    if (this.t > 2.6 || (this.t > 0.6 && (Input.tap("a") || Input.tap("b")))) {
+      G.pop();
+      if (this.onDone) this.onDone();
+    }
+  }
+  draw() {
+    Gfx.clear(3);
+    const c = Gfx.ctx;
+    if (this.t > 0.25) {
+      c.font = "bold 17px 'MS Gothic', monospace";
+      c.fillStyle = PAL[this.t > 0.55 ? 0 : 1];
+      c.fillText(this.title, (SCREEN_W - c.measureText(this.title).width) / 2, 138);
+    }
+    if (this.t > 0.5) {
+      c.fillStyle = PAL[2];
+      c.fillRect(SCREEN_W / 2 - 76, 150, 152, 2);
+      c.fillRect(SCREEN_W / 2 - 76, 112, 152, 2);
+    }
+  }
+}
+
 class EndingScene {
   constructor() {
     this.opaque = true;
