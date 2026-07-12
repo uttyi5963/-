@@ -8,7 +8,7 @@
 function rnd(a, b) { return a + Math.random() * (b - a); }
 
 // ぞくせいエフェクトの じぞくじかん (それいがいは 0.32)
-const FXDUR = { fire: 0.5, ice: 0.5, thunder: 0.42, holy: 0.55, quake: 0.5, flare: 0.55 };
+const FXDUR = { fire: 0.5, ice: 0.5, thunder: 0.42, holy: 0.55, quake: 0.5, flare: 0.55, heal: 0.6, shield: 0.5 };
 
 class BattleScene {
   constructor(groupIds, opts = {}) {
@@ -479,6 +479,12 @@ class BattleScene {
   }
 
   // てきに あたえるダメージを イベントれつに つむ (dmg<0 は きゅうしゅう=かいふく)
+  // かいふく/まもりの きらめきを なかまのいちに
+  partyFx(q, kind) {
+    const pos = this.partyPos(this.party.indexOf(q));
+    this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind, t: 0 });
+  }
+
   // じゅもんに おうじた ヒットエフェクトしゅべつ
   fxOf(sp) {
     if (!sp) return "burst";
@@ -644,6 +650,7 @@ class BattleScene {
             if (t.cure) Object.keys(DATA.statuses).forEach((st) => { q.h[st] = false; });
             const pos = this.partyPos(this.party.indexOf(q));
             this.pop(pos.x, pos.y, v, 3);
+            this.partyFx(q, "heal");
           });
           this.log = t.cure ? "ひかりが ぜんいんを つつみこんだ!!" : "いやしのかぜが ふきぬけた!";
         } });
@@ -653,8 +660,10 @@ class BattleScene {
           AudioSys.sfx("heal");
           this.screenFlash = 0.4;
           this.party.forEach((q) => {
+            const wasDown = q.h.hp <= 0;
             q.h.hp = q.h.maxhp;
             Object.keys(DATA.statuses).forEach((st) => { q.h[st] = false; });
+            this.partyFx(q, wasDown ? "holy" : "heal");
             const pos = this.partyPos(this.party.indexOf(q));
             this.pop(pos.x, pos.y, q.h.maxhp, 3);
           });
@@ -738,6 +747,7 @@ class BattleScene {
                 q.h.hp = Math.max(1, Math.floor(q.h.maxhp * 0.5));
                 const pos = this.partyPos(this.party.indexOf(q));
                 this.pop(pos.x, pos.y, q.h.hp, 3);
+                this.partyFx(q, "holy");
               }
             });
           }
@@ -825,6 +835,7 @@ class BattleScene {
             Object.keys(DATA.statuses).forEach((s) => { q.h[s] = false; });
             const pos = this.partyPos(this.party.indexOf(q));
             this.pop(pos.x, pos.y, q.h.maxhp, 3);
+            this.partyFx(q, "heal");
           });
           this.log = "なかまぜんいんが かんぜんに かいふくした!";
           AudioSys.sfx("heal");
@@ -833,6 +844,7 @@ class BattleScene {
           G.removeItem(it.id);
           t.h.hp = t.h.maxhp;
           t.h.mp = t.h.maxmp;
+          this.partyFx(t, "heal");
           this.log = `${t.h.name}は かんぜんに かいふくした!`;
           AudioSys.sfx("heal");
         } else if (def.heal) {
@@ -841,6 +853,7 @@ class BattleScene {
           t.h.hp = Math.min(t.h.maxhp, t.h.hp + def.heal);
           const pos = this.partyPos(this.party.indexOf(t));
           this.pop(pos.x, pos.y, def.heal, 3);
+          this.partyFx(t, "heal");
           AudioSys.sfx("heal");
         } else if (def.mp) {
           if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
@@ -851,6 +864,7 @@ class BattleScene {
           if (t.h.hp > 0) { this.log = "しかし きかなかった!"; return; }
           G.removeItem(it.id);
           t.h.hp = Math.max(1, Math.floor(t.h.maxhp * def.revive));
+          this.partyFx(t, "holy");
           this.log = `${t.h.name}は いきかえった!`;
           AudioSys.sfx("heal");
         } else if (def.cure) {
@@ -965,21 +979,24 @@ class BattleScene {
             q.h.hp = Math.min(q.h.maxhp, q.h.hp + v);
             const pos = this.partyPos(this.party.indexOf(q));
             this.pop(pos.x, pos.y, v, 3);
+            this.partyFx(q, "heal");
           });
         } else if (sp.type === "revive") {
           if (t.h.hp > 0) { this.log = "しかし きかなかった!"; return; }
           t.h.hp = Math.max(1, Math.floor(t.h.maxhp * sp.pow));
+          this.partyFx(t, "holy");
           this.log = `${t.h.name}は いきかえった!`;
         } else if (sp.type === "cure") {
           const sts = sp.cureAll ? Object.keys(DATA.statuses) : ["poison"];
           const had = sts.filter((s) => t.h[s]);
           if (t.h.hp <= 0 || had.length === 0) { this.log = "しかし きかなかった!"; return; }
           had.forEach((s) => { t.h[s] = false; });
+          this.partyFx(t, "heal");
           this.log = `${t.h.name}の ${had.map((s) => DATA.statuses[s].name).join("・")}が きえた!`;
         } else if (sp.type === "buff") {
           const bs = (sp.all ? this.aliveParty() : [t]).filter((q) => q && q.h.hp > 0);
           if (bs.length === 0) { this.log = "しかし きかなかった!"; return; }
-          bs.forEach((q) => { q.protect = true; });
+          bs.forEach((q) => { q.protect = true; this.partyFx(q, "shield"); });
           this.log = sp.all ? "なかまぜんいんの ぼうぎょが あがった!" : `${t.h.name}の ぼうぎょが あがった!`;
         }
       } });
@@ -1248,13 +1265,9 @@ class BattleScene {
     const charm = (G.state.items.expcharm || 0) > 0 ? 2 : 1;
     const gain = Math.round(exp * mult * charm);
     AudioSys.bgm("victory");
-    // しょうりの きらめき
+    // しょうりの きらめき+ホップ (メッセージちゅうも うごくよう じつじかんで)
     this.screenFlash = 0.25;
-    this.party.forEach((p, i) => {
-      if (p.h.hp <= 0) return;
-      const pos = this.partyPos(i);
-      this.fx.push({ x: pos.x + 16, y: pos.y + 10, kind: "burst", t: -i * 0.08 });
-    });
+    this.winFxAt = performance.now();
     const msgs = ["まものたちを やっつけた!"];
     if (exp > 0 || gold > 0) {
       msgs.push(`けいけんち ${gain} かくとく!` + (charm > 1 ? " (しるしで2ばい)" : "") + (mult > 1 ? `\n(生きのこりボーナス ${mult}ばい!)` : "") + `\n${gold}ギルを てにいれた!`);
@@ -1320,7 +1333,13 @@ class BattleScene {
       }
       if (p.h.toad) spr = "toad"; // カエルのすがた
       const variant = p.flash > 0 ? "flash" : (p.h.toad && p.h.hp <= 0 ? "dark" : undefined);
-      Gfx.draw(spr, pos.x, pos.y, { scale: 2, variant });
+      // しょうりの ホップ
+      let wy = pos.y;
+      if (this.winFxAt && p.h.hp > 0) {
+        const el = (performance.now() - this.winFxAt) / 1000 - i * 0.12;
+        if (el > 0 && el < 1.15) wy -= Math.round(Math.abs(Math.sin(el * Math.PI * 2.6)) * 5);
+      }
+      Gfx.draw(spr, pos.x, wy, { scale: 2, variant });
       if (this.phase === "command" && this.ready === p) {
         Gfx.cursor(pos.x - 10, pos.y + 12);
       }
@@ -1333,6 +1352,7 @@ class BattleScene {
 
     // ヒットエフェクト
     this.drawFx(c);
+    this.drawWinFx(c);
 
     // ダメージポップ
     this.pops.forEach((p) => {
@@ -1548,6 +1568,29 @@ class BattleScene {
     }
   }
 
+  // しょうりの きらめき (トップシーンでなくても うごくよう じつじかんベース)
+  drawWinFx(c) {
+    if (!this.winFxAt) return;
+    const el = (performance.now() - this.winFxAt) / 1000;
+    if (el > 1.8) return;
+    this.party.forEach((p, i) => {
+      if (p.h.hp <= 0) return;
+      const t0 = el - i * 0.12;
+      if (t0 < 0 || t0 > 1.2) return;
+      const pos = this.partyPos(i);
+      for (let k = 0; k < 6; k++) {
+        const fy = pos.y + 26 - ((k * 9 + t0 * 60) % 36);
+        const cx = pos.x + 2 + (k * 11) % 28;
+        c.fillStyle = PAL[k % 2 ? 0 : 3];
+        c.fillRect(cx, Math.round(fy), 2, 2);
+        if (k % 3 === 0) {
+          c.fillRect(cx - 2, Math.round(fy), 6, 2);
+          c.fillRect(cx, Math.round(fy) - 2, 2, 6);
+        }
+      }
+    });
+  }
+
   drawFx(c) {
     this.fx.forEach((f) => {
       if (f.t < 0) return; // ちえんスタートの エフェクト
@@ -1640,6 +1683,27 @@ class BattleScene {
             c.fillStyle = PAL[k % 2 ? 3 : 0];
             c.fillRect(Math.round(f.x + Math.cos(a + 0.26) * r2) - 1, Math.round(f.y + Math.sin(a + 0.26) * r2) - 1, 2, 2);
           }
+        }
+      } else if (f.kind === "heal") {
+        // かいふくの きらめきが たちのぼる
+        for (let k = 0; k < 8; k++) {
+          const fy = f.y + 14 - ((k * 9 + f.t * 55) % 32);
+          const cx = f.x - 13 + (k * 7) % 27;
+          c.fillStyle = PAL[k % 2 ? 0 : 3];
+          c.fillRect(cx, Math.round(fy), 2, 2);
+          if (k % 3 === 0) {
+            c.fillRect(cx - 2, Math.round(fy), 6, 2);
+            c.fillRect(cx, Math.round(fy) - 2, 2, 6);
+          }
+        }
+      } else if (f.kind === "shield") {
+        // まもりの かこい: まえがわに ひかりの こが ならぶ
+        const ps = Math.min(1, f.t / 0.5);
+        const r = 10 + ps * 7;
+        for (let k = 0; k < 7; k++) {
+          const a = Math.PI * (0.62 + k * 0.13);
+          c.fillStyle = PAL[k % 2 ? 0 : 3];
+          c.fillRect(Math.round(f.x + Math.cos(a) * r) - 1, Math.round(f.y + Math.sin(a) * r) - 1, 3, 3);
         }
       } else {
         // ほうしゃじょうに とびちる ひかり
