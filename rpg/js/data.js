@@ -1645,7 +1645,7 @@ DATA.maps.underworld = {
       showFlag: "allCrystals", hideFlag: "gnomosDown",
       script: [
         { msg: "だいちが もりあがり きょだいな かげが\nたちはだかる……! つちのげんじゅう ノーモス!!" },
-        { battle: { group: ["gnomos"], boss: true, music: "boss" } },
+        { battle: { group: ["gnomos"], boss: true, music: "spirit" } },
         { flag: ["gnomosDown", 1] },
         { msg: "ノーモスは だいちに かえっていった。\nあとに おおきな たてが のこされた。" },
         { give: { item: "a_gnomos" } },
@@ -1660,7 +1660,7 @@ DATA.maps.underworld = {
 // ---------------- ドヴェルグおうきゅう ----------------
 DATA.maps.dwarfhall = {
   name: "ドヴェルグおうきゅう",
-  bgm: "town",
+  bgm: "hall",
   legend: {
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
@@ -2014,7 +2014,7 @@ DATA.maps.skyisland = {
       showFlag: "allCrystals", hideFlag: "sylphidDown",
       script: [
         { msg: "かぜが うずを まいて けもののかたちに……!\nかぜのげんじゅう シルフィドだ!!" },
-        { battle: { group: ["sylphid"], boss: true, music: "boss" } },
+        { battle: { group: ["sylphid"], boss: true, music: "spirit" } },
         { flag: ["sylphidDown", 1] },
         { msg: "シルフィドは かぜにとけて きえた。\nあとに マントが ひらりと まいおちた。" },
         { give: { item: "a_sylphid" } },
@@ -2030,7 +2030,7 @@ DATA.maps.skyisland = {
 DATA.maps.starworld = {
   name: "ほしのせかい",
   outdoor: true,
-  bgm: "sky",
+  bgm: "star",
   encounter: "starworld",
   legend: {
     "w": { tile: "water", solid: true },
@@ -2074,7 +2074,7 @@ DATA.maps.starworld = {
 // ---------------- つきのみやこ セレーネ ----------------
 DATA.maps.moonpalace = {
   name: "つきのみやこ セレーネ",
-  bgm: "town",
+  bgm: "star",
   legend: {
     "#": { tile: "wall", solid: true },
     ".": { tile: "floor" },
@@ -2424,7 +2424,7 @@ DATA.maps.seafloor = {
       showFlag: "allCrystals", hideFlag: "undinaDown",
       script: [
         { msg: "うずしおが たかまき ひかりのけものが\nすがたを あらわす……! みずのげんじゅう ウンディナ!!" },
-        { battle: { group: ["undina"], boss: true, music: "boss" } },
+        { battle: { group: ["undina"], boss: true, music: "spirit" } },
         { flag: ["undinaDown", 1] },
         { msg: "ウンディナは しぶきとなって きえた。\nうずの なかから つえが うかびあがる。" },
         { give: { item: "w_undina" } },
