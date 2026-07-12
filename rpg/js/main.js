@@ -193,13 +193,51 @@ class EndingScene {
     AudioSys.bgm("ending");
     const p = G.state.party[0];
     const trueEnd = G.flag("trueClear");
+    // 真エンドでは キャラ別の後日談ビネットを はさむ
+    this.phase = trueEnd ? "vignette" : "scroll";
+    this.vidx = 0;
+    this.vt = 0;
+    const asc = (h) => h && h.ascended;
+    const heroOf = (id) => G.state.party.find((h) => h.id === id);
+    this.vignettes = trueEnd ? [
+      { id: "leon", title: "レオン 〜光の騎士〜", lines: [
+        "剣を鞘に納めた若き騎士は、",
+        "王のかたわらで民の声に耳を傾ける。",
+        asc(heroOf("leon")) ? "ゴッドパラディンの伝説は、" : "その背中は、",
+        "新たな騎士たちの道しるべとなった。",
+      ] },
+      { id: "glen", title: "グレン 〜大空の竜騎士〜", lines: [
+        "シリウス号の甲板に立ち、",
+        "彼は今日も世界の空を巡る。",
+        "雲の向こうに友の笑顔を思い出しながら、",
+        "槍は高く、誇りはもっと高く。",
+      ] },
+      { id: "gou", title: "ゴウ 〜受け継がれる拳〜", lines: [
+        "試練の山の頂で、彼は弟子を取った。",
+        "師の教えと拳王との勝負の記憶を、",
+        "次の世代へ受け渡すために。",
+        asc(heroOf("gou")) ? "極意はまだ、その先にある。" : "修行に終わりはない。",
+      ] },
+      { id: "celia", title: "セリア 〜祈りの家〜", lines: [
+        "ミストの村に小さな祈りの家を開き、",
+        "傷ついた旅人を癒やしている。",
+        "夜になると窓辺に灯りをともす。",
+        "いつか帰ってくる仲間たちのために。",
+      ] },
+      { id: "rod", title: "ロッド 〜真理の探究者〜", lines: [
+        "ガレフ先生と魔道の学び舎を建て、",
+        "子供たちに魔法の楽しさを教えている。",
+        asc(heroOf("rod")) ? "陰と陽、ふたつの式の先にある真理を、" : "クリスタルの謎を、",
+        "彼はまだ追いかけている。",
+      ] },
+    ] : [];
     this.lines = trueEnd ? [
       "4つのクリスタルは",
       "それぞれの 神殿へ かえり",
       "世界は ひかりに つつまれた。",
       "",
       "光のきし レオンは",
-      "バロンの 拳聖となり",
+      "バロンの 剣聖となり",
       "竜騎士 グレンは 空を、",
       "モンクのゴウは ぶを きわめた。",
       "",
@@ -243,6 +281,17 @@ class EndingScene {
   }
   update(dt) {
     this.t += dt;
+    if (this.phase === "vignette") {
+      this.vt += dt;
+      // Aボタン か 7秒で つぎのビネットへ
+      if ((this.vt > 1 && Input.tap("a")) || this.vt > 7) {
+        AudioSys.sfx("cursor");
+        this.vidx++;
+        this.vt = 0;
+        if (this.vidx >= this.vignettes.length) this.phase = "scroll";
+      }
+      return;
+    }
     this.scroll += dt * 14;
     const maxScroll = this.lines.length * 20 - 100;
     if (this.scroll > maxScroll) this.scroll = maxScroll;
@@ -253,10 +302,44 @@ class EndingScene {
   }
   draw() {
     Gfx.clear(3);
+    const c = Gfx.ctx;
+    if (this.phase === "vignette") {
+      const v = this.vignettes[this.vidx];
+      if (!v) return;
+      // 星空
+      for (let k = 0; k < 40; k++) {
+        const sx = (k * 53) % SCREEN_W, sy = (k * 97) % 150;
+        c.fillStyle = PAL[(k + Math.floor(performance.now() / 700)) % 3 === 0 ? 1 : 2];
+        c.fillRect(sx, sy, 2, 2);
+      }
+      // キャラスプライト (戦闘立ちポーズがあれば使用)
+      const h = G.state.party.find((q) => q.id === v.id);
+      let spr = h ? h.spr + "_b_idle" : null;
+      if (!spr || !SPR.chars[spr]) spr = h ? h.spr : "hero";
+      Gfx.draw(spr, SCREEN_W / 2 - 24, 60, { scale: 3 });
+      // タイトルと本文 (タイプライタ表示)
+      c.font = "bold 13px 'MS Gothic', monospace";
+      c.fillStyle = PAL[0];
+      c.fillText(v.title, (SCREEN_W - c.measureText(v.title).width) / 2, 135);
+      const shown = Math.floor(this.vt * 28);
+      let used = 0;
+      v.lines.forEach((l, i) => {
+        const part = l.slice(0, Math.max(0, shown - used));
+        used += l.length;
+        c.font = "bold 11px 'MS Gothic', monospace";
+        c.fillStyle = PAL[1];
+        c.fillText(part, (SCREEN_W - c.measureText(l).width) / 2, 165 + i * 20);
+      });
+      // ページ送りヒント
+      if (this.vt > 1 && Math.floor(performance.now() / 400) % 2 === 0) {
+        c.fillStyle = PAL[1];
+        c.fillText("▼", SCREEN_W - 24, SCREEN_H - 14);
+      }
+      return;
+    }
     this.lines.forEach((l, i) => {
       const y = 200 + i * 20 - this.scroll;
       if (y < -20 || y > SCREEN_H) return;
-      const c = Gfx.ctx;
       c.font = "bold 13px 'MS Gothic', monospace";
       c.fillStyle = PAL[0];
       c.fillText(l, (SCREEN_W - c.measureText(l).width) / 2, y);
