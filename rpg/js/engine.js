@@ -417,6 +417,11 @@ const G = {
   },
 
   MAX_LV: 99,
+  MAX_GOLD: 999999,
+
+  gainGold(n) {
+    this.state.gold = Math.min(this.MAX_GOLD, this.state.gold + n);
+  },
 
   // かくとくEXP -> レベルアップしょり。メッセージれつをかえす
   addExp(h, amount) {
@@ -874,7 +879,7 @@ function runScript(ops, onDone) {
       }
       if (op.give) {
         if (op.give.item) G.addItem(op.give.item);
-        if (op.give.gold) G.state.gold += op.give.gold;
+        if (op.give.gold) G.gainGold(op.give.gold);
         AudioSys.sfx("chest");
         continue;
       }

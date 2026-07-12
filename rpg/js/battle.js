@@ -1063,7 +1063,9 @@ class BattleScene {
     // (5人パーティで 1人のこりなら 3ばい。たおれた なかまには はいらない)
     const fallen = this.party.length - this.aliveParty().length;
     const mult = 1 + fallen * 0.5;
-    const gain = Math.round(exp * mult);
+    // けいけんのしるし: もっているだけで けいけんち 2ばい
+    const charm = (G.state.items.expcharm || 0) > 0 ? 2 : 1;
+    const gain = Math.round(exp * mult * charm);
     AudioSys.bgm("victory");
     // しょうりの きらめき
     this.screenFlash = 0.25;
@@ -1074,9 +1076,9 @@ class BattleScene {
     });
     const msgs = ["まものたちを やっつけた!"];
     if (exp > 0 || gold > 0) {
-      msgs.push(`けいけんち ${gain} かくとく!` + (mult > 1 ? `\n(生きのこりボーナス ${mult}ばい!)` : "") + `\n${gold}ギルを てにいれた!`);
+      msgs.push(`けいけんち ${gain} かくとく!` + (charm > 1 ? " (しるしで2ばい)" : "") + (mult > 1 ? `\n(生きのこりボーナス ${mult}ばい!)` : "") + `\n${gold}ギルを てにいれた!`);
     }
-    G.state.gold += gold;
+    G.gainGold(gold);
     for (const p of this.party) {
       if (p.h.hp > 0 && gain > 0) {
         const ups = G.addExp(p.h, gain);

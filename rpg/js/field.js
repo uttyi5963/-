@@ -215,7 +215,7 @@ class FieldScene {
           G.push(new MessageScene("かくされた たからばこを みつけた!"));
         }
         if (chest.gold) {
-          G.state.gold += chest.gold;
+          G.gainGold(chest.gold);
           G.push(new MessageScene(`たからばこを あけた!\n${chest.gold}ギルを てにいれた!`));
         } else if (chest.item) {
           G.addItem(chest.item);

@@ -197,6 +197,7 @@ DATA.items = {
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   heroproof: { name: "えいゆうのあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
+  expcharm:  { name: "けいけんのしるし", kind: "key", price: 0, desc: "もっているだけで けいけんち 2ばい" },
   glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
   earthcrystal: { name: "ちのクリスタル", kind: "key", price: 0, desc: "だいちのちからを やどす けっしょう" },
   windcrystal: { name: "かぜのクリスタル", kind: "key", price: 0, desc: "あらしのちからを やどす けっしょう" },
@@ -977,6 +978,9 @@ DATA.maps.castle = {
   ],
   chests: [
     { id: "castle1", x: 17, y: 1, gold: 500, hidden: true },
+    // 序盤の裏技: 玉座のうらの へそくり (お金MAX) と けいけんのしるし
+    { id: "castle_g", x: 2, y: 1, gold: 999999, hidden: true },
+    { id: "castle_e", x: 1, y: 10, item: "expcharm", hidden: true },
   ],
 };
 
