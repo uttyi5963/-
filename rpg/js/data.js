@@ -151,6 +151,7 @@ DATA.items = {
   a_nova:    { name: "ちょうしんせいのよろい", kind: "armor", price: 0, def: 36, who: ["leon", "glen"] },
   a_astral:  { name: "アストラルローブ", kind: "armor", price: 0, def: 30, int: 9, who: ["rod", "celia"] },
   a_cosmogi: { name: "ぎんがのどうぎ",   kind: "armor", price: 0, def: 34, who: ["gou"] },
+  a_stellar: { name: "ほしのまもり",     kind: "armor", price: 0, def: 28, int: 8, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
@@ -1991,10 +1992,43 @@ DATA.maps.moonpalace = {
     { id: "selene_elder", x: 7, y: 3, spr: "elder",
       script: [
         { cond: { flag: "craterBoss" },
-          then: [{ msg: "つきびとの ちょうろう「クレーターの ぬしを\nしずめてくれたのじゃな。ほしの たみは\nあなたがたを わすれぬ」" }],
+          then: [
+            { cond: { flag: "stellaDone" },
+              then: [{ msg: "つきびとの ちょうろう「ステラも すっかり\nげんきじゃ。ほしの たみは あなたがたを\nけっして わすれぬ」" }],
+              else: [
+                { cond: { flag: "stellaFound" },
+                  then: [
+                    { msg: "ちょうろう「おお ステラが もどってきた!\nほんとうに ありがとう……。\nこれは ほしのたみに つたわる たからじゃ」" },
+                    { give: { item: "a_stellar" } },
+                    { msg: "ほしのまもりを てにいれた!" },
+                    { flag: ["stellaDone", 1] },
+                  ],
+                  else: [
+                    { cond: { flag: "stellaQuest" },
+                      then: [{ msg: "ちょうろう「ステラは クレーターの おくで\nほしのかけらを ひろうのが すきでな……。\nどうか さがしだしてくれ」" }],
+                      else: [
+                        { msg: "ちょうろう「ぬしを しずめてくれて れいをいう。\nじゃが こまったことが おきた。むらの こども\nステラの すがたが みえんのじゃ」" },
+                        { msg: "「ぬしが きえたのを みて クレーターの おくへ\nほしひろいに いったのやもしれぬ……。\nどうか つれもどしてくれぬか」" },
+                        { flag: ["stellaQuest", 1] },
+                      ] },
+                  ] },
+              ] },
+          ],
           else: [
             { msg: "つきびとの ちょうろう「ようこそ ほしのせかいへ。\nわしらは ふるい ほしの たみ。\nしずかに くらしてきた」" },
             { msg: "「じゃが きょだいな クレーターに ぬしが\nすみつき、だいちが あれはじめた。\nちからある ものよ、たすけてくれぬか」" },
+          ] },
+      ] },
+    { id: "selene_bard", x: 4, y: 8, spr: "villager", showFlag: "trueClear",
+      script: [
+        { cond: { flag: "bardGift" },
+          then: [{ msg: "たびのうたひと「やみを こえた きしたちの うた、\nほしの すみずみまで ひびかせますよ」" }],
+          else: [
+            { msg: "たびのうたひと「おお、うわさに きく\nひかりのきし ごいっこう!\nあなたがたの たびを うたに しました」" },
+            { msg: "♪ やみを まといて ひかりへ あゆみ\n♪ よっつの ひかりが ほしを つなぐ……\nこころに しみる うただ。" },
+            { give: { item: "elixir" } },
+            { msg: "うたの おれいにと エリクサーを くれた!" },
+            { flag: ["bardGift", 1] },
           ] },
       ] },
     { id: "selene_girl", x: 10, y: 6, spr: "villager", wander: true,
@@ -2073,7 +2107,15 @@ DATA.maps.crater2 = {
     { x: 3, y: 1, type: "enter", warp: { map: "crater1", x: 12, y: 1, dir: "d" } },
     { x: 5, y: 8, type: "enter", scriptId: "lunavoraFight" },
   ],
-  npcs: [],
+  npcs: [
+    { id: "stella", x: 6, y: 6, spr: "villager", showFlag: "stellaQuest", hideFlag: "stellaFound",
+      script: [
+        { msg: "ステラ「ほしひろいに きたら まものが\nいっぱいで うごけなく なっちゃったの……。\nおにいちゃんたち つよいんだね!」" },
+        { msg: "ステラは ひろった ほしのかけらを\nぎゅっと にぎりしめて うなずいた。" },
+        { flag: ["stellaFound", 1] },
+        { msg: "ステラは ひとあし さきに\nセレーネへ かけていった。" },
+      ] },
+  ],
   chests: [
     { id: "cr3", x: 8, y: 5, item: "worldtear" },
     { id: "cr4", x: 4, y: 5, gold: 8000, hidden: true },

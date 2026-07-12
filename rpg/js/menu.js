@@ -579,6 +579,10 @@ class QuestScene {
       list.push(["クレーターのぬし たいじ",
         f("craterBoss") ? "かんりょう" : "ほしのせかいの だいクレーターへ"]);
     }
+    if (f("stellaQuest")) {
+      list.push(["まいごのステラ",
+        f("stellaDone") ? "かんりょう" : f("stellaFound") ? "ちょうろうに ほうこく" : "クレーターのおくで ステラをさがす"]);
+    }
     if (f("worldtearGiven")) list.push(["ちょうろうの おくりもの", "せかいのしずくを さずかった"]);
     if (f("fishKing")) list.push(["つりぼりの ぬし", "つりあげた!"]);
     if (f("forestBoss")) list.push(["まよいのもりの ぬし", "とうばつ かんりょう"]);
