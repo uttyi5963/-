@@ -67,6 +67,7 @@ class BattleScene {
     const m = String(G.state.map || "");
     if (/^(icecave|world3|glaciercave)/.test(m)) return "ice";
     if (/^(world4|sandtomb)/.test(m)) return "desert";
+    if (/^(world5|ruins)/.test(m)) return "jungle";
     if (/^magma/.test(m)) return "fire";
     if (/^(cave|waterway|underworld)/.test(m)) return "cave";
     if (/^(tower|startower|skyisland)/.test(m)) return "tower";
@@ -1205,6 +1206,20 @@ class BattleScene {
       c.fillStyle = PAL[2];
       c.fillRect(0, 24, SCREEN_W, 3);
       for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 162 + (i % 2) * 3, 10, 2);
+    }
+    else if (t === "jungle") {
+      // みつりんの きぎと つるくさ
+      c.fillStyle = PAL[2];
+      for (let i = 0; i < 7; i++) {
+        const x = 10 + i * 46;
+        c.fillRect(x + 8, 30 + (i % 2) * 8, 4, 138 - (i % 2) * 8);
+        c.beginPath(); c.arc(x + 10, 34 + (i % 2) * 8, 13, 0, Math.PI * 2); c.fill();
+      }
+      c.fillStyle = PAL[1];
+      for (let i = 0; i < 5; i++) {
+        c.fillRect(30 + i * 64, 0, 2, 20 + (i % 3) * 10);
+      }
+      for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 160 + (i % 3) * 2, 12, 3);
     }
     else if (t === "desert") {
       // さきゅうの うねりと ぎらつく たいよう

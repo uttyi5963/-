@@ -182,6 +182,12 @@ DATA.items = {
   w_sandlance: { name: "すなあらしのやり", kind: "weapon", price: 0, atk: 52, who: ["glen"] },
   oasiswater: { name: "オアシスのみず",  kind: "use", price: 300, heal: 400, desc: "HPを 400 かいふく" },
   a_unity:   { name: "きずなのマント",   kind: "armor", price: 0, def: 30, int: 6, who: ["leon", "glen", "gou", "rod", "celia"] },
+  // みどりのぐんとう ティア
+  w_leafblade: { name: "こかげのつるぎ", kind: "weapon", price: 13500, atk: 48, who: ["leon"] },
+  w_junglerod: { name: "みどりのつえ",   kind: "weapon", price: 11500, atk: 18, int: 10, who: ["rod"] },
+  a_vinemail: { name: "つたのよろい",    kind: "armor", price: 11500, def: 33, who: ["leon", "glen"] },
+  a_leafrobe: { name: "このはのローブ",  kind: "armor", price: 0, def: 29, int: 8, who: ["rod", "celia"] },
+  w_guardfist: { name: "まもりのこぶし", kind: "weapon", price: 0, atk: 54, who: ["gou"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   heroproof: { name: "えいゆうのあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
@@ -392,6 +398,23 @@ DATA.monsters = {
     hp: 3300, atk: 72, def: 30, agi: 22, exp: 8500, gold: 4200,
     absorb: ["ice"], weak: ["thunder"],
     acts: [{ spell: "e_bigwave", rate: 0.25 }, { spell: "e_wave", rate: 0.3 }] },
+  // みどりのぐんとう (Lv60〜80たい)
+  junglecat: { name: "みどりのひょう", spr: "cat", pal: "dark", hp: 740, atk: 78, def: 30, agi: 38, exp: 1450, gold: 1050,
+    weak: ["fire"] },
+  vineflower: { name: "つるはなつかい", spr: "treant", pal: "dark", hp: 800, atk: 74, def: 36, agi: 14, exp: 1500, gold: 1100,
+    weak: ["fire"], inflict: { status: "poison", rate: 0.3 } },
+  rubyhornet: { name: "べにばち", spr: "bat", pal: "dark", hp: 680, atk: 76, def: 26, agi: 40, exp: 1400, gold: 980,
+    weak: ["ice"], inflict: { status: "poison", rate: 0.25 } },
+  ruinsguard: { name: "いせきのばんへい", spr: "soldier", pal: "dark", hp: 820, atk: 80, def: 44, agi: 16, exp: 1550, gold: 1200,
+    resist: ["fire", "ice"], weak: ["thunder"] },
+  mossgolem: { name: "こけむしゴーレム", spr: "golem", pal: "light", hp: 900, atk: 82, def: 46, agi: 8, exp: 1600, gold: 1250,
+    absorb: ["ice"], weak: ["fire"], acts: [{ spell: "e_quake", rate: 0.2 }] },
+  shadowmonkey: { name: "かげざる", spr: "goblin", pal: "dark", hp: 700, atk: 74, def: 28, agi: 36, exp: 1400, gold: 1000,
+    inflict: { status: "blind", rate: 0.3 } },
+  guardios: { name: "まもりがみ ガーディオス", spr: "golem", boss: true, scale: 4,
+    hp: 9000, atk: 100, def: 48, agi: 20, exp: 55000, gold: 18000,
+    resist: ["fire", "ice"], weak: ["thunder"],
+    acts: [{ spell: "e_quake", rate: 0.25 }, { spell: "e_bolt2", rate: 0.2 }, { spell: "e_meteo", rate: 0.15 }] },
   // すなのおうこく (Lv55〜75たい)
   sandworm2: { name: "すなワーム", spr: "worm", pal: "dark", hp: 820, atk: 76, def: 34, agi: 16, exp: 1350, gold: 1000,
     weak: ["ice"] },
@@ -569,6 +592,10 @@ DATA.encounters = {
     rare: ["kingslime"], rareRate: 0.07 },
   startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"], ["voideye", "voideye"]],
     rare: ["mithrildragon"], rareRate: 0.06 },
+  world5: { rate: 1 / 14, groups: [["junglecat", "junglecat"], ["rubyhornet", "rubyhornet"], ["vineflower"], ["shadowmonkey", "junglecat"], ["mossgolem"], ["vineflower", "rubyhornet"]],
+    rare: ["mithrildragon"], rareRate: 0.05 },
+  ruins: { rate: 1 / 12, groups: [["ruinsguard", "ruinsguard"], ["mossgolem", "ruinsguard"], ["shadowmonkey", "shadowmonkey"], ["vineflower", "mossgolem"], ["ruinsguard", "ruinsguard", "shadowmonkey"], ["mossgolem", "mossgolem"]],
+    rare: ["mithrildragon"], rareRate: 0.07 },
   world4: { rate: 1 / 14, groups: [["sandworm2", "sandworm2"], ["vulture"], ["scarab", "sandworm2"], ["desertghost", "vulture"], ["sandgolem"], ["scarab", "scarab"]],
     rare: ["mithrildragon"], rareRate: 0.05 },
   sandtomb: { rate: 1 / 12, groups: [["mummy", "mummy"], ["desertghost", "desertghost"], ["sandgolem", "mummy"], ["scarab", "desertghost"], ["mummy", "mummy", "desertghost"], ["sandgolem", "sandgolem"]],
@@ -594,6 +621,11 @@ DATA.encounters = {
 
 // ---------------- ショップ ----------------
 DATA.shops = {
+  liefe: {
+    name: "リーフェの みせ",
+    stock: ["oasiswater", "hipotion", "megapotion", "xpotion", "hiether", "phoenix", "remedy",
+            "w_leafblade", "w_junglerod", "a_vinemail"],
+  },
   zahra: {
     name: "ザハラの みせ",
     stock: ["oasiswater", "hipotion", "megapotion", "xpotion", "hiether", "phoenix", "remedy",
@@ -2494,6 +2526,271 @@ DATA.maps.crater2 = {
   ],
 };
 
+// ---------------- みどりのぐんとう (だい6のちいき) ----------------
+DATA.maps.world5 = {
+  name: "みどりのぐんとう",
+  outdoor: true,
+  bgm: "field",
+  encounter: "world5",
+  legend: {
+    "w": { tile: "water", solid: true },
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "grass" },
+    "f": { tile: "forest" },
+    "T": { tile: "icon_town" },
+    "C": { tile: "icon_cave" },
+    "G": { tile: "icon_shrine" },
+  },
+  rows: [
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ww......................wwww",
+    "w..ffff.......ff.........www",
+    "w..ff....T....ff..........ww",
+    "w...f......................w",
+    "ww...................G....ww",
+    "ww..........ff............ww",
+    "w...........ff.............w",
+    "w...mm.........C...........w",
+    "w...mm.....................w",
+    "w.....................ff...w",
+    "ww.....ff..........ffff...ww",
+    "ww.....ff...........ff....ww",
+    "w..........................w",
+    "ww........................ww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  ],
+  events: [
+    { x: 21, y: 5, type: "enter", scriptId: "airshipBoard" },
+    { x: 9, y: 3, type: "enter", warp: { map: "liefe", x: 9, y: 9, dir: "u" } },
+    { x: 15, y: 8, type: "enter", warp: { map: "ruins1", x: 2, y: 10, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "w5a", x: 1, y: 13, gold: 9000, hidden: true },
+    { id: "w5b", x: 24, y: 2, item: "elixir", hidden: true },
+  ],
+};
+
+// ---------------- こかげのむら リーフェ ----------------
+DATA.maps.liefe = {
+  name: "こかげのむら リーフェ",
+  bgm: "town",
+  exit: { map: "world5", x: 9, y: 4, dir: "d" },
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "D": { tile: "door" },
+  },
+  rows: [
+    "ffffffffffffffffffff",
+    "f..................f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWdWW......WWDWW.f",
+    "f..................f",
+    "f...ff.......ff....f",
+    "f...ff.......ff....f",
+    "f..................f",
+    "f..................f",
+    "ffffffff....ffffffff",
+  ],
+  events: [
+    { x: 4, y: 4, type: "enter", warp: { map: "liefeinn", x: 4, y: 5, dir: "u" } },
+    { x: 15, y: 4, type: "enter", warp: { map: "liefeshop", x: 4, y: 5, dir: "u" } },
+  ],
+  npcs: [
+    { id: "liefe_chief", x: 10, y: 6, spr: "elder",
+      script: [
+        { cond: { flag: "ruinsBoss" },
+          then: [
+            { cond: { flag: "ruinsReward" },
+              then: [{ msg: "むらおさ「いせきの まもりがみが しずまり\nもりに しずけさが もどった。こかげは\nいつでも あなたがたの やすみばじゃ」" }],
+              else: [
+                { msg: "むらおさ「まもりがみを しずめてくれたか!\nこれは むらに つたわる おれいのしなじゃ。\nうけとって くだされ」" },
+                { give: { gold: 5000 } },
+                { msg: "5000ギルを てにいれた!" },
+                { flag: ["ruinsReward", 1] },
+              ] },
+          ],
+          else: [
+            { msg: "むらおさ「もりの おくの こだいいせきで\nまもりがみが あばれだしてのう。よるごとに\nじひびきが むらまで とどくのじゃ」" },
+            { msg: "「いにしえの ばんにんは かみなりを\nおそれると いいつたえに ある。どうか\nしずめて くだされ」" },
+            { flag: ["ruinsQuest", 1] },
+          ] },
+      ] },
+    { id: "liefe_hunter", x: 5, y: 8, spr: "soldier",
+      script: [
+        { cond: { flag: "catReward2" },
+          then: [{ msg: "もりびと「みどりのひょうが へって\nこどもたちも もりで あそべる。\nありがとうな」" }],
+          else: [
+            { cond: { flag: "catQuest2" },
+              then: [
+                { cond: { kills: { id: "junglecat", n: 4 } },
+                  then: [
+                    { msg: "もりびと「4とうも しとめたのか!\nさすがだ。やくそくの ほうびを\nうけとってくれ」" },
+                    { give: { gold: 4500 } },
+                    { give: { item: "xpotion" } },
+                    { msg: "4500ギルと エクスポーションを てにいれた!" },
+                    { flag: ["catReward2", 1] },
+                  ],
+                  else: [{ msg: "もりびと「みどりのひょうは しまの あちこちだ。\n4とう たのむぞ。ずかんで かずを\nかくにんできるからな」" }] },
+              ],
+              else: [
+                { msg: "もりびと「みどりのひょうが ふえすぎて\nりょうに でられない。4とう たいじして\nくれたら ほうびを だそう」" },
+                { flag: ["catQuest2", 1] },
+              ] },
+          ] },
+      ] },
+    { id: "liefe_kid", x: 14, y: 8, spr: "villager", pal: "light", wander: true,
+      script: [{ msg: "こども「いせきの おくには ぴかぴかの\nこぶしが かざってあるんだって!\nみてみたいなー!」" }] },
+    { id: "liefe_granny", x: 3, y: 9, spr: "villager", wander: true,
+      script: [{ msg: "おばあさん「この むらの きのみずは\nからだに いいんだよ。むかしから\nびょうきしらずの むらでねえ」" }] },
+    { id: "liefe_guard", x: 16, y: 6, spr: "soldier",
+      script: [{ msg: "ばんにん「いせきの ばんへいは てごわいぞ。\nかみなりの まほうが あれば\nみちは ひらけるはずだ」" }] },
+  ],
+  chests: [
+    { id: "lf1", x: 17, y: 9, item: "hiether", hidden: true },
+  ],
+};
+
+DATA.maps.liefeinn = {
+  name: "リーフェのやどや",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "b": { tile: "bed" },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.bb..c..#",
+    "#.bb.....#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "liefe", x: 4, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "liefe", x: 4, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "liefe_inn", x: 7, y: 2, spr: "innkeep", script: [{ inn: 450 }] },
+  ],
+  chests: [],
+};
+
+DATA.maps.liefeshop = {
+  name: "リーフェのみせ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "t": { tile: "table", solid: true },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.t...c..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "liefe", x: 15, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "liefe", x: 15, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "liefe_shop", x: 7, y: 2, spr: "shopkeep", script: [{ shop: "liefe" }] },
+  ],
+  chests: [],
+};
+
+// ---------------- こだいのいせき ----------------
+DATA.maps.ruins1 = {
+  name: "こだいのいせき",
+  bgm: "under",
+  encounter: "ruins",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#...........s..#",
+    "#..######..##..#",
+    "#.......#......#",
+    "######..#..#####",
+    "#.......#......#",
+    "#..######..##..#",
+    "#..#...........#",
+    "#..#..######..##",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 2, y: 10, type: "enter", warp: { map: "world5", x: 15, y: 9, dir: "d" } },
+    { x: 12, y: 1, type: "enter", warp: { map: "ruins2", x: 3, y: 1, dir: "d" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "ru1", x: 14, y: 3, gold: 8000 },
+    { id: "ru2", x: 1, y: 7, item: "xpotion" },
+    { id: "ru3", x: 6, y: 10, item: "a_leafrobe", hidden: true },
+  ],
+};
+
+DATA.maps.ruins2 = {
+  name: "まもりがみのま",
+  bgm: "under",
+  encounter: "ruins",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#..s...........#",
+    "#..#########...#",
+    "#...........#..#",
+    "#..#######..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..##.####..#..#",
+    "#...........#..#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 3, y: 1, type: "enter", warp: { map: "ruins1", x: 12, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "guardiosnpc", x: 6, y: 6, spr: "golem", hideFlag: "ruinsBoss",
+      script: [
+        { msg: "いせきの おくで きょだいな いしの\nからだが きしみながら うごきだす……。" },
+        { msg: "『シンニュウシャ ヲ カクニン……。\nコダイ ノ チカイ ニ ヨリ\nハイジョ スル』" },
+        { battle: { group: ["guardios"], boss: true, music: "boss" } },
+        { flag: ["ruinsBoss", 1] },
+        { msg: "『キロク ヲ コウシン……。 アタラシキ\nマモリテ ト ミトメル……』\nまもりがみは しずかに ひざを ついた。" },
+        { give: { item: "w_guardfist" } },
+        { msg: "まもりのこぶしを てにいれた!" },
+      ] },
+  ],
+  chests: [
+    { id: "ru4", x: 8, y: 5, item: "worldtear" },
+    { id: "ru5", x: 4, y: 5, gold: 14000, hidden: true },
+  ],
+};
+
 // ---------------- すなのおうこく (だい5のちいき) ----------------
 DATA.maps.world4 = {
   name: "すなのおうこく",
@@ -4299,6 +4596,7 @@ DATA.scripts = {
               { label: "ひがしのたいりく", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
               { label: "こおりのれっとう", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
               { label: "すなのおうこく", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
+              { label: "みどりのぐんとう", ops: [{ warp: { map: "world5", x: 21, y: 5, dir: "d" } }] },
             ] } },
           ],
           else: [
@@ -4310,6 +4608,7 @@ DATA.scripts = {
               { label: "ひがしのたいりく", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
               { label: "こおりのれっとう", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
               { label: "すなのおうこく", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
+              { label: "みどりのぐんとう", ops: [{ warp: { map: "world5", x: 21, y: 5, dir: "d" } }] },
             ] } },
           ] },
       ],

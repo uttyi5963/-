@@ -644,6 +644,14 @@ class QuestScene {
       list.push(["おうの いらい",
         f("dvergReward") ? "かんりょう" : `マグマトカゲたいじ (${Math.min(5, G.killsOf("firelizard"))}/5)`]);
     }
+    if (f("ruinsQuest")) {
+      list.push(["まもりがみの ぼうそう",
+        f("ruinsReward") ? "かんりょう" : f("ruinsBoss") ? "リーフェのむらおさに ほうこく" : "こだいのいせきの さいしんぶへ"]);
+    }
+    if (f("catQuest2")) {
+      list.push(["みどりのひょう たいじ",
+        f("catReward2") ? "かんりょう" : `みどりのひょうを たおす (${Math.min(4, G.killsOf("junglecat"))}/4)`]);
+    }
     if (f("tombQuest")) {
       list.push(["よみがえった すなのおう",
         f("tombReward") ? "かんりょう" : f("tombBoss") ? "ザハラのぞくちょうに ほうこく" : "すなのだいびょうの げんしつへ"]);
