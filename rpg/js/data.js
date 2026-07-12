@@ -163,6 +163,7 @@ DATA.items = {
   a_astral:  { name: "アストラルローブ", kind: "armor", price: 0, def: 30, int: 9, who: ["rod", "celia"] },
   a_cosmogi: { name: "ぎんがのどうぎ",   kind: "armor", price: 0, def: 34, who: ["gou"] },
   a_stellar: { name: "ほしのまもり",     kind: "armor", price: 0, def: 28, int: 8, who: ["rod", "celia"] },
+  a_crown:   { name: "ほしのおうかん",   kind: "armor", price: 0, def: 33, int: 10, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
@@ -372,6 +373,11 @@ DATA.monsters = {
     hp: 3300, atk: 72, def: 30, agi: 22, exp: 8500, gold: 4200,
     absorb: ["ice"], weak: ["thunder"],
     acts: [{ spell: "e_bigwave", rate: 0.25 }, { spell: "e_wave", rate: 0.3 }] },
+  // ほしのはかの ぬし (さいきょうの かくしボス)
+  granstella: { name: "ほしぼしのおう グランステラ", spr: "voidos", pal: "light", boss: true, scale: 4,
+    hp: 12000, atk: 95, def: 40, agi: 26, exp: 50000, gold: 20000,
+    absorb: ["ice", "thunder"], resist: ["fire"], weak: ["holy"],
+    acts: [{ spell: "e_starfall", rate: 0.25 }, { spell: "e_meteo", rate: 0.2 }, { spell: "e_bigwave", rate: 0.2 }] },
   // しれんのやまの ぬし (かくとうかの ライバル)
   garon: { name: "けんおう ガロン", spr: "gou", pal: "dark", boss: true, scale: 2,
     hp: 1400, atk: 46, def: 20, agi: 22, exp: 3000, gold: 0,
@@ -490,6 +496,8 @@ DATA.encounters = {
     rare: ["kingslime"], rareRate: 0.07 },
   startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"], ["voideye", "voideye"]],
     rare: ["mithrildragon"], rareRate: 0.06 },
+  stargrave: { rate: 1 / 12, groups: [["deathknight", "deathknight"], ["chaosknight", "voideye"], ["stareater"], ["abyssgazer", "abyssgazer"], ["stareater", "voideye"], ["chaosknight", "chaosknight"]],
+    rare: ["mithrildragon"], rareRate: 0.08 },
   trialmt: { rate: 1 / 13, groups: [["gargoyle", "gargoyle"], ["dunestalker", "dunestalker"], ["gazer"], ["golem"], ["gazer", "dunestalker"], ["golem", "gargoyle"]] },
   starworld: { rate: 1 / 14, groups: [["starimp", "starimp"], ["lunabat", "lunabat"], ["cometwisp"], ["starimp", "lunabat"], ["stargolem"], ["cometwisp", "lunabat"], ["starjelly", "starjelly"]],
     rare: ["mithrildragon"], rareRate: 0.07 },
@@ -2102,6 +2110,7 @@ DATA.maps.starworld = {
     "T": { tile: "icon_town" },
     "C": { tile: "icon_cave" },
     "G": { tile: "icon_shrine" },
+    "V": { tile: "icon_shrine" },
   },
   rows: [
     "wwwwwwwwwwwwwwwwwwwwwwww",
@@ -2113,7 +2122,7 @@ DATA.maps.starworld = {
     "w...ff.......mmm.....C.w",
     "ww......mm...m.m......ww",
     "ww......mm...mmm......ww",
-    "w.....................ww",
+    "w.V...................ww",
     "w....mm.......ff......ww",
     "w....m.m......ff.....www",
     "ww...mm....G........wwww",
@@ -2123,6 +2132,10 @@ DATA.maps.starworld = {
     { x: 11, y: 12, type: "enter", warp: { map: "skyisland", x: 13, y: 3, dir: "d" } },
     { x: 11, y: 4, type: "enter", warp: { map: "moonpalace", x: 7, y: 10, dir: "u" } },
     { x: 21, y: 6, type: "enter", warp: { map: "crater1", x: 2, y: 10, dir: "u" } },
+    { x: 2, y: 9, type: "enter",
+      cond: { flag: "craterBoss" },
+      failScript: [{ msg: "ふるい はかの とびらは かたく とざされている。\nクレーターの ぬしの けはいが きえれば\nひらきそうだ……。" }],
+      warp: { map: "stargrave1", x: 8, y: 11, dir: "u" } },
   ],
   npcs: [],
   chests: [
@@ -2302,6 +2315,86 @@ DATA.maps.crater2 = {
     { id: "cr5", x: 14, y: 5, item: "elixir" },
     { id: "cr8", x: 8, y: 7, item: "a_cosmogi" },
     { id: "cr9", x: 1, y: 3, item: "w_stella" },
+  ],
+};
+
+// ---------------- ほしのはか (かくしダンジョン) ----------------
+DATA.maps.stargrave1 = {
+  name: "ほしのはか",
+  bgm: "under",
+  encounter: "stargrave",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#s....#........#",
+    "#.##.##.#####..#",
+    "#.#...........##",
+    "#.#.#########..#",
+    "#.#.#.......#..#",
+    "#.#.#.#####.#..#",
+    "#.#...#...#.#..#",
+    "#.#####.#.#.#..#",
+    "#.......#...#..#",
+    "#.#######.###..#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 8, y: 11, type: "enter", warp: { map: "starworld", x: 3, y: 9, dir: "d" } },
+    { x: 1, y: 1, type: "enter", warp: { map: "stargrave2", x: 7, y: 2, dir: "d" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "sg1", x: 8, y: 7, item: "worldtear" },
+    { id: "sg2", x: 14, y: 5, gold: 10000, hidden: true },
+    { id: "sg3", x: 11, y: 5, item: "elixir" },
+    { id: "sg4", x: 13, y: 3, item: "xpotion" },
+  ],
+};
+
+DATA.maps.stargrave2 = {
+  name: "ほしのはか さいしんぶ",
+  bgm: "under",
+  encounter: "stargrave",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#......s.......#",
+    "#..............#",
+    "#..##......##..#",
+    "#..............#",
+    "#..............#",
+    "#..##......##..#",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 7, y: 1, type: "enter", warp: { map: "stargrave1", x: 1, y: 2, dir: "d" } },
+  ],
+  npcs: [
+    { id: "granstellanpc", x: 7, y: 5, spr: "voidos", pal: "light", hideFlag: "graveBoss",
+      script: [
+        { msg: "はかの おくで ほしの ひかりが\nうずを まいている……。" },
+        { msg: "『……ねむりを やぶるものよ。\nわれは ほしぼしの おう グランステラ。\nちからを しめしてみせよ』" },
+        { battle: { group: ["granstella"], boss: true, music: "spirit" } },
+        { flag: ["graveBoss", 1] },
+        { msg: "『みごとなり……。 ほしの まもりを\nなんじらに たくそう』\nひかりは しずかに ねむりに ついた。" },
+        { give: { item: "a_crown" } },
+        { msg: "ほしのおうかんを てにいれた!" },
+      ] },
+  ],
+  chests: [
+    { id: "sg5", x: 2, y: 8, item: "xpotion" },
+    { id: "sg6", x: 13, y: 8, item: "elixir", hidden: true },
   ],
 };
 
