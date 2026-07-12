@@ -780,7 +780,7 @@ Object.assign(DATA.items, (() => {
     acc_firecape: { name: "ひよけのマント",   kind: "acc", price: 1400, resist: { fire: 0.5 }, tag: "ほのお半減", who: ALL, desc: "ほのおダメージ半減" },
     acc_icecape:  { name: "ゆきよけのマント", kind: "acc", price: 1400, resist: { ice: 0.5 },  tag: "こおり半減", who: ALL, desc: "こおりダメージ半減" },
     // イベントティア
-    acc_boltcharm: { name: "らいよけのおまもり", kind: "acc", price: 0, resist: { bolt: 0 }, tag: "かみなり無効", who: ALL, desc: "かみなりダメージ無効" },
+    acc_boltcharm: { name: "らいよけのおまもり", kind: "acc", price: 0, resist: { thunder: 0 }, tag: "かみなり無効", who: ALL, desc: "かみなりダメージ無効" },
     acc_venomband: { name: "どくよけのバングル", kind: "acc", price: 0, guard: ["poison"], tag: "どく防止", who: ALL, desc: "どくに かからない" },
     acc_bellcharm: { name: "ぎんのすず",         kind: "acc", price: 0, guard: ["silence", "toad"], tag: "沈黙/カエル防止", who: ALL, desc: "ちんもくと カエルを ふせぐ" },
     acc_owlcharm:  { name: "ふくろうのおまもり", kind: "acc", price: 0, guard: ["blind"], agi: 3, tag: "くらやみ防止", who: ALL, desc: "くらやみを ふせぐ" },
@@ -793,7 +793,7 @@ Object.assign(DATA.items, (() => {
     acc_aegis:    { name: "イージスのかけら", kind: "acc", price: 0, abil: "autoprotect", def: 5, tag: "オートプロテス", who: ALL, desc: "せんとう開始時から プロテス" },
     acc_windpin:  { name: "かぜのかんざし",   kind: "acc", price: 0, agi: 10, tag: "すばやさ+10", who: ALL, desc: "すばやさが 10 あがる" },
     // 伝説級
-    acc_dragonheart: { name: "りゅうのこころ",   kind: "acc", price: 0, str: 8, vit: 8, resist: { fire: 0.5, ice: 0.5, bolt: 0.5 }, tag: "三属性半減", who: ALL, desc: "炎氷雷半減+ちから体力+8" },
+    acc_dragonheart: { name: "りゅうのこころ",   kind: "acc", price: 0, str: 8, vit: 8, resist: { fire: 0.5, ice: 0.5, thunder: 0.5 }, tag: "三属性半減", who: ALL, desc: "炎氷雷半減+ちから体力+8" },
     acc_stargem:     { name: "ほしのもんしょう", kind: "acc", price: 0, str: 6, agi: 6, vit: 6, int: 6, tag: "全ステ+6", who: ALL, desc: "ぜんステータスが 6 あがる" },
     acc_voidseal:    { name: "こくうのふういん", kind: "acc", price: 0, def: 8, guard: ["poison", "blind", "silence", "toad"], tag: "全異常防止", who: ALL, desc: "すべての じょうたい異常を ふせぐ" },
     // フィールドアイテム
