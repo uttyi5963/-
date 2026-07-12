@@ -649,6 +649,14 @@ class QuestScene {
       list.push(["おうの いらい",
         f("dvergReward") ? "かんりょう" : `マグマトカゲたいじ (${Math.min(5, G.killsOf("firelizard"))}/5)`]);
     }
+    if (f("nightQuest")) {
+      list.push(["じょおうの かなしみ",
+        f("nightReward") ? "かんりょう" : f("nightBoss") ? "ノクスのまちのおさに ほうこく" : "やみのだいせいどうの おくへ"]);
+    }
+    if (f("duskQuest")) {
+      list.push(["たそがれオオカミ たいじ",
+        f("duskReward") ? "かんりょう" : `オオカミを たおす (${Math.min(4, G.killsOf("duskwolf"))}/4)`]);
+    }
     if (f("stormQuest")) {
       list.push(["らいじんの いかり",
         f("stormReward") ? "かんりょう" : f("stormBoss") ? "ボルテのむらおさに ほうこく" : "らいでんのほこらの さいしんぶへ"]);

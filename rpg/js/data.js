@@ -192,6 +192,12 @@ DATA.items = {
   w_seijo:   { name: "せいじょのつえ",    kind: "weapon", price: 0, atk: 20, int: 13, who: ["celia"] },
   w_genja:   { name: "げんじゃのつえ",    kind: "weapon", price: 0, atk: 22, int: 14, who: ["rod"] },
   a_heroband: { name: "えいゆうのおび",   kind: "armor", price: 0, def: 36, int: 6, who: ["leon", "glen", "gou", "rod", "celia"] },
+  // よるのくに ティア
+  w_nightclaw: { name: "よるのつめ",      kind: "weapon", price: 16000, atk: 58, who: ["gou"] },
+  a_dusk:    { name: "たそがれのよろい",  kind: "armor", price: 14000, def: 37, who: ["leon", "glen"] },
+  nightdrop: { name: "よるのしずく",      kind: "use", price: 1200, heal: 800, desc: "HPを 800 かいふく" },
+  w_dawn:    { name: "よあけのやり",      kind: "weapon", price: 0, atk: 63, who: ["glen"], elem: "fire" },
+  a_nocturne: { name: "よるのローブ",     kind: "armor", price: 0, def: 36, int: 10, who: ["rod", "celia"] },
   // みどりのぐんとう ティア
   w_leafblade: { name: "こかげのつるぎ", kind: "weapon", price: 13500, atk: 48, who: ["leon"] },
   w_junglerod: { name: "みどりのつえ",   kind: "weapon", price: 11500, atk: 18, int: 10, who: ["rod"] },
@@ -504,6 +510,23 @@ DATA.monsters = {
     hp: 6400, atk: 90, def: 38, agi: 28, exp: 35000, gold: 12000,
     absorb: ["thunder"], weak: ["holy"],
     acts: [{ spell: "e_starfall", rate: 0.22 }, { spell: "e_quake", rate: 0.22 }] },
+  // よるのくに (Lv70〜90たい さいこうきゅうの かりば)
+  nightbat: { name: "よるコウモリ", spr: "bat", pal: "dark", hp: 900, atk: 88, def: 34, agi: 44, exp: 1750, gold: 1300,
+    weak: ["fire"], inflict: { status: "blind", rate: 0.25 } },
+  duskwolf: { name: "たそがれオオカミ", spr: "gargoyle", pal: "dark", hp: 950, atk: 92, def: 38, agi: 40, exp: 1850, gold: 1400,
+    weak: ["fire"] },
+  shadeknight: { name: "シェイドナイト", spr: "pal_d", pal: "dark", hp: 1000, atk: 96, def: 48, agi: 30, exp: 1950, gold: 1550,
+    race: "undead", weak: ["fire", "holy"] },
+  nighteye: { name: "よるのひとみ", spr: "eye", pal: "dark", hp: 880, atk: 86, def: 36, agi: 34, exp: 1700, gold: 1250,
+    weak: ["holy"], inflict: { status: "silence", rate: 0.25 } },
+  dreamslime: { name: "ゆめくいゼリー", spr: "slime", pal: "dark", hp: 920, atk: 84, def: 42, agi: 26, exp: 1800, gold: 1350,
+    resist: ["ice", "thunder"], weak: ["fire"], inflict: { status: "toad", rate: 0.18 } },
+  starmoth: { name: "ほしガ", spr: "mantis", pal: "light", hp: 860, atk: 90, def: 32, agi: 46, exp: 1750, gold: 1300,
+    weak: ["fire"], acts: [{ spell: "e_gale", rate: 0.3 }] },
+  noctia: { name: "よるのじょおう ノクティア", spr: "celia", pal: "dark", boss: true, scale: 4,
+    hp: 16000, atk: 110, def: 52, agi: 34, exp: 80000, gold: 35000,
+    absorb: ["ice", "thunder"], resist: ["holy"], weak: ["fire"],
+    acts: [{ spell: "e_starfall", rate: 0.25 }, { spell: "e_meteo", rate: 0.2 }, { spell: "e_silence", rate: 0.15 }] },
   // まぼろしのしろの うらボス
   regalia: { name: "まぼろしのおう レガリア", spr: "king", pal: "light", boss: true, scale: 4,
     hp: 14000, atk: 105, def: 50, agi: 30, exp: 70000, gold: 30000,
@@ -632,6 +655,10 @@ DATA.encounters = {
     rare: ["kingslime"], rareRate: 0.07 },
   startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"], ["voideye", "voideye"]],
     rare: ["mithrildragon"], rareRate: 0.06 },
+  world7: { rate: 1 / 14, groups: [["nightbat", "nightbat"], ["duskwolf"], ["starmoth", "nightbat"], ["nighteye", "duskwolf"], ["dreamslime"], ["starmoth", "starmoth"]],
+    rare: ["mithrildragon"], rareRate: 0.05 },
+  cathedral: { rate: 1 / 12, groups: [["shadeknight"], ["nighteye", "nighteye"], ["shadeknight", "nightbat"], ["dreamslime", "nighteye"], ["shadeknight", "shadeknight"], ["duskwolf", "starmoth"]],
+    rare: ["mithrildragon"], rareRate: 0.07 },
   world6: { rate: 1 / 14, groups: [["stormimp", "stormimp"], ["thunderhawk"], ["boltjelly", "stormimp"], ["stormcaller", "thunderhawk"], ["galeserpent"], ["boltjelly", "boltjelly"]],
     rare: ["mithrildragon"], rareRate: 0.05 },
   stormshrine: { rate: 1 / 12, groups: [["cloudknight"], ["stormcaller", "stormcaller"], ["galeserpent", "boltjelly"], ["cloudknight", "stormimp"], ["stormcaller", "galeserpent"], ["cloudknight", "cloudknight"]],
@@ -665,6 +692,11 @@ DATA.encounters = {
 
 // ---------------- ショップ ----------------
 DATA.shops = {
+  nox: {
+    name: "ノクスの みせ",
+    stock: ["nightdrop", "xpotion", "megapotion", "hiether", "elixir", "phoenix", "remedy",
+            "w_nightclaw", "a_dusk"],
+  },
   volte: {
     name: "ボルテの みせ",
     stock: ["oasiswater", "hipotion", "megapotion", "xpotion", "hiether", "phoenix", "remedy",
@@ -2590,6 +2622,272 @@ DATA.maps.crater2 = {
     { id: "cr5", x: 14, y: 5, item: "elixir" },
     { id: "cr8", x: 8, y: 7, item: "a_cosmogi" },
     { id: "cr9", x: 1, y: 3, item: "w_stella" },
+  ],
+};
+
+// ---------------- よるのくに (だい8のちいき) ----------------
+DATA.maps.world7 = {
+  name: "よるのくに",
+  outdoor: true,
+  bgm: "star",
+  encounter: "world7",
+  legend: {
+    "w": { tile: "water", solid: true },
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "path" },
+    "f": { tile: "forest" },
+    "T": { tile: "icon_town" },
+    "C": { tile: "icon_shrine" },
+    "G": { tile: "icon_shrine" },
+  },
+  rows: [
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ww......................wwww",
+    "w...ff........mm.........www",
+    "w...ff...T....mm..........ww",
+    "w..........................w",
+    "ww...................G....ww",
+    "ww......mm................ww",
+    "w.......mm.................w",
+    "w..............C...........w",
+    "w..........................w",
+    "w.....ff...................w",
+    "ww....ff...........mm.....ww",
+    "ww.................mm.....ww",
+    "w..........................w",
+    "ww........................ww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  ],
+  events: [
+    { x: 21, y: 5, type: "enter", scriptId: "airshipBoard" },
+    { x: 9, y: 3, type: "enter", warp: { map: "nox", x: 9, y: 9, dir: "u" } },
+    { x: 15, y: 8, type: "enter", warp: { map: "cathedral1", x: 2, y: 10, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "w7a", x: 1, y: 13, gold: 12000, hidden: true },
+    { id: "w7b", x: 24, y: 2, item: "worldtear", hidden: true },
+  ],
+};
+
+// ---------------- よるのまち ノクス ----------------
+DATA.maps.nox = {
+  name: "よるのまち ノクス",
+  bgm: "star",
+  exit: { map: "world7", x: 9, y: 4, dir: "d" },
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "D": { tile: "door" },
+  },
+  rows: [
+    "ffffffffffffffffffff",
+    "f..................f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWdWW......WWDWW.f",
+    "f..................f",
+    "f..................f",
+    "f..................f",
+    "f..................f",
+    "f..................f",
+    "ffffffff....ffffffff",
+  ],
+  events: [
+    { x: 4, y: 4, type: "enter", warp: { map: "noxinn", x: 4, y: 5, dir: "u" } },
+    { x: 15, y: 4, type: "enter", warp: { map: "noxshop", x: 4, y: 5, dir: "u" } },
+  ],
+  npcs: [
+    { id: "nox_chief", x: 10, y: 6, spr: "elder",
+      script: [
+        { cond: { flag: "nightBoss" },
+          then: [
+            { cond: { flag: "nightReward" },
+              then: [{ msg: "まちのおさ「じょおうさまが しずまり、\nよるは やさしい しじまに もどった。\nほしが きれいじゃろう?」" }],
+              else: [
+                { msg: "まちのおさ「じょおうさまを といてくれたか!\nこの まちの こころばかりの れいじゃ。\nうけとって くだされ」" },
+                { give: { gold: 8000 } },
+                { msg: "8000ギルを てにいれた!" },
+                { flag: ["nightReward", 1] },
+              ] },
+          ],
+          else: [
+            { msg: "まちのおさ「この くにの よるは やさしかった。\nじゃが だいせいどうの じょおうさまが\nかなしみに のまれてしもうての……」" },
+            { msg: "「あさが こない くにに なってしもうた。\nどうか じょおうさまの かなしみを\nといて くだされ。ほのおの ひかりが かぎじゃ」" },
+            { flag: ["nightQuest", 1] },
+          ] },
+      ] },
+    { id: "nox_hunter", x: 5, y: 8, spr: "soldier",
+      script: [
+        { cond: { flag: "duskReward" },
+          then: [{ msg: "よまわり「たそがれオオカミが へって\nよみちも あんしんだ。かんしゃするよ」" }],
+          else: [
+            { cond: { flag: "duskQuest" },
+              then: [
+                { cond: { kills: { id: "duskwolf", n: 4 } },
+                  then: [
+                    { msg: "よまわり「4とうも しとめたか!\nやくそくの ほうびだ、うけとってくれ」" },
+                    { give: { gold: 6000 } },
+                    { give: { item: "nightdrop" } },
+                    { msg: "6000ギルと よるのしずくを てにいれた!" },
+                    { flag: ["duskReward", 1] },
+                  ],
+                  else: [{ msg: "よまわり「たそがれオオカミは くにの あちこちに\nいる。4とう たのむぞ。ずかんで\nかずを かぞえられる」" }] },
+              ],
+              else: [
+                { msg: "よまわり「たそがれオオカミが ふえて\nよみちが あぶない。4とう たいじして\nくれたら ほうびを だそう」" },
+                { flag: ["duskQuest", 1] },
+              ] },
+          ] },
+      ] },
+    { id: "nox_kid", x: 14, y: 8, spr: "villager", pal: "light", wander: true,
+      script: [{ msg: "こども「ここの よぞらは ほしが いっぱいで\nだいすき! でも たまには おひさまも\nみてみたいなあ」" }] },
+    { id: "nox_granny", x: 3, y: 9, spr: "villager", wander: true,
+      script: [{ msg: "おばあさん「じょおうさまは むかし、たみの\nねむりを まもる やさしい おかたじゃった。\nかなしみが あのかたを かえてしもうた……」" }] },
+    { id: "nox_guard", x: 16, y: 6, spr: "soldier",
+      script: [{ msg: "ばんにん「だいせいどうの まものは よるの\nけはいを まとう。ほのおの まほうと ぶきを\nわすれるな」" }] },
+  ],
+  chests: [
+    { id: "nx1", x: 17, y: 9, item: "elixir", hidden: true },
+  ],
+};
+
+DATA.maps.noxinn = {
+  name: "ノクスのやどや",
+  bgm: "star",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "b": { tile: "bed" },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.bb..c..#",
+    "#.bb.....#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "nox", x: 4, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "nox", x: 4, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "nox_inn", x: 7, y: 2, spr: "innkeep", script: [{ inn: 550 }] },
+  ],
+  chests: [],
+};
+
+DATA.maps.noxshop = {
+  name: "ノクスのみせ",
+  bgm: "star",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "t": { tile: "table", solid: true },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.t...c..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "nox", x: 15, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "nox", x: 15, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "nox_shop", x: 7, y: 2, spr: "shopkeep", script: [{ shop: "nox" }] },
+  ],
+  chests: [],
+};
+
+// ---------------- やみのだいせいどう ----------------
+DATA.maps.cathedral1 = {
+  name: "やみのだいせいどう",
+  bgm: "under",
+  encounter: "cathedral",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#...........s..#",
+    "#..######..##..#",
+    "#.......#......#",
+    "######..#..#####",
+    "#.......#......#",
+    "#..######..##..#",
+    "#..#...........#",
+    "#..#..######..##",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 2, y: 10, type: "enter", warp: { map: "world7", x: 15, y: 9, dir: "d" } },
+    { x: 12, y: 1, type: "enter", warp: { map: "cathedral2", x: 3, y: 1, dir: "d" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "ca1", x: 14, y: 3, gold: 11000 },
+    { id: "ca2", x: 1, y: 7, item: "nightdrop" },
+    { id: "ca3", x: 6, y: 10, item: "a_nocturne", hidden: true },
+  ],
+};
+
+DATA.maps.cathedral2 = {
+  name: "じょおうのせいどう",
+  bgm: "under",
+  encounter: "cathedral",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#..s...........#",
+    "#..#########...#",
+    "#...........#..#",
+    "#..#######..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..##.####..#..#",
+    "#...........#..#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 3, y: 1, type: "enter", warp: { map: "cathedral1", x: 12, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "noctianpc", x: 6, y: 6, spr: "celia", pal: "dark", hideFlag: "nightBoss",
+      script: [
+        { msg: "せいどうの おくで ほしあかりが ゆらぎ\nくろい ドレスの かげが ふりむいた……。" },
+        { msg: "『……ねむりなさい。 よるは やさしい。\nあさなど こなければ だれも\nかなしまずに すむのだから……』" },
+        { battle: { group: ["noctia"], boss: true, music: "spirit" } },
+        { flag: ["nightBoss", 1] },
+        { msg: "『……あたたかい ほのお。 そう、あさは\nかなしみごと ひとを てらすのね。\nありがとう……』" },
+        { give: { item: "w_dawn" } },
+        { msg: "よあけのやりを てにいれた!\n(こうげき63・ほのおぞくせい)" },
+        { msg: "よるのくにの そらに、ほんのり\nあかつきの ひかりが さしこんだ……。" },
+      ] },
+  ],
+  chests: [
+    { id: "ca4", x: 8, y: 5, item: "worldtear" },
+    { id: "ca5", x: 4, y: 5, gold: 18000, hidden: true },
   ],
 };
 
@@ -5039,6 +5337,7 @@ DATA.scripts = {
               { label: "すなのおうこく", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
               { label: "みどりのぐんとう", ops: [{ warp: { map: "world5", x: 21, y: 5, dir: "d" } }] },
               { label: "らいめいのしま", ops: [{ warp: { map: "world6", x: 21, y: 5, dir: "d" } }] },
+              { label: "よるのくに", ops: [{ warp: { map: "world7", x: 21, y: 5, dir: "d" } }] },
             ] } },
           ],
           else: [
@@ -5052,6 +5351,7 @@ DATA.scripts = {
               { label: "すなのおうこく", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
               { label: "みどりのぐんとう", ops: [{ warp: { map: "world5", x: 21, y: 5, dir: "d" } }] },
               { label: "らいめいのしま", ops: [{ warp: { map: "world6", x: 21, y: 5, dir: "d" } }] },
+              { label: "よるのくに", ops: [{ warp: { map: "world7", x: 21, y: 5, dir: "d" } }] },
             ] } },
           ] },
       ],

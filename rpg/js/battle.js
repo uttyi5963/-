@@ -70,6 +70,7 @@ class BattleScene {
     if (/^(world4|sandtomb)/.test(m)) return "desert";
     if (/^(world5|ruins)/.test(m)) return "jungle";
     if (/^(world6|stormshrine)/.test(m)) return "storm";
+    if (/^(world7|cathedral)/.test(m)) return "night";
     if (/^magma/.test(m)) return "fire";
     if (/^(cave|waterway|underworld)/.test(m)) return "cave";
     if (/^(tower|startower|skyisland)/.test(m)) return "tower";
@@ -1279,6 +1280,20 @@ class BattleScene {
       });
       c.fillStyle = PAL[2];
       c.fillRect(0, 24, SCREEN_W, 3);
+      for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 162 + (i % 2) * 3, 10, 2);
+    }
+    else if (t === "night") {
+      // ほしぞらと みかづき
+      c.fillStyle = PAL[2];
+      for (let i = 0; i < 22; i++) {
+        const x = (i * 47 + 13) % SCREEN_W;
+        const y = (i * 29 + 7) % 140;
+        if ((i + Math.floor(performance.now() / 700)) % 6 !== 0) c.fillRect(x, y, 2, 2);
+      }
+      c.beginPath(); c.arc(262, 34, 14, 0, Math.PI * 2); c.fill();
+      c.fillStyle = PAL[0];
+      c.beginPath(); c.arc(268, 30, 12, 0, Math.PI * 2); c.fill();
+      c.fillStyle = PAL[2];
       for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 162 + (i % 2) * 3, 10, 2);
     }
     else if (t === "storm") {
