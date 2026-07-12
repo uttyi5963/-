@@ -619,6 +619,13 @@ class BattleScene {
           t.h[def.cure] = false;
           this.log = `${t.h.name}の ${DATA.statuses[def.cure].name}が なおった!`;
           AudioSys.sfx("heal");
+        } else if (def.cureall) {
+          const had = Object.keys(DATA.statuses).filter((s) => t.h[s]);
+          if (t.h.hp <= 0 || had.length === 0) { this.log = "しかし きかなかった!"; return; }
+          G.removeItem(it.id);
+          had.forEach((s) => { t.h[s] = false; });
+          this.log = `${t.h.name}の ${had.map((s) => DATA.statuses[s].name).join("・")}が なおった!`;
+          AudioSys.sfx("heal");
         }
       } });
     }

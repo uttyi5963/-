@@ -71,6 +71,9 @@ DATA.items = {
   elixir:   { name: "エリクサー",     kind: "use", price: 2000, elixir: true, desc: "HPとMPが かんぜんかいふく" },
   megapotion: { name: "メガポーション", kind: "use", price: 500, heal: 600, desc: "HPを 600 かいふく" },
   worldtear: { name: "せかいのしずく", kind: "use", price: 0, partyheal: true, desc: "なかまぜんいんが かんぜんかいふく" },
+  xpotion:  { name: "エクスポーション", kind: "use", price: 1500, heal: 2000, desc: "HPを 2000 かいふく" },
+  hiether:  { name: "ハイエーテル",   kind: "use", price: 800, mp: 150, desc: "MPを 150 かいふく" },
+  remedy:   { name: "ばんのうやく",   kind: "use", price: 500, cureall: true, desc: "すべての じょうたいいじょうを なおす" },
 
   w_dark:    { name: "ダークソード",   kind: "weapon", price: 300, atk: 8,  who: ["leon"], dark: true },
   w_steel:   { name: "こうてつのつるぎ", kind: "weapon", price: 450, atk: 12, who: ["leon"] },
@@ -106,6 +109,18 @@ DATA.items = {
   a_royalmail: { name: "おうこくのよろい", kind: "armor", price: 5000, def: 24, who: ["leon", "glen"] },
   a_royal:   { name: "おうけのローブ",   kind: "armor", price: 4200, def: 19, int: 5, who: ["rod", "celia"] },
   w_boltstaff: { name: "いかずちのつえ", kind: "weapon", price: 1600, atk: 10, int: 4, who: ["rod"] },
+  // ほしのせかい ティア (セレーネで はんばい)
+  w_comet:   { name: "コメットブレード", kind: "weapon", price: 9000, atk: 44, who: ["leon"] },
+  w_starlance: { name: "ほしのやり",     kind: "weapon", price: 8500, atk: 42, who: ["glen"] },
+  w_cosmoclaw: { name: "コスモクロー",   kind: "weapon", price: 8000, atk: 40, who: ["gou"] },
+  w_nebularod: { name: "せいうんのつえ", kind: "weapon", price: 9000, atk: 16, int: 9, who: ["rod"] },
+  w_moonwand: { name: "つきのつえ",      kind: "weapon", price: 8500, atk: 14, int: 8, who: ["celia"] },
+  // きゅうきょくそうび (ほしのせかいの たからばこ)
+  w_nova:    { name: "ちょうしんせいのつるぎ", kind: "weapon", price: 0, atk: 60, who: ["leon"], elem: "holy", slay: ["demon", "undead"] },
+  w_ryuoh:   { name: "りゅうしんのやり", kind: "weapon", price: 0, atk: 58, who: ["glen"], slay: ["dragon"] },
+  w_supernova: { name: "ぎんがのつめ",   kind: "weapon", price: 0, atk: 56, who: ["gou"], elem: "holy" },
+  w_astral:  { name: "アストラルロッド", kind: "weapon", price: 0, atk: 20, int: 12, who: ["rod"] },
+  w_stella:  { name: "ステラロッド",     kind: "weapon", price: 0, atk: 18, int: 11, who: ["celia"] },
 
   a_dark:    { name: "あんこくのよろい", kind: "armor", price: 350, def: 6,  who: ["leon"], dark: true },
   a_steel:   { name: "こうてつのよろい", kind: "armor", price: 400, def: 10, who: ["leon", "glen"] },
@@ -128,6 +143,14 @@ DATA.items = {
   a_master:  { name: "たつじんのどうぎ", kind: "armor", price: 2000, def: 15, who: ["gou"] },
   a_champ:   { name: "チャンピオンベルト", kind: "armor", price: 0, def: 24, who: ["gou"] },
   a_sage:    { name: "けんじゃのローブ", kind: "armor", price: 2200, def: 13, int: 3, who: ["rod", "celia"] },
+  // ほしのせかい ティア
+  a_comet:   { name: "コメットメイル",   kind: "armor", price: 9500, def: 30, who: ["leon", "glen"] },
+  a_moonrobe: { name: "つきのローブ",    kind: "armor", price: 8800, def: 24, int: 7, who: ["rod", "celia"] },
+  a_stargi:  { name: "ほしのどうぎ",     kind: "armor", price: 8200, def: 28, who: ["gou"] },
+  // きゅうきょくそうび
+  a_nova:    { name: "ちょうしんせいのよろい", kind: "armor", price: 0, def: 36, who: ["leon", "glen"] },
+  a_astral:  { name: "アストラルローブ", kind: "armor", price: 0, def: 30, int: 9, who: ["rod", "celia"] },
+  a_cosmogi: { name: "ぎんがのどうぎ",   kind: "armor", price: 0, def: 34, who: ["gou"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
@@ -420,7 +443,9 @@ DATA.encounters = {
 DATA.shops = {
   selene: {
     name: "つきのみやこの みせ",
-    stock: ["megapotion", "elixir", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss"],
+    stock: ["xpotion", "megapotion", "elixir", "hiether", "phoenix", "remedy",
+            "w_comet", "w_starlance", "w_cosmoclaw", "w_nebularod", "w_moonwand",
+            "a_comet", "a_moonrobe", "a_stargi"],
   },
   royal: {
     name: "おうきゅうごようたし",
@@ -1894,6 +1919,8 @@ DATA.maps.starworld = {
   chests: [
     { id: "sw1", x: 9, y: 2, gold: 5000, hidden: true },
     { id: "sw2", x: 12, y: 10, item: "elixir", hidden: true },
+    { id: "sw3", x: 1, y: 9, item: "w_ryuoh", hidden: true },
+    { id: "sw4", x: 18, y: 4, item: "a_nova", hidden: true },
   ],
 };
 
@@ -1949,6 +1976,8 @@ DATA.maps.moonpalace = {
   ],
   chests: [
     { id: "mp1", x: 14, y: 1, item: "megapotion" },
+    { id: "mp2", x: 1, y: 10, item: "w_supernova", hidden: true },
+    { id: "mp3", x: 14, y: 8, item: "a_astral", hidden: true },
   ],
 };
 
@@ -1984,6 +2013,8 @@ DATA.maps.crater1 = {
   chests: [
     { id: "cr1", x: 14, y: 3, gold: 4000 },
     { id: "cr2", x: 1, y: 7, item: "elixir" },
+    { id: "cr6", x: 14, y: 7, item: "w_nova" },
+    { id: "cr7", x: 6, y: 10, item: "w_astral", hidden: true },
   ],
 };
 
@@ -2019,6 +2050,8 @@ DATA.maps.crater2 = {
     { id: "cr3", x: 8, y: 5, item: "worldtear" },
     { id: "cr4", x: 4, y: 5, gold: 8000, hidden: true },
     { id: "cr5", x: 14, y: 5, item: "elixir" },
+    { id: "cr8", x: 8, y: 7, item: "a_cosmogi" },
+    { id: "cr9", x: 1, y: 3, item: "w_stella" },
   ],
 };
 

@@ -43,6 +43,13 @@ function applyFieldItem(def, hero) {
     hero[def.cure] = false;
     return `${hero.name}の ${DATA.statuses[def.cure].name}が なおった!`;
   }
+  if (def.cureall) {
+    if (hero.hp <= 0) return null;
+    const had = Object.keys(DATA.statuses).filter((s) => hero[s]);
+    if (had.length === 0) return null;
+    had.forEach((s) => { hero[s] = false; });
+    return `${hero.name}の ${had.map((s) => DATA.statuses[s].name).join("・")}が なおった!`;
+  }
   return null;
 }
 
