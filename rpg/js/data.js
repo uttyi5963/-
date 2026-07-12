@@ -53,6 +53,35 @@ DATA.spells = {
 };
 
 // じょうたいいじょう
+// ひっさつわざ (リミットゲージ100%で はつどう。レベルで しゅうとく)
+DATA.limits = {
+  leon: [
+    { lv: 10, id: "l_cross",  name: "クロスブレイク",     kind: "phys",      mult: 2.5, target: "one" },
+    { lv: 30, id: "l_shine",  name: "シャインウェーブ",   kind: "phys",      mult: 2.0, target: "all", elem: "holy" },
+    { lv: 55, id: "l_sacred", name: "セイクリッドエッジ", kind: "phys",      mult: 4.0, target: "one", selfheal: 0.25 },
+  ],
+  glen: [
+    { lv: 10, id: "l_spiral", name: "スパイラルランス",   kind: "phys",      mult: 2.5, target: "one" },
+    { lv: 30, id: "l_ryusei", name: "りゅうせいらんぶ",   kind: "physMulti", mult: 1.2, hits: 4 },
+    { lv: 55, id: "l_dive",   name: "ドラゴンダイブ",     kind: "phys",      mult: 5.0, target: "one" },
+  ],
+  gou: [
+    { lv: 10, id: "l_vacuum", name: "しんくうは",         kind: "phys",      mult: 2.5, target: "one" },
+    { lv: 30, id: "l_hyakki", name: "ひゃっきれんだ",     kind: "physMulti", mult: 0.8, hits: 6 },
+    { lv: 55, id: "l_kiai",   name: "きあいかいほう",     kind: "phys",      mult: 4.0, target: "one", chargeUp: true },
+  ],
+  celia: [
+    { lv: 10, id: "l_breeze", name: "いやしのかぜ",       kind: "healAll",   ratio: 0.5 },
+    { lv: 30, id: "l_seinaru", name: "せいなるいのり",    kind: "healAll",   ratio: 1.0, cure: true },
+    { lv: 55, id: "l_tenshi", name: "てんしのきせき",     kind: "miracle" },
+  ],
+  rod: [
+    { lv: 12, id: "l_mana",   name: "マナバースト",       kind: "magic",     pow: 200, target: "all" },
+    { lv: 32, id: "l_storm",  name: "エレメントストーム", kind: "magicMulti", pow: 150, hits: 3 },
+    { lv: 55, id: "l_genshi", name: "げんしのひかり",     kind: "magic",     pow: 400, target: "one" },
+  ],
+};
+
 DATA.statuses = {
   poison:  { name: "どく",     mark: "ど" },
   blind:   { name: "くらやみ", mark: "や" },
@@ -119,7 +148,6 @@ DATA.items = {
   a_fairy:   { name: "フェアリーローブ", kind: "armor", price: 0, def: 14, int: 4, who: ["rod", "celia"] },
   a_royalmail: { name: "おうこくのよろい", kind: "armor", price: 5000, def: 24, who: ["leon", "glen"] },
   a_royal:   { name: "おうけのローブ",   kind: "armor", price: 4200, def: 19, int: 5, who: ["rod", "celia"] },
-  w_boltstaff: { name: "いかずちのつえ", kind: "weapon", price: 1600, atk: 10, int: 4, who: ["rod"] },
   // ほしのせかい ティア (セレーネで はんばい)
   w_comet:   { name: "コメットブレード", kind: "weapon", price: 9000, atk: 44, who: ["leon"] },
   w_starlance: { name: "ほしのやり",     kind: "weapon", price: 8500, atk: 42, who: ["glen"] },
@@ -1978,7 +2006,7 @@ DATA.maps.waterway = {
   chests: [
     { id: "ww1", x: 9, y: 1, item: "w_thunderclaw" },
     { id: "ww2", x: 13, y: 1, item: "a_aqua" },
-    { id: "ww3", x: 17, y: 1, item: "w_boltstaff" },
+    { id: "ww3", x: 17, y: 1, item: "w_sagestaff" },
     { id: "ww4", x: 2, y: 5, gold: 900 },
     { id: "ww5", x: 12, y: 5, item: "elixir", hidden: true },
   ],

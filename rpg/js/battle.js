@@ -125,6 +125,17 @@ class BattleScene {
     return { x: 28 + (i % 2) * 14, y: 40 + i * 44, size, scale };
   }
 
+  // ひっさつゲージ: うけたダメージに おうじて たまる
+  gainLimit(victim, dmg) {
+    if (victim.h.hp <= 0) return;
+    victim.h.limit = Math.min(100, (victim.h.limit || 0) + Math.round(dmg / victim.h.maxhp * 90));
+  }
+
+  // しゅうとくずみの ひっさつわざ
+  learnedLimits(h) {
+    return (DATA.limits[h.id] || []).filter((t) => h.lv >= t.lv);
+  }
+
   // いちじポーズを セット (こうどうに あわせた たちえ)
   setPose(p, name, dur) {
     p.pose = { name, t: dur };
@@ -283,6 +294,9 @@ class BattleScene {
     const p = this.ready;
     const h = p.h;
     const cmds = [{ id: "fight", name: "たたかう" }];
+    if ((h.limit || 0) >= 100 && this.learnedLimits(h).length > 0) {
+      cmds.push({ id: "limit", name: "ひっさつ!" });
+    }
     if (h.special === "dark") cmds.push({ id: "dark", name: "あんこく" });
     if (h.special === "holy") cmds.push({ id: "holy", name: "せいけん" });
     if (h.command === "jump") cmds.push({ id: "jump", name: p.jumpCount > 0 ? "ダブルジャンプ" : "ジャンプ" });
@@ -327,6 +341,7 @@ class BattleScene {
         }
         else if (cmd.id === "pray") this.doPlayerAction({ type: "pray" });
         else if (cmd.id === "cover") { this.menu = "targetP"; this.targetSel = 0; this.pendingAct = { type: "cover" }; }
+        else if (cmd.id === "limit") { this.menu = "limit"; this.sel2 = 0; }
         else if (cmd.id === "spell") {
           if (h.silence || h.toad) { AudioSys.sfx("buzz"); this.log = "こえが でない!"; return; }
           this.menu = "spell"; this.sel2 = 0;
@@ -338,6 +353,20 @@ class BattleScene {
       return;
     }
 
+    if (this.menu === "limit") {
+      const techs = this.learnedLimits(this.ready.h);
+      if (Input.tap("up")) { this.sel2 = (this.sel2 + techs.length - 1) % techs.length; AudioSys.sfx("cursor"); }
+      if (Input.tap("down")) { this.sel2 = (this.sel2 + 1) % techs.length; AudioSys.sfx("cursor"); }
+      if (Input.tap("b")) { AudioSys.sfx("cancel"); this.menu = "root"; return; }
+      if (Input.tap("a")) {
+        const tech = techs[this.sel2];
+        AudioSys.sfx("confirm");
+        this.pendingAct = { type: "limit", tech };
+        if (tech.target === "one") { this.menu = "targetE"; this.targetSel = 0; this.targetAll = false; }
+        else this.doPlayerAction(this.pendingAct);
+      }
+      return;
+    }
     if (this.menu === "spell") {
       const spells = this.ready.h.spells.map((id) => ({ id, def: DATA.spells[id] }));
       if (Input.tap("up")) { this.sel2 = (this.sel2 + spells.length - 1) % spells.length; AudioSys.sfx("cursor"); }
@@ -391,7 +420,11 @@ class BattleScene {
         if (Input.tap("up") || (!canAll && Input.tap("left"))) { this.targetSel = (this.targetSel + es.length - 1) % es.length; AudioSys.sfx("cursor"); }
         if (Input.tap("down") || (!canAll && Input.tap("right"))) { this.targetSel = (this.targetSel + 1) % es.length; AudioSys.sfx("cursor"); }
       }
-      if (Input.tap("b")) { AudioSys.sfx("cancel"); this.targetAll = false; this.menu = this.pendingAct.type === "spell" ? "spell" : "root"; return; }
+      if (Input.tap("b")) {
+        AudioSys.sfx("cancel"); this.targetAll = false;
+        this.menu = this.pendingAct.type === "spell" ? "spell" : this.pendingAct.type === "limit" ? "limit" : "root";
+        return;
+      }
       if (Input.tap("a")) {
         AudioSys.sfx("confirm");
         this.pendingAct.target = es[Math.min(this.targetSel, es.length - 1)];
@@ -497,6 +530,118 @@ class BattleScene {
 
     // 後列からの ぶつりこうげきは はんげん
     const rowMul = h.row === "back" ? 0.5 : 1;
+
+    if (act.type === "limit") {
+      const t = act.tech;
+      h.limit = 0;
+      this.setPose(p, "skill", 1.6);
+      this.screenFlash = 0.35;
+      this.shake = 0.3;
+      events.push({ t: 0, fn: () => {
+        this.log = `${h.name}の ひっさつわざ!\n${t.name}!!`;
+        AudioSys.sfx("crit");
+      } });
+      const limitAtk = () => Math.round(G.atkOf(h) * t.mult);
+      if (t.kind === "phys") {
+        const targets = t.target === "all" ? this.aliveEnemies()
+          : [(!act.target || act.target.dead) ? this.aliveEnemies()[0] : act.target].filter(Boolean);
+        targets.forEach((e) => {
+          let mod = t.elem ? Math.max(this.elemMod(e.def, t.elem), this.weaponMod(h, e.def)) : this.weaponMod(h, e.def);
+          const dmg = Math.max(1, Math.round(this.physDmg(limitAtk(), e.def.def) * mod));
+          this.queueHitEnemy(events, e, dmg, "crit");
+        });
+        if (t.selfheal) {
+          events.push({ t: 0.7, fn: () => {
+            const v = Math.round(h.maxhp * t.selfheal);
+            h.hp = Math.min(h.maxhp, h.hp + v);
+            const pos = this.partyPos(this.party.indexOf(p));
+            this.pop(pos.x, pos.y, v, 3);
+          } });
+        }
+        if (t.chargeUp) {
+          events.push({ t: 0.8, fn: () => {
+            p.charge = 3;
+            this.log = "さらに ちからが みなぎる! (ため3)";
+          } });
+        }
+      }
+      else if (t.kind === "physMulti") {
+        for (let i = 0; i < t.hits; i++) {
+          events.push({ t: 0.35 + i * 0.22, fn: () => {
+            const es = this.aliveEnemies();
+            if (es.length === 0) return;
+            const e = es[Math.floor(Math.random() * es.length)];
+            const dmg = Math.max(1, Math.round(this.physDmg(limitAtk(), e.def.def) * this.weaponMod(h, e.def)));
+            e.hp = Math.max(0, e.hp - dmg);
+            e.flash = 0.2;
+            const pos = this.enemyPos(this.enemies.indexOf(e));
+            this.pop(pos.x + pos.size / 2, pos.y, dmg);
+            this.fx.push({ x: pos.x + pos.size / 2, y: pos.y + pos.size / 2, kind: "slash", t: 0 });
+            AudioSys.sfx("hit");
+          } });
+        }
+        dur = 0.6 + t.hits * 0.22;
+      }
+      else if (t.kind === "magic") {
+        const targets = t.target === "all" ? this.aliveEnemies()
+          : [(!act.target || act.target.dead) ? this.aliveEnemies()[0] : act.target].filter(Boolean);
+        targets.forEach((e) => {
+          const dmg = Math.round(t.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
+          this.queueHitEnemy(events, e, dmg, "magic");
+        });
+      }
+      else if (t.kind === "magicMulti") {
+        const elems = ["fire", "ice", "thunder"];
+        for (let i = 0; i < t.hits; i++) {
+          events.push({ t: 0.35 + i * 0.28, fn: () => {
+            const es = this.aliveEnemies();
+            if (es.length === 0) return;
+            const e = es[Math.floor(Math.random() * es.length)];
+            const elem = elems[Math.floor(Math.random() * elems.length)];
+            const dmg = Math.round(t.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1) * Math.abs(this.elemMod(e.def, elem)));
+            e.hp = Math.max(0, e.hp - dmg);
+            e.flash = 0.2;
+            this.screenFlash = 0.12;
+            const pos = this.enemyPos(this.enemies.indexOf(e));
+            this.pop(pos.x + pos.size / 2, pos.y, dmg);
+            this.fx.push({ x: pos.x + pos.size / 2, y: pos.y + pos.size / 2, kind: "burst", t: 0 });
+            AudioSys.sfx("magic");
+          } });
+        }
+        dur = 0.6 + t.hits * 0.28;
+      }
+      else if (t.kind === "healAll") {
+        events.push({ t: 0.5, fn: () => {
+          AudioSys.sfx("heal");
+          this.aliveParty().forEach((q) => {
+            const v = Math.max(1, Math.round(q.h.maxhp * t.ratio));
+            q.h.hp = Math.min(q.h.maxhp, q.h.hp + v);
+            if (t.cure) Object.keys(DATA.statuses).forEach((st) => { q.h[st] = false; });
+            const pos = this.partyPos(this.party.indexOf(q));
+            this.pop(pos.x, pos.y, v, 3);
+          });
+          this.log = t.cure ? "ひかりが ぜんいんを つつみこんだ!!" : "いやしのかぜが ふきぬけた!";
+        } });
+      }
+      else if (t.kind === "miracle") {
+        events.push({ t: 0.5, fn: () => {
+          AudioSys.sfx("heal");
+          this.screenFlash = 0.4;
+          this.party.forEach((q) => {
+            q.h.hp = q.h.maxhp;
+            Object.keys(DATA.statuses).forEach((st) => { q.h[st] = false; });
+            const pos = this.partyPos(this.party.indexOf(q));
+            this.pop(pos.x, pos.y, q.h.maxhp, 3);
+          });
+          this.log = "てんしの はねが まいおりた……!!\nぜんいん かんぜんふっかつ!!";
+        } });
+      }
+      dur = Math.max(dur, 1.6);
+      this.startAnim(events, dur);
+      this.ready = null;
+      this.phase = "atb";
+      return;
+    }
 
     if (act.type === "fight") {
       const t = act.target;
@@ -884,6 +1029,7 @@ class BattleScene {
       }
       victim.h.hp = Math.max(0, victim.h.hp - dmg);
       victim.flash = 0.25;
+      this.gainLimit(victim, dmg);
       const pos = this.partyPos(this.party.indexOf(victim));
       this.pop(pos.x, pos.y, dmg, 2);
       this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind: "slash", t: 0 });
@@ -947,6 +1093,7 @@ class BattleScene {
         dmg = Math.max(1, dmg);
         p.h.hp = Math.max(0, p.h.hp - dmg);
         p.flash = 0.25;
+        this.gainLimit(p, dmg);
         const pos = this.partyPos(this.party.indexOf(p));
         this.pop(pos.x, pos.y, dmg, 2);
         this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind: "burst", t: 0 });
@@ -1422,6 +1569,14 @@ class BattleScene {
       } else {
         Gfx.bar(258, y + 4, 48, 5, p.atb / 100);
       }
+      // ひっさつゲージ (ほそいバー / まんタンで 「ひ」てんめつ)
+      const lim = p.h.limit || 0;
+      if (lim >= 100) {
+        if (Math.floor(performance.now() / 300) % 2 === 0) Gfx.text("ひ!", 240, y, 2, 9);
+        Gfx.bar(258, y + 11, 48, 2, 1, 2);
+      } else {
+        Gfx.bar(258, y + 11, 48, 2, lim / 100, 2);
+      }
       if (this.phase === "command" && this.ready === p) Gfx.cursor(106, y + 2, 3);
     });
   }
@@ -1434,6 +1589,15 @@ class BattleScene {
         Gfx.text(cmd.name, 26, 94 + i * 16, 3, 11);
       });
       Gfx.cursor(12, 97 + this.sel * 16);
+    }
+    else if (this.menu === "limit") {
+      const techs = this.learnedLimits(this.ready.h);
+      const h2 = techs.length * 16 + 14;
+      Gfx.window(4, 60, 168, h2);
+      techs.forEach((t, i) => {
+        Gfx.text(t.name, 26, 67 + i * 16, 3, 11);
+      });
+      Gfx.cursor(12, 70 + this.sel2 * 16);
     }
     else if (this.menu === "spell") {
       // 8こずつの スクロールひょうじ (じゅもんが おおくても がめんに おさまる)

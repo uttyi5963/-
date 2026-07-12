@@ -385,6 +385,7 @@ const G = {
       spells: d.spells.slice(),
       row: d.row || "front",
       poison: false, paladin: false,
+      limit: 0, // ひっさつゲージ (0..100)
     };
     this.applyStats(h);
     // レベルに おうじた しゅうとくずみ じゅもん
@@ -621,8 +622,15 @@ const G = {
       if (!s || !s.party) return false;
       if (!s.config) s.config = { atbWait: true };
       if (!s.bestiary) s.bestiary = {};
+      if (s.items && s.items.w_boltstaff) {
+        s.items.w_sagestaff = (s.items.w_sagestaff || 0) + s.items.w_boltstaff;
+        delete s.items.w_boltstaff;
+      }
       const patchHero = (h) => {
         if (!h.row) h.row = (DATA.heroes[h.id] && DATA.heroes[h.id].row) || "front";
+        if (h.limit == null) h.limit = 0;
+        // はいばんした ぶきの ひっこし
+        if (h.weapon === "w_boltstaff") h.weapon = "w_sagestaff";
         // ふるいセーブは command が null のことがある (ロッドのかくせい等を補完)
         if (h.command == null) {
           h.command = h.paladin ? DATA.paladin.command
