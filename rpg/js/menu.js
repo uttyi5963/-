@@ -599,6 +599,10 @@ class QuestScene {
         f("stellaDone") ? "かんりょう" : f("stellaFound") ? "ちょうろうに ほうこく" : "クレーターのおくで ステラをさがす"]);
     }
     if (f("worldtearGiven")) list.push(["ちょうろうの おくりもの", "せかいのしずくを さずかった"]);
+    if (f("hideSeek")) {
+      list.push(["むらの かくれんぼ",
+        f("hideSeekDone") ? "かんりょう" : "きのちかくに かくれた モコをさがす"]);
+    }
     if (f("fishKing")) list.push(["つりぼりの ぬし", "つりあげた!"]);
     if (f("forestBoss")) list.push(["まよいのもりの ぬし", "とうばつ かんりょう"]);
     if (f("clear")) list.push(["じょうの ふっこう",

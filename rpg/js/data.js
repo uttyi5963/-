@@ -662,6 +662,16 @@ DATA.maps.castle = {
     { x: 10, y: 11, type: "enter", warp: { map: "world", x: 7, y: 27, dir: "d" } },
   ],
   npcs: [
+    { id: "castle_maid", x: 4, y: 9, spr: "villager", wander: true,
+      script: [
+        { cond: { flag: "trueClear" },
+          then: [{ msg: "じじょ「おしろにも ほんとうの へいわが\nもどりました。おうさまは まいあさ\nはたけを たがやして おいでです」" }],
+          else: [
+            { cond: { flag: "clear" },
+              then: [{ msg: "じじょ「おうさまが もとに もどられて\nしろじゅうが おおよろこびです。\nありがとうございます……!」" }],
+              else: [{ msg: "じじょ「さいきんの おうさまは\nどこか ようすが へんなのです。\nめつきが するどいというか……」" }] },
+          ] },
+      ] },
     { id: "king", x: 9, y: 1, spr: "king",
       script: [
         { cond: { flag: "clear" },
@@ -826,6 +836,29 @@ DATA.maps.town = {
               then: [{ msg: "こども「ひかりの きしさまだー!\nかっこいい! やりの おにいちゃんも\nこぶしの おじちゃんも すごーい!」" }],
               else: [{ msg: "こども「ぼうけんしゃだ!\nねえねえ、まものと たたかったこと\nある? こわくないの?」" }] },
           ] },
+      ] },
+    { id: "kid_seek", x: 12, y: 5, spr: "villager", pal: "light",
+      script: [
+        { cond: { flag: "hideSeekDone" },
+          then: [{ msg: "こども「また かくれんぼ しようね!\nこんどは ぼくが かくれる ばん!」" }],
+          else: [
+            { cond: { flag: "hideSeek" },
+              then: [{ msg: "こども「モコちゃんは むらの どこかに\nかくれてるんだ。きのちかくが\nあやしいと おもうんだけどなー」" }],
+              else: [
+                { msg: "こども「かくれんぼの とちゅうなんだけど\nモコちゃんが ぜんぜん みつからないの。\nいっしょに さがしてくれる?」" },
+                { flag: ["hideSeek", 1] },
+              ] },
+          ] },
+      ] },
+    { id: "kid_hide", x: 2, y: 14, spr: "villager", pal: "light",
+      showFlag: "hideSeek", hideFlag: "hideSeekDone",
+      script: [
+        { msg: "モコ「わっ みつかっちゃった!\nおにいちゃんたち かくれんぼ じょうずだね。\nこれ あげる!」" },
+        { give: { item: "potion" } },
+        { give: { item: "potion" } },
+        { give: { item: "potion" } },
+        { msg: "ポーションを 3つ てにいれた!" },
+        { flag: ["hideSeekDone", 1] },
       ] },
     // セリアのこじんイベント (かぜのクリスタルご)
     { id: "sister", x: 10, y: 12, spr: "celia", showFlag: "windCrystal",
@@ -1351,6 +1384,22 @@ DATA.maps.port = {
     { x: 10, y: 10, type: "enter", scriptId: "airshipBoard" },
   ],
   npcs: [
+    { id: "port_merchant", x: 2, y: 6, spr: "villager",
+      script: [
+        { cond: { flag: "submarine" },
+          then: [{ msg: "しょうにん「うみのそこに しんでんが\nあるらしいね。しんじゅの そうばが\nきになる きになる」" }],
+          else: [
+            { cond: { flag: "airship" },
+              then: [{ msg: "しょうにん「ひこうせんで ひとっとび とは\nうらやましい。うちの にもつも\nはこんでほしいくらいだよ」" }],
+              else: [{ msg: "しょうにん「ふねの こうろが まものだらけで\nしょうばいあがったりさ。はやく\nへいわに なってほしいもんだ」" }] },
+          ] },
+      ] },
+    { id: "port_angler", x: 12, y: 7, spr: "villager",
+      script: [
+        { cond: { flag: "fishKing" },
+          then: [{ msg: "つりずき「つりぼりの ぬしを つりあげたって!?\nあんた でんせつの つりびとだよ!」" }],
+          else: [{ msg: "つりずき「つりぼりには ぬしが いるらしい。\nおれは 3ねん かよってるが\nまだ あたりも ないね……」" }] },
+      ] },
     { id: "sailor", x: 9, y: 7, spr: "villager",
       script: [
         { cond: { flag: "seaBoss" },
@@ -1805,6 +1854,16 @@ DATA.maps.muspel = {
     { x: 10, y: 8, type: "enter", warp: { map: "forge", x: 5, y: 7, dir: "u" } },
   ],
   npcs: [
+    { id: "smith_apprentice", x: 13, y: 10, spr: "villager", pal: "dark",
+      script: [
+        { cond: { flag: "forged" },
+          then: [{ msg: "かじやのでし「かがやくいしの つるぎは\nおやかたの さいこうけっさくだべ。\nだいじに つかってくれよな」" }],
+          else: [
+            { cond: { flag: "magmaBoss" },
+              then: [{ msg: "かじやのでし「かがやくいしを もってるなら\nおやかたに みせてみるだ。\nすごいもんが できるかもだよ」" }],
+              else: [{ msg: "かじやのでし「おらは まだ くぎしか\nうたせてもらえねえだ。いつか\nでんせつのつるぎを うつのが ゆめだべ」" }] },
+          ] },
+      ] },
     { id: "dwarf1", x: 5, y: 10, spr: "villager", pal: "dark", wander: true,
       script: [
         { cond: { flag: "submarine" },
