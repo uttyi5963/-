@@ -428,6 +428,55 @@ class MenuScene {
 // ============================================================
 // モンスターずかん
 // ============================================================
+// ---------------- でんどうのま (じっせき いちらん) ----------------
+class AchievementScene {
+  constructor(onDone) {
+    this.opaque = true;
+    this.onDone = onDone || null;
+  }
+  rows() {
+    const f = (k) => !!G.flag(k);
+    const monsTotal = Object.keys(DATA.monsters).length;
+    const seen = Object.keys(G.state.bestiary || {}).length;
+    const chests = Object.keys(G.state.flags || {}).filter((k) => k.indexOf("chest_") === 0).length;
+    const genju = ["sylphidDown", "gnomosDown", "undinaDown"].filter(f).length;
+    return [
+      ["まおう ザルバを たおした", f("clear")],
+      ["しんのてき ヴォイドスを たおした", f("trueClear")],
+      ["しんえんりゅう ヴァハを たおした", f("superBoss")],
+      ["ほしぼしのおう グランステラ", f("graveBoss")],
+      ["けんおう ガロンに かった", f("garonBeat")],
+      ["クレーターのぬしを しずめた", f("craterBoss")],
+      [`げんじゅうを たいじした (${genju}/3)`, genju >= 3],
+      [`ずかんに とうろくした (${seen}/${monsTotal})`, seen >= monsTotal],
+      [`たからばこを あけた (${chests}こ)`, chests >= 40],
+      ["つりぼりの ぬしを つった", f("fishKing")],
+      ["とうぎじょう ゴールドせいは", f("arenaGold")],
+    ];
+  }
+  update() {
+    if (Input.tap("a") || Input.tap("b")) {
+      AudioSys.sfx("cancel");
+      G.pop();
+      if (this.onDone) this.onDone();
+    }
+  }
+  draw() {
+    Gfx.clear(0);
+    Gfx.window(4, 4, 312, 280);
+    Gfx.text("〜 えいゆうの きろく 〜", 92, 14, 3, 13);
+    this.rows().forEach(([name, done], i) => {
+      const y = 38 + i * 19;
+      Gfx.text(done ? "☆" : "・", 18, y, done ? 3 : 1, 12);
+      Gfx.text(name, 38, y, done ? 3 : 1, 11);
+    });
+    const p = G.state.party[0];
+    const pmin = Math.floor((G.state.playtime || 0) / 60);
+    Gfx.text(`レベル${p ? p.lv : "?"}  プレイじかん ${Math.floor(pmin / 60)}じかん${pmin % 60}ふん`, 18, 250, 2, 10);
+    Gfx.text("A/B: もどる", 130, 266, 1, 9);
+  }
+}
+
 class BestiaryScene {
   constructor() {
     this.opaque = true;

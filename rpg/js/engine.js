@@ -859,10 +859,11 @@ function runScript(ops, onDone) {
       }
       if (op.flag) { G.setFlag(op.flag[0], op.flag[1]); continue; }
       if (op.cond) {
-        // flag / item(しょじひん) / kills(ずかんの とうばつすう) で ぶんき
+        // flag / item(しょじひん) / kills(ずかんの とうばつすう) / all(ぜんフラグ) で ぶんき
         let pass;
         if (op.cond.item) pass = (G.state.items[op.cond.item] || 0) > 0;
         else if (op.cond.kills) pass = G.killsOf(op.cond.kills.id) >= op.cond.kills.n;
+        else if (op.cond.all) pass = op.cond.all.every((k) => G.flag(k));
         else pass = G.flag(op.cond.flag);
         const branch = pass ? (op.then || []) : (op.else || []);
         ops = ops.slice(0, i).concat(branch, ops.slice(i));
@@ -895,6 +896,10 @@ function runScript(ops, onDone) {
       }
       if (op.fishing) {
         G.push(new FishingScene(op.fishing.price || 50, next));
+        return;
+      }
+      if (op.achievements) {
+        G.push(new AchievementScene(next));
         return;
       }
       if (op.menu) {

@@ -166,6 +166,7 @@ DATA.items = {
   a_crown:   { name: "ほしのおうかん",   kind: "armor", price: 0, def: 33, int: 10, who: ["rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
+  heroproof: { name: "えいゆうのあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
   glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
   earthcrystal: { name: "ちのクリスタル", kind: "key", price: 0, desc: "だいちのちからを やどす けっしょう" },
   windcrystal: { name: "かぜのクリスタル", kind: "key", price: 0, desc: "あらしのちからを やどす けっしょう" },
@@ -670,6 +671,14 @@ DATA.maps.castle = {
     { x: 10, y: 11, type: "enter", warp: { map: "world", x: 7, y: 27, dir: "d" } },
   ],
   npcs: [
+    { id: "hall_guide", x: 14, y: 1, spr: "soldier", showFlag: "clear",
+      script: [
+        { msg: "ばんにん「ここは えいゆうの きろくを\nまつる『でんどうのま』への いりぐち。\nはいられますか?」" },
+        { menu: { options: [
+          { label: "はいる", ops: [{ warp: { map: "halloffame", x: 6, y: 7, dir: "u" } }] },
+          { label: "やめる", ops: [] },
+        ] } },
+      ] },
     { id: "castle_maid", x: 4, y: 9, spr: "villager", wander: true,
       script: [
         { cond: { flag: "trueClear" },
@@ -2316,6 +2325,58 @@ DATA.maps.crater2 = {
     { id: "cr8", x: 8, y: 7, item: "a_cosmogi" },
     { id: "cr9", x: 1, y: 3, item: "w_stella" },
   ],
+};
+
+// ---------------- でんどうのま (じっせきの ホール) ----------------
+DATA.maps.halloffame = {
+  name: "でんどうのま",
+  bgm: "shrine",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "p": { tile: "pillar", solid: true },
+    "r": { tile: "carpet" },
+  },
+  rows: [
+    "##############",
+    "#............#",
+    "#.p........p.#",
+    "#.....rr.....#",
+    "#.....rr.....#",
+    "#.p........p.#",
+    "#............#",
+    "#............#",
+    "#............#",
+    "##############",
+  ],
+  events: [
+    { x: 6, y: 8, type: "enter", warp: { map: "castle", x: 14, y: 2, dir: "d" } },
+    { x: 7, y: 8, type: "enter", warp: { map: "castle", x: 14, y: 2, dir: "d" } },
+  ],
+  npcs: [
+    { id: "hall_cry1", x: 5, y: 2, spr: "crystal",
+      script: [{ msg: "クリスタルの ひかりが\nしずかに ゆれている……。" }] },
+    { id: "hall_cry2", x: 8, y: 2, spr: "crystal",
+      script: [{ msg: "クリスタルの ひかりが\nあたたかく つつんでくれる。" }] },
+    { id: "hall_keeper", x: 6, y: 3, spr: "elder",
+      script: [
+        { msg: "きろくがかり「ようこそ でんどうのまへ。\nあなたがたの あゆみを ごらんに\nいれましょう」" },
+        { achievements: true },
+        { cond: { all: ["trueClear", "superBoss", "graveBoss", "sylphidDown", "gnomosDown", "undinaDown"] },
+          then: [
+            { cond: { flag: "hallHero" },
+              then: [{ msg: "きろくがかり「あなたがたこそ しんの えいゆう。\nその なは えいえんに かたりつがれます」" }],
+              else: [
+                { msg: "きろくがかり「すべての しれんを こえた もの……。\nでんせつは ここに かんせいしました。\nこれを うけとってください」" },
+                { give: { item: "heroproof" } },
+                { msg: "えいゆうのあかしを てにいれた!!" },
+                { flag: ["hallHero", 1] },
+              ] },
+          ],
+          else: [{ msg: "きろくがかり「まだ きろくには つづきが\nありそうですね。すべての ☆が そろうひを\nたのしみに しています」" }] },
+      ] },
+  ],
+  chests: [],
 };
 
 // ---------------- ほしのはか (かくしダンジョン) ----------------
