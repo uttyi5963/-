@@ -896,6 +896,7 @@ DATA.maps.world = {
     "X": { tile: "icon_tower" },
     "A": { tile: "icon_cave" },
     "Q": { tile: "icon_castle" },
+    "D": { tile: "icon_town" },
   },
   rows: [
     "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
@@ -926,7 +927,7 @@ DATA.maps.world = {
     "ww...f..........mmmm.ff...........wwwwww",
     "ww.....C........mmmm..f...........wwwwww",
     "ww..............mmmm..............wwwwww",
-    "ww..............mmmm......f..H....wwwwww",
+    "ww........D.....mmmm......f..H....wwwwww",
     "ww...ff.........mmmm.....ff.......wwwwww",
     "ww....f..U......mmmm..............wwwwww",
     "ww..............mmmm..............wwwwww",
@@ -943,6 +944,7 @@ DATA.maps.world = {
   ],
   events: [
     { x: 7, y: 26, type: "enter", warp: { map: "castle", x: 9, y: 10, dir: "u" } },
+    { x: 10, y: 28, type: "enter", warp: { map: "airdock", x: 9, y: 8, dir: "u" } },
     { x: 27, y: 22, type: "enter", warp: { map: "town", x: 9, y: 14, dir: "u" } },
     { x: 16, y: 20, type: "enter", warp: { map: "cave", x: 1, y: 10, dir: "r" } },
     { x: 19, y: 20, type: "enter", warp: { map: "cave", x: 22, y: 10, dir: "l" } },
@@ -4773,6 +4775,81 @@ DATA.maps.phantomthrone = {
   ],
   chests: [
     { id: "pt1", x: 14, y: 9, item: "acc_windpin", hidden: true },
+  ],
+};
+
+// ---------------- そらのふなつきば (ひこうせいび場) ----------------
+DATA.maps.airdock = {
+  name: "そらのふなつきば",
+  bgm: "town",
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "p": { tile: "path" },
+    "b": { tile: "bridge" },
+    "P": { tile: "pillar", solid: true },
+    "B": { tile: "banner", solid: true },
+    "t": { tile: "table", solid: true },
+  },
+  rows: [
+    "ffffffffffffffffff",
+    "f................f",
+    "f..t...PbbP......f",
+    "f......bbbb...t..f",
+    "f..B...bbbb..t...f",
+    "f......bbbb......f",
+    "f..ppppppppppp...f",
+    "f......ppp.......f",
+    "f......ppp.......f",
+    "ffffffffppffffffff",
+  ],
+  events: [
+    { x: 8, y: 9, type: "enter", warp: { map: "world", x: 10, y: 29, dir: "d" } },
+    { x: 9, y: 9, type: "enter", warp: { map: "world", x: 10, y: 29, dir: "d" } },
+  ],
+  npcs: [
+    { id: "dock_chief", x: 8, y: 4, spr: "villager",
+      script: [
+        { cond: { flag: "dockDone" },
+          then: [
+            { cond: { flag: "airship" },
+              then: [{ msg: "ぎしちょうガレット「シリウスごうは きょうも\nばっちり せいびずみだ! そらの たびは\nわしらに まかせておけ!」" }],
+              else: [{ msg: "ぎしちょうガレット「そうこも きれいに なったし\nさぎょうが はかどる はかどる!\nかんせいしたら いちばんに のせてやろう」" }] },
+          ],
+          else: [
+            { cond: { flag: "dockQuest" },
+              then: [
+                { cond: { kills: { id: "bat", n: 5 } },
+                  then: [
+                    { msg: "ぎしちょうガレット「おお! そうこの コウモリを\nたいじして くれたのか! これで あんしんして\nぶひんを しまえるわい」" },
+                    { give: { gold: 2500 } },
+                    { give: { item: "xpotion" } },
+                    { msg: "2500ギルと エクスポーションを てにいれた!" },
+                    { flag: ["dockDone", 1] },
+                  ],
+                  else: [{ msg: "ぎしちょうガレット「コウモリは どうくつに\nむれて おるぞ。5ひきも へらせば\nしばらく よりつくまい」" }] },
+              ],
+              else: [
+                { msg: "ぎしちょうガレット「ここは そらとぶ ふねの\nふなつきば。わしが ぎしちょうの ガレットだ」" },
+                { msg: "「じつは こまっておってな…… ぶひんそうこに\nコウモリが すみついて さぎょうに ならん。\n5ひき たいじして くれんか?」" },
+                { flag: ["dockQuest", 1] },
+              ] },
+          ] },
+      ] },
+    { id: "dock_boy", x: 4, y: 7, spr: "villager", pal: "light", wander: true,
+      script: [
+        { cond: { flag: "airship" },
+          then: [{ msg: "みならいぎしピコ「シリウスごうが そらを とぶすがた\nぼく なんども みたんだ! いつか ぼくも\nそうじゅうしを やるんだ!」" }],
+          else: [{ msg: "みならいぎしピコ「ここに でっかい けいりゅうとうを\nたてるんだって! そらとぶ ふねが とまるんだよ!\nはやく みたいなあ」" }] },
+      ] },
+    { id: "dock_master", x: 13, y: 3, spr: "villager", pal: "dark",
+      script: [
+        { msg: "おやかたドッド「この きばこには プロペラの\nよびぶひんが つまってる。 らんぼうに\nあつかうなよ!」" },
+      ] },
+  ],
+  chests: [
+    { id: "ad1", x: 14, y: 7, item: "wing_return" },
+    { id: "ad2", x: 2, y: 8, gold: 800, hidden: true },
   ],
 };
 

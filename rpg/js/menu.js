@@ -669,6 +669,10 @@ class QuestScene {
       list.push(["おうの いらい",
         f("dvergReward") ? "かんりょう" : `マグマトカゲたいじ (${Math.min(5, G.killsOf("firelizard"))}/5)`]);
     }
+    if (f("dockQuest")) {
+      list.push(["ふなつきばの こまりごと",
+        f("dockDone") ? "かんりょう" : `コウモリたいじ (${Math.min(5, G.killsOf("bat"))}/5)`]);
+    }
     if (f("nightBoss")) {
       const eps = ["leonEp2", "glenEp2", "gouEp2", "celiaEp2", "rodEp2"].filter(f).length;
       list.push(["ひとりひとりの あゆみ",
