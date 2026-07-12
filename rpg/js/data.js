@@ -186,6 +186,12 @@ DATA.items = {
   w_regalia: { name: "おうのつるぎ レガリア", kind: "weapon", price: 0, atk: 65, who: ["leon"],
     elem: "holy", slay: ["demon", "undead", "dragon"] },
   a_phantom: { name: "まぼろしのマント",  kind: "armor", price: 0, def: 34, int: 9, who: ["rod", "celia"] },
+  // かくしぶきコレクション (とくしゅな にゅうしゅじょうけん)
+  w_skypierce: { name: "そらのやり",      kind: "weapon", price: 0, atk: 60, who: ["glen"], elem: "thunder" },
+  w_haou:    { name: "はおうのつめ",      kind: "weapon", price: 0, atk: 62, who: ["gou"] },
+  w_seijo:   { name: "せいじょのつえ",    kind: "weapon", price: 0, atk: 20, int: 13, who: ["celia"] },
+  w_genja:   { name: "げんじゃのつえ",    kind: "weapon", price: 0, atk: 22, int: 14, who: ["rod"] },
+  a_heroband: { name: "えいゆうのおび",   kind: "armor", price: 0, def: 36, int: 6, who: ["leon", "glen", "gou", "rod", "celia"] },
   // みどりのぐんとう ティア
   w_leafblade: { name: "こかげのつるぎ", kind: "weapon", price: 13500, atk: 48, who: ["leon"] },
   w_junglerod: { name: "みどりのつえ",   kind: "weapon", price: 11500, atk: 18, int: 10, who: ["rod"] },
@@ -1642,7 +1648,17 @@ DATA.maps.port = {
     { id: "port_angler", x: 12, y: 7, spr: "villager",
       script: [
         { cond: { flag: "fishKing" },
-          then: [{ msg: "つりずき「つりぼりの ぬしを つりあげたって!?\nあんた でんせつの つりびとだよ!」" }],
+          then: [
+            { cond: { flag: "anglerGift" },
+              then: [{ msg: "つりずき「でんせつの つりびとどの!\nあの やり、つかいこなしてるかい?」" }],
+              else: [
+                { msg: "つりずき「つりぼりの ぬしを つりあげたって!?\nあんた でんせつの つりびとだよ!」" },
+                { msg: "「じつは ぬしの ぬまの そこから\nふるい やりを ひきあげたんだ。\nあんたが もつべきだ、うけとってくれ!」" },
+                { give: { item: "w_skypierce" } },
+                { msg: "そらのやりを てにいれた!\n(こうげき60・かみなりぞくせい)" },
+                { flag: ["anglerGift", 1] },
+              ] },
+          ],
           else: [{ msg: "つりずき「つりぼりには ぬしが いるらしい。\nおれは 3ねん かよってるが\nまだ あたりも ないね……」" }] },
       ] },
     { id: "sailor", x: 9, y: 7, spr: "villager",
@@ -3652,6 +3668,7 @@ DATA.maps.glaciercave2 = {
   chests: [
     { id: "gc4", x: 8, y: 5, item: "elixir" },
     { id: "gc5", x: 4, y: 5, gold: 9000, hidden: true },
+    { id: "gc6", x: 14, y: 3, item: "w_seijo", hidden: true },
   ],
 };
 
@@ -3995,6 +4012,7 @@ DATA.maps.eternaltower2 = {
   chests: [
     { id: "et4", x: 2, y: 8, item: "xpotion" },
     { id: "et5", x: 13, y: 8, item: "elixir", hidden: true },
+    { id: "et6", x: 2, y: 2, item: "w_genja", hidden: true },
   ],
 };
 
@@ -4299,6 +4317,23 @@ DATA.maps.halloffame = {
       script: [{ msg: "クリスタルの ひかりが\nしずかに ゆれている……。" }] },
     { id: "hall_cry2", x: 8, y: 2, spr: "crystal",
       script: [{ msg: "クリスタルの ひかりが\nあたたかく つつんでくれる。" }] },
+    { id: "hall_bard", x: 3, y: 6, spr: "villager",
+      script: [
+        { cond: { flag: "haouGiven" },
+          then: [{ msg: "かたりべ「かくしぶきの うわさは まだある。\nぬまのそこの やり、めがみのさいだんの つえ、\nときのちょうじょうの つえ……」" }],
+          else: [
+            { cond: { flag: "arenaPlatinum" },
+              then: [
+                { msg: "かたりべ「とうぎじょうの プラチナを せいはした\nでんせつの こぶしに、この つめを\nささげましょう」" },
+                { give: { item: "w_haou" } },
+                { msg: "はおうのつめを てにいれた!\n(こうげき62・けんおうも おそれる つめ)" },
+                { flag: ["haouGiven", 1] },
+              ],
+              else: [
+                { msg: "かたりべ「せかいには かくされた ぶきが\nねむっています。ぬしの ぬま、めがみの さいだん、\nときの ちょうじょう、とうぎじょうの ちょうてん……」" },
+              ] },
+          ] },
+      ] },
     { id: "hall_keeper", x: 6, y: 3, spr: "elder",
       script: [
         { msg: "きろくがかり「ようこそ でんどうのまへ。\nあなたがたの あゆみを ごらんに\nいれましょう」" },
@@ -4306,7 +4341,16 @@ DATA.maps.halloffame = {
         { cond: { all: ["trueClear", "superBoss", "graveBoss", "sylphidDown", "gnomosDown", "undinaDown"] },
           then: [
             { cond: { flag: "hallHero" },
-              then: [{ msg: "きろくがかり「あなたがたこそ しんの えいゆう。\nその なは えいえんに かたりつがれます」" }],
+              then: [
+                { cond: { flag: "herobandGiven" },
+                  then: [{ msg: "きろくがかり「あなたがたこそ しんの えいゆう。\nその なは えいえんに かたりつがれます」" }],
+                  else: [
+                    { msg: "きろくがかり「えいゆうのあかしを もつ おかたへ\nでんどうから もうひとつ おくりものが\nございます」" },
+                    { give: { item: "a_heroband" } },
+                    { msg: "えいゆうのおびを てにいれた!\n(だれでも そうびできる さいこうきゅうの おび)" },
+                    { flag: ["herobandGiven", 1] },
+                  ] },
+              ],
               else: [
                 { msg: "きろくがかり「すべての しれんを こえた もの……。\nでんせつは ここに かんせいしました。\nこれを うけとってください」" },
                 { give: { item: "heroproof" } },
