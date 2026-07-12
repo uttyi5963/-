@@ -440,18 +440,22 @@ class AchievementScene {
     const seen = Object.keys(G.state.bestiary || {}).length;
     const chests = Object.keys(G.state.flags || {}).filter((k) => k.indexOf("chest_") === 0).length;
     const genju = ["sylphidDown", "gnomosDown", "undinaDown"].filter(f).length;
+    const lords = ["craterBoss", "mirrorBoss", "glacierBoss", "tombBoss", "ruinsBoss", "stormBoss"].filter(f).length;
+    const arena = f("arenaPlatinum") ? "プラチナ" : f("arenaGold") ? "ゴールド" : f("arenaSilver") ? "シルバー" : f("arenaBronze") ? "ブロンズ" : "みせいは";
     return [
       ["まおう ザルバを たおした", f("clear")],
       ["しんのてき ヴォイドスを たおした", f("trueClear")],
       ["しんえんりゅう ヴァハを たおした", f("superBoss")],
       ["ほしぼしのおう グランステラ", f("graveBoss")],
       ["けんおう ガロンに かった", f("garonBeat")],
-      ["クレーターのぬしを しずめた", f("craterBoss")],
+      [`かくちの ぬしを しずめた (${lords}/6)`, lords >= 6],
       [`げんじゅうを たいじした (${genju}/3)`, genju >= 3],
+      ["せかいかいぎを ひらいた", f("summitDone")],
+      [`とうぎじょう さいこうい: ${arena}`, f("arenaPlatinum")],
+      ["ねこあつめを かんせいさせた", f("catDone")],
       [`ずかんに とうろくした (${seen}/${monsTotal})`, seen >= monsTotal],
-      [`たからばこを あけた (${chests}こ)`, chests >= 40],
+      [`たからばこを あけた (${chests}こ)`, chests >= 60],
       ["つりぼりの ぬしを つった", f("fishKing")],
-      ["とうぎじょう ゴールドせいは", f("arenaGold")],
     ];
   }
   update() {
@@ -466,9 +470,9 @@ class AchievementScene {
     Gfx.window(4, 4, 312, 280);
     Gfx.text("〜 えいゆうの きろく 〜", 92, 14, 3, 13);
     this.rows().forEach(([name, done], i) => {
-      const y = 38 + i * 19;
-      Gfx.text(done ? "☆" : "・", 18, y, done ? 3 : 1, 12);
-      Gfx.text(name, 38, y, done ? 3 : 1, 11);
+      const y = 34 + i * 16;
+      Gfx.text(done ? "☆" : "・", 18, y, done ? 3 : 1, 11);
+      Gfx.text(name, 38, y, done ? 3 : 1, 10);
     });
     const p = G.state.party[0];
     const pmin = Math.floor((G.state.playtime || 0) / 60);
