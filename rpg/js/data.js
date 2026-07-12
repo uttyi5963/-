@@ -164,6 +164,7 @@ DATA.items = {
   a_cosmogi: { name: "ぎんがのどうぎ",   kind: "armor", price: 0, def: 34, who: ["gou"] },
   a_stellar: { name: "ほしのまもり",     kind: "armor", price: 0, def: 28, int: 8, who: ["rod", "celia"] },
   a_crown:   { name: "ほしのおうかん",   kind: "armor", price: 0, def: 33, int: 10, who: ["rod", "celia"] },
+  a_bell:    { name: "ねこのすず",       kind: "armor", price: 0, def: 15, int: 5, who: ["leon", "glen", "gou", "rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   heroproof: { name: "えいゆうのあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
@@ -795,6 +796,8 @@ DATA.maps.town = {
     "d": { tile: "door" },
     "D": { tile: "door" },
     "E": { tile: "door" },
+    "h": { tile: "door" },
+    "j": { tile: "door" },
   },
   rows: [
     "ffffffffffffffffffff",
@@ -808,9 +811,9 @@ DATA.maps.town = {
     "f.......WWWWW......f",
     "f.......WWEWW......f",
     "f..................f",
-    "f..................f",
-    "f..................f",
-    "f..................f",
+    "f.WWW..........WWW.f",
+    "f.WWW..........WWW.f",
+    "f.WhW..........WjW.f",
     "f..................f",
     "ffffffff....ffffffff",
   ],
@@ -818,6 +821,8 @@ DATA.maps.town = {
     { x: 4, y: 4, type: "enter", warp: { map: "inn", x: 4, y: 6, dir: "u" } },
     { x: 15, y: 4, type: "enter", warp: { map: "shop", x: 4, y: 6, dir: "u" } },
     { x: 10, y: 9, type: "enter", warp: { map: "elder", x: 5, y: 7, dir: "u" } },
+    { x: 3, y: 13, type: "enter", warp: { map: "house1", x: 4, y: 5, dir: "u" } },
+    { x: 16, y: 13, type: "enter", warp: { map: "house2", x: 4, y: 5, dir: "u" } },
   ],
   npcs: [
     { id: "vil1", x: 5, y: 11, spr: "villager", wander: true,
@@ -941,7 +946,7 @@ DATA.maps.town = {
           { label: "やめる", ops: [] },
         ] } },
       ] },
-    { id: "hunter", x: 16, y: 11, spr: "villager",
+    { id: "hunter", x: 13, y: 11, spr: "villager",
       script: [
         { cond: { flag: "iceReward" },
           then: [{ msg: "ハンター「そういや みなみの ちかすいろで\nみずおとの おかしい ばしょが あるって\nうわさだぜ。なにか あるのかもな」" }],
@@ -1052,6 +1057,15 @@ DATA.maps.elder = {
     { x: 6, y: 8, type: "enter", warp: { map: "town", x: 10, y: 10, dir: "d" } },
   ],
   npcs: [
+    { id: "cat4", x: 9, y: 6, spr: "cat",
+      script: [
+        { cond: { flag: "cat4" },
+          then: [{ msg: "ネコ「ニャーオ」\n(もう すっかり なかよしだ)" }],
+          else: [
+            { msg: "ネコ「ニャッ!?」\nネコと なかよく なった!" },
+            { flag: ["cat4", 1] },
+          ] },
+      ] },
     { id: "elderman", x: 5, y: 2, spr: "elder",
       script: [
         { cond: { flag: "worldtearGiven" },
@@ -1783,6 +1797,15 @@ DATA.maps.dwarfhall = {
       script: [{ msg: "えいへい「おうは ああみえて くにいちばんの\nおのの つかいてなのだ」" }] },
     { id: "dverg_guard2", x: 10, y: 6, spr: "soldier",
       script: [{ msg: "えいへい「たからのまは おうきゅうの ちか。\nかべの すきまを しらべてみるといい……\nおっと、ひとりごとだ」" }] },
+    { id: "cat5", x: 12, y: 3, spr: "cat",
+      script: [
+        { cond: { flag: "cat5" },
+          then: [{ msg: "ネコ「ニャーオ」\n(もう すっかり なかよしだ)" }],
+          else: [
+            { msg: "ネコ「ニャッ!?」\nネコと なかよく なった!" },
+            { flag: ["cat5", 1] },
+          ] },
+      ] },
     { id: "dverg_maid", x: 3, y: 3, spr: "villager", wander: true,
       script: [{ msg: "じじゅう「ムスペルの かじばには おうきゅうの\nしょくにんも かよっているんですよ」" }] },
   ],
@@ -1848,6 +1871,8 @@ DATA.maps.muspel = {
     "d": { tile: "door" },
     "D": { tile: "door" },
     "F": { tile: "door" },
+    "l": { tile: "door" },
+    "n": { tile: "door" },
   },
   rows: [
     "mmmmmmmmmmmmmmmmmmmm",
@@ -1859,9 +1884,9 @@ DATA.maps.muspel = {
     "m.......WWWWW......m",
     "m.......WWWWW......m",
     "m.......WWFWW......m",
-    "m..................m",
-    "m..................m",
-    "m..................m",
+    "m.WWW..........WWW.m",
+    "m.WWW..........WWW.m",
+    "m.WlW..........WnW.m",
     "m..................m",
     "mmmmmmmm....mmmmmmmm",
   ],
@@ -1869,6 +1894,8 @@ DATA.maps.muspel = {
     { x: 4, y: 4, type: "enter", warp: { map: "muspelinn", x: 4, y: 6, dir: "u" } },
     { x: 15, y: 4, type: "enter", warp: { map: "muspelshop", x: 4, y: 6, dir: "u" } },
     { x: 10, y: 8, type: "enter", warp: { map: "forge", x: 5, y: 7, dir: "u" } },
+    { x: 3, y: 11, type: "enter", warp: { map: "house3", x: 4, y: 5, dir: "u" } },
+    { x: 16, y: 11, type: "enter", warp: { map: "house4", x: 4, y: 5, dir: "u" } },
   ],
   npcs: [
     { id: "smith_apprentice", x: 13, y: 10, spr: "villager", pal: "dark",
@@ -2324,6 +2351,194 @@ DATA.maps.crater2 = {
     { id: "cr5", x: 14, y: 5, item: "elixir" },
     { id: "cr8", x: 8, y: 7, item: "a_cosmogi" },
     { id: "cr9", x: 1, y: 3, item: "w_stella" },
+  ],
+};
+
+// ---------------- まちの みんか ----------------
+DATA.maps.house1 = {
+  name: "みならいきしのいえ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "b": { tile: "bed" },
+    "t": { tile: "table", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.bb...t.#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "town", x: 3, y: 14, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "town", x: 3, y: 14, dir: "d" } },
+  ],
+  npcs: [
+    { id: "h1_trainee", x: 3, y: 4, spr: "soldier",
+      script: [
+        { cond: { flag: "trueClear" },
+          then: [{ msg: "みならいきし「ぼくも いつか あなたのような\nきしに なります! まいにち すぶり\n100かい してるんです!」" }],
+          else: [{ msg: "みならいきし「おしろの きしだんに\nはいるのが ゆめなんです。でも まだ\nすぶりで せいいっぱいで……」" }] },
+      ] },
+    { id: "h1_mother", x: 7, y: 4, spr: "villager", wander: true,
+      script: [{ msg: "ははおや「うちのこは あさから ばんまで\nすぶり ばかり。ごはんの ときくらい\nけんを おいてほしいわ」" }] },
+    { id: "cat1", x: 6, y: 2, spr: "cat",
+      script: [
+        { cond: { flag: "cat1" },
+          then: [{ msg: "ネコ「ニャーオ」\n(もう すっかり なかよしだ)" }],
+          else: [
+            { msg: "ネコ「ニャッ!?」\nネコと なかよく なった!" },
+            { flag: ["cat1", 1] },
+          ] },
+      ] },
+  ],
+  chests: [
+    { id: "h1c", x: 1, y: 5, item: "potion", hidden: true },
+  ],
+};
+
+DATA.maps.house2 = {
+  name: "ねこずきのいえ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "b": { tile: "bed" },
+    "t": { tile: "table", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.bb...t.#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "town", x: 16, y: 14, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "town", x: 16, y: 14, dir: "d" } },
+  ],
+  npcs: [
+    { id: "catlady", x: 4, y: 3, spr: "villager",
+      script: [
+        { cond: { flag: "catDone" },
+          then: [{ msg: "ねこずきの おばあさん「うちのこたちが\nあなたの うわさを しているよ。\nニャーって ね。ほほほ」" }],
+          else: [
+            { cond: { all: ["cat1", "cat2", "cat3", "cat4", "cat5"] },
+              then: [
+                { msg: "おばあさん「まあまあ! むらじゅうの ねこと\nなかよく なったんだって?\nあんた ねこの こころが わかるひとだね」" },
+                { give: { item: "a_bell" } },
+                { give: { gold: 3000 } },
+                { msg: "ねこのすずと 3000ギルを てにいれた!" },
+                { flag: ["catDone", 1] },
+              ],
+              else: [
+                { msg: "ねこずきの おばあさん「せかいには 5ひき、\nとくべつな ねこが いるんだよ。\nなでて なかよく なってごらん」" },
+                { msg: "「きしの たまごの いえ、やまのさとの 2けん、\nちょうろうの いえ、それに ちていの おうきゅう。\nみんな きまぐれだから やさしくね」" },
+                { flag: ["catQuest", 1] },
+              ] },
+          ] },
+      ] },
+    { id: "ladycat", x: 6, y: 3, spr: "cat",
+      script: [{ msg: "ネコ「ニャ〜ン」\n(おばあさんの ねこだ。まんぞくそう)" }] },
+  ],
+  chests: [
+    { id: "h2c", x: 8, y: 5, gold: 500, hidden: true },
+  ],
+};
+
+DATA.maps.house3 = {
+  name: "こうざんふうふのいえ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "b": { tile: "bed" },
+    "t": { tile: "table", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.bb...t.#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "muspel", x: 3, y: 12, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "muspel", x: 3, y: 12, dir: "d" } },
+  ],
+  npcs: [
+    { id: "h3_miner", x: 3, y: 4, spr: "villager", pal: "dark",
+      script: [
+        { cond: { flag: "earthCrystal" },
+          then: [{ msg: "こうふ「ちのクリスタルの ばしょが\nしずまったおかげで、こうざんも\nあんぜんに なっただよ」" }],
+          else: [{ msg: "こうふ「さいきん こうざんの おくで\nへんな ゆれを かんじるだ。\nいやな よかんが するだよ」" }] },
+      ] },
+    { id: "h3_wife", x: 6, y: 4, spr: "villager", pal: "dark", wander: true,
+      script: [{ msg: "おかみさん「うちのひとったら やすみのひも\nつるはしの ていれ ばっかり。\nこまったもんだべ」" }] },
+    { id: "cat2", x: 2, y: 2, spr: "cat",
+      script: [
+        { cond: { flag: "cat2" },
+          then: [{ msg: "ネコ「ニャーオ」\n(もう すっかり なかよしだ)" }],
+          else: [
+            { msg: "ネコ「ニャッ!?」\nネコと なかよく なった!" },
+            { flag: ["cat2", 1] },
+          ] },
+      ] },
+  ],
+  chests: [
+    { id: "h3c", x: 8, y: 1, item: "hipotion", hidden: true },
+  ],
+};
+
+DATA.maps.house4 = {
+  name: "しゅうしゅうかのいえ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "b": { tile: "bed" },
+    "t": { tile: "table", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.t..t.b.#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "muspel", x: 16, y: 12, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "muspel", x: 16, y: 12, dir: "d" } },
+  ],
+  npcs: [
+    { id: "h4_collector", x: 3, y: 4, spr: "villager", pal: "dark",
+      script: [
+        { cond: { item: "heroproof" },
+          then: [{ msg: "しゅうしゅうか「え!? えいゆうのあかしを\nもってるだか!? いちど さわらせて……\nああ、なんて かがやきだべ……」" }],
+          else: [{ msg: "しゅうしゅうか「おらの コレクションは\nちていいちだべ。でんせつの『えいゆうのあかし』を\nいつか この めで みてみたいもんだ」" }] },
+      ] },
+    { id: "cat3", x: 7, y: 3, spr: "cat",
+      script: [
+        { cond: { flag: "cat3" },
+          then: [{ msg: "ネコ「ニャーオ」\n(もう すっかり なかよしだ)" }],
+          else: [
+            { msg: "ネコ「ニャッ!?」\nネコと なかよく なった!" },
+            { flag: ["cat3", 1] },
+          ] },
+      ] },
+  ],
+  chests: [
+    { id: "h4c", x: 8, y: 5, item: "ether", hidden: true },
   ],
 };
 

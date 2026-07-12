@@ -652,6 +652,11 @@ class QuestScene {
         f("stellaDone") ? "かんりょう" : f("stellaFound") ? "ちょうろうに ほうこく" : "クレーターのおくで ステラをさがす"]);
     }
     if (f("worldtearGiven")) list.push(["ちょうろうの おくりもの", "せかいのしずくを さずかった"]);
+    if (f("catQuest")) {
+      const cats = ["cat1", "cat2", "cat3", "cat4", "cat5"].filter(f).length;
+      list.push(["ねこあつめ",
+        f("catDone") ? "かんりょう" : `とくべつな ねこを なでる (${cats}/5)`]);
+    }
     if (f("hideSeek")) {
       list.push(["むらの かくれんぼ",
         f("hideSeekDone") ? "かんりょう" : "きのちかくに かくれた モコをさがす"]);
