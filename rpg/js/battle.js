@@ -7,6 +7,9 @@
 
 function rnd(a, b) { return a + Math.random() * (b - a); }
 
+// ぞくせいエフェクトの じぞくじかん (それいがいは 0.32)
+const FXDUR = { fire: 0.5, ice: 0.5, thunder: 0.42, holy: 0.55, quake: 0.5, flare: 0.55 };
+
 class BattleScene {
   constructor(groupIds, opts = {}) {
     this.opaque = true;
@@ -170,7 +173,7 @@ class BattleScene {
   // ---------------- こうしん ----------------
   update(dt) {
     this.pops = this.pops.filter((p) => (p.t += dt) < 0.9);
-    this.fx = this.fx.filter((f) => (f.t += dt) < 0.32);
+    this.fx = this.fx.filter((f) => (f.t += dt) < (FXDUR[f.kind] || 0.32));
     this.enemies.forEach((e) => { if (e.flash > 0) e.flash -= dt; });
     this.party.forEach((p) => {
       if (p.flash > 0) p.flash -= dt;
@@ -476,7 +479,14 @@ class BattleScene {
   }
 
   // てきに あたえるダメージを イベントれつに つむ (dmg<0 は きゅうしゅう=かいふく)
-  queueHitEnemy(events, target, dmg, sfx = "hit") {
+  // じゅもんに おうじた ヒットエフェクトしゅべつ
+  fxOf(sp) {
+    if (!sp) return "burst";
+    if (sp.fx) return sp.fx;
+    return { fire: "fire", ice: "ice", thunder: "thunder", holy: "holy" }[sp.elem] || "burst";
+  }
+
+  queueHitEnemy(events, target, dmg, sfx = "hit", fxKind = null) {
     events.push({ t: 0.4, fn: () => {
       if (target.dead) { this.log += "  しかし てきは いない!"; return; }
       const pos = this.enemyPos(this.enemies.indexOf(target));
@@ -491,7 +501,7 @@ class BattleScene {
       target.flash = 0.25;
       AudioSys.sfx(sfx);
       this.pop(pos.x + pos.size / 2, pos.y, dmg);
-      this.fx.push({ x: pos.x + pos.size / 2, y: pos.y + pos.size / 2, kind: sfx === "magic" ? "burst" : "slash", t: 0 });
+      this.fx.push({ x: pos.x + pos.size / 2, y: pos.y + pos.size / 2, size: pos.size, kind: sfx === "magic" ? (fxKind || "burst") : "slash", t: 0 });
       if (sfx === "crit" || dmg >= 100) this.shake = 0.25;
       if (sfx === "magic") this.screenFlash = 0.15;
       // しれんボス: きずは ふさがる
@@ -602,7 +612,7 @@ class BattleScene {
           : [(!act.target || act.target.dead) ? this.aliveEnemies()[0] : act.target].filter(Boolean);
         targets.forEach((e) => {
           const dmg = Math.round(t.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
-          this.queueHitEnemy(events, e, dmg, "magic");
+          this.queueHitEnemy(events, e, dmg, "magic", this.fxOf(t));
         });
       }
       else if (t.kind === "magicMulti") {
@@ -619,7 +629,7 @@ class BattleScene {
             this.screenFlash = 0.12;
             const pos = this.enemyPos(this.enemies.indexOf(e));
             this.pop(pos.x + pos.size / 2, pos.y, dmg);
-            this.fx.push({ x: pos.x + pos.size / 2, y: pos.y + pos.size / 2, kind: "burst", t: 0 });
+            this.fx.push({ x: pos.x + pos.size / 2, y: pos.y + pos.size / 2, size: pos.size, kind: this.fxOf({ elem }), t: 0 });
             AudioSys.sfx("magic");
           } });
         }
@@ -929,7 +939,8 @@ class BattleScene {
       }
       targets.forEach((e) => {
         const dmg = Math.round(sp.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1) * this.elemMod(e.def, sp.elem) * spreadMul * focusMul);
-        this.queueHitEnemy(events, e, dmg, "magic");
+        const spellFx = this.fxOf(sp);
+        this.queueHitEnemy(events, e, dmg, "magic", spellFx);
         // ドレイン: あたえたダメージぶん じぶんが かいふく
         if (sp.drain && dmg > 0) {
           events.push({ t: 0.55, fn: () => {
@@ -1118,7 +1129,7 @@ class BattleScene {
         this.gainLimit(p, dmg);
         const pos = this.partyPos(this.party.indexOf(p));
         this.pop(pos.x, pos.y, dmg, 2);
-        this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind: "burst", t: 0 });
+        this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind: this.fxOf(sp), t: 0 });
         AudioSys.sfx("hit");
         if (p.h.hp <= 0) {
           p.atb = 0; p.casting = null;
@@ -1548,6 +1559,87 @@ class BattleScene {
         for (let k = -1; k <= 1; k++) {
           const px = Math.round(f.x - r + k * 2), py = Math.round(f.y - r - k * 2);
           for (let s = 0; s < r * 2; s += 2) c.fillRect(px + s, py + s, 2, 2);
+        }
+      } else if (f.kind === "fire") {
+        // ほのおの はしら: めいあんを まぜて ちらつきながら たちのぼる
+        const sz = f.size || 32;
+        const pf = Math.min(1, f.t / 0.5);
+        const hgt = sz * 0.8 + pf * sz * 0.5;
+        for (let i = 0; i < 16; i++) {
+          const fy = f.y + sz * 0.4 - ((i * 9 + f.t * 170) % hgt);
+          c.fillStyle = PAL[(i + Math.floor(f.t * 24)) % 2 ? 0 : 3];
+          c.fillRect(Math.round(f.x + Math.sin(i * 2.4) * sz * 0.3) - 2, Math.round(fy), 5 - (i % 3), 4);
+        }
+      } else if (f.kind === "ice") {
+        // こおりの けっしょう: あかるい ひしがたが じゅんばんに さきわたる
+        const sz = f.size || 32;
+        for (let k = 0; k < 6; k++) {
+          if (f.t < k * 0.06) break;
+          const a = k * Math.PI / 3 - Math.PI / 2;
+          const r = sz * 0.28 + (k % 2) * sz * 0.18;
+          const cx = Math.round(f.x + Math.cos(a) * r), cy = Math.round(f.y + Math.sin(a) * r);
+          c.fillStyle = PAL[0];
+          c.fillRect(cx - 1, cy - 5, 3, 10);
+          c.fillRect(cx - 5, cy - 1, 10, 3);
+          c.fillStyle = PAL[3];
+          c.fillRect(cx, cy, 1, 1);
+        }
+      } else if (f.kind === "thunder") {
+        // いなずま: がめんの うえから ジグザグに おちて ひかる
+        const sz = f.size || 32;
+        if (f.t < 0.24) {
+          let px = f.x + 5;
+          for (let fy = 0; fy < f.y - 4; fy += 6) {
+            px += (Math.floor(fy / 6 + f.t * 26) % 2 ? -5 : 5);
+            c.fillStyle = PAL[3];
+            c.fillRect(Math.round(px), fy, 4, 7);
+            c.fillStyle = PAL[0];
+            c.fillRect(Math.round(px) + 1, fy + 1, 2, 5);
+          }
+          c.fillStyle = PAL[0];
+          c.fillRect(Math.round(f.x - sz * 0.25), Math.round(f.y - 2), Math.round(sz * 0.5), 5);
+        } else {
+          const r = (f.t - 0.24) / 0.18 * sz * 0.45 + 3;
+          for (let k = 0; k < 8; k++) {
+            const a = k * Math.PI / 4;
+            c.fillStyle = PAL[k % 2 ? 0 : 3];
+            c.fillRect(Math.round(f.x + Math.cos(a) * r) - 1, Math.round(f.y + Math.sin(a) * r) - 1, 3, 3);
+          }
+        }
+      } else if (f.kind === "holy") {
+        // てんから ふりそそぐ ひかりの はしら
+        const sz = f.size || 32;
+        const ph = Math.min(1, f.t / 0.55);
+        for (let k = 0; k < 5; k++) {
+          const cx = Math.round(f.x) + Math.round((k - 2) * sz * 0.22);
+          const top = -24 + ph * (f.y + 30) - k * 6;
+          c.fillStyle = PAL[k % 2 ? 3 : 0];
+          c.fillRect(cx, Math.max(0, Math.round(top)), 3, 26);
+        }
+      } else if (f.kind === "quake") {
+        // じわれ: がれきが とびはねる
+        const sz = f.size || 32;
+        const pq = Math.min(1, f.t / 0.5);
+        for (let k = 0; k < 9; k++) {
+          const cx = Math.round(f.x + (k - 4) * sz * 0.14);
+          const cy = f.y + sz * 0.35 - Math.sin(Math.min(1, pq * 1.3) * Math.PI) * (6 + (k * 5) % 12);
+          c.fillStyle = PAL[k % 2 ? 3 : 0];
+          c.fillRect(cx, Math.round(cy), 4, 4);
+        }
+      } else if (f.kind === "flare") {
+        // だいばくはつ: めいあん にじゅうの ひかりの わ
+        const sz = f.size || 32;
+        const pl = Math.min(1, f.t / 0.55);
+        for (let k = 0; k < 12; k++) {
+          const a = k * Math.PI / 6;
+          const r = 4 + pl * sz * 0.75;
+          c.fillStyle = PAL[k % 2 ? 0 : 3];
+          c.fillRect(Math.round(f.x + Math.cos(a) * r) - 1, Math.round(f.y + Math.sin(a) * r) - 1, 3, 3);
+          const r2 = Math.max(0, pl - 0.3) * sz * 0.6;
+          if (r2 > 0) {
+            c.fillStyle = PAL[k % 2 ? 3 : 0];
+            c.fillRect(Math.round(f.x + Math.cos(a + 0.26) * r2) - 1, Math.round(f.y + Math.sin(a + 0.26) * r2) - 1, 2, 2);
+          }
         }
       } else {
         // ほうしゃじょうに とびちる ひかり
