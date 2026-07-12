@@ -100,6 +100,8 @@ DATA.items = {
   w_ironclaw:{ name: "タイガークロー", kind: "weapon", price: 700, atk: 13, who: ["gou"] },
   w_thunderclaw: { name: "かみなりのつめ", kind: "weapon", price: 1400, atk: 16, who: ["gou"], elem: "thunder" },
   w_kingclaw: { name: "りゅうおうのつめ", kind: "weapon", price: 0, atk: 34, who: ["gou"], slay: ["dragon"] },
+  w_garon:   { name: "ごうけつのつめ",   kind: "weapon", price: 0, atk: 28, who: ["gou"] },
+  a_hachimaki2: { name: "けんおうのはちまき", kind: "armor", price: 0, def: 22, who: ["gou"] },
   // こじんイベントほうしゅう
   w_kizuna:  { name: "きずなのやり",   kind: "weapon", price: 0, atk: 27, who: ["glen"], slay: ["demon"] },
   w_truthbook: { name: "しんりのしょ", kind: "weapon", price: 0, atk: 13, int: 7, who: ["rod"] },
@@ -348,6 +350,10 @@ DATA.monsters = {
     weak: ["fire"] },
   stareater: { name: "スターイーター", spr: "eye", pal: "light", hp: 640, atk: 70, def: 28, agi: 22, exp: 1600, gold: 1300,
     weak: ["holy"], inflict: { status: "toad", rate: 0.15 } },
+  // しれんのやまの ぬし (かくとうかの ライバル)
+  garon: { name: "けんおう ガロン", spr: "gou", pal: "dark", boss: true, scale: 2,
+    hp: 1400, atk: 46, def: 20, agi: 22, exp: 3000, gold: 0,
+    resist: ["fire", "ice", "thunder"] },
   // ほしのせかい (Lv30〜のレベリングエリア)
   starimp: { name: "スターインプ", spr: "goblin", pal: "light", hp: 380, atk: 58, def: 24, agi: 20, exp: 700, gold: 520,
     race: "demon", weak: ["fire"] },
@@ -462,6 +468,7 @@ DATA.encounters = {
     rare: ["kingslime"], rareRate: 0.07 },
   startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"], ["voideye", "voideye"]],
     rare: ["mithrildragon"], rareRate: 0.06 },
+  trialmt: { rate: 1 / 13, groups: [["gargoyle", "gargoyle"], ["dunestalker", "dunestalker"], ["gazer"], ["golem"], ["gazer", "dunestalker"], ["golem", "gargoyle"]] },
   starworld: { rate: 1 / 14, groups: [["starimp", "starimp"], ["lunabat", "lunabat"], ["cometwisp"], ["starimp", "lunabat"], ["stargolem"], ["cometwisp", "lunabat"], ["starjelly", "starjelly"]],
     rare: ["mithrildragon"], rareRate: 0.07 },
   crater: { rate: 1 / 12, groups: [["stargolem", "starimp"], ["moondragon"], ["cometwisp", "cometwisp"], ["stargolem", "stargolem"], ["moondragon", "lunabat"], ["starimp", "starimp", "lunabat"], ["crystalmantis"], ["stareater"]],
@@ -530,6 +537,7 @@ DATA.maps.world = {
     "F": { tile: "icon_shrine" },
     "M": { tile: "icon_shrine" },
     "X": { tile: "icon_tower" },
+    "A": { tile: "icon_cave" },
   },
   rows: [
     "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
@@ -542,7 +550,7 @@ DATA.maps.world = {
     "wwffffff.ffffffmmmmffIfffwwwwbwwwwwwwwww",
     "wwffffff.ffffffmmmmffffffwwwwbwwwwwwwwww",
     "ww..............mmmm..........wwwwwwwwww",
-    "ww.....f........mmmm....ff........wwwwww",
+    "ww.....f........Ammm....ff........wwwwww",
     "ww....fff.......mmmm...ffff.......wwwwww",
     "ww.....f........mmmm....ff........wwwwww",
     "ww..............mmmm..............wwwwww",
@@ -580,6 +588,7 @@ DATA.maps.world = {
     { x: 27, y: 22, type: "enter", warp: { map: "town", x: 9, y: 14, dir: "u" } },
     { x: 16, y: 20, type: "enter", warp: { map: "cave", x: 1, y: 10, dir: "r" } },
     { x: 19, y: 20, type: "enter", warp: { map: "cave", x: 22, y: 10, dir: "l" } },
+    { x: 16, y: 10, type: "enter", warp: { map: "trialmt1", x: 7, y: 10, dir: "u" } },
     { x: 8, y: 4, type: "enter",
       cond: { flag: "crystal" },
       failScript: [{ msg: "ほこらのとびらは かたく とざされている。\n(せいなる クリスタルが ひつようだ)" }],
@@ -2122,6 +2131,91 @@ DATA.maps.crater2 = {
     { id: "cr5", x: 14, y: 5, item: "elixir" },
     { id: "cr8", x: 8, y: 7, item: "a_cosmogi" },
     { id: "cr9", x: 1, y: 3, item: "w_stella" },
+  ],
+};
+
+// ---------------- しれんのやま (つづらおりの さんどう) ----------------
+DATA.maps.trialmt1 = {
+  name: "しれんのやま さんどう",
+  outdoor: true,
+  bgm: "dungeon",
+  encounter: "trialmt",
+  legend: {
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "path" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "mmmmmmmmmmmmmmmm",
+    "m....s.........m",
+    "m.mmmmmmmmmmm..m",
+    "m..............m",
+    "m..mmmmmmmmmmmmm",
+    "m..............m",
+    "mmmmmmmmmmmmm..m",
+    "m..............m",
+    "m..mmmmmmmmmmmmm",
+    "m..............m",
+    "m..............m",
+    "mmmmmmmmmmmmmmmm",
+  ],
+  events: [
+    { x: 7, y: 10, type: "enter", warp: { map: "world", x: 15, y: 10, dir: "l" } },
+    { x: 5, y: 1, type: "enter", warp: { map: "trialmt2", x: 7, y: 8, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "tm1", x: 1, y: 3, item: "xpotion" },
+    { id: "tm2", x: 14, y: 9, gold: 3000 },
+    { id: "tm3", x: 14, y: 1, item: "elixir", hidden: true },
+  ],
+};
+
+DATA.maps.trialmt2 = {
+  name: "しれんのやま さんちょう",
+  outdoor: true,
+  bgm: "dungeon",
+  encounter: "trialmt",
+  legend: {
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "path" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "mmmmmmmmmmmmmmmm",
+    "m..............m",
+    "m..mm......mm..m",
+    "m..............m",
+    "m..............m",
+    "m..............m",
+    "m..mm......mm..m",
+    "m..............m",
+    "m......s.......m",
+    "mmmmmmmmmmmmmmmm",
+  ],
+  events: [
+    { x: 7, y: 8, type: "enter", warp: { map: "trialmt1", x: 6, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "garon", x: 7, y: 4, spr: "gou", pal: "dark",
+      script: [
+        { cond: { flag: "garonBeat" },
+          then: [{ msg: "けんおうガロン「よい こぶしだった……。\nおまえたちなら ほしの やみさえ\nうちはらえるだろう」" }],
+          else: [
+            { msg: "けんおうガロン「この やまの ちょうじょうで\nおれは さいきょうの あいてを\nまちつづけてきた」" },
+            { msg: "「おまえたちから ただならぬ きはくを\nかんじる…… いざ、しょうぶ!!」" },
+            { flag: ["garonSeen", 1] },
+            { battle: { group: ["garon"], boss: true, music: "boss" } },
+            { flag: ["garonBeat", 1] },
+            { msg: "ガロン「……みごとだ。 おれの まけだ。\nこの つめを もっていけ。\nおまえたちの こぶしに たくそう」" },
+            { give: { item: "w_garon" } },
+            { give: { gold: 3000 } },
+            { msg: "ごうけつのつめと 3000ギルを てにいれた!" },
+          ] },
+      ] },
+  ],
+  chests: [
+    { id: "tm4", x: 1, y: 7, item: "a_hachimaki2", hidden: true },
   ],
 };
 

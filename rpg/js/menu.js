@@ -579,6 +579,10 @@ class QuestScene {
       list.push(["クレーターのぬし たいじ",
         f("craterBoss") ? "かんりょう" : "ほしのせかいの だいクレーターへ"]);
     }
+    if (f("garonSeen")) {
+      list.push(["けんおうガロン",
+        f("garonBeat") ? "かんりょう" : "しれんのやまの ちょうじょうで さいせん"]);
+    }
     if (f("stellaQuest")) {
       list.push(["まいごのステラ",
         f("stellaDone") ? "かんりょう" : f("stellaFound") ? "ちょうろうに ほうこく" : "クレーターのおくで ステラをさがす"]);
