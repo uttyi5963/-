@@ -579,6 +579,10 @@ class QuestScene {
       list.push(["クレーターのぬし たいじ",
         f("craterBoss") ? "かんりょう" : "ほしのせかいの だいクレーターへ"]);
     }
+    if (f("dvergQuest")) {
+      list.push(["おうの いらい",
+        f("dvergReward") ? "かんりょう" : `マグマトカゲたいじ (${Math.min(5, G.killsOf("firelizard"))}/5)`]);
+    }
     if (f("garonSeen")) {
       list.push(["けんおうガロン",
         f("garonBeat") ? "かんりょう" : "しれんのやまの ちょうじょうで さいせん"]);

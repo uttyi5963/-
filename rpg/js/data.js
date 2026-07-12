@@ -102,6 +102,8 @@ DATA.items = {
   w_kingclaw: { name: "りゅうおうのつめ", kind: "weapon", price: 0, atk: 34, who: ["gou"], slay: ["dragon"] },
   w_garon:   { name: "ごうけつのつめ",   kind: "weapon", price: 0, atk: 28, who: ["gou"] },
   a_hachimaki2: { name: "けんおうのはちまき", kind: "armor", price: 0, def: 22, who: ["gou"] },
+  w_dverg:   { name: "ドヴェルグアクス", kind: "weapon", price: 0, atk: 38, who: ["leon", "glen"] },
+  a_dverg2:  { name: "ドヴェルグのたて", kind: "armor", price: 0, def: 27, who: ["leon", "glen"] },
   // こじんイベントほうしゅう
   w_kizuna:  { name: "きずなのやり",   kind: "weapon", price: 0, atk: 27, who: ["glen"], slay: ["demon"] },
   w_truthbook: { name: "しんりのしょ", kind: "weapon", price: 0, atk: 13, int: 7, who: ["rod"] },
@@ -1584,6 +1586,7 @@ DATA.maps.underworld = {
     ".": { tile: "path" },
     "T": { tile: "icon_town" },
     "D": { tile: "icon_shrine" },
+    "C": { tile: "icon_castle" },
   },
   rows: [
     "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
@@ -1591,7 +1594,7 @@ DATA.maps.underworld = {
     "m..mm....wwwww......mmm......m",
     "m..mm....wwwww......mmm......m",
     "m............................m",
-    "m.....mm...........www.......m",
+    "m.....mm...........www....C..m",
     "m.....mm.....................m",
     "m............................m",
     "m...www......................m",
@@ -1610,6 +1613,7 @@ DATA.maps.underworld = {
   events: [
     { x: 3, y: 1, type: "enter", warp: { map: "magma", x: 17, y: 12, dir: "u" } },
     { x: 12, y: 9, type: "enter", warp: { map: "muspel", x: 10, y: 12, dir: "u" } },
+    { x: 26, y: 5, type: "enter", warp: { map: "dwarfhall", x: 7, y: 10, dir: "u" } },
     { x: 24, y: 15, type: "enter", scriptId: "templeEnter" },
     // しんでんの まわりは いんせきのばんにんが まもっている
     { x: 24, y: 14, type: "enter", scriptId: "meteoFight" },
@@ -1623,6 +1627,73 @@ DATA.maps.underworld = {
   ],
   chests: [
     { id: "uw1", x: 28, y: 1, gold: 1500, hidden: true },
+  ],
+};
+
+// ---------------- ドヴェルグおうきゅう ----------------
+DATA.maps.dwarfhall = {
+  name: "ドヴェルグおうきゅう",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "p": { tile: "pillar", solid: true },
+    "r": { tile: "carpet" },
+  },
+  rows: [
+    "################",
+    "#..............#",
+    "#.p..........p.#",
+    "#..............#",
+    "#.....rrrr.....#",
+    "#.....rrrr.....#",
+    "#.p..........p.#",
+    "#..............#",
+    "#..##......##..#",
+    "#..#........#..#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 7, y: 10, type: "enter", warp: { map: "underworld", x: 26, y: 6, dir: "d" } },
+    { x: 8, y: 10, type: "enter", warp: { map: "underworld", x: 26, y: 6, dir: "d" } },
+  ],
+  npcs: [
+    { id: "dverg_king", x: 7, y: 4, spr: "king",
+      script: [
+        { cond: { flag: "dvergReward" },
+          then: [{ msg: "ドヴェルグおう バルド「そなたらは ちていの\nおんじんじゃ。 ゆっくり していくがよい。\nガハハハ!」" }],
+          else: [
+            { cond: { flag: "dvergQuest" },
+              then: [
+                { cond: { kills: { id: "firelizard", n: 5 } },
+                  then: [
+                    { msg: "バルド「おお! マグマトカゲを 5たいも\nうちはらってくれたか! これで たみも\nあんしんして くらせるわい」" },
+                    { give: { item: "w_dverg" } },
+                    { give: { gold: 4000 } },
+                    { msg: "ドヴェルグアクスと 4000ギルを てにいれた!" },
+                    { flag: ["dvergReward", 1] },
+                  ],
+                  else: [{ msg: "バルド「マグマトカゲは まだ あばれておる。\n5たい たおしたら もどってまいれ。\nずかんで かずを かくにんできるぞ」" }] },
+              ],
+              else: [
+                { msg: "ドヴェルグおう バルド「ようこそ ちていの\nおうきゅうへ! ちじょうの ものが くるとは\nめずらしい。ガハハハ!」" },
+                { msg: "「じつは マグマトカゲどもが ふえて\nたみが こまっておる。5たい たいじして\nくれたら ほうびを とらせよう」" },
+                { flag: ["dvergQuest", 1] },
+              ] },
+          ] },
+      ] },
+    { id: "dverg_guard1", x: 5, y: 6, spr: "soldier",
+      script: [{ msg: "えいへい「おうは ああみえて くにいちばんの\nおのの つかいてなのだ」" }] },
+    { id: "dverg_guard2", x: 10, y: 6, spr: "soldier",
+      script: [{ msg: "えいへい「たからのまは おうきゅうの ちか。\nかべの すきまを しらべてみるといい……\nおっと、ひとりごとだ」" }] },
+    { id: "dverg_maid", x: 3, y: 3, spr: "villager", wander: true,
+      script: [{ msg: "じじゅう「ムスペルの かじばには おうきゅうの\nしょくにんも かよっているんですよ」" }] },
+  ],
+  chests: [
+    { id: "dh1", x: 4, y: 9, gold: 5000 },
+    { id: "dh2", x: 11, y: 9, item: "elixir" },
+    { id: "dh3", x: 1, y: 10, item: "a_dverg2", hidden: true },
   ],
 };
 
