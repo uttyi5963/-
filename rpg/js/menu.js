@@ -649,6 +649,11 @@ class QuestScene {
       list.push(["おうの いらい",
         f("dvergReward") ? "かんりょう" : `マグマトカゲたいじ (${Math.min(5, G.killsOf("firelizard"))}/5)`]);
     }
+    if (f("nightBoss")) {
+      const eps = ["leonEp2", "glenEp2", "gouEp2", "celiaEp2", "rodEp2"].filter(f).length;
+      list.push(["ひとりひとりの あゆみ",
+        eps >= 5 ? "かんりょう" : `なかまの ものがたりを たどる (${eps}/5)`]);
+    }
     if (f("nightQuest")) {
       list.push(["じょおうの かなしみ",
         f("nightReward") ? "かんりょう" : f("nightBoss") ? "ノクスのまちのおさに ほうこく" : "やみのだいせいどうの おくへ"]);

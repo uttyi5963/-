@@ -198,6 +198,12 @@ DATA.items = {
   nightdrop: { name: "よるのしずく",      kind: "use", price: 1200, heal: 800, desc: "HPを 800 かいふく" },
   w_dawn:    { name: "よあけのやり",      kind: "weapon", price: 0, atk: 63, who: ["glen"], elem: "fire" },
   a_nocturne: { name: "よるのローブ",     kind: "armor", price: 0, def: 36, int: 10, who: ["rod", "celia"] },
+  // こじんイベントだい2しょうの きねんそうび
+  a_oath:    { name: "ちかいのマント",    kind: "armor", price: 0, def: 38, who: ["leon"] },
+  a_dragonheart: { name: "りゅうのこころ", kind: "armor", price: 0, def: 38, who: ["glen"] },
+  a_master2: { name: "しんいのおび",      kind: "armor", price: 0, def: 38, who: ["gou"] },
+  a_prayer:  { name: "いのりのベール",    kind: "armor", price: 0, def: 37, int: 11, who: ["celia"] },
+  a_wisdom:  { name: "えいちのぼうし",    kind: "armor", price: 0, def: 37, int: 12, who: ["rod"] },
   // みどりのぐんとう ティア
   w_leafblade: { name: "こかげのつるぎ", kind: "weapon", price: 13500, atk: 48, who: ["leon"] },
   w_junglerod: { name: "みどりのつえ",   kind: "weapon", price: 11500, atk: 18, int: 10, who: ["rod"] },
@@ -973,6 +979,20 @@ DATA.maps.castle = {
           { label: "やめる", ops: [] },
         ] } },
       ] },
+    { id: "old_knight", x: 16, y: 9, spr: "soldier", showFlag: "nightBoss",
+      script: [
+        { cond: { flag: "leonEp2" },
+          then: [{ msg: "ろうきし「そなたの ちちうえも きっと\nほこりに おもっておられる。\nよい かおに なったな、レオンどの」" }],
+          else: [
+            { msg: "ろうきし「レオンどの。 わしは そなたの\nちちうえに つかえた ふるい きしじゃ。\nすこし はなしても よいかな」" },
+            { msg: "「やみに おちても なお たちあがり、\nひかりを とりもどした そなたの あゆみ、\nすべて みせてもろうた」" },
+            { msg: "「ちちうえが のこした この マントを\nそなたに。 『まもるべきものの ために けんをとれ』\n……くちぐせで あられたよ」" },
+            { msg: "レオン「……ちちうえの。 ありがたく。\nこの ちかい、けっして わすれません」" },
+            { give: { item: "a_oath" } },
+            { msg: "ちかいのマントを てにいれた!" },
+            { flag: ["leonEp2", 1] },
+          ] },
+      ] },
     { id: "castle_maid", x: 4, y: 9, spr: "villager", wander: true,
       script: [
         { cond: { flag: "trueClear" },
@@ -1182,7 +1202,22 @@ DATA.maps.town = {
     { id: "sister", x: 10, y: 12, spr: "celia", showFlag: "windCrystal",
       script: [
         { cond: { flag: "celiaEvent" },
-          then: [{ msg: "シスター「セリアの いのりは\nむらの ほこりです」" }],
+          then: [
+            { cond: { all: ["nightBoss"] },
+              then: [
+                { cond: { flag: "celiaEp2" },
+                  then: [{ msg: "シスター「あなたの いのりは もう\nわたしの てを はなれて、せかいじゅうを\nてらしているのね」" }],
+                  else: [
+                    { msg: "シスター「おかえりなさい、セリア。\nよるのくにの じょおうさまの はなし、\nきかせて もらえる?」" },
+                    { msg: "セリア「はい。 かなしみは、けすものじゃなくて\nてらすものだって……。 じょおうさまが\nおしえてくれた きがします」" },
+                    { msg: "シスター「……りっぱに なったのね。\nこのベールは だいだいの シスターのもの。\nいまは あなたが つけるべきだわ」" },
+                    { give: { item: "a_prayer" } },
+                    { msg: "いのりのベールを てにいれた!" },
+                    { flag: ["celiaEp2", 1] },
+                  ] },
+              ],
+              else: [{ msg: "シスター「セリアの いのりは\nむらの ほこりです」" }] },
+          ],
           else: [
             { msg: "シスター「セリア! おおきくなって……。\nちいさいころ ないてばかりだった\nあなたが りっぱに なったのね」" },
             { msg: "セリア「シスター・マーレ!\nわたし、みんなを まもれるように\nなりたくて……」" },
@@ -1510,6 +1545,20 @@ DATA.maps.shrine = {
       ] },
   ],
   npcs: [
+    { id: "master_ghost", x: 3, y: 13, spr: "gou", pal: "light", showFlag: "nightBoss",
+      script: [
+        { cond: { flag: "gouEp2" },
+          then: [{ msg: "しのまぼろし「こぶしは こころ。\nもう おしえることは なにもない。\nいけ、ゴウ」" }],
+          else: [
+            { msg: "ほのかな ひかりが ひとのかたちに……。\nゴウ「……ししょう!? まさか……」" },
+            { msg: "しのまぼろし「ゴウよ。 かがみが うつした\nわしは まぼろし。 じゃが おまえの こころが\nよんだ まぼろしじゃ」" },
+            { msg: "「おまえの こぶしは もはや やまを こえ、\nほしに とどいた。 さいごの おしえじゃ。\n……つよさとは、まもりぬくこと」" },
+            { msg: "ゴウ「……ししょう!! おれ、やります!\nぜったい だれも しなせません!!」" },
+            { give: { item: "a_master2" } },
+            { msg: "しんいのおびを てにいれた!" },
+            { flag: ["gouEp2", 1] },
+          ] },
+      ] },
     { id: "gounpc", x: 7, y: 12, spr: "gou", hideFlag: "gouJoined",
       script: [
         { msg: "ゴウ「おれは ながれの モンク、ゴウ。\nこの ほこらの やみは\nただものじゃねえ ぜ」" },
@@ -2295,7 +2344,22 @@ DATA.maps.muspelinn = {
     { id: "mentor", x: 7, y: 5, spr: "rod", showFlag: "underOpen",
       script: [
         { cond: { flag: "rodEvent" },
-          then: [{ msg: "ガレフ「けんきゅうは あしで かせぐ。\nおまえの くちぐせに なったか?」" }],
+          then: [
+            { cond: { all: ["nightBoss"] },
+              then: [
+                { cond: { flag: "rodEp2" },
+                  then: [{ msg: "ガレフ「『こえてみせる』と いった でしに\nこえられる ひが くるとはな。\n……わるくない きぶんだ」" }],
+                  else: [
+                    { msg: "ガレフ「ロッド、しょもつは よみおえたか」\nロッド「とっくに。 ついでに ほしのはかの\nまじゅつしきも かいどくしましたよ」" },
+                    { msg: "ガレフ「……なんと。 わしが 30ねん かけても\nとけなかった しきを か。\n……まけたよ。 これを かぶっていけ」" },
+                    { msg: "ロッド「せんせいの ぼうし……。\n……ちょっとだけ、おもいですね。\nいろんな いみで」" },
+                    { give: { item: "a_wisdom" } },
+                    { msg: "えいちのぼうしを てにいれた!" },
+                    { flag: ["rodEp2", 1] },
+                  ] },
+              ],
+              else: [{ msg: "ガレフ「けんきゅうは あしで かせぐ。\nおまえの くちぐせに なったか?」" }] },
+          ],
           else: [
             { msg: "ガレフ「……ロッドじゃないか。\nはもんされた でしが ずいぶん\nりっぱに なったもんだ」" },
             { msg: "ロッド「ガレフせんせい!\nはもんって、オレは じぶんから\nでていったんすけど!?」" },
@@ -4852,7 +4916,22 @@ DATA.maps.trialmt2 = {
     { id: "garon", x: 7, y: 4, spr: "gou", pal: "dark",
       script: [
         { cond: { flag: "garonBeat" },
-          then: [{ msg: "けんおうガロン「よい こぶしだった……。\nおまえたちなら ほしの やみさえ\nうちはらえるだろう」" }],
+          then: [
+            { cond: { all: ["nightBoss"] },
+              then: [
+                { cond: { flag: "glenEp2" },
+                  then: [{ msg: "ガロン「やりの かぜが かわったな。\nまもる ものが ある やつの かぜだ。\nいつでも うちに こい」" }],
+                  else: [
+                    { msg: "ガロン「もどってきたか、りゅうきし。\nよるのくにの はなしは やまに まで\nとどいているぞ。ひとつ けいこと いくか」" },
+                    { msg: "グレン「のぞむところだ!\n……ふうっ。 あいかわらず おそろしい\nこぶしだな、あんた」" },
+                    { msg: "ガロン「おまえの やりも な。 ……これを もて。\nりゅうの こころは まもるもののために もえる。\nおまえに こそ ふさわしい」" },
+                    { give: { item: "a_dragonheart" } },
+                    { msg: "りゅうのこころを てにいれた!" },
+                    { flag: ["glenEp2", 1] },
+                  ] },
+              ],
+              else: [{ msg: "けんおうガロン「よい こぶしだった……。\nおまえたちなら ほしの やみさえ\nうちはらえるだろう」" }] },
+          ],
           else: [
             { msg: "けんおうガロン「この やまの ちょうじょうで\nおれは さいきょうの あいてを\nまちつづけてきた」" },
             { msg: "「おまえたちから ただならぬ きはくを\nかんじる…… いざ、しょうぶ!!」" },
