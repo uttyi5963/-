@@ -644,6 +644,14 @@ class QuestScene {
       list.push(["おうの いらい",
         f("dvergReward") ? "かんりょう" : `マグマトカゲたいじ (${Math.min(5, G.killsOf("firelizard"))}/5)`]);
     }
+    if (f("stormQuest")) {
+      list.push(["らいじんの いかり",
+        f("stormReward") ? "かんりょう" : f("stormBoss") ? "ボルテのむらおさに ほうこく" : "らいでんのほこらの さいしんぶへ"]);
+    }
+    if (f("hawkQuest")) {
+      list.push(["らいめいタカ たいじ",
+        f("hawkReward") ? "かんりょう" : `らいめいタカを おとす (${Math.min(4, G.killsOf("thunderhawk"))}/4)`]);
+    }
     if (f("ruinsQuest")) {
       list.push(["まもりがみの ぼうそう",
         f("ruinsReward") ? "かんりょう" : f("ruinsBoss") ? "リーフェのむらおさに ほうこく" : "こだいのいせきの さいしんぶへ"]);

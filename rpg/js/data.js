@@ -188,6 +188,12 @@ DATA.items = {
   a_vinemail: { name: "つたのよろい",    kind: "armor", price: 11500, def: 33, who: ["leon", "glen"] },
   a_leafrobe: { name: "このはのローブ",  kind: "armor", price: 0, def: 29, int: 8, who: ["rod", "celia"] },
   w_guardfist: { name: "まもりのこぶし", kind: "weapon", price: 0, atk: 54, who: ["gou"] },
+  // らいめいのしま ティア
+  w_boltblade: { name: "らいめいのつるぎ", kind: "weapon", price: 15000, atk: 52, who: ["leon"], elem: "thunder" },
+  w_stormrod: { name: "あらしのつえ",     kind: "weapon", price: 12500, atk: 19, int: 11, who: ["celia"] },
+  a_stormmail: { name: "らいうんのよろい", kind: "armor", price: 12500, def: 35, who: ["leon", "glen"] },
+  a_boltgi:  { name: "いなずまのどうぎ",  kind: "armor", price: 11000, def: 32, who: ["gou"] },
+  w_raijin:  { name: "らいじんのやり",    kind: "weapon", price: 0, atk: 56, who: ["glen"], elem: "thunder" },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   heroproof: { name: "えいゆうのあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
@@ -398,6 +404,23 @@ DATA.monsters = {
     hp: 3300, atk: 72, def: 30, agi: 22, exp: 8500, gold: 4200,
     absorb: ["ice"], weak: ["thunder"],
     acts: [{ spell: "e_bigwave", rate: 0.25 }, { spell: "e_wave", rate: 0.3 }] },
+  // らいめいのしま (Lv65〜85たい)
+  stormimp: { name: "らいうんインプ", spr: "goblin", pal: "light", hp: 780, atk: 82, def: 32, agi: 34, exp: 1550, gold: 1150,
+    absorb: ["thunder"], weak: ["ice"] },
+  thunderhawk: { name: "らいめいタカ", spr: "bird", pal: "light", hp: 720, atk: 84, def: 28, agi: 42, exp: 1500, gold: 1100,
+    absorb: ["thunder"], weak: ["ice"], acts: [{ spell: "e_bolt2", rate: 0.3 }] },
+  boltjelly: { name: "らいでんゼリー", spr: "slime", pal: "light", hp: 840, atk: 78, def: 40, agi: 20, exp: 1600, gold: 1250,
+    absorb: ["thunder", "ice"], weak: ["fire"] },
+  stormcaller: { name: "あらしよび", spr: "wizard", pal: "light", hp: 760, atk: 76, def: 30, agi: 30, exp: 1550, gold: 1200,
+    absorb: ["thunder"], weak: ["holy"], acts: [{ spell: "e_bolt2", rate: 0.25 }, { spell: "e_tornado", rate: 0.15 }] },
+  galeserpent: { name: "かぜへび", spr: "worm", pal: "light", hp: 880, atk: 86, def: 36, agi: 26, exp: 1650, gold: 1300,
+    weak: ["ice"], acts: [{ spell: "e_gale", rate: 0.3 }] },
+  cloudknight: { name: "らいうんきし", spr: "hero_d", pal: "light", hp: 900, atk: 90, def: 42, agi: 28, exp: 1700, gold: 1400,
+    absorb: ["thunder"], weak: ["holy"] },
+  tonitrus: { name: "らいじんのけしん トニトルス", spr: "demon", pal: "light", boss: true, scale: 4,
+    hp: 10000, atk: 104, def: 46, agi: 32, exp: 60000, gold: 20000,
+    absorb: ["thunder"], resist: ["fire"], weak: ["ice"],
+    acts: [{ spell: "e_bolt2", rate: 0.3 }, { spell: "e_tornado", rate: 0.2 }, { spell: "e_starfall", rate: 0.12 }] },
   // みどりのぐんとう (Lv60〜80たい)
   junglecat: { name: "みどりのひょう", spr: "cat", pal: "dark", hp: 740, atk: 78, def: 30, agi: 38, exp: 1450, gold: 1050,
     weak: ["fire"] },
@@ -592,6 +615,10 @@ DATA.encounters = {
     rare: ["kingslime"], rareRate: 0.07 },
   startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"], ["voideye", "voideye"]],
     rare: ["mithrildragon"], rareRate: 0.06 },
+  world6: { rate: 1 / 14, groups: [["stormimp", "stormimp"], ["thunderhawk"], ["boltjelly", "stormimp"], ["stormcaller", "thunderhawk"], ["galeserpent"], ["boltjelly", "boltjelly"]],
+    rare: ["mithrildragon"], rareRate: 0.05 },
+  stormshrine: { rate: 1 / 12, groups: [["cloudknight"], ["stormcaller", "stormcaller"], ["galeserpent", "boltjelly"], ["cloudknight", "stormimp"], ["stormcaller", "galeserpent"], ["cloudknight", "cloudknight"]],
+    rare: ["mithrildragon"], rareRate: 0.07 },
   world5: { rate: 1 / 14, groups: [["junglecat", "junglecat"], ["rubyhornet", "rubyhornet"], ["vineflower"], ["shadowmonkey", "junglecat"], ["mossgolem"], ["vineflower", "rubyhornet"]],
     rare: ["mithrildragon"], rareRate: 0.05 },
   ruins: { rate: 1 / 12, groups: [["ruinsguard", "ruinsguard"], ["mossgolem", "ruinsguard"], ["shadowmonkey", "shadowmonkey"], ["vineflower", "mossgolem"], ["ruinsguard", "ruinsguard", "shadowmonkey"], ["mossgolem", "mossgolem"]],
@@ -621,6 +648,11 @@ DATA.encounters = {
 
 // ---------------- ショップ ----------------
 DATA.shops = {
+  volte: {
+    name: "ボルテの みせ",
+    stock: ["oasiswater", "hipotion", "megapotion", "xpotion", "hiether", "phoenix", "remedy",
+            "w_boltblade", "w_stormrod", "a_stormmail", "a_boltgi"],
+  },
   liefe: {
     name: "リーフェの みせ",
     stock: ["oasiswater", "hipotion", "megapotion", "xpotion", "hiether", "phoenix", "remedy",
@@ -2523,6 +2555,270 @@ DATA.maps.crater2 = {
     { id: "cr5", x: 14, y: 5, item: "elixir" },
     { id: "cr8", x: 8, y: 7, item: "a_cosmogi" },
     { id: "cr9", x: 1, y: 3, item: "w_stella" },
+  ],
+};
+
+// ---------------- らいめいのしま (だい7のちいき) ----------------
+DATA.maps.world6 = {
+  name: "らいめいのしま",
+  outdoor: true,
+  bgm: "field",
+  encounter: "world6",
+  legend: {
+    "w": { tile: "water", solid: true },
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "path" },
+    "f": { tile: "forest" },
+    "T": { tile: "icon_town" },
+    "C": { tile: "icon_shrine" },
+    "G": { tile: "icon_shrine" },
+  },
+  rows: [
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ww......................wwww",
+    "w...mm........mm.........www",
+    "w...mm...T....mm..........ww",
+    "w..........................w",
+    "ww...................G....ww",
+    "ww......mm................ww",
+    "w.......mm.................w",
+    "w..............C...........w",
+    "w..........................w",
+    "w.....ff...................w",
+    "ww....ff...........mm.....ww",
+    "ww.................mm.....ww",
+    "w..........................w",
+    "ww........................ww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  ],
+  events: [
+    { x: 21, y: 5, type: "enter", scriptId: "airshipBoard" },
+    { x: 9, y: 3, type: "enter", warp: { map: "volte", x: 9, y: 9, dir: "u" } },
+    { x: 15, y: 8, type: "enter", warp: { map: "stormshrine1", x: 2, y: 10, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "w6a", x: 1, y: 13, gold: 10000, hidden: true },
+    { id: "w6b", x: 24, y: 2, item: "elixir", hidden: true },
+  ],
+};
+
+// ---------------- あらしのむら ボルテ ----------------
+DATA.maps.volte = {
+  name: "あらしのむら ボルテ",
+  bgm: "town",
+  exit: { map: "world6", x: 9, y: 4, dir: "d" },
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "D": { tile: "door" },
+  },
+  rows: [
+    "ffffffffffffffffffff",
+    "f..................f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWWWW......WWWWW.f",
+    "f.WWdWW......WWDWW.f",
+    "f..................f",
+    "f..................f",
+    "f..................f",
+    "f..................f",
+    "f..................f",
+    "ffffffff....ffffffff",
+  ],
+  events: [
+    { x: 4, y: 4, type: "enter", warp: { map: "volteinn", x: 4, y: 5, dir: "u" } },
+    { x: 15, y: 4, type: "enter", warp: { map: "volteshop", x: 4, y: 5, dir: "u" } },
+  ],
+  npcs: [
+    { id: "volte_chief", x: 10, y: 6, spr: "elder",
+      script: [
+        { cond: { flag: "stormBoss" },
+          then: [
+            { cond: { flag: "stormReward" },
+              then: [{ msg: "むらおさ「かみなりが しずまり ほしぞらが\nもどった。この しまは あなたがたの\nだいにの ふるさとじゃ」" }],
+              else: [
+                { msg: "むらおさ「らいじんの けしんを しずめるとは……!\nむらの ほこりじゃ。れいを うけとって\nくだされ」" },
+                { give: { gold: 6000 } },
+                { msg: "6000ギルを てにいれた!" },
+                { flag: ["stormReward", 1] },
+              ] },
+          ],
+          else: [
+            { msg: "むらおさ「ほこらの らいじんが いかりだし、\nひるも よるも かみなりが やまぬ。\nはたけも ふねも だいそんがいじゃ」" },
+            { msg: "「らいじんは こおりの ちからを にがてと\nしておる。どうか いかりを\nしずめて くだされ」" },
+            { flag: ["stormQuest", 1] },
+          ] },
+      ] },
+    { id: "volte_hunter", x: 5, y: 8, spr: "soldier",
+      script: [
+        { cond: { flag: "hawkReward" },
+          then: [{ msg: "とりおい「らいめいタカが へって そらが\nしずかに なった。ふねも あんしんだ」" }],
+          else: [
+            { cond: { flag: "hawkQuest" },
+              then: [
+                { cond: { kills: { id: "thunderhawk", n: 4 } },
+                  then: [
+                    { msg: "とりおい「4わも おとしたのか! たいした\nうでだ。ほうびを うけとってくれ」" },
+                    { give: { gold: 5000 } },
+                    { give: { item: "hiether" } },
+                    { msg: "5000ギルと ハイエーテルを てにいれた!" },
+                    { flag: ["hawkReward", 1] },
+                  ],
+                  else: [{ msg: "とりおい「らいめいタカは しまの そらを\nとんでいる。4わ たのむ。ずかんで\nかずを かくにんできるぞ」" }] },
+              ],
+              else: [
+                { msg: "とりおい「らいめいタカが ふねの ほばしらに\nいたずらして こまっている。4わ おとして\nくれたら ほうびを だそう」" },
+                { flag: ["hawkQuest", 1] },
+              ] },
+          ] },
+      ] },
+    { id: "volte_kid", x: 14, y: 8, spr: "villager", pal: "light", wander: true,
+      script: [{ msg: "こども「かみなりの よるは おふとんに\nもぐるんだ! でも ちょっとだけ\nかっこいいとも おもうんだ」" }] },
+    { id: "volte_granny", x: 3, y: 9, spr: "villager", wander: true,
+      script: [{ msg: "おばあさん「らいじんさまは ほんらい\nめぐみの あめを くれる やさしい かみさま\nなんだよ。なにかが いかりに ふれたのさ」" }] },
+    { id: "volte_guard", x: 16, y: 6, spr: "soldier",
+      script: [{ msg: "ばんにん「ほこらへは きたの みちを いけ。\nブリザガや こおりのぶきが あれば\nらいじんにも たちうちできるはずだ」" }] },
+  ],
+  chests: [
+    { id: "vo1", x: 17, y: 9, item: "xpotion", hidden: true },
+  ],
+};
+
+DATA.maps.volteinn = {
+  name: "ボルテのやどや",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "b": { tile: "bed" },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.bb..c..#",
+    "#.bb.....#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "volte", x: 4, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "volte", x: 4, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "volte_inn", x: 7, y: 2, spr: "innkeep", script: [{ inn: 500 }] },
+  ],
+  chests: [],
+};
+
+DATA.maps.volteshop = {
+  name: "ボルテのみせ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "t": { tile: "table", solid: true },
+    "c": { tile: "counter", solid: true },
+  },
+  rows: [
+    "##########",
+    "#........#",
+    "#.t...c..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####",
+  ],
+  events: [
+    { x: 4, y: 6, type: "enter", warp: { map: "volte", x: 15, y: 5, dir: "d" } },
+    { x: 5, y: 6, type: "enter", warp: { map: "volte", x: 15, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "volte_shop", x: 7, y: 2, spr: "shopkeep", script: [{ shop: "volte" }] },
+  ],
+  chests: [],
+};
+
+// ---------------- らいでんのほこら ----------------
+DATA.maps.stormshrine1 = {
+  name: "らいでんのほこら",
+  bgm: "shrine",
+  encounter: "stormshrine",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#...........s..#",
+    "#..######..##..#",
+    "#.......#......#",
+    "######..#..#####",
+    "#.......#......#",
+    "#..######..##..#",
+    "#..#...........#",
+    "#..#..######..##",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 2, y: 10, type: "enter", warp: { map: "world6", x: 15, y: 9, dir: "d" } },
+    { x: 12, y: 1, type: "enter", warp: { map: "stormshrine2", x: 3, y: 1, dir: "d" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "ss1", x: 14, y: 3, gold: 9000 },
+    { id: "ss2", x: 1, y: 7, item: "xpotion" },
+    { id: "ss3", x: 6, y: 10, item: "w_raijin", hidden: true },
+  ],
+};
+
+DATA.maps.stormshrine2 = {
+  name: "らいじんのまえにわ",
+  bgm: "shrine",
+  encounter: "stormshrine",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#..s...........#",
+    "#..#########...#",
+    "#...........#..#",
+    "#..#######..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..##.####..#..#",
+    "#...........#..#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 3, y: 1, type: "enter", warp: { map: "stormshrine1", x: 12, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "tonitrusnpc", x: 6, y: 6, spr: "demon", pal: "light", hideFlag: "stormBoss",
+      script: [
+        { msg: "そらが さけ、いなずまが ほこらに\nふりそそぐ……!" },
+        { msg: "『ちいさきものよ……。 わが いかづちを\nうけながら なお たとうと するか。\nよかろう、その いさみ ためしてくれる』" },
+        { battle: { group: ["tonitrus"], boss: true, music: "spirit" } },
+        { flag: ["stormBoss", 1] },
+        { msg: "『……よき たましい なり。 いかりは\nしずまった。めぐみの あめを しまに\nかえそう』 らいじんは そらへ のぼった。" },
+        { msg: "しまの そらが はれわたっていく……。" },
+      ] },
+  ],
+  chests: [
+    { id: "ss4", x: 8, y: 5, item: "worldtear" },
+    { id: "ss5", x: 4, y: 5, gold: 16000, hidden: true },
   ],
 };
 
@@ -4597,6 +4893,7 @@ DATA.scripts = {
               { label: "こおりのれっとう", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
               { label: "すなのおうこく", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
               { label: "みどりのぐんとう", ops: [{ warp: { map: "world5", x: 21, y: 5, dir: "d" } }] },
+              { label: "らいめいのしま", ops: [{ warp: { map: "world6", x: 21, y: 5, dir: "d" } }] },
             ] } },
           ],
           else: [
@@ -4609,6 +4906,7 @@ DATA.scripts = {
               { label: "こおりのれっとう", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
               { label: "すなのおうこく", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
               { label: "みどりのぐんとう", ops: [{ warp: { map: "world5", x: 21, y: 5, dir: "d" } }] },
+              { label: "らいめいのしま", ops: [{ warp: { map: "world6", x: 21, y: 5, dir: "d" } }] },
             ] } },
           ] },
       ],
