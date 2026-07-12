@@ -624,7 +624,7 @@ class BattleScene {
       }
       if ((sp.cast || 0) > 0) {
         h.mp -= this.mpCost(h, sp);
-        p.casting = { act, t: 0, dur: sp.cast };
+        p.casting = { act, t: 0, dur: sp.cast * (G.accAbil(h, "castfast") ? 0.6 : 1) };
         this.log = `${h.name}は ${sp.name}の 詠唱を はじめた`;
         AudioSys.sfx("cursor");
         this.ready = null;
@@ -905,7 +905,7 @@ class BattleScene {
       events.push({ t: 0, fn: () => { this.log = `${h.name}は てんに いのった……`; AudioSys.sfx("cursor"); } });
       events.push({ t: 0.6, fn: () => {
         // 成功りつ 75%。レベルが あがると ときおり 奇跡が おきる
-        if (Math.random() < 0.75) {
+        if (Math.random() < (G.accAbil(h, "prayup") ? 1 : 0.75)) {
           const full = h.lv >= 30 && Math.random() < 0.25;   // 完全回復
           const revive = h.lv >= 45 && Math.random() < 0.25; // そせい
           AudioSys.sfx("heal");
@@ -1088,7 +1088,7 @@ class BattleScene {
     }
     const triple = double && h.ascended && p.jumpCount > 2;
     const hits = triple ? 3 : double ? 2 : 1;
-    const per = triple ? 1.6 : double ? 1.8 : 2.2;
+    const per = (triple ? 1.6 : double ? 1.8 : 2.2) * (G.accAbil(h, "jumpup") ? 1.25 : 1);
     for (let i = 0; i < hits; i++) {
       const dmg = Math.max(1, Math.round(this.physDmg(Math.round(G.atkOf(h) * per), target.def.def)));
       this.queueHitEnemy(events, target, dmg, "crit");
@@ -1248,7 +1248,7 @@ class BattleScene {
     const covered = !!guardian;
     const victim = covered ? guardian : p;
     // カウンターは 50%
-    const counter = covered && Math.random() < 0.5;
+    const counter = covered && Math.random() < (G.accAbil(guardian.h, "counterup") ? 0.75 : 0.5);
 
     events.push({ t: 0, fn: () => { this.log = `${e.name}の 攻撃!`; } });
     events.push({ t: 0.45, fn: () => {
@@ -1466,6 +1466,7 @@ class BattleScene {
     if (exp > 0 || gold > 0) {
       msgs.push(`経験値 ${gain} かくとく!` + (charm > 1 ? " (しるしで2ばい)" : "") + (mult > 1 ? `\n(生きのこりボーナス ${mult}ばい!)` : "") + `\n${gold}ギルを 手に入れた!`);
     }
+    if (this.party.some((q) => q.h.hp > 0 && G.accAbil(q.h, "gilup"))) gold = Math.round(gold * 1.5);
     G.gainGold(gold);
     for (const p of this.party) {
       if (p.h.hp > 0 && gain > 0) {

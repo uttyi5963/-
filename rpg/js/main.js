@@ -193,6 +193,7 @@ class EndingScene {
     AudioSys.bgm("ending");
     const p = G.state.party[0];
     const trueEnd = G.flag("trueClear");
+    this.trueEnd = trueEnd; // 章間ロール(偽エンド)は おわったら フィールドへ もどる
     // 真エンドでは キャラ別の後日談ビネットを はさむ
     this.phase = trueEnd ? "vignette" : "scroll";
     this.vidx = 0;
@@ -295,9 +296,17 @@ class EndingScene {
     this.scroll += dt * 14;
     const maxScroll = this.lines.length * 20 - 100;
     if (this.scroll > maxScroll) this.scroll = maxScroll;
-    if (this.t > 4 && Input.tap("a") && this.scroll >= maxScroll) {
+    if (this.t > 4 && (Input.tap("a") || Input.tap("b")) && this.scroll >= maxScroll) {
       AudioSys.sfx("confirm");
-      G.fade(() => G.replace(new TitleScene()));
+      if (this.trueEnd) {
+        G.fade(() => G.replace(new TitleScene()));
+      } else {
+        // 章のまくあい: そのまま ぼうけんを つづける
+        G.fade(() => {
+          G.replace(new FieldScene());
+          G.autosave();
+        });
+      }
     }
   }
   draw() {
@@ -344,6 +353,14 @@ class EndingScene {
       c.fillStyle = PAL[0];
       c.fillText(l, (SCREEN_W - c.measureText(l).width) / 2, y);
     });
+    // スクロールが おわったら そうさプロンプト
+    const maxScroll2 = this.lines.length * 20 - 100;
+    if (this.scroll >= maxScroll2 && Math.floor(performance.now() / 450) % 2 === 0) {
+      c.font = "bold 11px 'MS Gothic', monospace";
+      c.fillStyle = PAL[1];
+      const hint = this.trueEnd ? "▼ Z/Aボタンで タイトルへ" : "▼ Z/Aボタンで ぼうけんを つづける";
+      c.fillText(hint, SCREEN_W - c.measureText(hint).width - 12, SCREEN_H - 12);
+    }
   }
 }
 
