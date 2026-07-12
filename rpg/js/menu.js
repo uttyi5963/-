@@ -15,28 +15,28 @@ function applyFieldItem(def, hero) {
         Object.keys(DATA.statuses).forEach((s) => { h[s] = false; });
       }
     });
-    return "なかまぜんいんが かんぜんに かいふくした!";
+    return "仲間ぜんいんが 完全に 回復した!";
   }
   if (def.elixir) {
     if (hero.hp <= 0) return null;
     hero.hp = hero.maxhp;
     hero.mp = hero.maxmp;
-    return `${hero.name}の HPとMPが かんぜんに かいふくした!`;
+    return `${hero.name}の HPとMPが 完全に 回復した!`;
   }
   if (def.heal) {
     if (hero.hp <= 0) return null;
     hero.hp = Math.min(hero.maxhp, hero.hp + def.heal);
-    return `${hero.name}の HPが かいふくした!`;
+    return `${hero.name}の HPが 回復した!`;
   }
   if (def.mp) {
     if (hero.hp <= 0) return null;
     hero.mp = Math.min(hero.maxmp, hero.mp + def.mp);
-    return `${hero.name}の MPが かいふくした!`;
+    return `${hero.name}の MPが 回復した!`;
   }
   if (def.revive) {
     if (hero.hp > 0) return null;
     hero.hp = Math.max(1, Math.floor(hero.maxhp * def.revive));
-    return `${hero.name}は いきかえった!`;
+    return `${hero.name}は 生き返った!`;
   }
   if (def.cure) {
     if (!hero[def.cure]) return null;
@@ -58,17 +58,17 @@ function applyFieldSpell(spell, caster, target) {
     const alive = G.state.party.filter((h) => h.hp > 0 && h.hp < h.maxhp);
     if (alive.length === 0) return null;
     alive.forEach((h) => { h.hp = Math.min(h.maxhp, h.hp + G.calcHeal(caster, spell)); });
-    return "なかまぜんいんの HPが かいふくした!";
+    return "仲間ぜんいんの HPが 回復した!";
   }
   if (spell.type === "heal") {
     if (target.hp <= 0) return null;
     target.hp = Math.min(target.maxhp, target.hp + G.calcHeal(caster, spell));
-    return `${target.name}の HPが かいふくした!`;
+    return `${target.name}の HPが 回復した!`;
   }
   if (spell.type === "revive") {
     if (target.hp > 0) return null;
     target.hp = Math.max(1, Math.floor(target.maxhp * spell.pow));
-    return `${target.name}は いきかえった!`;
+    return `${target.name}は 生き返った!`;
   }
   if (spell.type === "cure") {
     const sts = spell.cureAll ? Object.keys(DATA.statuses) : ["poison"];
@@ -89,7 +89,7 @@ class MenuScene {
     this.scroll = 0;
     this.target = 0;
     this.picked = null;
-    this.commands = ["つよさ", "じゅもん", "どうぐ", "そうび", "たいれつ", "ずかん", "クエスト", "せってい", "パスワード", "セーブ"];
+    this.commands = ["強さ", "呪文", "道具", "そうび", "たいれつ", "ずかん", "クエスト", "せってい", "パスワード", "セーブ"];
   }
 
   update() {
@@ -117,9 +117,9 @@ class MenuScene {
     if (Input.tap("a")) {
       AudioSys.sfx("confirm");
       const cmd = this.commands[this.sel];
-      if (cmd === "つよさ") { this.state = "heroPick"; this.mode = "status"; this.sub = 0; }
-      else if (cmd === "じゅもん") { this.state = "heroPick"; this.mode = "spell"; this.sub = 0; }
-      else if (cmd === "どうぐ") { this.state = "item"; this.sub = 0; this.scroll = 0; }
+      if (cmd === "強さ") { this.state = "heroPick"; this.mode = "status"; this.sub = 0; }
+      else if (cmd === "呪文") { this.state = "heroPick"; this.mode = "spell"; this.sub = 0; }
+      else if (cmd === "道具") { this.state = "item"; this.sub = 0; this.scroll = 0; }
       else if (cmd === "そうび") { this.state = "heroPick"; this.mode = "equip"; this.sub = 0; }
       else if (cmd === "たいれつ") { this.state = "heroPick"; this.mode = "row"; this.sub = 0; }
       else if (cmd === "ずかん") { G.push(new BestiaryScene()); }
@@ -159,7 +159,7 @@ class MenuScene {
             if (!Store.ok) msgs.push("※このかんきょうでは きろくが きえる\n ことがあります。メニューの\n「パスワード」で かきだせます!");
             G.push(new MessageScene(msgs));
           }
-          else G.push(new MessageScene("セーブに しっぱいした……"));
+          else G.push(new MessageScene("セーブに 失敗した……"));
         }));
       }
     }
@@ -354,7 +354,7 @@ class MenuScene {
   drawItemList() {
     const items = itemList();
     Gfx.window(20, 40, 280, 200);
-    Gfx.text("どうぐ", 32, 48);
+    Gfx.text("道具", 32, 48);
     if (items.length === 0) Gfx.text("なにも もっていない", 40, 76);
     const view = 8;
     if (this.sub < this.scroll) this.scroll = this.sub;
@@ -372,8 +372,8 @@ class MenuScene {
   drawSpellList() {
     const spells = this.fieldSpells(this.picked);
     Gfx.window(20, 40, 280, 180);
-    Gfx.text(`${this.picked.name}の じゅもん`, 32, 48);
-    if (spells.length === 0) Gfx.text("フィールドで つかえる じゅもんが ない", 40, 76, 3, 10);
+    Gfx.text(`${this.picked.name}の 呪文`, 32, 48);
+    if (spells.length === 0) Gfx.text("フィールドで つかえる 呪文が ない", 40, 76, 3, 10);
     spells.forEach((s, i) => {
       const y = 72 + i * 19;
       Gfx.text(s.def.name, 48, y);
@@ -393,7 +393,7 @@ class MenuScene {
     Gfx.text("ぶき  : " + wname, 48, 70);
     Gfx.text("よろい: " + aname, 48, 88);
     Gfx.text("アクセ: " + cname, 48, 106);
-    Gfx.text(`こうげき ${G.atkOf(h)}  ぼうぎょ ${G.defOf(h)}`, 48, 126, 3, 10);
+    Gfx.text(`攻撃 ${G.atkOf(h)}  防御 ${G.defOf(h)}`, 48, 126, 3, 10);
     if (this.state === "equipSlot") {
       Gfx.cursor(34, 73 + this.sel2 * 18);
     } else {
@@ -402,8 +402,8 @@ class MenuScene {
       const start = Math.max(0, Math.min(this.sel3 - (view - 1), cands.length - view));
       cands.slice(start, start + view).forEach((it, i) => {
         const y = 144 + i * 18;
-        const stat = it.def.kind === "weapon" ? `こうげき${it.def.atk}`
-          : it.def.kind === "armor" ? `ぼうぎょ${it.def.def}` : (it.def.tag || "");
+        const stat = it.def.kind === "weapon" ? `攻撃${it.def.atk}`
+          : it.def.kind === "armor" ? `防御${it.def.def}` : (it.def.tag || "");
         Gfx.text(it.def.name, 60, y, 3, 11);
         Gfx.textR(stat, 280, y, 3, 10);
         if (start + i === this.sel3) Gfx.cursor(46, y + 3);
@@ -423,12 +423,12 @@ class MenuScene {
       ["HP", `${h.hp}/${h.maxhp}`],
       ["MP", `${h.mp}/${h.maxmp}`],
       ["ちから", G.strOf(h)],
-      ["すばやさ", G.agiOf(h)],
-      ["たいりょく", G.vitOf(h)],
-      ["ちせい", G.intOf(h)],
-      ["こうげき", G.atkOf(h)],
-      ["ぼうぎょ", G.defOf(h)],
-      ["けいけんち", h.exp],
+      ["素早さ", G.agiOf(h)],
+      ["体力", G.vitOf(h)],
+      ["知性", G.intOf(h)],
+      ["攻撃", G.atkOf(h)],
+      ["防御", G.defOf(h)],
+      ["経験値", h.exp],
       ["つぎのレベルまで", Math.max(0, G.expTotalFor(h.lv + 1) - h.exp)],
     ];
     rows.forEach(([k, v], i) => {
@@ -456,18 +456,18 @@ class AchievementScene {
     const lords = ["craterBoss", "mirrorBoss", "glacierBoss", "tombBoss", "ruinsBoss", "stormBoss"].filter(f).length;
     const arena = f("arenaPlatinum") ? "プラチナ" : f("arenaGold") ? "ゴールド" : f("arenaSilver") ? "シルバー" : f("arenaBronze") ? "ブロンズ" : "みせいは";
     return [
-      ["まおう ザルバを たおした", f("clear")],
-      ["しんのてき ヴォイドスを たおした", f("trueClear")],
-      ["しんえんりゅう ヴァハを たおした", f("superBoss")],
-      ["ほしぼしのおう グランステラ", f("graveBoss")],
+      ["魔王 ザルバを 倒した", f("clear")],
+      ["しんのてき ヴォイドスを 倒した", f("trueClear")],
+      ["しんえんりゅう ヴァハを 倒した", f("superBoss")],
+      ["星々のおう グランステラ", f("graveBoss")],
       ["けんおう ガロンに かった", f("garonBeat")],
       [`かくちの ぬしを しずめた (${lords}/6)`, lords >= 6],
       [`げんじゅうを たいじした (${genju}/3)`, genju >= 3],
-      ["せかいかいぎを ひらいた", f("summitDone")],
-      [`とうぎじょう さいこうい: ${arena}`, f("arenaPlatinum")],
+      ["世界会議を ひらいた", f("summitDone")],
+      [`闘技場 さいこうい: ${arena}`, f("arenaPlatinum")],
       ["ねこあつめを かんせいさせた", f("catDone")],
       [`ずかんに とうろくした (${seen}/${monsTotal})`, seen >= monsTotal],
-      [`たからばこを あけた (${chests}こ)`, chests >= 60],
+      [`宝箱を あけた (${chests}こ)`, chests >= 60],
       ["つりぼりの ぬしを つった", f("fishKing")],
     ];
   }
@@ -481,7 +481,7 @@ class AchievementScene {
   draw() {
     Gfx.clear(0);
     Gfx.window(4, 4, 312, 280);
-    Gfx.text("〜 えいゆうの きろく 〜", 92, 14, 3, 13);
+    Gfx.text("〜 英雄の きろく 〜", 92, 14, 3, 13);
     this.rows().forEach(([name, done], i) => {
       const y = 34 + i * 16;
       Gfx.text(done ? "☆" : "・", 18, y, done ? 3 : 1, 11);
@@ -531,7 +531,7 @@ class BestiaryScene {
     const killedCount = this.ids.filter((id) => this.entry(id).killed > 0).length;
     Gfx.window(4, 4, 312, 30);
     Gfx.text("モンスターずかん", 14, 12);
-    Gfx.textR(`とうばつ ${killedCount}/${this.ids.length}`, 306, 12);
+    Gfx.textR(`討伐 ${killedCount}/${this.ids.length}`, 306, 12);
 
     if (this.detail) {
       this.drawDetail();
@@ -567,19 +567,19 @@ class BestiaryScene {
     if (def.race) Gfx.text("しゅぞく: " + { dragon: "りゅう", undead: "アンデッド", demon: "まぞく" }[def.race], 110, 94, 3, 10);
     const rows = [
       ["HP", def.hp],
-      ["こうげき", def.atk],
-      ["ぼうぎょ", def.def],
-      ["すばやさ", def.agi],
-      ["けいけんち", def.exp],
+      ["攻撃", def.atk],
+      ["防御", def.def],
+      ["素早さ", def.agi],
+      ["経験値", def.exp],
       ["ギル", def.gold],
-      ["たおしたかず", e.killed],
+      ["倒したかず", e.killed],
     ];
     rows.forEach(([k, v], i) => {
       Gfx.text(String(k), 44, 126 + i * 16, 3, 10);
       Gfx.textR(String(v), 180, 126 + i * 16, 3, 10);
     });
-    // じゃくてんは 1どでも たおすと ひょうじ
-    const elemName = { fire: "ほのお", ice: "こおり", thunder: "かみなり", holy: "せい" };
+    // じゃくてんは 1どでも 倒すと ひょうじ
+    const elemName = { fire: "ほのお", ice: "こおり", thunder: "雷", holy: "せい" };
     const fmt = (arr) => (arr || []).map((x) => elemName[x] || x).join(" ") || "なし";
     if (e.killed > 0) {
       Gfx.text("じゃくてん: " + fmt(def.weak), 196, 126, 2, 10);
@@ -587,7 +587,7 @@ class BestiaryScene {
       Gfx.text("きゅうしゅう: " + fmt(def.absorb), 196, 166, 3, 10);
     } else {
       Gfx.text("じゃくてん: ??????", 196, 126, 1, 10);
-      Gfx.text("(たおすと わかる)", 196, 146, 1, 9);
+      Gfx.text("(倒すと わかる)", 196, 146, 1, 9);
     }
     Gfx.text("A/B: もどる", 130, 244, 1, 9);
   }
@@ -605,23 +605,23 @@ class QuestScene {
   // メインストーリーの「つぎのもくてき」(みたされていない さいしょのもの)
   objective() {
     const steps = [
-      ["intro", "おうさまの めいれいを きこう"],
-      ["caveBoss", "にしのどうくつを ぬけて\nミストのむらへ むかおう"],
-      ["crystal", "ミストのむらの ちょうろうに あおう"],
-      ["paladin", "きたのほこらで しれんを うけよう\n(クリスタルが かぎ)"],
-      ["clear", "まてんろうで まおうザルバを たおそう"],
+      ["intro", "王様の めいれいを きこう"],
+      ["caveBoss", "にしの洞窟を ぬけて\nミストのむらへ むかおう"],
+      ["crystal", "ミストのむらの 長老に あおう"],
+      ["paladin", "きたのほこらで 試練を うけよう\n(クリスタルが 鍵)"],
+      ["clear", "まてんろうで 魔王ザルバを たおそう"],
       ["magmaBoss", "みなみの おおあなの そこを しらべよう"],
-      ["earthCrystal", "ちていしんでんで\nちのクリスタルを とりもどそう"],
+      ["earthCrystal", "地底神殿で\nちのクリスタルを とりもどそう"],
       ["airship", "ムスペルの ドワーフに はなそう"],
-      ["windCrystal", "ひこうせんで そらのしまへ。\nかぜのしんでんに いどもう"],
-      ["submarine", "ドワーフに かぜのクリスタルを みせよう"],
-      ["waterCrystal", "うみのそこの しんでんへ もぐろう"],
-      ["trueClear", "ほしのとうで ヴォイドスを たおそう!"],
+      ["windCrystal", "ひこうせんで 空の島へ。\n風の神殿に いどもう"],
+      ["submarine", "ドワーフに 風のクリスタルを みせよう"],
+      ["waterCrystal", "海の底の 神殿へ もぐろう"],
+      ["trueClear", "星のとうで ヴォイドスを たおそう!"],
     ];
     for (const [flag, text] of steps) {
       if (!G.flag(flag)) return text;
     }
-    return "せかいは すくわれた!\nかくしボスや ずかんかんせいに ちょうせん!";
+    return "世界は すくわれた!\nかくしボスや ずかんかんせいに 挑戦!";
   }
 
   quests() {
@@ -629,55 +629,55 @@ class QuestScene {
     const list = [];
     if (f("iceQuest") || f("iceBoss")) {
       list.push(["りゅうたいじ (ハンター)",
-        f("iceReward") ? "かんりょう" : f("iceBoss") ? "ハンターに ほうこく" : "こおりのどうくつの りゅうを たおす"]);
+        f("iceReward") ? "かんりょう" : f("iceBoss") ? "ハンターに ほうこく" : "氷の洞窟の りゅうを 倒す"]);
     }
     if (f("magmaBoss")) {
       list.push(["かがやくいし",
         f("glowReward") ? "がくしゃに ゆずった" : f("forged") ? "つるぎに きたえた"
-          : "がくしゃに ゆずるか かじやで きたえるか"]);
+          : "がくしゃに ゆずるか 鍛冶屋で きたえるか"]);
     }
     if (f("seaBoss")) {
-      list.push(["うみのぬし たいじ",
+      list.push(["海のぬし たいじ",
         f("seaReward") ? "かんりょう" : "ソレイユの せんいんに ほうこく"]);
     }
     if (f("arenaBronze") || f("arenaSilver") || f("arenaGold") || f("arenaPlatinum")) {
-      const rank = f("arenaPlatinum") ? "でんせつ (プラチナせいは)" : f("arenaGold") ? "チャンピオン!" : f("arenaSilver") ? "シルバーせいは" : "ブロンズせいは";
-      list.push(["とうぎじょう", rank]);
+      const rank = f("arenaPlatinum") ? "伝説 (プラチナせいは)" : f("arenaGold") ? "チャンピオン!" : f("arenaSilver") ? "シルバーせいは" : "ブロンズせいは";
+      list.push(["闘技場", rank]);
     }
     if (f("summitQuest")) {
       const inv = ["inviteTwine", "inviteFrim", "inviteZahra", "inviteDverg"].filter(f).length;
-      list.push(["せかいかいぎ",
+      list.push(["世界会議",
         f("summitDone") ? "かいさい された!" : `おさたちに しょうたいを とどける (${inv}/4)`]);
     }
     if (f("starGate")) {
       list.push(["クレーターのぬし たいじ",
-        f("craterBoss") ? "かんりょう" : "ほしのせかいの だいクレーターへ"]);
+        f("craterBoss") ? "かんりょう" : "星の世界の だいクレーターへ"]);
     }
     if (f("allCrystals")) {
       const gj = (f("sylphidDown") ? 1 : 0) + (f("gnomosDown") ? 1 : 0) + (f("undinaDown") ? 1 : 0);
       list.push(["げんじゅう たいじ",
-        gj >= 3 ? "かんりょう" : `そら/ちてい/うみに けはい (${gj}/3)`]);
+        gj >= 3 ? "かんりょう" : `そら/地底/うみに けはい (${gj}/3)`]);
     }
     if (f("dvergQuest")) {
-      list.push(["おうの いらい",
+      list.push(["おうの 依頼",
         f("dvergReward") ? "かんりょう" : `マグマトカゲたいじ (${Math.min(5, G.killsOf("firelizard"))}/5)`]);
     }
     if (f("dockQuest")) {
-      list.push(["ふなつきばの こまりごと",
+      list.push(["船着き場の こまりごと",
         f("dockDone") ? "かんりょう" : `コウモリたいじ (${Math.min(5, G.killsOf("bat"))}/5)`]);
     }
     if (f("nightBoss")) {
       const eps = ["leonEp2", "glenEp2", "gouEp2", "celiaEp2", "rodEp2"].filter(f).length;
       list.push(["ひとりひとりの あゆみ",
-        eps >= 5 ? "かんりょう" : `なかまの ものがたりを たどる (${eps}/5)`]);
+        eps >= 5 ? "かんりょう" : `仲間の 物語を たどる (${eps}/5)`]);
     }
     if (f("nightQuest")) {
       list.push(["じょおうの かなしみ",
-        f("nightReward") ? "かんりょう" : f("nightBoss") ? "ノクスのまちのおさに ほうこく" : "やみのだいせいどうの おくへ"]);
+        f("nightReward") ? "かんりょう" : f("nightBoss") ? "ノクスのまちのおさに ほうこく" : "闇の大聖堂の おくへ"]);
     }
     if (f("duskQuest")) {
       list.push(["たそがれオオカミ たいじ",
-        f("duskReward") ? "かんりょう" : `オオカミを たおす (${Math.min(4, G.killsOf("duskwolf"))}/4)`]);
+        f("duskReward") ? "かんりょう" : `オオカミを 倒す (${Math.min(4, G.killsOf("duskwolf"))}/4)`]);
     }
     if (f("stormQuest")) {
       list.push(["らいじんの いかり",
@@ -688,12 +688,12 @@ class QuestScene {
         f("hawkReward") ? "かんりょう" : `らいめいタカを おとす (${Math.min(4, G.killsOf("thunderhawk"))}/4)`]);
     }
     if (f("ruinsQuest")) {
-      list.push(["まもりがみの ぼうそう",
+      list.push(["守りがみの ぼうそう",
         f("ruinsReward") ? "かんりょう" : f("ruinsBoss") ? "リーフェのむらおさに ほうこく" : "こだいのいせきの さいしんぶへ"]);
     }
     if (f("catQuest2")) {
       list.push(["みどりのひょう たいじ",
-        f("catReward2") ? "かんりょう" : `みどりのひょうを たおす (${Math.min(4, G.killsOf("junglecat"))}/4)`]);
+        f("catReward2") ? "かんりょう" : `みどりのひょうを 倒す (${Math.min(4, G.killsOf("junglecat"))}/4)`]);
     }
     if (f("tombQuest")) {
       list.push(["よみがえった すなのおう",
@@ -701,27 +701,27 @@ class QuestScene {
     }
     if (f("wormQuest")) {
       list.push(["すなワーム たいじ",
-        f("wormReward") ? "かんりょう" : `すなワームを たおす (${Math.min(4, G.killsOf("sandworm2"))}/4)`]);
+        f("wormReward") ? "かんりょう" : `すなワームを 倒す (${Math.min(4, G.killsOf("sandworm2"))}/4)`]);
     }
     if (f("glacierQuest")) {
       list.push(["ひょうがのめがみ",
-        f("glacierReward") ? "かんりょう" : f("glacierBoss") ? "フリムのむらおさに ほうこく" : "ひょうがのどうくつの さいだんへ"]);
+        f("glacierReward") ? "かんりょう" : f("glacierBoss") ? "フリムのむらおさに ほうこく" : "ひょうがの洞窟の さいだんへ"]);
     }
     if (f("wolfQuest")) {
       list.push(["ゆきおおかみ たいじ",
-        f("wolfReward") ? "かんりょう" : `ゆきおおかみを たおす (${Math.min(3, G.killsOf("snowwolf"))}/3)`]);
+        f("wolfReward") ? "かんりょう" : `ゆきおおかみを 倒す (${Math.min(3, G.killsOf("snowwolf"))}/3)`]);
     }
     if (f("twinQuest")) {
       list.push(["かがみのぬし たいじ",
-        f("twinReward") ? "かんりょう" : f("mirrorBoss") ? "トワインのおさに ほうこく" : "かがみのどうくつの おくへ"]);
+        f("twinReward") ? "かんりょう" : f("mirrorBoss") ? "トワインのおさに ほうこく" : "かがみの洞窟の おくへ"]);
     }
     if (f("mirrorBoss")) {
       list.push(["とこしえのとう",
-        f("chronoBoss") ? "ときのばんにんを しずめた" : "ふういんのとけた とうの ちょうじょうへ"]);
+        f("chronoBoss") ? "ときの番人を しずめた" : "ふういんのとけた とうの 頂上へ"]);
     }
     if (f("garonSeen")) {
       list.push(["けんおうガロン",
-        f("garonBeat") ? "かんりょう" : "しれんのやまの ちょうじょうで さいせん"]);
+        f("garonBeat") ? "かんりょう" : "試練の山の 頂上で さいせん"]);
     }
     if (f("trueClear")) {
       const rush = (f("rush1") ? 1 : 0) + (f("rush2") ? 1 : 0) + (f("rush3") ? 1 : 0);
@@ -732,14 +732,14 @@ class QuestScene {
       list.push(["まぼろしのしろ", "おうのけんを うけついだ"]);
     }
     if (f("craterBoss")) {
-      list.push(["ほしのはか",
+      list.push(["星のはか",
         f("graveBoss") ? "ぬしを しずめた" : "ふういんの とけた はかの さいしんぶへ"]);
     }
     if (f("stellaQuest")) {
       list.push(["まいごのステラ",
-        f("stellaDone") ? "かんりょう" : f("stellaFound") ? "ちょうろうに ほうこく" : "クレーターのおくで ステラをさがす"]);
+        f("stellaDone") ? "かんりょう" : f("stellaFound") ? "長老に ほうこく" : "クレーターのおくで ステラをさがす"]);
     }
-    if (f("worldtearGiven")) list.push(["ちょうろうの おくりもの", "せかいのしずくを さずかった"]);
+    if (f("worldtearGiven")) list.push(["長老の おくりもの", "世界のしずくを さずかった"]);
     if (f("catQuest")) {
       const cats = ["cat1", "cat2", "cat3", "cat4", "cat5"].filter(f).length;
       list.push(["ねこあつめ",
@@ -750,16 +750,16 @@ class QuestScene {
         f("hideSeekDone") ? "かんりょう" : "きのちかくに かくれた モコをさがす"]);
     }
     if (f("fishKing")) list.push(["つりぼりの ぬし", "つりあげた!"]);
-    if (f("forestBoss")) list.push(["まよいのもりの ぬし", "とうばつ かんりょう"]);
+    if (f("forestBoss")) list.push(["まよいの森の ぬし", "討伐 かんりょう"]);
     if (f("clear")) list.push(["じょうの ふっこう",
       f("castleReward") ? "ほうしょう うけとりずみ"
-        : f("castleFund") ? "しえんずみ (おうきゅうに みせ)"
+        : f("castleFund") ? "しえんずみ (王宮に みせ)"
         : "ぶかんちょうが しきんを さがしている"]);
-    if (f("superBoss")) list.push(["しんえんりゅう ヴァハ", "とうばつ! でんせつの ゆうしゃ"]);
-    // なかまの こじんイベント
+    if (f("superBoss")) list.push(["しんえんりゅう ヴァハ", "討伐! 伝説の 勇者"]);
+    // 仲間の こじんイベント
     if (f("paladin")) list.push(["グレンと いもうと",
-      f("glenEvent") ? "かんりょう" : "バロンじょうに だれか きている"]);
-    if (f("earthCrystal")) list.push(["ゴウの しゅぎょう",
+      f("glenEvent") ? "かんりょう" : "バロン城に だれか きている"]);
+    if (f("earthCrystal")) list.push(["ゴウの 修行",
       f("gouEvent") ? "かんりょう" : "ソレイユに みおぼえのある かげ"]);
     if (f("windCrystal")) list.push(["セリアの おもいで",
       f("celiaEvent") ? "かんりょう" : "ミストのむらに シスターが"]);
@@ -820,11 +820,11 @@ class ConfigScene {
   rows() {
     const c = this.cfg;
     return [
-      ["せんとうモード", c.atbWait !== false ? "ウェイト" : "アクティブ", "ウェイト: コマンドちゅう じかんていし"],
+      ["戦闘モード", c.atbWait !== false ? "ウェイト" : "アクティブ", "ウェイト: コマンドちゅう じかんていし"],
       ["カーソルきおく", c.memory !== false ? "ON" : "OFF", "まえの ターンの コマンドいちを おぼえる"],
-      ["せんとうそくど", (c.bspeed || 1) === 2 ? "2ばい" : "ふつう", "2ばいなら レベルあげが はかどる"],
+      ["戦闘そくど", (c.bspeed || 1) === 2 ? "2ばい" : "ふつう", "2ばいなら レベルあげが はかどる"],
       ["いどうそくど", c.wspeed === 2 ? "はやい" : "ふつう", "フィールドを きびきび あるく"],
-      ["エンカウント", c.encOff ? "OFF" : "ON", "OFFにすると ざこてきが でなくなる"],
+      ["エンカウント", c.encOff ? "OFF" : "ON", "OFFにすると ざこ敵が でなくなる"],
       ["おと", AudioSys.muted ? "OFF" : "ON", "BGMと こうかおん (Mキーでも きりかえ)"],
     ];
   }
@@ -878,12 +878,12 @@ class FishingScene {
   rollCatch() {
     const r = Math.random();
     if (this.table === "lake") {
-      // みずうみのさんばし: べつの さかなが つれる
+      // 湖の桟橋: べつの さかなが つれる
       if (r < 0.05) {
         G.setFlag("lakeKing", 1);
         G.state.gold += 4000;
         AudioSys.sfx("levelup");
-        return "みずうみのぬしだ!! 4000ギル!!";
+        return "湖のぬしだ!! 4000ギル!!";
       }
       if (r < 0.2) { G.state.gold += 800; AudioSys.sfx("chest"); return "にじマス! 800ギル!"; }
       if (r < 0.58) { G.state.gold += 150; AudioSys.sfx("chest"); return "あおブナを つった! 150ギル!"; }
@@ -908,7 +908,7 @@ class FishingScene {
       if (Input.tap("a")) {
         if (G.state.gold < this.price) {
           AudioSys.sfx("buzz");
-          this.resultText = "おかねが たりない!";
+          this.resultText = "お金が たりない!";
           this.state = "result";
           this.t = 0;
           return;
@@ -967,7 +967,7 @@ class FishingScene {
   }
 
   draw() {
-    // うみの まど
+    // 海の まど
     Gfx.window(60, 56, 200, 120);
     for (let ty = 0; ty < 6; ty++) {
       for (let tx = 0; tx < 11; tx++) {
@@ -1039,7 +1039,7 @@ class ShopScene {
         const def = DATA.items[id];
         if (G.state.gold < def.price) {
           AudioSys.sfx("buzz");
-          this.notice = "おかねが たりないよ!";
+          this.notice = "お金が たりないよ!";
         } else {
           G.state.gold -= def.price;
           G.addItem(id);
@@ -1102,7 +1102,7 @@ class ShopScene {
       });
       const def = DATA.items[stock[this.sub]];
       const desc = def.desc ||
-        (def.kind === "weapon" ? `こうげき+${def.atk}` : def.kind === "armor" ? `ぼうぎょ+${def.def}` : "");
+        (def.kind === "weapon" ? `攻撃+${def.atk}` : def.kind === "armor" ? `防御+${def.def}` : "");
       Gfx.window(4, 262, 312, 22);
       Gfx.text(desc, 14, 267, 3, 10);
     } else if (this.state === "sell") {

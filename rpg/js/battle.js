@@ -2,7 +2,7 @@
 // クリスタルナイツ - ATBバトル (FF4スタイル アクティブタイムバトル)
 // ・アクティブ: コマンド選択中も時間は流れる
 // ・ウェイト: コマンド選択中は時間が完全に停止する
-// ・じゅもんには えいしょう時間があり、完了時に発動する
+// ・呪文には 詠唱時間があり、完了時に発動する
 // ============================================================
 
 function rnd(a, b) { return a + Math.random() * (b - a); }
@@ -42,9 +42,9 @@ class BattleScene {
       casting: null, flash: 0,
       airborne: null,   // ジャンプちゅう {t, dur, target, double}
       jumpCount: 0,     // 2かいめからは ダブルジャンプ
-      charge: 0,        // ためる (0..3) → こうげき 2/4/8ばい
-      focus: 0,         // かくせい (0..3) → まほう 2/4/8ばい
-      coverIdx: -1,     // かばっている なかまの ばんごう
+      charge: 0,        // ためる (0..3) → 攻撃 2/4/8ばい
+      focus: 0,         // 覚醒 (0..3) → 魔法 2/4/8ばい
+      coverIdx: -1,     // かばっている 仲間の ばんごう
     }));
 
     this.phase = "intro";   // intro / atb / command / waitend
@@ -59,14 +59,14 @@ class BattleScene {
     this.shadowActs = 0;
     this.fleeing = false;
     this.shake = 0;        // がめんゆれ (おおダメージ/かいしん)
-    this.screenFlash = 0;  // まほうはつどうの ひかり
+    this.screenFlash = 0;  // 魔法はつどうの ひかり
     this.fx = [];          // ヒットエフェクト {x,y,kind,t}
     this.bgTheme = this.pickBgTheme();
 
     AudioSys.bgm(opts.music || "battle");
   }
 
-  // げんざいの マップから せんとうはいけいを きめる
+  // げんざいの マップから 戦闘はいけいを きめる
   pickBgTheme() {
     const m = String(G.state.map || "");
     if (/^(icecave|world3|glaciercave)/.test(m)) return "ice";
@@ -93,7 +93,7 @@ class BattleScene {
     else AudioSys.stopBgm();
   }
 
-  // 属性倍率: きゅうしゅう=-1(かいふく) / たいせい=0.5 / じゃくてん=8ばい
+  // 属性倍率: きゅうしゅう=-1(回復) / たいせい=0.5 / じゃくてん=8ばい
   elemMod(def, elem) {
     if (!elem) return 1;
     if ((def.absorb || []).includes(elem)) return -1;
@@ -128,19 +128,19 @@ class BattleScene {
     return { x: 28 + (i % 2) * 14, y: 40 + i * 44, size, scale };
   }
 
-  // ひっさつゲージ: うけたダメージに おうじて たまる
+  // 必殺ゲージ: うけたダメージに 王子て たまる
   gainLimit(victim, dmg) {
     if (victim.h.hp <= 0) return;
     const mul = G.accAbil(victim.h, "limitx2") ? 2 : 1;
     victim.h.limit = Math.min(100, (victim.h.limit || 0) + Math.round(dmg / victim.h.maxhp * 90 * mul));
   }
 
-  // アクセサリ「マナのゆびわ」で MPしょうひ半減
+  // アクセサリ「マナの指輪」で MPしょうひ半減
   mpCost(h, sp) {
     return G.accAbil(h, "mphalf") ? Math.ceil((sp.mp || 0) / 2) : (sp.mp || 0);
   }
 
-  // しゅうとくずみの ひっさつわざ
+  // しゅうとくずみの 必殺技
   learnedLimits(h) {
     return (DATA.limits[h.id] || []).filter((t) => h.lv >= t.lv);
   }
@@ -150,7 +150,7 @@ class BattleScene {
     p.pose = { name, t: dur };
   }
 
-  // いまの じょうたいから せんとうポーズを きめる
+  // 今の 状態から 戦闘ポーズを きめる
   poseOf(p) {
     if (p.h.hp <= 0) return "down";
     if (p.pose && p.pose.t > 0) return p.pose.name;
@@ -203,18 +203,18 @@ class BattleScene {
       return;
     }
 
-    // ウェイトモード: コマンドにゅうりょくちゅうは 時間がかんぜんに とまる
-    dt *= (G.state.config && G.state.config.bspeed) || 1; // せんとうそくど設定
+    // ウェイトモード: コマンドにゅうりょくちゅうは 時間が完全に とまる
+    dt *= (G.state.config && G.state.config.bspeed) || 1; // 戦闘そくど設定
     const waitPause = this.waitMode && this.phase === "command";
 
     if (!waitPause) {
-      // ATBゲージ (えいしょう/ジャンプちゅうは たまらない)
+      // ATBゲージ (詠唱/ジャンプちゅうは たまらない)
       for (const p of this.aliveParty()) {
         if (p.casting || p.airborne) continue;
         const was = p.atb;
         const spd = (p.haste ? 1.5 : 1) * (p.boost > 0 ? 1.4 : 1) * (p.fatigue > 0 ? 0.5 : 1);
         p.atb = Math.min(100, p.atb + (25 + G.agiOf(p.h) * 3) * spd * dt);
-        // いのちのたま: ターンが まわってくるたび HPかいふく
+        // 命のたま: ターンが まわってくるたび HP回復
         if (was < 100 && p.atb >= 100 && G.accAbil(p.h, "regen") && p.h.hp < p.h.maxhp) {
           const heal = Math.max(1, Math.round(p.h.maxhp * 0.05));
           p.h.hp = Math.min(p.h.maxhp, p.h.hp + heal);
@@ -226,7 +226,7 @@ class BattleScene {
         if (!e.casting) e.atb = Math.min(100, e.atb + (25 + e.def.agi * 3) * dt);
       }
 
-      // えいしょう進行 → 完了で発動
+      // 詠唱進行 → 完了で発動
       for (const p of this.aliveParty()) {
         if (p.casting && (p.casting.t += dt) >= p.casting.dur) {
           const act = p.casting.act;
@@ -251,7 +251,7 @@ class BattleScene {
         }
       }
 
-      // てきのターン (コマンド選択中でも おかまいなし)
+      // 敵のターン (コマンド選択中でも おかまいなし)
       const e = this.aliveEnemies().find((e) => e.atb >= 100 && !e.casting);
       if (e) {
         this.enemyAct(e);
@@ -282,18 +282,18 @@ class BattleScene {
       if (p.h.hp <= 0) continue;
       this.ready = p;
       p.defending = false;
-      // げんかいかいほうの けいか: きれたら 2ターンの つかれ
+      // 限界解放の けいか: きれたら 2ターンの つかれ
       if (p.boost > 0) {
         p.boost--;
         if (p.boost === 0) {
           delete p.h._boost;
           p.fatigue = 2;
-          this.log = `${p.h.name}は ちからを つかいはたした……\n(2ターンのあいだ うごきが にぶい)`;
+          this.log = `${p.h.name}は 力を つかいはたした……\n(2ターンのあいだ うごきが にぶい)`;
         }
       } else if (p.fatigue > 0) {
         p.fatigue--;
       }
-      // せいなるけっかい: レオンのターンごとに 全体を いやす
+      // 聖なる結界: レオンのターンごとに 全体を いやす
       if (p.barrier > 0) {
         p.barrier--;
         this.aliveParty().forEach((q) => {
@@ -305,9 +305,9 @@ class BattleScene {
             this.pop(pos2.x, pos2.y, "+" + v, 3);
           }
         });
-        if (p.barrier === 0) this.log = "せいなるけっかいが しずかに きえていく……";
+        if (p.barrier === 0) this.log = "聖なる結界が しずかに きえていく……";
       }
-      // しゅごれい: セリアのターンごとに いちばん よわった なかまを いやす
+      // 守護霊: セリアのターンごとに いちばん よわった 仲間を いやす
       if (p.spirit > 0) {
         p.spirit--;
         const weak = this.aliveParty().slice().sort((a, b) => a.h.hp / a.h.maxhp - b.h.hp / b.h.maxhp)[0];
@@ -319,7 +319,7 @@ class BattleScene {
           this.pop(pos3.x, pos3.y, "+" + v, 3);
           AudioSys.sfx("heal");
         }
-        if (p.spirit === 0) this.log = "しゅごれいは ひかりとなって かえっていった";
+        if (p.spirit === 0) this.log = "守護霊は 光となって かえっていった";
       }
       if (this.poisonTick(p)) { this.ready = null; return; }
       this.phase = "command";
@@ -346,7 +346,7 @@ class BattleScene {
     if (p.h.hp <= 0) {
       p.atb = 0;
       p.casting = null;
-      this.log = `${p.h.name}は どくに たおれた…`;
+      this.log = `${p.h.name}は 毒に 倒れた…`;
       AudioSys.sfx("dead");
       this.checkEnd();
       return true;
@@ -360,29 +360,29 @@ class BattleScene {
     const h = p.h;
     const cmds = [{ id: "fight", name: "たたかう" }];
     if ((h.limit || 0) >= 100 && this.learnedLimits(h).length > 0) {
-      cmds.push({ id: "limit", name: "ひっさつ!" });
+      cmds.push({ id: "limit", name: "必殺!" });
     }
     if (h.special === "dark") cmds.push({ id: "dark", name: "あんこく" });
-    if (h.special === "holy") cmds.push({ id: "holy", name: "せいけん" });
+    if (h.special === "holy") cmds.push({ id: "holy", name: "聖剣" });
     if (h.command === "jump") {
       const jname = h.ascended && p.jumpCount > 1 ? "トリプルジャンプ"
         : p.jumpCount > 0 ? "ダブルジャンプ" : "ジャンプ";
       cmds.push({ id: "jump", name: jname });
     }
     if (h.command === "charge") cmds.push({ id: "charge", name: "ためる" });
-    if (h.command === "focus") cmds.push({ id: "focus", name: "かくせい" });
+    if (h.command === "focus") cmds.push({ id: "focus", name: "覚醒" });
     if (h.command === "pray") cmds.push({ id: "pray", name: "いのる" });
     if (h.command === "cover") cmds.push({ id: "cover", name: "かばう" });
-    if (h.ascended && !p.boostUsed) cmds.push({ id: "boost", name: "げんかいかいほう" });
-    if (h.ascended && h.id === "leon") cmds.push({ id: "barrier", name: "けっかい" });
-    if (h.ascended && h.id === "celia") cmds.push({ id: "spirit", name: "しゅごれい" });
+    if (h.ascended && !p.boostUsed) cmds.push({ id: "boost", name: "限界解放" });
+    if (h.ascended && h.id === "leon") cmds.push({ id: "barrier", name: "結界" });
+    if (h.ascended && h.id === "celia") cmds.push({ id: "spirit", name: "守護霊" });
     if (h.ascended && h.id === "rod") {
-      cmds.push({ id: "onmyo", name: p.onmyoLast === "yin" ? "ようのしき" : "いんのしき" });
+      cmds.push({ id: "onmyo", name: p.onmyoLast === "yin" ? "陽の式" : "陰の式" });
     }
-    if (h.spells.length > 0) cmds.push({ id: "spell", name: "じゅもん" });
-    cmds.push({ id: "guard", name: "ぼうぎょ" });
-    cmds.push({ id: "item", name: "どうぐ" });
-    cmds.push({ id: "run", name: "にげる" });
+    if (h.spells.length > 0) cmds.push({ id: "spell", name: "呪文" });
+    cmds.push({ id: "guard", name: "防御" });
+    cmds.push({ id: "item", name: "道具" });
+    cmds.push({ id: "run", name: "逃げる" });
     return cmds;
   }
 
@@ -395,7 +395,7 @@ class BattleScene {
         const cmd = cmds[this.sel];
         AudioSys.sfx("confirm");
         const h = this.ready.h;
-        if (cmd.id !== "limit") h.lastCmd = cmd.id; // カーソルきおく (ひっさつは一回きりなので除外)
+        if (cmd.id !== "limit") h.lastCmd = cmd.id; // カーソルきおく (必殺は一回きりなので除外)
         if (cmd.id === "fight") { this.menu = "targetE"; this.targetSel = 0; this.targetAll = false; this.pendingAct = { type: "fight" }; }
         else if (cmd.id === "dark") {
           const cost = Math.floor(h.maxhp / 8);
@@ -471,7 +471,7 @@ class BattleScene {
           if (sp.def.all) this.doPlayerAction(this.pendingAct);
           else { this.menu = "targetE"; this.targetSel = 0; this.targetAll = false; }
         } else if (sp.def.all) {
-          // みかたぜんたい: ターゲットせんたく なし
+          // 味方全体: ターゲットせんたく なし
           this.doPlayerAction(this.pendingAct);
         } else {
           this.menu = "targetP"; this.targetSel = 0; this.targetAllP = false;
@@ -500,7 +500,7 @@ class BattleScene {
     if (this.menu === "targetE") {
       const es = this.aliveEnemies();
       if (es.length === 0) { this.menu = "root"; return; }
-      // ぜんたいか: こうげきじゅもんは ←→で 単体⇔全体 (いりょくは はんぶん)
+      // 全体か: 攻撃呪文は ←→で 単体⇔全体 (いりょくは はんぶん)
       const canAll = this.pendingAct.type === "spell" &&
         this.pendingAct.spell.def.type === "dmg" && !this.pendingAct.spell.def.all && es.length > 1;
       if (canAll && (Input.tap("left") || Input.tap("right"))) {
@@ -544,7 +544,7 @@ class BattleScene {
       if (Input.tap("a")) {
         const t = this.party[this.targetSel];
         const coverAll = this.pendingAct.type === "cover" && this.targetAllP;
-        // ジャンプちゅうの なかまは えらべない / かばうは じぶんいがいの いきているなかま
+        // ジャンプちゅうの 仲間は えらべない / かばうは じぶんいがいの いきている仲間
         if (!coverAll && (t.airborne ||
             (this.pendingAct.type === "cover" && (t === this.ready || t.h.hp <= 0)))) {
           AudioSys.sfx("buzz");
@@ -559,14 +559,14 @@ class BattleScene {
     }
   }
 
-  // てきに あたえるダメージを イベントれつに つむ (dmg<0 は きゅうしゅう=かいふく)
-  // かいふく/まもりの きらめきを なかまのいちに
+  // てきに あたえるダメージを イベントれつに つむ (dmg<0 は きゅうしゅう=回復)
+  // 回復/ま森の きらめきを 仲間のいちに
   partyFx(q, kind) {
     const pos = this.partyPos(this.party.indexOf(q));
     this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind, t: 0 });
   }
 
-  // じゅもんに おうじた ヒットエフェクトしゅべつ
+  // 呪文に 王子た ヒットエフェクトしゅべつ
   fxOf(sp) {
     if (!sp) return "burst";
     if (sp.fx) return sp.fx;
@@ -575,13 +575,13 @@ class BattleScene {
 
   queueHitEnemy(events, target, dmg, sfx = "hit", fxKind = null) {
     events.push({ t: 0.4, fn: () => {
-      if (target.dead) { this.log += "  しかし てきは いない!"; return; }
+      if (target.dead) { this.log += "  しかし 敵は いない!"; return; }
       const pos = this.enemyPos(this.enemies.indexOf(target));
       if (dmg < 0) {
         target.hp = Math.min(target.maxhp, target.hp - dmg);
         AudioSys.sfx("heal");
         this.pop(pos.x + pos.size / 2, pos.y, -dmg, 1);
-        this.log = `${target.name}は こうげきを きゅうしゅうした!`;
+        this.log = `${target.name}は 攻撃を きゅうしゅうした!`;
         return;
       }
       target.hp = Math.max(0, target.hp - dmg);
@@ -591,10 +591,10 @@ class BattleScene {
       this.fx.push({ x: pos.x + pos.size / 2, y: pos.y + pos.size / 2, size: pos.size, kind: sfx === "magic" ? (fxKind || "burst") : "slash", t: 0 });
       if (sfx === "crit" || dmg >= 100) this.shake = 0.25;
       if (sfx === "magic") this.screenFlash = 0.15;
-      // しれんボス: きずは ふさがる
+      // 試練ボス: きずは ふさがる
       if (target.def.trial && target.hp < target.maxhp) {
         target.hp = target.maxhp;
-        this.log = "『やみは ちからでは はらえぬ……』\nかげの きずが ふさがっていく!";
+        this.log = "『闇は 力では はらえぬ……』\nかげの きずが ふさがっていく!";
       }
     } });
   }
@@ -613,7 +613,7 @@ class BattleScene {
     };
     if (poseByAct[act.type]) this.setPose(p, poseByAct[act.type][0], poseByAct[act.type][1]);
 
-    // えいしょうが ひつような じゅもん
+    // 詠唱が ひつような 呪文
     if (act.type === "spell") {
       const sp = act.spell.def;
       if (h.silence || h.toad) {
@@ -625,7 +625,7 @@ class BattleScene {
       if ((sp.cast || 0) > 0) {
         h.mp -= this.mpCost(h, sp);
         p.casting = { act, t: 0, dur: sp.cast };
-        this.log = `${h.name}は ${sp.name}の えいしょうを はじめた`;
+        this.log = `${h.name}は ${sp.name}の 詠唱を はじめた`;
         AudioSys.sfx("cursor");
         this.ready = null;
         this.phase = "atb";
@@ -640,7 +640,7 @@ class BattleScene {
     const events = [];
     let dur = 1.0;
 
-    // 後列からの ぶつりこうげきは はんげん
+    // 後列からの ぶつり攻撃は はんげん
     const rowMul = h.row === "back" ? 0.5 : 1;
 
     if (act.type === "limit") {
@@ -650,7 +650,7 @@ class BattleScene {
       this.screenFlash = 0.35;
       this.shake = 0.3;
       events.push({ t: 0, fn: () => {
-        this.log = `${h.name}の ひっさつわざ!\n${t.name}!!`;
+        this.log = `${h.name}の 必殺技!\n${t.name}!!`;
         AudioSys.sfx("crit");
       } });
       const limitAtk = () => Math.round(G.atkOf(h) * t.mult);
@@ -673,7 +673,7 @@ class BattleScene {
         if (t.chargeUp) {
           events.push({ t: 0.8, fn: () => {
             p.charge = 3;
-            this.log = "さらに ちからが みなぎる! (ため3)";
+            this.log = "さらに 力が みなぎる! (ため3)";
           } });
         }
       }
@@ -733,7 +733,7 @@ class BattleScene {
             this.pop(pos.x, pos.y, v, 3);
             this.partyFx(q, "heal");
           });
-          this.log = t.cure ? "ひかりが ぜんいんを つつみこんだ!!" : "いやしのかぜが ふきぬけた!";
+          this.log = t.cure ? "光が ぜんいんを つつみこんだ!!" : "いやしの風が ふきぬけた!";
         } });
       }
       else if (t.kind === "miracle") {
@@ -748,7 +748,7 @@ class BattleScene {
             const pos = this.partyPos(this.party.indexOf(q));
             this.pop(pos.x, pos.y, q.h.maxhp, 3);
           });
-          this.log = "てんしの はねが まいおりた……!!\nぜんいん かんぜんふっかつ!!";
+          this.log = "てんしの はねが まいおりた……!!\nぜんいん 完全復活!!";
         } });
       }
       dur = Math.max(dur, 1.6);
@@ -760,12 +760,12 @@ class BattleScene {
 
     if (act.type === "fight") {
       const t = act.target;
-      events.push({ t: 0, fn: () => { this.log = `${h.name}の こうげき!`; } });
-      // くらやみ: めいちゅうりつ 50%
+      events.push({ t: 0, fn: () => { this.log = `${h.name}の 攻撃!`; } });
+      // 暗闇: めいちゅうりつ 50%
       const missChance = h.blind ? 0.5 : 0.05;
       if (Math.random() < missChance) {
         events.push({ t: 0.4, fn: () => {
-          this.log = `${h.name}の こうげき! ミス!` + (h.blind ? "\n(くらやみで ねらいが さだまらない)" : "");
+          this.log = `${h.name}の 攻撃! ミス!` + (h.blind ? "\n(暗闇で ねらいが さだまらない)" : "");
           AudioSys.sfx("cancel");
         } });
       } else if (h.toad) {
@@ -775,13 +775,13 @@ class BattleScene {
         this.queueHitEnemy(events, t, dmg, "hit");
       } else {
         const crit = Math.random() < (G.accAbil(h, "critx2") ? 2 : 1) / 16;
-        // ごくい (けんせい): クリティカルが つづくほど いりょくが のびる
+        // 極意 (拳聖): クリティカルが つづくほど いりょくが のびる
         const gokui = h.ascended && h.id === "gou";
         const chainMul = gokui && crit ? 1 + 0.25 * (p.chain || 0) : 1;
         // ためる: 2/4/8ばい (つかったら リセット)
         const chargeMul = Math.pow(2, p.charge);
         if (p.charge > 0) {
-          events.push({ t: 0.2, fn: () => { this.log = `ためたちからを かいほう! (${chargeMul}ばい)`; } });
+          events.push({ t: 0.2, fn: () => { this.log = `ためた力を かいほう! (${chargeMul}ばい)`; } });
           p.charge = 0;
         }
         let dmg = this.physDmg(G.atkOf(h), t.def.def);
@@ -789,7 +789,7 @@ class BattleScene {
         if (gokui) {
           if (crit) {
             p.chain = (p.chain || 0) + 1;
-            if (p.chain >= 2) this.log = `ごくい! かいしんの れんげき ${p.chain}れんさ!!`;
+            if (p.chain >= 2) this.log = `極意! 会心の連撃 ${p.chain}れんさ!!`;
           } else p.chain = 0;
         }
         if (crit) events.push({ t: 0.35, fn: () => { this.log = "かいしんの いちげき!!"; } });
@@ -808,7 +808,7 @@ class BattleScene {
       dur = 0.7;
     }
     else if (act.type === "boost") {
-      // げんかいかいほう: 5ターン こうげき/まほう2ばい+ATBかそく → そのご 2ターン つかれ
+      // 限界解放: 5ターン 攻撃/魔法2ばい+ATBかそく → そのご 2ターン つかれ
       p.boost = 5;
       p.boostUsed = true;
       h._boost = 2;
@@ -817,39 +817,39 @@ class BattleScene {
       const pos = this.partyPos(this.party.indexOf(p));
       this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind: "fire", t: 0, size: 36 });
       events.push({ t: 0, fn: () => {
-        this.log = `${h.name}は げんかいを かいほうした!!\n(5ターン ちからが 2ばいに たかまる!)`;
+        this.log = `${h.name}は げんかいを かいほうした!!\n(5ターン 力が 2ばいに たかまる!)`;
         AudioSys.sfx("levelup");
       } });
       dur = 1.0;
     }
     else if (act.type === "barrier") {
-      // せいなるけっかい: 3ターンのあいだ レオンのターンごとに 全体をまもり いやす
+      // 聖なる結界: 3ターンのあいだ レオンのターンごとに 全体を守り いやす
       h.mp -= 20;
       p.barrier = 3;
       this.setPose(p, "skill", 1.0);
       this.screenFlash = 0.25;
       events.push({ t: 0, fn: () => {
         this.aliveParty().forEach((q) => { q.protect = true; this.partyFx(q, "holy"); });
-        this.log = `${h.name}は せいなるけっかいを はった!\n(3ターン なかまを まもり いやす)`;
+        this.log = `${h.name}は 聖なる結界を はった!\n(3ターン 仲間を 守り いやす)`;
         AudioSys.sfx("heal");
       } });
       dur = 1.0;
     }
     else if (act.type === "spirit") {
-      // しゅごれいしょうかん: 3ターンのあいだ セリアのターンごとに よわった なかまを いやす
+      // 守護霊しょうかん: 3ターンのあいだ セリアのターンごとに よわった 仲間を いやす
       h.mp -= 25;
       p.spirit = 3;
       this.setPose(p, "cast", 1.0);
       events.push({ t: 0, fn: () => {
         this.partyFx(p, "holy");
-        this.log = `${h.name}は しゅごれいを よびだした!\n(3ターン よわった なかまを みまもる)`;
+        this.log = `${h.name}は 守護霊を よびだした!\n(3ターン よわった 仲間を み守る)`;
         AudioSys.sfx("magic");
       } });
       dur = 1.0;
     }
     else if (act.type === "onmyo") {
       // いんようの2式: しゅうそくの「いん」と かくさんの「よう」をかわるがわる。
-      // いん→よう と つなげると ごうせい「むそうのしき」が はつどう
+      // いん→よう と つなげると ごうせい「無双の式」が はつどう
       h.mp -= 22;
       this.setPose(p, "cast", 1.2);
       const yin = p.onmyoLast !== "yin";
@@ -857,7 +857,7 @@ class BattleScene {
         p.onmyoLast = "yin";
         let t = act.target;
         if (!t || t.dead) t = this.aliveEnemies()[0];
-        events.push({ t: 0, fn: () => { this.log = `${h.name}の いんのしき!\nしゅうそくの ちからが つらぬく!`; AudioSys.sfx("magic"); } });
+        events.push({ t: 0, fn: () => { this.log = `${h.name}の 陰の式!\nしゅうそくの 力が つらぬく!`; AudioSys.sfx("magic"); } });
         if (t) {
           const dmg = Math.round(300 * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
           this.queueHitEnemy(events, t, dmg, "magic", "flare");
@@ -865,17 +865,17 @@ class BattleScene {
         dur = 1.1;
       } else {
         p.onmyoLast = "yang";
-        events.push({ t: 0, fn: () => { this.log = `${h.name}の ようのしき!\nかくさんの ちからが ふきあれる!`; AudioSys.sfx("magic"); } });
+        events.push({ t: 0, fn: () => { this.log = `${h.name}の 陽の式!\nかくさんの 力が ふきあれる!`; AudioSys.sfx("magic"); } });
         this.aliveEnemies().forEach((e) => {
           const dmg = Math.round(150 * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
           this.queueHitEnemy(events, e, dmg, "magic", "fire");
         });
-        // ごうせい: いん→よう で むそうのしき
+        // ごうせい: いん→よう で 無双の式
         events.push({ t: 0.9, fn: () => {
           const es = this.aliveEnemies();
           if (es.length === 0) return;
           const t2 = es.reduce((a, b) => (a.hp > b.hp ? a : b));
-          this.log = "いんと ようが かさなり…… むそうのしき!!";
+          this.log = "いんと ようが かさなり…… 無双の式!!";
           this.screenFlash = 0.35;
           const dmg = Math.round(440 * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
           const ev2 = [];
@@ -888,7 +888,7 @@ class BattleScene {
     else if (act.type === "focus") {
       p.focus = Math.min(3, p.focus + 1);
       events.push({ t: 0, fn: () => {
-        this.log = `${h.name}は まりょくを ときはなつ じゅんびをした!\n(かくせい${p.focus}: まほう ${Math.pow(2, p.focus)}ばい)`;
+        this.log = `${h.name}は まりょくを ときはなつ じゅんびをした!\n(覚醒${p.focus}: 魔法 ${Math.pow(2, p.focus)}ばい)`;
         AudioSys.sfx("magic");
       } });
       dur = 0.6;
@@ -896,7 +896,7 @@ class BattleScene {
     else if (act.type === "charge") {
       p.charge = Math.min(3, p.charge + 1);
       events.push({ t: 0, fn: () => {
-        this.log = `${h.name}は ちからを ためている! (ため${p.charge}: ${Math.pow(2, p.charge)}ばい)`;
+        this.log = `${h.name}は 力を ためている! (ため${p.charge}: ${Math.pow(2, p.charge)}ばい)`;
         AudioSys.sfx("dark");
       } });
       dur = 0.6;
@@ -904,9 +904,9 @@ class BattleScene {
     else if (act.type === "pray") {
       events.push({ t: 0, fn: () => { this.log = `${h.name}は てんに いのった……`; AudioSys.sfx("cursor"); } });
       events.push({ t: 0.6, fn: () => {
-        // せいこうりつ 75%。レベルが あがると ときおり きせきが おきる
+        // 成功りつ 75%。レベルが あがると ときおり 奇跡が おきる
         if (Math.random() < 0.75) {
-          const full = h.lv >= 30 && Math.random() < 0.25;   // かんぜんかいふく
+          const full = h.lv >= 30 && Math.random() < 0.25;   // 完全回復
           const revive = h.lv >= 45 && Math.random() < 0.25; // そせい
           AudioSys.sfx("heal");
           if (revive) {
@@ -925,8 +925,8 @@ class BattleScene {
             const pos = this.partyPos(this.party.indexOf(q));
             if (v > 0) this.pop(pos.x, pos.y, v, 3);
           });
-          this.log = revive ? "きせきが おきた!!\nたおれた なかまが たちあがる!"
-            : full ? "おおいなる いのりが とどいた!!\nぜんいん かんぜんかいふく!"
+          this.log = revive ? "奇跡が おきた!!\n倒れた 仲間が たちあがる!"
+            : full ? "おおいなる いのりが とどいた!!\nぜんいん 完全回復!"
             : "いのりが とどいた!";
           if (full || revive) this.screenFlash = 0.3;
         } else {
@@ -942,7 +942,7 @@ class BattleScene {
         p.coverAll = true;
         p.coverIdx = -1;
         events.push({ t: 0, fn: () => {
-          this.log = `${h.name}は なかま ぜんいんを\nかばう かまえだ!!`;
+          this.log = `${h.name}は 仲間 ぜんいんを\nかばう かまえだ!!`;
           AudioSys.sfx("confirm");
         } });
       } else {
@@ -971,7 +971,7 @@ class BattleScene {
     else if (act.type === "holy") {
       const t = act.target;
       events.push({ t: 0, fn: () => {
-        this.log = `${h.name}の せいけん!`;
+        this.log = `${h.name}の 聖剣!`;
         h.mp -= 8;
         AudioSys.sfx("magic");
       } });
@@ -981,7 +981,7 @@ class BattleScene {
     }
     else if (act.type === "guard") {
       p.defending = true;
-      events.push({ t: 0, fn: () => { this.log = `${h.name}は みをまもっている`; } });
+      events.push({ t: 0, fn: () => { this.log = `${h.name}は みを守っている`; } });
       dur = 0.5;
     }
     else if (act.type === "run") {
@@ -1015,7 +1015,7 @@ class BattleScene {
             this.pop(pos.x, pos.y, q.h.maxhp, 3);
             this.partyFx(q, "heal");
           });
-          this.log = "なかまぜんいんが かんぜんに かいふくした!";
+          this.log = "仲間ぜんいんが 完全に 回復した!";
           AudioSys.sfx("heal");
         } else if (def.elixir) {
           if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
@@ -1023,7 +1023,7 @@ class BattleScene {
           t.h.hp = t.h.maxhp;
           t.h.mp = t.h.maxmp;
           this.partyFx(t, "heal");
-          this.log = `${t.h.name}は かんぜんに かいふくした!`;
+          this.log = `${t.h.name}は 完全に 回復した!`;
           AudioSys.sfx("heal");
         } else if (def.heal) {
           if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
@@ -1043,7 +1043,7 @@ class BattleScene {
           G.removeItem(it.id);
           t.h.hp = Math.max(1, Math.floor(t.h.maxhp * def.revive));
           this.partyFx(t, "holy");
-          this.log = `${t.h.name}は いきかえった!`;
+          this.log = `${t.h.name}は 生き返った!`;
           AudioSys.sfx("heal");
         } else if (def.cure) {
           if (!t.h[def.cure]) { this.log = "しかし きかなかった!"; return; }
@@ -1078,11 +1078,11 @@ class BattleScene {
     const events = [];
     const tripleName = double && h.ascended && p.jumpCount > 2;
     events.push({ t: 0, fn: () => {
-      this.log = `${h.name}の ${tripleName ? "トリプルジャンプ!!!" : double ? "ダブルジャンプ!!" : "ジャンプこうげき!"}`;
+      this.log = `${h.name}の ${tripleName ? "トリプルジャンプ!!!" : double ? "ダブルジャンプ!!" : "ジャンプ攻撃!"}`;
       AudioSys.sfx("crit");
     } });
     if (!target) {
-      events.push({ t: 0.3, fn: () => { this.log += "\nしかし てきは いなかった!"; } });
+      events.push({ t: 0.3, fn: () => { this.log += "\nしかし 敵は いなかった!"; } });
       this.startAnim(events, 0.8);
       return;
     }
@@ -1098,7 +1098,7 @@ class BattleScene {
     this.startAnim(events, double ? 1.3 : 1.0);
   }
 
-  // じゅもんの発動 (えいしょう完了 or 即時)。payMp=true なら ここでMPをはらう
+  // 呪文の発動 (詠唱完了 or 即時)。payMp=true なら ここでMPをはらう
   execSpell(p, act, payMp) {
     const h = p.h;
     this.setPose(p, "cast", 1.0);
@@ -1113,7 +1113,7 @@ class BattleScene {
 
     if (sp.type === "dmg") {
       // 発動時点で ターゲットが たおれていたら 生きているてきに うちなおす
-      // ぜんたいか (allOverride) は いりょく はんぶんで ぜんたいに
+      // 全体か (allOverride) は いりょく はんぶんで 全体に
       let targets;
       if (sp.all || act.allOverride) targets = this.aliveEnemies();
       else {
@@ -1122,20 +1122,20 @@ class BattleScene {
         targets = t ? [t] : [];
       }
       const spreadMul = act.allOverride && targets.length > 1 ? 0.5 : 1;
-      // かくせい: つぎの こうげきまほうが 2/4/8ばい (つかったら リセット)
+      // 覚醒: つぎの 攻撃魔法が 2/4/8ばい (つかったら リセット)
       const focusMul = Math.pow(2, p.focus || 0);
       if (p.focus > 0) {
-        events.push({ t: 0.1, fn: () => { this.log = `かくせいした まりょくが ほとばしる! (${focusMul}ばい)`; } });
+        events.push({ t: 0.1, fn: () => { this.log = `覚醒した まりょくが ほとばしる! (${focusMul}ばい)`; } });
         p.focus = 0;
       }
       if (targets.length === 0) {
-        events.push({ t: 0.4, fn: () => { this.log = "しかし てきは いなかった!"; } });
+        events.push({ t: 0.4, fn: () => { this.log = "しかし 敵は いなかった!"; } });
       }
       targets.forEach((e) => {
         const dmg = Math.round(sp.pow * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1) * this.elemMod(e.def, sp.elem) * spreadMul * focusMul);
         const spellFx = this.fxOf(sp);
         this.queueHitEnemy(events, e, dmg, "magic", spellFx);
-        // ドレイン: あたえたダメージぶん じぶんが かいふく
+        // ドレイン: あたえたダメージぶん じぶんが 回復
         if (sp.drain && dmg > 0) {
           events.push({ t: 0.55, fn: () => {
             if (h.hp <= 0) return;
@@ -1150,7 +1150,7 @@ class BattleScene {
       const t = act.targetP;
       events.push({ t: 0.45, fn: () => {
         if (sp.type === "heal") {
-          // ぜんたいかいふく (いやしのあめ / ←→で全体化) は いきているぜんいんに
+          // 全体回復 (いやしのあめ / ←→で全体化) は いきているぜんいんに
           const spreadP = sp.all || act.allOverrideP;
           const ts = spreadP ? this.aliveParty() : [t];
           const alive = ts.filter((q) => q && q.h.hp > 0);
@@ -1166,7 +1166,7 @@ class BattleScene {
           if (t.h.hp > 0) { this.log = "しかし きかなかった!"; return; }
           t.h.hp = Math.max(1, Math.floor(t.h.maxhp * sp.pow));
           this.partyFx(t, "holy");
-          this.log = `${t.h.name}は いきかえった!`;
+          this.log = `${t.h.name}は 生き返った!`;
         } else if (sp.type === "cure") {
           const sts = sp.cureAll ? Object.keys(DATA.statuses) : ["poison"];
           const cts = (act.allOverrideP ? this.aliveParty() : [t]).filter((q) => q && q.h.hp > 0);
@@ -1180,7 +1180,7 @@ class BattleScene {
           });
           if (curedAny.length === 0) { this.log = "しかし きかなかった!"; return; }
           this.log = act.allOverrideP
-            ? "なかまたちの わるい じょうたいが きえた!"
+            ? "仲間たちの わるい 状態が きえた!"
             : `${t.h.name}の ${curedAny.map((s) => DATA.statuses[s].name).join("・")}が きえた!`;
         } else if (sp.type === "buff") {
           const bs = (sp.all || act.allOverrideP ? this.aliveParty() : [t]).filter((q) => q && q.h.hp > 0);
@@ -1190,8 +1190,8 @@ class BattleScene {
             if (isHaste) q.haste = true; else q.protect = true;
             this.partyFx(q, isHaste ? "heal" : "shield");
           });
-          const who = (sp.all || act.allOverrideP) ? "なかまぜんいんの" : `${t.h.name}の`;
-          this.log = isHaste ? `${who} うごきが はやくなった!` : `${who} ぼうぎょが あがった!`;
+          const who = (sp.all || act.allOverrideP) ? "仲間ぜんいんの" : `${t.h.name}の`;
+          this.log = isHaste ? `${who} うごきが はやくなった!` : `${who} 防御が あがった!`;
         }
       } });
     }
@@ -1199,9 +1199,9 @@ class BattleScene {
     this.startAnim(events, 1.0);
   }
 
-  // ---------------- てきのこうどう ----------------
+  // ---------------- 敵のこうどう ----------------
   enemyAct(e) {
-    // ジャンプで たいくうちゅうの なかまは ねらえない
+    // ジャンプで たいくうちゅうの 仲間は ねらえない
     const targets = this.aliveParty().filter((p) => !p.airborne);
     e.atb = 0;
     if (targets.length === 0) {
@@ -1209,7 +1209,7 @@ class BattleScene {
       return;
     }
 
-    // おくびょうな てき(ミスリルけい)は にげることがある
+    // おくびょうな てき(ミスリルけい)は 逃げることがある
     if (e.def.flees && Math.random() < e.def.flees) {
       e.dead = true;
       e.fled = true;
@@ -1220,7 +1220,7 @@ class BattleScene {
       return;
     }
 
-    // しれんボス: 6かい こうどうしたら しずまる
+    // 試練ボス: 6かい こうどうしたら しずまる
     if (e.def.trial) this.shadowActs++;
 
     let spell = null;
@@ -1231,18 +1231,18 @@ class BattleScene {
     if (spell) {
       if ((spell.cast || 0) > 0) {
         e.casting = { spell, t: 0, dur: spell.cast };
-        this.log = `${e.name}は じゅもんを えいしょうしている……!`;
+        this.log = `${e.name}は 呪文を 詠唱している……!`;
         return;
       }
       this.execEnemySpell(e, spell);
       return;
     }
 
-    // ぶつりこうげき
+    // ぶつり攻撃
     const events = [];
     let p = targets[Math.floor(Math.random() * targets.length)];
 
-    // かばう: べつのなかまが みがわりになる (ぶつりのみ)
+    // かばう: べつの仲間が みがわりになる (ぶつりのみ)
     const guardian = this.party.find((q) =>
       q !== p && q.h.hp > 0 && !q.airborne && (q.coverAll || q.coverIdx === this.party.indexOf(p)));
     const covered = !!guardian;
@@ -1250,12 +1250,12 @@ class BattleScene {
     // カウンターは 50%
     const counter = covered && Math.random() < 0.5;
 
-    events.push({ t: 0, fn: () => { this.log = `${e.name}の こうげき!`; } });
+    events.push({ t: 0, fn: () => { this.log = `${e.name}の 攻撃!`; } });
     events.push({ t: 0.45, fn: () => {
       if (victim.h.hp <= 0) return;
       let dmg = this.physDmg(e.def.atk, G.defOf(victim.h));
       if (covered) {
-        // みがわり時は まもりをかため ダメージは かならず 1けた
+        // みがわり時は ま森をかため ダメージは かならず 1けた
         dmg = Math.max(1, Math.min(9, dmg));
         this.log = `${victim.h.name}が ${p.h.name}を かばった!`;
       } else {
@@ -1271,7 +1271,7 @@ class BattleScene {
       this.pop(pos.x, pos.y, dmg, 2);
       this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind: "slash", t: 0 });
       AudioSys.sfx("hit");
-      // ついかこうか (どく/くらやみ など)。みがわり時は はつどうしない
+      // ついかこうか (どく/暗闇 など)。みがわり時は はつどうしない
       const inf = e.def.inflict || (e.def.poison ? { status: "poison", rate: e.def.poison } : null);
       if (!covered && inf && Math.random() < inf.rate && victim.h.hp > 0
           && !victim.h[inf.status] && !G.accGuards(victim.h, inf.status)) {
@@ -1280,16 +1280,16 @@ class BattleScene {
       }
       if (victim.h.hp <= 0) {
         victim.atb = 0; victim.casting = null;
-        this.log = `${victim.h.name}は たおれた!`;
+        this.log = `${victim.h.name}は 倒れた!`;
         AudioSys.sfx("dead");
       }
     } });
     if (counter) {
       events.push({ t: 0.95, fn: () => {
         if (guardian.h.hp <= 0 || e.dead) return;
-        this.log = `${guardian.h.name}の カウンターせいけん!`;
+        this.log = `${guardian.h.name}の カウンター聖剣!`;
       } });
-      // せいけんと おなじ 1.6ばい + せいぞくせい (アンデッドに 8ばい)
+      // 聖剣と おなじ 1.6ばい + せいぞくせい (アンデッドに 8ばい)
       const cmod = Math.max(this.elemMod(e.def, "holy"), this.weaponMod(guardian.h, e.def));
       const cdmg = Math.max(1, Math.round(this.physDmg(Math.round(G.atkOf(guardian.h) * 1.6), e.def.def) * cmod));
       this.queueHitEnemy(events, e, cdmg, "crit");
@@ -1307,7 +1307,7 @@ class BattleScene {
       AudioSys.sfx("magic");
     } });
 
-    // じょうたいいじょう じゅもん
+    // 状態異常 呪文
     if (sp.type === "status") {
       const p = targets[Math.floor(Math.random() * targets.length)];
       events.push({ t: 0.5, fn: () => {
@@ -1344,7 +1344,7 @@ class BattleScene {
         AudioSys.sfx("hit");
         if (p.h.hp <= 0) {
           p.atb = 0; p.casting = null;
-          this.log = `${p.h.name}は たおれた!`;
+          this.log = `${p.h.name}は 倒れた!`;
           AudioSys.sfx("dead");
         }
       } });
@@ -1359,7 +1359,7 @@ class BattleScene {
 
   // ---------------- こうどうごの しょり ----------------
   afterAction() {
-    // てきの しぼう (くだけちる えんしゅつ)
+    // 敵の しぼう (くだけちる えんしゅつ)
     for (const e of this.enemies) {
       if (!e.dead && e.hp <= 0) {
         e.dead = true;
@@ -1386,19 +1386,19 @@ class BattleScene {
       return;
     }
 
-    // ぜんめつは しれんクリアや フェーズ2より ゆうせんで はんてい
+    // ぜんめつは 試練クリアや フェーズ2より ゆうせんで はんてい
     if (this.aliveParty().length === 0) {
       this.checkEnd();
       return;
     }
 
-    // しれんボスクリア
+    // 試練ボスクリア
     const trial = this.enemies.find((e) => e.def.trial);
     if (trial && this.shadowActs >= 6 && !trial.dead) {
       trial.dead = true;
       G.push(new MessageScene([
-        "レオンは けっして けんを ぬかず\nやみを うけとめつづけた……。",
-        "『……それでよい。やみを みとめ\nうけいれたとき ひとは ひかりを しる』",
+        "レオンは けっして けんを ぬかず\n闇を うけとめつづけた……。",
+        "『……それでよい。闇を みとめ\nうけいれたとき ひとは 光を しる』",
         "かげは しずかに きえていった。",
       ], () => {
         this.restoreBgm();
@@ -1447,24 +1447,24 @@ class BattleScene {
   }
 
   win() {
-    // にげた てきは けいけんちに ならない
+    // にげた 敵は 経験値に ならない
     const beaten = this.enemies.filter((e) => !e.fled);
     const exp = beaten.reduce((s, e) => s + (DATA.monsters[e.id].exp || 0), 0);
     const gold = beaten.reduce((s, e) => s + (DATA.monsters[e.id].gold || 0), 0);
-    // 生きのこりボーナス: たおれた なかま1人につき けいけんち+50%
-    // (5人パーティで 1人のこりなら 3ばい。たおれた なかまには はいらない)
+    // 生きのこりボーナス: 倒れた 仲間1人につき 経験値+50%
+    // (5人パーティで 1人のこりなら 3ばい。倒れた 仲間には はいらない)
     const fallen = this.party.length - this.aliveParty().length;
     const mult = 1 + fallen * 0.5;
-    // けいけんのしるし: もっているだけで けいけんち 2ばい
+    // けいけんのしるし: もっているだけで 経験値 2ばい
     const charm = (G.state.items.expcharm || 0) > 0 ? 2 : 1;
     const gain = Math.round(exp * mult * charm);
     AudioSys.bgm("victory");
-    // しょうりの きらめき+ホップ (メッセージちゅうも うごくよう じつじかんで)
+    // 勝利の きらめき+ホップ (メッセージちゅうも うごくよう じつじかんで)
     this.screenFlash = 0.25;
     this.winFxAt = performance.now();
-    const msgs = ["まものたちを やっつけた!"];
+    const msgs = ["魔物たちを やっつけた!"];
     if (exp > 0 || gold > 0) {
-      msgs.push(`けいけんち ${gain} かくとく!` + (charm > 1 ? " (しるしで2ばい)" : "") + (mult > 1 ? `\n(生きのこりボーナス ${mult}ばい!)` : "") + `\n${gold}ギルを てにいれた!`);
+      msgs.push(`経験値 ${gain} かくとく!` + (charm > 1 ? " (しるしで2ばい)" : "") + (mult > 1 ? `\n(生きのこりボーナス ${mult}ばい!)` : "") + `\n${gold}ギルを 手に入れた!`);
     }
     G.gainGold(gold);
     for (const p of this.party) {
@@ -1501,7 +1501,7 @@ class BattleScene {
       c.fillStyle = PAL[1];
       c.fillRect(pos.x + 3, pos.y + pos.size - 1 + bob, pos.size - 6, 3);
       Gfx.draw(e.def.spr, pos.x, pos.y + bob, { scale: pos.scale, variant });
-      // えいしょうちゅうの しるし
+      // 詠唱ちゅうの しるし
       if (e.casting) {
         const n = 1 + Math.floor(performance.now() / 250) % 3;
         c.fillStyle = PAL[3];
@@ -1518,7 +1518,7 @@ class BattleScene {
         c.fillRect(pos.x + 8, pos.y + 26, 16, 3);
         return;
       }
-      // せんとうポーズ (つうじょう/こうげき/まほう/ひだん/ひんし/せんとうふのう/こゆうわざ)
+      // 戦闘ポーズ (つうじょう/攻撃/魔法/ひだん/ひんし/戦闘ふのう/こゆうわざ)
       const pose = this.poseOf(p);
       let spr = p.h.spr + "_b_" + pose;
       if (!SPR.chars[spr]) {
@@ -1527,7 +1527,7 @@ class BattleScene {
       }
       if (p.h.toad) spr = "toad"; // カエルのすがた
       const variant = p.flash > 0 ? "flash" : (p.h.toad && p.h.hp <= 0 ? "dark" : undefined);
-      // しょうりの ホップ
+      // 勝利の ホップ
       let wy = pos.y;
       if (this.winFxAt && p.h.hp > 0) {
         const el = (performance.now() - this.winFxAt) / 1000 - i * 0.12;
@@ -1554,7 +1554,7 @@ class BattleScene {
       Gfx.text(p.txt, p.x, p.y + dy, p.pi, 13);
     });
 
-    // せんとうとつにゅう ブラインドえんしゅつ
+    // 戦闘とつにゅう ブラインドえんしゅつ
     if (this.phase === "intro" && this.introT < 0.4) {
       const p = this.introT / 0.4;
       c.fillStyle = PAL[3];
@@ -1568,7 +1568,7 @@ class BattleScene {
     // ログ
     if (this.phase === "intro") {
       Gfx.window(4, 4, 312, 30);
-      Gfx.text(this.boss ? "つよそうな てきが たちふさがる!!" : "まものが あらわれた!", 14, 12);
+      Gfx.text(this.boss ? "つよそうな 敵が たちふさがる!!" : "魔物が 現れた!", 14, 12);
     } else if (this.log) {
       Gfx.window(4, 4, 312, this.log.includes("\n") ? 44 : 30);
       this.log.split("\n").forEach((l, i) => Gfx.text(l, 14, 12 + i * 15));
@@ -1579,7 +1579,7 @@ class BattleScene {
     if (this.phase === "command") this.drawCommand();
 
     c.restore();
-    // まほうの ひかり
+    // 魔法の ひかり
     if (this.screenFlash > 0) {
       c.globalAlpha = Math.min(0.45, this.screenFlash * 3);
       c.fillStyle = PAL[0];
@@ -1588,7 +1588,7 @@ class BattleScene {
     }
   }
 
-  // せんとうはいけい (エリアごとに ふんいきを かえる)
+  // 戦闘はいけい (エリアごとに ふんいきを かえる)
   drawBg(c) {
     const t = this.bgTheme;
     // じめん
@@ -1626,7 +1626,7 @@ class BattleScene {
       for (let i = 0; i < 8; i++) c.fillRect(20 + i * 40, 162 + (i % 2) * 3, 12, 3);
     }
     else if (t === "ice") {
-      // こおりの けっしょう と ひかるゆか
+      // 氷の けっしょう と ひかるゆか
       c.fillStyle = PAL[1];
       for (let i = 0; i < 6; i++) {
         const x = 16 + i * 54, y = 18 + (i * 13) % 40, s = 8 + (i % 3) * 4;
@@ -1665,7 +1665,7 @@ class BattleScene {
       for (let y = 26; y < 168; y += 14) { c.fillRect(6, y, 14, 2); c.fillRect(300, y, 14, 2); }
     }
     else if (t === "temple") {
-      // しんでんの はしら
+      // 神殿の はしら
       c.fillStyle = PAL[1];
       [30, 130, 250].forEach((x) => {
         c.fillRect(x, 30, 16, 138);
@@ -1691,7 +1691,7 @@ class BattleScene {
       for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 162 + (i % 2) * 3, 10, 2);
     }
     else if (t === "storm") {
-      // あめすじ と いなずま
+      // あめすじ と 稲妻
       c.fillStyle = PAL[2];
       const ph = Math.floor(performance.now() / 300) % 3;
       for (let i = 0; i < 18; i++) {
@@ -1704,7 +1704,7 @@ class BattleScene {
       c.fillRect(20, 18, 90, 3);
       c.fillRect(200, 16, 80, 3);
       if (ph === 0) {
-        // いなずまの ひとすじ
+        // 稲妻の ひとすじ
         c.fillStyle = PAL[0];
         c.fillRect(150, 20, 3, 30); c.fillRect(140, 50, 3, 26); c.fillRect(150, 76, 3, 30);
       }
@@ -1726,7 +1726,7 @@ class BattleScene {
       for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 160 + (i % 3) * 2, 12, 3);
     }
     else if (t === "desert") {
-      // さきゅうの うねりと ぎらつく たいよう
+      // さきゅうの うねりと ぎらつく 太陽
       c.fillStyle = PAL[1];
       for (let i = 0; i < 5; i++) {
         const x = i * 70 - 20, w = 90, h = 14 + (i % 2) * 8;
@@ -1762,7 +1762,7 @@ class BattleScene {
     }
   }
 
-  // しょうりの きらめき (トップシーンでなくても うごくよう じつじかんベース)
+  // 勝利の きらめき (トップシーンでなくても うごくよう じつじかんベース)
   drawWinFx(c) {
     if (!this.winFxAt) return;
     const el = (performance.now() - this.winFxAt) / 1000;
@@ -1798,7 +1798,7 @@ class BattleScene {
           for (let s = 0; s < r * 2; s += 2) c.fillRect(px + s, py + s, 2, 2);
         }
       } else if (f.kind === "fire") {
-        // ほのおの はしら: めいあんを まぜて ちらつきながら たちのぼる
+        // 炎の はしら: めいあんを まぜて ちらつきながら たちのぼる
         const sz = f.size || 32;
         const pf = Math.min(1, f.t / 0.5);
         const hgt = sz * 0.8 + pf * sz * 0.5;
@@ -1808,7 +1808,7 @@ class BattleScene {
           c.fillRect(Math.round(f.x + Math.sin(i * 2.4) * sz * 0.3) - 2, Math.round(fy), 5 - (i % 3), 4);
         }
       } else if (f.kind === "ice") {
-        // こおりの けっしょう: あかるい ひしがたが じゅんばんに さきわたる
+        // 氷の けっしょう: あかるい ひしがたが じゅんばんに さきわたる
         const sz = f.size || 32;
         for (let k = 0; k < 6; k++) {
           if (f.t < k * 0.06) break;
@@ -1822,7 +1822,7 @@ class BattleScene {
           c.fillRect(cx, cy, 1, 1);
         }
       } else if (f.kind === "thunder") {
-        // いなずま: がめんの うえから ジグザグに おちて ひかる
+        // 稲妻: がめんの うえから ジグザグに おちて ひかる
         const sz = f.size || 32;
         if (f.t < 0.24) {
           let px = f.x + 5;
@@ -1844,7 +1844,7 @@ class BattleScene {
           }
         }
       } else if (f.kind === "holy") {
-        // てんから ふりそそぐ ひかりの はしら
+        // てんから ふりそそぐ 光の はしら
         const sz = f.size || 32;
         const ph = Math.min(1, f.t / 0.55);
         for (let k = 0; k < 5; k++) {
@@ -1864,7 +1864,7 @@ class BattleScene {
           c.fillRect(cx, Math.round(cy), 4, 4);
         }
       } else if (f.kind === "flare") {
-        // だいばくはつ: めいあん にじゅうの ひかりの わ
+        // だいばくはつ: めいあん にじゅうの 光の わ
         const sz = f.size || 32;
         const pl = Math.min(1, f.t / 0.55);
         for (let k = 0; k < 12; k++) {
@@ -1879,7 +1879,7 @@ class BattleScene {
           }
         }
       } else if (f.kind === "heal") {
-        // かいふくの きらめきが たちのぼる
+        // 回復の きらめきが たちのぼる
         for (let k = 0; k < 8; k++) {
           const fy = f.y + 14 - ((k * 9 + f.t * 55) % 32);
           const cx = f.x - 13 + (k * 7) % 27;
@@ -1891,7 +1891,7 @@ class BattleScene {
           }
         }
       } else if (f.kind === "shield") {
-        // まもりの かこい: まえがわに ひかりの こが ならぶ
+        // ま森の かこい: まえがわに 光の こが ならぶ
         const ps = Math.min(1, f.t / 0.5);
         const r = 10 + ps * 7;
         for (let k = 0; k < 7; k++) {
@@ -1943,11 +1943,11 @@ class BattleScene {
         Gfx.text("ジャンプ!", 258, y, 3, compact ? 8 : 9);
       } else if (p.casting) {
         Gfx.bar(258, y + 4, 48, 5, p.casting.t / p.casting.dur, 2);
-        if (!compact) Gfx.text("えいしょう", 258, y + 11, 2, 8);
+        if (!compact) Gfx.text("詠唱", 258, y + 11, 2, 8);
       } else {
         Gfx.bar(258, y + 4, 48, 5, p.atb / 100);
       }
-      // ひっさつゲージ (ほそいバー / まんタンで 「ひ」てんめつ)
+      // 必殺ゲージ (ほそいバー / まんタンで 「ひ」てんめつ)
       const lim = p.h.limit || 0;
       if (lim >= 100) {
         if (Math.floor(performance.now() / 300) % 2 === 0) Gfx.text("ひ!", 240, y, 2, 9);
@@ -1978,7 +1978,7 @@ class BattleScene {
       Gfx.cursor(12, 70 + this.sel2 * 16);
     }
     else if (this.menu === "spell") {
-      // 8こずつの スクロールひょうじ (じゅもんが おおくても がめんに おさまる)
+      // 8こずつの スクロールひょうじ (呪文が おおくても がめんに おさまる)
       const spells = this.ready.h.spells.map((id) => ({ id, def: DATA.spells[id] }));
       const view = 8;
       const sc = Math.max(0, Math.min(this.sel2 - view + 1, spells.length - view));
@@ -2018,7 +2018,7 @@ class BattleScene {
         this.pendingAct.spell.def.type === "dmg" && !this.pendingAct.spell.def.all && es.length > 1;
       const blink = Math.floor(performance.now() / 200) % 2 === 0;
       if (this.targetAll) {
-        // ぜんたいか: すべての てきに カーソル
+        // 全体か: すべての てきに カーソル
         if (blink) {
           es.forEach((e) => {
             const pos = this.enemyPos(this.enemies.indexOf(e));
@@ -2026,7 +2026,7 @@ class BattleScene {
           });
         }
         Gfx.window(4, 96, 128, 28);
-        Gfx.text("てき ぜんたい", 14, 103, 3, 11);
+        Gfx.text("てき 全体", 14, 103, 3, 11);
         Gfx.text("(いりょく 1/2)", 14, 114, 1, 8);
       } else {
         const t = es[Math.min(this.targetSel, es.length - 1)];
@@ -2037,7 +2037,7 @@ class BattleScene {
         }
         Gfx.window(4, 96, 128, 28);
         Gfx.text(t.name, 14, 103, 3, 11);
-        if (canAll) Gfx.text("←→: ぜんたいか", 14, 114, 1, 8);
+        if (canAll) Gfx.text("←→: 全体か", 14, 114, 1, 8);
       }
     }
     else if (this.menu === "targetP") {
@@ -2049,7 +2049,7 @@ class BattleScene {
           });
         }
         Gfx.window(4, 96, 110, 28);
-        Gfx.text("なかま ぜんたい", 14, 103, 3, 11);
+        Gfx.text("仲間 全体", 14, 103, 3, 11);
       } else {
         const t = this.party[this.targetSel];
         const pos = this.partyPos(this.targetSel);

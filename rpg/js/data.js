@@ -1,13 +1,13 @@
 // ============================================================
 // クリスタルナイツ - ゲームデータ定義
-// マップ / モンスター / アイテム / まほう / イベント
+// マップ / モンスター / アイテム / 魔法 / イベント
 // ============================================================
 
 const DATA = {};
 
-// ---------------- じゅもん ----------------
-// type: 'dmg'(こうげき) 'heal'(かいふく) 'revive' 'cure'(じょうたい) 'buff'
-// cast: えいしょう時間(びょう)。0または省略で即時発動
+// ---------------- 呪文 ----------------
+// type: 'dmg'(攻撃) 'heal'(回復) 'revive' 'cure'(状態) 'buff'
+// cast: 詠唱時間(びょう)。0または省略で即時発動
 DATA.spells = {
   cure1:   { name: "ケアル",     mp: 4,  type: "heal",   pow: 30,  cast: 0.8, target: "ally",  field: true },
   cure2:   { name: "ケアルラ",   mp: 9,  type: "heal",   pow: 95,  cast: 1.4, target: "ally",  field: true },
@@ -20,7 +20,7 @@ DATA.spells = {
   bolt1:   { name: "サンダー",   mp: 6,  type: "dmg", pow: 38, cast: 1.2, elem: "thunder", target: "enemy" },
   fire2:   { name: "ファイラ",   mp: 12, type: "dmg", pow: 75, cast: 2.0, elem: "fire",    target: "enemy" },
   ice2:    { name: "ブリザラ",   mp: 14, type: "dmg", pow: 88, cast: 2.2, elem: "ice",     target: "enemy" },
-  // じょういまほう (レベル15いこうで しゅうとく)
+  // じょうい魔法 (レベル15いこうで しゅうとく)
   fire3:   { name: "ファイガ",   mp: 22, type: "dmg", pow: 140, cast: 2.6, elem: "fire",    target: "enemy" },
   ice3:    { name: "ブリザガ",   mp: 26, type: "dmg", pow: 165, cast: 2.8, elem: "ice",     target: "enemy" },
   bolt3:   { name: "サンダガ",   mp: 30, type: "dmg", pow: 190, cast: 3.0, elem: "thunder", target: "enemy" },
@@ -38,9 +38,9 @@ DATA.spells = {
   e_fire2: { name: "ファイラ",   mp: 0, type: "dmg", pow: 40, cast: 2.2, elem: "fire",    target: "enemy" },
   e_meteo: { name: "ダークメテオ", fx: "flare", mp: 0, type: "dmg", pow: 48, cast: 3.2, elem: "none",  target: "enemy", all: true },
   e_toad:  { name: "カエルのうた", mp: 0, type: "status", status: "toad",    cast: 1.5, target: "enemy" },
-  e_silence:{ name: "ちんもくのかぜ", mp: 0, type: "status", status: "silence", cast: 1.2, target: "enemy" },
+  e_silence:{ name: "沈黙のかぜ", mp: 0, type: "status", status: "silence", cast: 1.2, target: "enemy" },
   e_ice:   { name: "ブリザド",     mp: 0, type: "dmg", pow: 20, cast: 1.2, elem: "ice", target: "enemy" },
-  e_breath:{ name: "こおりのブレス", mp: 0, type: "dmg", pow: 30, cast: 2.5, elem: "ice", target: "enemy", all: true },
+  e_breath:{ name: "氷のブレス", mp: 0, type: "dmg", pow: 30, cast: 2.5, elem: "ice", target: "enemy", all: true },
   e_wave:  { name: "おおつなみ",   mp: 0, type: "dmg", pow: 35, cast: 2.8, elem: "ice", target: "enemy", all: true },
   e_ink:   { name: "すみはき",     mp: 0, type: "status", status: "blind", cast: 1.0, target: "enemy" },
   e_eruption: { name: "ふんか",    mp: 0, type: "dmg", pow: 40, cast: 3.0, elem: "fire", target: "enemy", all: true },
@@ -48,13 +48,13 @@ DATA.spells = {
   e_quake: { name: "じしん", fx: "quake",       mp: 0, type: "dmg", pow: 45, cast: 3.0, elem: "none", target: "enemy", all: true },
   e_gale:  { name: "かまいたち",   mp: 0, type: "dmg", pow: 30, cast: 1.5, elem: "none", target: "enemy" },
   e_tornado: { name: "たつまき",   mp: 0, type: "dmg", pow: 50, cast: 3.4, elem: "none", target: "enemy", all: true },
-  e_bolt2: { name: "いなずま",     mp: 0, type: "dmg", pow: 45, cast: 2.0, elem: "thunder", target: "enemy" },
+  e_bolt2: { name: "稲妻",     mp: 0, type: "dmg", pow: 45, cast: 2.0, elem: "thunder", target: "enemy" },
   e_bigwave: { name: "だいかいしょう", mp: 0, type: "dmg", pow: 55, cast: 3.5, elem: "ice", target: "enemy", all: true },
   e_starfall: { name: "ほしくずのあめ", fx: "flare", mp: 0, type: "dmg", pow: 60, cast: 3.8, elem: "none", target: "enemy", all: true },
 };
 
-// じょうたいいじょう
-// ひっさつわざ (リミットゲージ100%で はつどう。レベルで しゅうとく)
+// 状態異常
+// 必殺技 (リミットゲージ100%で はつどう。レベルで しゅうとく)
 DATA.limits = {
   leon: [
     { lv: 10, id: "l_cross",  name: "クロスブレイク",     kind: "phys",      mult: 2.5, target: "one" },
@@ -74,7 +74,7 @@ DATA.limits = {
   celia: [
     { lv: 10, id: "l_breeze", name: "いやしのかぜ",       kind: "healAll",   ratio: 0.5 },
     { lv: 30, id: "l_seinaru", name: "せいなるいのり",    kind: "healAll",   ratio: 1.0, cure: true },
-    { lv: 55, id: "l_tenshi", name: "てんしのきせき",     kind: "miracle" },
+    { lv: 55, id: "l_tenshi", name: "てんしの奇跡",     kind: "miracle" },
   ],
   rod: [
     { lv: 12, id: "l_mana",   name: "マナバースト",       kind: "magic",     pow: 200, target: "all" },
@@ -85,181 +85,181 @@ DATA.limits = {
 
 DATA.statuses = {
   poison:  { name: "どく",     mark: "ど" },
-  blind:   { name: "くらやみ", mark: "や" },
-  silence: { name: "ちんもく", mark: "ち" },
+  blind:   { name: "暗闇", mark: "や" },
+  silence: { name: "沈黙", mark: "ち" },
   toad:    { name: "カエル",   mark: "カ" },
 };
 
 // ---------------- アイテム ----------------
 // kind: 'use'(つかう) 'weapon' 'armor' 'key'
 DATA.items = {
-  potion:   { name: "ポーション",     kind: "use", price: 30,  heal: 60,  desc: "HPを 60 かいふく" },
-  hipotion: { name: "ハイポーション", kind: "use", price: 150, heal: 250, desc: "HPを 250 かいふく" },
-  ether:    { name: "エーテル",       kind: "use", price: 100, mp: 40,    desc: "MPを 40 かいふく" },
-  phoenix:  { name: "フェニックスのお", kind: "use", price: 400, revive: 0.5, desc: "せんとうふのうから ふっかつ" },
-  antidote: { name: "どくけし",       kind: "use", price: 20,  cure: "poison", desc: "どくを なおす" },
-  eyedrops: { name: "めぐすり",       kind: "use", price: 20,  cure: "blind", desc: "くらやみを なおす" },
-  echoherb: { name: "やまびこそう",   kind: "use", price: 30,  cure: "silence", desc: "ちんもくを なおす" },
+  potion:   { name: "ポーション",     kind: "use", price: 30,  heal: 60,  desc: "HPを 60 回復" },
+  hipotion: { name: "ハイポーション", kind: "use", price: 150, heal: 250, desc: "HPを 250 回復" },
+  ether:    { name: "エーテル",       kind: "use", price: 100, mp: 40,    desc: "MPを 40 回復" },
+  phoenix:  { name: "フェニックスのお", kind: "use", price: 400, revive: 0.5, desc: "戦闘ふのうから 復活" },
+  antidote: { name: "どくけし",       kind: "use", price: 20,  cure: "poison", desc: "毒を なおす" },
+  eyedrops: { name: "めぐすり",       kind: "use", price: 20,  cure: "blind", desc: "暗闇を なおす" },
+  echoherb: { name: "やまびこそう",   kind: "use", price: 30,  cure: "silence", desc: "沈黙を なおす" },
   kiss:     { name: "おとめのキッス", kind: "use", price: 60,  cure: "toad", desc: "カエルを もとにもどす" },
-  elixir:   { name: "エリクサー",     kind: "use", price: 2000, elixir: true, desc: "HPとMPが かんぜんかいふく" },
-  megapotion: { name: "メガポーション", kind: "use", price: 500, heal: 600, desc: "HPを 600 かいふく" },
-  worldtear: { name: "せかいのしずく", kind: "use", price: 0, partyheal: true, desc: "なかまぜんいんが かんぜんかいふく" },
-  xpotion:  { name: "エクスポーション", kind: "use", price: 1500, heal: 2000, desc: "HPを 2000 かいふく" },
-  hiether:  { name: "ハイエーテル",   kind: "use", price: 800, mp: 150, desc: "MPを 150 かいふく" },
-  remedy:   { name: "ばんのうやく",   kind: "use", price: 500, cureall: true, desc: "すべての じょうたいいじょうを なおす" },
+  elixir:   { name: "エリクサー",     kind: "use", price: 2000, elixir: true, desc: "HPとMPが 完全回復" },
+  megapotion: { name: "メガポーション", kind: "use", price: 500, heal: 600, desc: "HPを 600 回復" },
+  worldtear: { name: "世界のしずく", kind: "use", price: 0, partyheal: true, desc: "仲間ぜんいんが 完全回復" },
+  xpotion:  { name: "エクスポーション", kind: "use", price: 1500, heal: 2000, desc: "HPを 2000 回復" },
+  hiether:  { name: "ハイエーテル",   kind: "use", price: 800, mp: 150, desc: "MPを 150 回復" },
+  remedy:   { name: "ばんのうやく",   kind: "use", price: 500, cureall: true, desc: "すべての 状態異常を なおす" },
 
   w_dark:    { name: "ダークソード",   kind: "weapon", price: 300, atk: 8,  who: ["leon"], dark: true },
-  w_steel:   { name: "こうてつのつるぎ", kind: "weapon", price: 450, atk: 12, who: ["leon"] },
+  w_steel:   { name: "こうてつの剣", kind: "weapon", price: 450, atk: 12, who: ["leon"] },
   w_mythril: { name: "ミスリルソード", kind: "weapon", price: 900, atk: 16, who: ["leon"] },
-  w_light:   { name: "ひかりのつるぎ", kind: "weapon", price: 0,   atk: 24, who: ["leon"], elem: "holy", slay: ["undead"] },
+  w_light:   { name: "光の剣", kind: "weapon", price: 0,   atk: 24, who: ["leon"], elem: "holy", slay: ["undead"] },
   w_staff:   { name: "ロッド",         kind: "weapon", price: 60,  atk: 3,  who: ["rod", "celia"] },
-  w_wizstaff:{ name: "まどうのつえ",   kind: "weapon", price: 500, atk: 7, int: 3, who: ["rod"] },
-  w_mace:    { name: "いやしのつえ",   kind: "weapon", price: 450, atk: 6, int: 2, who: ["celia"] },
+  w_wizstaff:{ name: "まどうの杖",   kind: "weapon", price: 500, atk: 7, int: 3, who: ["rod"] },
+  w_mace:    { name: "いやしの杖",   kind: "weapon", price: 450, atk: 6, int: 2, who: ["celia"] },
   w_crystalrod: { name: "すいしょうロッド", kind: "weapon", price: 1300, atk: 8, int: 4, who: ["celia"] },
   w_flame:   { name: "フレイムソード", kind: "weapon", price: 1200, atk: 19, who: ["leon"], elem: "fire" },
-  w_iceblade:{ name: "こおりのつるぎ", kind: "weapon", price: 1800, atk: 22, who: ["leon"], elem: "ice" },
-  w_star:    { name: "ほしくずのつるぎ", kind: "weapon", price: 0, atk: 30, who: ["leon"], elem: "holy", slay: ["undead", "demon"] },
+  w_iceblade:{ name: "氷の剣", kind: "weapon", price: 1800, atk: 22, who: ["leon"], elem: "ice" },
+  w_star:    { name: "ほしくずの剣", kind: "weapon", price: 0, atk: 30, who: ["leon"], elem: "holy", slay: ["undead", "demon"] },
   w_halberd: { name: "ハルバード",     kind: "weapon", price: 2400, atk: 21, who: ["glen"] },
-  w_battleclaw: { name: "ばくれつのつめ", kind: "weapon", price: 2200, atk: 20, who: ["gou"], elem: "fire" },
-  w_sagestaff: { name: "けんじゃのつえ", kind: "weapon", price: 2600, atk: 12, int: 6, who: ["rod"] },
-  w_spiritrod: { name: "せいれいロッド", kind: "weapon", price: 2400, atk: 10, int: 5, who: ["celia"] },
+  w_battleclaw: { name: "ばくれつの爪", kind: "weapon", price: 2200, atk: 20, who: ["gou"], elem: "fire" },
+  w_sagestaff: { name: "賢者の杖", kind: "weapon", price: 2600, atk: 12, int: 6, who: ["rod"] },
+  w_spiritrod: { name: "精霊ロッド", kind: "weapon", price: 2400, atk: 10, int: 5, who: ["celia"] },
   w_spear:   { name: "やり",           kind: "weapon", price: 250, atk: 8,  who: ["glen"] },
-  w_lance:   { name: "ミスリルのやり", kind: "weapon", price: 850, atk: 15, who: ["glen"] },
-  w_dragonlance: { name: "りゅうのやり", kind: "weapon", price: 1500, atk: 17, who: ["glen"], slay: ["dragon"] },
-  w_windspear: { name: "かぜのやり",   kind: "weapon", price: 3000, atk: 26, who: ["glen"] },
+  w_lance:   { name: "ミスリルの槍", kind: "weapon", price: 850, atk: 15, who: ["glen"] },
+  w_dragonlance: { name: "りゅうの槍", kind: "weapon", price: 1500, atk: 17, who: ["glen"], slay: ["dragon"] },
+  w_windspear: { name: "風の槍",   kind: "weapon", price: 3000, atk: 26, who: ["glen"] },
   w_trident: { name: "トライデント",   kind: "weapon", price: 3600, atk: 28, who: ["glen"], elem: "thunder" },
-  w_gigalance: { name: "ぎんがのやり", kind: "weapon", price: 0, atk: 32, who: ["glen"], elem: "holy" },
-  w_claw:    { name: "てつのつめ",     kind: "weapon", price: 200, atk: 6,  who: ["gou"] },
+  w_gigalance: { name: "ぎんがの槍", kind: "weapon", price: 0, atk: 32, who: ["glen"], elem: "holy" },
+  w_claw:    { name: "てつの爪",     kind: "weapon", price: 200, atk: 6,  who: ["gou"] },
   w_ironclaw:{ name: "タイガークロー", kind: "weapon", price: 700, atk: 13, who: ["gou"] },
-  w_thunderclaw: { name: "かみなりのつめ", kind: "weapon", price: 1400, atk: 16, who: ["gou"], elem: "thunder" },
-  w_kingclaw: { name: "りゅうおうのつめ", kind: "weapon", price: 0, atk: 34, who: ["gou"], slay: ["dragon"] },
-  w_garon:   { name: "ごうけつのつめ",   kind: "weapon", price: 0, atk: 28, who: ["gou"] },
+  w_thunderclaw: { name: "雷の爪", kind: "weapon", price: 1400, atk: 16, who: ["gou"], elem: "thunder" },
+  w_kingclaw: { name: "りゅうおうの爪", kind: "weapon", price: 0, atk: 34, who: ["gou"], slay: ["dragon"] },
+  w_garon:   { name: "ごうけつの爪",   kind: "weapon", price: 0, atk: 28, who: ["gou"] },
   a_hachimaki2: { name: "けんおうのはちまき", kind: "armor", price: 0, def: 22, who: ["gou"] },
   w_dverg:   { name: "ドヴェルグアクス", kind: "weapon", price: 0, atk: 38, who: ["leon", "glen"] },
-  a_dverg2:  { name: "ドヴェルグのたて", kind: "armor", price: 0, def: 27, who: ["leon", "glen"] },
-  // げんじゅうの ほうしゅう
-  a_sylphid: { name: "かぜのマント",     kind: "armor", price: 0, def: 29, int: 6, who: ["rod", "celia"] },
-  a_gnomos:  { name: "だいちのおおたて", kind: "armor", price: 0, def: 31, who: ["leon", "glen"] },
-  w_undina:  { name: "うみなりのつえ",   kind: "weapon", price: 0, atk: 16, int: 10, who: ["celia"] },
-  // こじんイベントほうしゅう
-  w_kizuna:  { name: "きずなのやり",   kind: "weapon", price: 0, atk: 27, who: ["glen"], slay: ["demon"] },
+  a_dverg2:  { name: "ドヴェルグの盾", kind: "armor", price: 0, def: 27, who: ["leon", "glen"] },
+  // げんじゅうの 報酬
+  a_sylphid: { name: "風のマント",     kind: "armor", price: 0, def: 29, int: 6, who: ["rod", "celia"] },
+  a_gnomos:  { name: "大地のおおたて", kind: "armor", price: 0, def: 31, who: ["leon", "glen"] },
+  w_undina:  { name: "うみなりの杖",   kind: "weapon", price: 0, atk: 16, int: 10, who: ["celia"] },
+  // こじんイベント報酬
+  w_kizuna:  { name: "絆の槍",   kind: "weapon", price: 0, atk: 27, who: ["glen"], slay: ["demon"] },
   w_truthbook: { name: "しんりのしょ", kind: "weapon", price: 0, atk: 13, int: 7, who: ["rod"] },
   w_prayrod: { name: "いのりのロッド", kind: "weapon", price: 0, atk: 11, int: 6, who: ["celia"] },
   a_hachimaki: { name: "せんしのはちまき", kind: "armor", price: 0, def: 18, who: ["gou"] },
   a_fairy:   { name: "フェアリーローブ", kind: "armor", price: 0, def: 14, int: 4, who: ["rod", "celia"] },
-  a_royalmail: { name: "おうこくのよろい", kind: "armor", price: 5000, def: 24, who: ["leon", "glen"] },
+  a_royalmail: { name: "おうこくの鎧", kind: "armor", price: 5000, def: 24, who: ["leon", "glen"] },
   a_royal:   { name: "おうけのローブ",   kind: "armor", price: 4200, def: 19, int: 5, who: ["rod", "celia"] },
-  // ほしのせかい ティア (セレーネで はんばい)
+  // 星の世界 ティア (セレーネで はんばい)
   w_comet:   { name: "コメットブレード", kind: "weapon", price: 9000, atk: 44, who: ["leon"] },
-  w_starlance: { name: "ほしのやり",     kind: "weapon", price: 8500, atk: 42, who: ["glen"] },
+  w_starlance: { name: "星の槍",     kind: "weapon", price: 8500, atk: 42, who: ["glen"] },
   w_cosmoclaw: { name: "コスモクロー",   kind: "weapon", price: 8000, atk: 40, who: ["gou"] },
-  w_nebularod: { name: "せいうんのつえ", kind: "weapon", price: 9000, atk: 16, int: 9, who: ["rod"] },
-  w_moonwand: { name: "つきのつえ",      kind: "weapon", price: 8500, atk: 14, int: 8, who: ["celia"] },
-  // きゅうきょくそうび (ほしのせかいの たからばこ)
-  w_nova:    { name: "ちょうしんせいのつるぎ", kind: "weapon", price: 0, atk: 60, who: ["leon"], elem: "holy", slay: ["demon", "undead"] },
-  w_ryuoh:   { name: "りゅうしんのやり", kind: "weapon", price: 0, atk: 58, who: ["glen"], slay: ["dragon"] },
-  w_supernova: { name: "ぎんがのつめ",   kind: "weapon", price: 0, atk: 56, who: ["gou"], elem: "holy" },
+  w_nebularod: { name: "せいうんの杖", kind: "weapon", price: 9000, atk: 16, int: 9, who: ["rod"] },
+  w_moonwand: { name: "月の杖",      kind: "weapon", price: 8500, atk: 14, int: 8, who: ["celia"] },
+  // きゅうきょくそうび (星の世界の 宝箱)
+  w_nova:    { name: "ちょうしんせいの剣", kind: "weapon", price: 0, atk: 60, who: ["leon"], elem: "holy", slay: ["demon", "undead"] },
+  w_ryuoh:   { name: "りゅうしんの槍", kind: "weapon", price: 0, atk: 58, who: ["glen"], slay: ["dragon"] },
+  w_supernova: { name: "ぎんがの爪",   kind: "weapon", price: 0, atk: 56, who: ["gou"], elem: "holy" },
   w_astral:  { name: "アストラルロッド", kind: "weapon", price: 0, atk: 20, int: 12, who: ["rod"] },
   w_stella:  { name: "ステラロッド",     kind: "weapon", price: 0, atk: 18, int: 11, who: ["celia"] },
 
-  a_dark:    { name: "あんこくのよろい", kind: "armor", price: 350, def: 6,  who: ["leon"], dark: true },
-  a_steel:   { name: "こうてつのよろい", kind: "armor", price: 400, def: 10, who: ["leon", "glen"] },
+  a_dark:    { name: "あんこくの鎧", kind: "armor", price: 350, def: 6,  who: ["leon"], dark: true },
+  a_steel:   { name: "こうてつの鎧", kind: "armor", price: 400, def: 10, who: ["leon", "glen"] },
   a_mythril: { name: "ミスリルメイル", kind: "armor", price: 950, def: 13, who: ["leon", "glen"] },
-  a_light:   { name: "ひかりのよろい", kind: "armor", price: 0,   def: 16, who: ["leon"] },
+  a_light:   { name: "光の鎧", kind: "armor", price: 0,   def: 16, who: ["leon"] },
   a_cloth:   { name: "ぬののローブ",   kind: "armor", price: 50,  def: 2,  who: ["rod", "celia", "gou"] },
-  a_leather: { name: "かわのよろい",   kind: "armor", price: 200, def: 5,  who: ["leon", "glen", "gou", "rod", "celia"] },
+  a_leather: { name: "川の鎧",   kind: "armor", price: 200, def: 5,  who: ["leon", "glen", "gou", "rod", "celia"] },
   a_silk:    { name: "シルクのローブ", kind: "armor", price: 400, def: 7, int: 2, who: ["rod", "celia"] },
-  a_ice:     { name: "こおりのローブ", kind: "armor", price: 900, def: 9, int: 2, who: ["rod", "celia"] },
+  a_ice:     { name: "氷のローブ", kind: "armor", price: 900, def: 9, int: 2, who: ["rod", "celia"] },
   a_aqua:    { name: "アクアメイル",   kind: "armor", price: 1600, def: 15, who: ["leon", "glen"] },
-  a_flame:   { name: "ほのおのローブ", kind: "armor", price: 1400, def: 11, int: 2, who: ["rod", "celia"] },
+  a_flame:   { name: "炎のローブ", kind: "armor", price: 1400, def: 11, int: 2, who: ["rod", "celia"] },
   a_dwarf:   { name: "ドヴェルグメイル", kind: "armor", price: 2400, def: 19, who: ["leon", "glen"] },
-  a_gaia:    { name: "だいちのよろい",   kind: "armor", price: 3200, def: 22, who: ["leon", "glen"] },
+  a_gaia:    { name: "大地の鎧",   kind: "armor", price: 3200, def: 22, who: ["leon", "glen"] },
   a_sylph:   { name: "シルフのローブ",   kind: "armor", price: 3000, def: 16, int: 4, who: ["rod", "celia"] },
   a_abyss:   { name: "しんかいのローブ", kind: "armor", price: 3400, def: 18, int: 5, who: ["rod", "celia"] },
-  a_star:    { name: "ほしのよろい",     kind: "armor", price: 0, def: 26, who: ["leon", "glen"] },
+  a_star:    { name: "星の鎧",     kind: "armor", price: 0, def: 26, who: ["leon", "glen"] },
   a_cosmos:  { name: "コスモスのローブ", kind: "armor", price: 0, def: 20, int: 6, who: ["rod", "celia"] },
   // ゴウせんよう どうぎ けいとう
   a_gi:      { name: "みきりのどうぎ",   kind: "armor", price: 800, def: 9, who: ["gou"] },
   a_master:  { name: "たつじんのどうぎ", kind: "armor", price: 2000, def: 15, who: ["gou"] },
   a_champ:   { name: "チャンピオンベルト", kind: "armor", price: 0, def: 24, who: ["gou"] },
-  a_sage:    { name: "けんじゃのローブ", kind: "armor", price: 2200, def: 13, int: 3, who: ["rod", "celia"] },
-  // ほしのせかい ティア
+  a_sage:    { name: "賢者のローブ", kind: "armor", price: 2200, def: 13, int: 3, who: ["rod", "celia"] },
+  // 星の世界 ティア
   a_comet:   { name: "コメットメイル",   kind: "armor", price: 9500, def: 30, who: ["leon", "glen"] },
-  a_moonrobe: { name: "つきのローブ",    kind: "armor", price: 8800, def: 24, int: 7, who: ["rod", "celia"] },
-  a_stargi:  { name: "ほしのどうぎ",     kind: "armor", price: 8200, def: 28, who: ["gou"] },
+  a_moonrobe: { name: "月のローブ",    kind: "armor", price: 8800, def: 24, int: 7, who: ["rod", "celia"] },
+  a_stargi:  { name: "星のどうぎ",     kind: "armor", price: 8200, def: 28, who: ["gou"] },
   // きゅうきょくそうび
-  a_nova:    { name: "ちょうしんせいのよろい", kind: "armor", price: 0, def: 36, who: ["leon", "glen"] },
+  a_nova:    { name: "ちょうしんせいの鎧", kind: "armor", price: 0, def: 36, who: ["leon", "glen"] },
   a_astral:  { name: "アストラルローブ", kind: "armor", price: 0, def: 30, int: 9, who: ["rod", "celia"] },
   a_cosmogi: { name: "ぎんがのどうぎ",   kind: "armor", price: 0, def: 34, who: ["gou"] },
-  a_stellar: { name: "ほしのまもり",     kind: "armor", price: 0, def: 28, int: 8, who: ["rod", "celia"] },
-  a_crown:   { name: "ほしのおうかん",   kind: "armor", price: 0, def: 33, int: 10, who: ["rod", "celia"] },
+  a_stellar: { name: "星の守り",     kind: "armor", price: 0, def: 28, int: 8, who: ["rod", "celia"] },
+  a_crown:   { name: "星のおうかん",   kind: "armor", price: 0, def: 33, int: 10, who: ["rod", "celia"] },
   a_bell:    { name: "ねこのすず",       kind: "armor", price: 0, def: 15, int: 5, who: ["leon", "glen", "gou", "rod", "celia"] },
-  // ひがしのたいりく ティア
-  w_twin:    { name: "ふたごのやり",     kind: "weapon", price: 12000, atk: 46, who: ["glen"] },
-  a_lake:    { name: "みずうみのローブ", kind: "armor", price: 9800, def: 26, int: 7, who: ["rod", "celia"] },
+  // 東の大陸 ティア
+  w_twin:    { name: "ふたごの槍",     kind: "weapon", price: 12000, atk: 46, who: ["glen"] },
+  a_lake:    { name: "湖のローブ", kind: "armor", price: 9800, def: 26, int: 7, who: ["rod", "celia"] },
   w_mirror:  { name: "ミラーブレード",   kind: "weapon", price: 0, atk: 50, who: ["leon"], elem: "ice" },
-  a_chrono:  { name: "ときのよろい",     kind: "armor", price: 0, def: 34, who: ["leon", "glen"] },
-  // こおりのれっとう ティア
-  w_icefang: { name: "こおりのキバ",     kind: "weapon", price: 12500, atk: 48, who: ["gou"], elem: "ice" },
+  a_chrono:  { name: "ときの鎧",     kind: "armor", price: 0, def: 34, who: ["leon", "glen"] },
+  // 氷の列島 ティア
+  w_icefang: { name: "氷のキバ",     kind: "weapon", price: 12500, atk: 48, who: ["gou"], elem: "ice" },
   a_frostmail: { name: "フロストメイル", kind: "armor", price: 11000, def: 32, who: ["leon", "glen"] },
-  w_blizzard: { name: "ふぶきのやり",    kind: "weapon", price: 0, atk: 49, who: ["glen"], elem: "ice" },
+  w_blizzard: { name: "ふぶきの槍",    kind: "weapon", price: 0, atk: 49, who: ["glen"], elem: "ice" },
   a_aurora:  { name: "オーロラのマント", kind: "armor", price: 0, def: 31, int: 8, who: ["rod", "celia"] },
-  // すなのおうこく ティア
+  // 砂の王国 ティア
   w_scimitar: { name: "えんげつとう",    kind: "weapon", price: 13000, atk: 46, who: ["leon"], elem: "fire" },
-  a_desert:  { name: "さばくのころも",   kind: "armor", price: 10500, def: 28, int: 7, who: ["rod", "celia"] },
+  a_desert:  { name: "砂漠のころも",   kind: "armor", price: 10500, def: 28, int: 7, who: ["rod", "celia"] },
   a_sandgi:  { name: "すなのどうぎ",     kind: "armor", price: 9500, def: 30, who: ["gou"] },
-  w_sandlance: { name: "すなあらしのやり", kind: "weapon", price: 0, atk: 52, who: ["glen"] },
-  oasiswater: { name: "オアシスのみず",  kind: "use", price: 300, heal: 400, desc: "HPを 400 かいふく" },
-  a_unity:   { name: "きずなのマント",   kind: "armor", price: 0, def: 30, int: 6, who: ["leon", "glen", "gou", "rod", "celia"] },
+  w_sandlance: { name: "すな嵐の槍", kind: "weapon", price: 0, atk: 52, who: ["glen"] },
+  oasiswater: { name: "オアシスのみず",  kind: "use", price: 300, heal: 400, desc: "HPを 400 回復" },
+  a_unity:   { name: "絆のマント",   kind: "armor", price: 0, def: 30, int: 6, who: ["leon", "glen", "gou", "rod", "celia"] },
   // まぼろしのしろの かくしそうび
-  w_regalia: { name: "おうのつるぎ レガリア", kind: "weapon", price: 0, atk: 65, who: ["leon"],
+  w_regalia: { name: "おうの剣 レガリア", kind: "weapon", price: 0, atk: 65, who: ["leon"],
     elem: "holy", slay: ["demon", "undead", "dragon"] },
   a_phantom: { name: "まぼろしのマント",  kind: "armor", price: 0, def: 34, int: 9, who: ["rod", "celia"] },
   // かくしぶきコレクション (とくしゅな にゅうしゅじょうけん)
-  w_skypierce: { name: "そらのやり",      kind: "weapon", price: 0, atk: 60, who: ["glen"], elem: "thunder" },
-  w_haou:    { name: "はおうのつめ",      kind: "weapon", price: 0, atk: 62, who: ["gou"] },
-  w_seijo:   { name: "せいじょのつえ",    kind: "weapon", price: 0, atk: 20, int: 13, who: ["celia"] },
-  w_genja:   { name: "げんじゃのつえ",    kind: "weapon", price: 0, atk: 22, int: 14, who: ["rod"] },
-  a_heroband: { name: "えいゆうのおび",   kind: "armor", price: 0, def: 36, int: 6, who: ["leon", "glen", "gou", "rod", "celia"] },
-  // よるのくに ティア
-  w_nightclaw: { name: "よるのつめ",      kind: "weapon", price: 16000, atk: 58, who: ["gou"] },
-  a_dusk:    { name: "たそがれのよろい",  kind: "armor", price: 14000, def: 37, who: ["leon", "glen"] },
-  nightdrop: { name: "よるのしずく",      kind: "use", price: 1200, heal: 800, desc: "HPを 800 かいふく" },
-  w_dawn:    { name: "よあけのやり",      kind: "weapon", price: 0, atk: 63, who: ["glen"], elem: "fire" },
-  a_nocturne: { name: "よるのローブ",     kind: "armor", price: 0, def: 36, int: 10, who: ["rod", "celia"] },
+  w_skypierce: { name: "空の槍",      kind: "weapon", price: 0, atk: 60, who: ["glen"], elem: "thunder" },
+  w_haou:    { name: "はおうの爪",      kind: "weapon", price: 0, atk: 62, who: ["gou"] },
+  w_seijo:   { name: "聖女の杖",    kind: "weapon", price: 0, atk: 20, int: 13, who: ["celia"] },
+  w_genja:   { name: "げんじゃの杖",    kind: "weapon", price: 0, atk: 22, int: 14, who: ["rod"] },
+  a_heroband: { name: "英雄のおび",   kind: "armor", price: 0, def: 36, int: 6, who: ["leon", "glen", "gou", "rod", "celia"] },
+  // 夜の国 ティア
+  w_nightclaw: { name: "夜の爪",      kind: "weapon", price: 16000, atk: 58, who: ["gou"] },
+  a_dusk:    { name: "たそがれの鎧",  kind: "armor", price: 14000, def: 37, who: ["leon", "glen"] },
+  nightdrop: { name: "夜のしずく",      kind: "use", price: 1200, heal: 800, desc: "HPを 800 回復" },
+  w_dawn:    { name: "よあけの槍",      kind: "weapon", price: 0, atk: 63, who: ["glen"], elem: "fire" },
+  a_nocturne: { name: "夜のローブ",     kind: "armor", price: 0, def: 36, int: 10, who: ["rod", "celia"] },
   // こじんイベントだい2しょうの きねんそうび
   a_oath:    { name: "ちかいのマント",    kind: "armor", price: 0, def: 38, who: ["leon"] },
-  a_dragonheart: { name: "りゅうのこころ", kind: "armor", price: 0, def: 38, who: ["glen"] },
+  a_dragonheart: { name: "りゅうの心", kind: "armor", price: 0, def: 38, who: ["glen"] },
   a_master2: { name: "しんいのおび",      kind: "armor", price: 0, def: 38, who: ["gou"] },
   a_prayer:  { name: "いのりのベール",    kind: "armor", price: 0, def: 37, int: 11, who: ["celia"] },
   a_wisdom:  { name: "えいちのぼうし",    kind: "armor", price: 0, def: 37, int: 12, who: ["rod"] },
-  // みどりのぐんとう ティア
-  w_leafblade: { name: "こかげのつるぎ", kind: "weapon", price: 13500, atk: 48, who: ["leon"] },
-  w_junglerod: { name: "みどりのつえ",   kind: "weapon", price: 11500, atk: 18, int: 10, who: ["rod"] },
-  a_vinemail: { name: "つたのよろい",    kind: "armor", price: 11500, def: 33, who: ["leon", "glen"] },
+  // 緑の群島 ティア
+  w_leafblade: { name: "こかげの剣", kind: "weapon", price: 13500, atk: 48, who: ["leon"] },
+  w_junglerod: { name: "みどりの杖",   kind: "weapon", price: 11500, atk: 18, int: 10, who: ["rod"] },
+  a_vinemail: { name: "つたの鎧",    kind: "armor", price: 11500, def: 33, who: ["leon", "glen"] },
   a_leafrobe: { name: "このはのローブ",  kind: "armor", price: 0, def: 29, int: 8, who: ["rod", "celia"] },
-  w_guardfist: { name: "まもりのこぶし", kind: "weapon", price: 0, atk: 54, who: ["gou"] },
-  // らいめいのしま ティア
-  w_boltblade: { name: "らいめいのつるぎ", kind: "weapon", price: 15000, atk: 52, who: ["leon"], elem: "thunder" },
-  w_stormrod: { name: "あらしのつえ",     kind: "weapon", price: 12500, atk: 19, int: 11, who: ["celia"] },
-  a_stormmail: { name: "らいうんのよろい", kind: "armor", price: 12500, def: 35, who: ["leon", "glen"] },
-  a_boltgi:  { name: "いなずまのどうぎ",  kind: "armor", price: 11000, def: 32, who: ["gou"] },
-  w_raijin:  { name: "らいじんのやり",    kind: "weapon", price: 0, atk: 56, who: ["glen"], elem: "thunder" },
+  w_guardfist: { name: "ま森のこぶし", kind: "weapon", price: 0, atk: 54, who: ["gou"] },
+  // 雷鳴の島 ティア
+  w_boltblade: { name: "らいめいの剣", kind: "weapon", price: 15000, atk: 52, who: ["leon"], elem: "thunder" },
+  w_stormrod: { name: "嵐の杖",     kind: "weapon", price: 12500, atk: 19, int: 11, who: ["celia"] },
+  a_stormmail: { name: "らいうんの鎧", kind: "armor", price: 12500, def: 35, who: ["leon", "glen"] },
+  a_boltgi:  { name: "稲妻のどうぎ",  kind: "armor", price: 11000, def: 32, who: ["gou"] },
+  w_raijin:  { name: "らいじんの槍",    kind: "weapon", price: 0, atk: 56, who: ["glen"], elem: "thunder" },
 
-  crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
-  heroproof: { name: "えいゆうのあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
-  expcharm:  { name: "けいけんのしるし", kind: "key", price: 0, desc: "もっているだけで けいけんち 2ばい" },
+  crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる 光を やどす" },
+  heroproof: { name: "英雄のあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
+  expcharm:  { name: "けいけんのしるし", kind: "key", price: 0, desc: "もっているだけで 経験値 2ばい" },
   glowstone: { name: "かがやくいし",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
-  earthcrystal: { name: "ちのクリスタル", kind: "key", price: 0, desc: "だいちのちからを やどす けっしょう" },
-  windcrystal: { name: "かぜのクリスタル", kind: "key", price: 0, desc: "あらしのちからを やどす けっしょう" },
-  watercrystal: { name: "みずのクリスタル", kind: "key", price: 0, desc: "うみのちからを やどす けっしょう" },
+  earthcrystal: { name: "ちのクリスタル", kind: "key", price: 0, desc: "大地の力を やどす けっしょう" },
+  windcrystal: { name: "風のクリスタル", kind: "key", price: 0, desc: "嵐の力を やどす けっしょう" },
+  watercrystal: { name: "水のクリスタル", kind: "key", price: 0, desc: "海の力を やどす けっしょう" },
 };
 
-// ---------------- なかま ----------------
+// ---------------- 仲間 ----------------
 // row: たいれつ。後列は 物理ダメージが 与/被 ともに はんぶん
 DATA.heroes = {
   leon: {
-    name: "レオン", cls: "あんこくきし", spr: "hero", row: "front",
+    name: "レオン", cls: "暗黒騎士", spr: "hero", row: "front",
     base:   { hp: 48, mp: 6, str: 10, agi: 7, vit: 9, int: 4 },
     growth: { hp: 11, mp: 2, str: 2, agi: 1, vit: 2, int: 1 },
     weapon: "w_dark", armor: "a_dark",
@@ -268,7 +268,7 @@ DATA.heroes = {
     learn: {},
   },
   glen: {
-    name: "グレン", cls: "りゅうきし", spr: "glen", row: "front",
+    name: "グレン", cls: "竜騎士", spr: "glen", row: "front",
     base:   { hp: 42, mp: 4, str: 11, agi: 8, vit: 8, int: 3 },
     growth: { hp: 10, mp: 1, str: 2, agi: 1, vit: 2, int: 1 },
     weapon: "w_spear", armor: "a_leather",
@@ -281,25 +281,25 @@ DATA.heroes = {
     base:   { hp: 58, mp: 0, str: 12, agi: 9, vit: 11, int: 2 },
     growth: { hp: 13, mp: 0, str: 2, agi: 1, vit: 3, int: 0 },
     weapon: "w_claw", armor: "a_leather",
-    command: "charge", // ためる: さいだい3かい。つぎのこうげきが 2/4/8ばい
+    command: "charge", // ためる: さいだい3かい。つぎの攻撃が 2/4/8ばい
     spells: [],
     learn: {},
   },
   celia: {
-    name: "セリア", cls: "しろまどうし", spr: "celia", row: "back",
+    name: "セリア", cls: "白魔道士", spr: "celia", row: "back",
     base:   { hp: 30, mp: 24, str: 5, agi: 8, vit: 6, int: 11 },
     growth: { hp: 7, mp: 5, str: 1, agi: 1, vit: 1, int: 2 },
     weapon: "w_staff", armor: "a_cloth",
-    command: "pray", // いのる: MP0。50%で ぜんいん さいだいHPの30%かいふく
+    command: "pray", // いのる: MP0。50%で ぜんいん さいだいHPの30%回復
     spells: ["cure1"],
     learn: { 4: "poisona", 6: "protect", 9: "cure2", 10: "esuna", 12: "raise", 16: "cure3", 18: "haste", 20: "rain", 22: "protect2", 26: "saint" },
   },
   rod: {
-    name: "ロッド", cls: "くろまどうし", spr: "rod", row: "back",
+    name: "ロッド", cls: "黒魔道士", spr: "rod", row: "back",
     base:   { hp: 27, mp: 22, str: 5, agi: 7, vit: 5, int: 13 },
     growth: { hp: 6, mp: 6, str: 1, agi: 1, vit: 1, int: 3 },
     weapon: "w_staff", armor: "a_cloth",
-    command: "focus", // かくせい: さいだい3かい。つぎのこうげきまほうが 2/4/8ばい
+    command: "focus", // 覚醒: さいだい3かい。つぎの攻撃魔法が 2/4/8ばい
     spells: ["fire1"],
     learn: { 4: "ice1", 6: "bolt1", 9: "fire2", 12: "ice2", 15: "fire3", 19: "ice3", 21: "drain", 24: "bolt3", 28: "quake", 32: "flare" },
   },
@@ -308,17 +308,17 @@ DATA.heroes = {
 // パラディンへのクラスチェンジで置きかわる内容
 DATA.paladin = {
   cls: "パラディン", spr: "pal",
-  special: "holy",   // せいけん
+  special: "holy",   // 聖剣
   command: "cover",  // かばう: みがわり時は ダメージ1けた + 50%カウンター
   bonus: { hp: 30, mp: 12, str: 4, vit: 3 },
 };
 
-// レベルl から l+1 に あがるのに ひつような けいけんち
+// レベルl から l+1 に あがるのに ひつような 経験値
 DATA.expNext = (l) => 6 * l * l + 4 * l;
 
 // ---------------- モンスター ----------------
-// weak: 弱点(8ばい) / resist: たいせい(0.5ばい) / absorb: きゅうしゅう(かいふく)
-// race: しゅぞく(とっこうぶきは 8ばい) / inflict: ぶつりこうげきの ついかこうか
+// weak: 弱点(8ばい) / resist: たいせい(0.5ばい) / absorb: きゅうしゅう(回復)
+// race: しゅぞく(とっこうぶきは 8ばい) / inflict: ぶつり攻撃の ついかこうか
 DATA.monsters = {
   goblin:   { name: "ゴブリン",     spr: "goblin",   hp: 16, atk: 7,  def: 2,  agi: 4, exp: 5,  gold: 6 },
   bat:      { name: "おおコウモリ", spr: "bat",      hp: 12, atk: 6,  def: 1,  agi: 9, exp: 4,  gold: 4,
@@ -328,7 +328,7 @@ DATA.monsters = {
     acts: [{ spell: "e_toad", rate: 0.2 }] },
   skeleton: { name: "スケルトン",   spr: "skeleton", hp: 34, atk: 13, def: 4,  agi: 6, exp: 14, gold: 14,
     race: "undead", weak: ["fire", "holy"] },
-  wizard:   { name: "まどうし",     spr: "wizard",   hp: 28, atk: 8,  def: 3,  agi: 7, exp: 18, gold: 22,
+  wizard:   { name: "魔道士",     spr: "wizard",   hp: 28, atk: 8,  def: 3,  agi: 7, exp: 18, gold: 22,
     resist: ["fire"], acts: [{ spell: "e_fire", rate: 0.35 }, { spell: "e_silence", rate: 0.25 }] },
   gargoyle: { name: "ガーゴイル",   spr: "gargoyle", hp: 46, atk: 16, def: 6,  agi: 9, exp: 26, gold: 28,
     weak: ["thunder"] },
@@ -337,12 +337,12 @@ DATA.monsters = {
   ddemon:   { name: "ダークデーモン", spr: "demon",  hp: 66, atk: 22, def: 8,  agi: 10, exp: 62, gold: 55,
     race: "demon", weak: ["holy"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
 
-  // ---- こおりのどうくつ ----
+  // ---- 氷の洞窟 ----
   icegoblin: { name: "アイスゴブリン", spr: "goblin", pal: "light", hp: 30, atk: 14, def: 4, agi: 7, exp: 22, gold: 20,
     weak: ["fire"] },
   icebat:    { name: "ブリザドバット", spr: "bat", pal: "light", hp: 24, atk: 13, def: 2, agi: 12, exp: 18, gold: 15,
     weak: ["fire"], inflict: { status: "blind", rate: 0.25 } },
-  frostwiz:  { name: "こおりのまどうし", spr: "wizard", pal: "light", hp: 40, atk: 12, def: 5, agi: 9, exp: 34, gold: 40,
+  frostwiz:  { name: "氷の魔道士", spr: "wizard", pal: "light", hp: 40, atk: 12, def: 5, agi: 9, exp: 34, gold: 40,
     weak: ["fire"], resist: ["ice"], acts: [{ spell: "e_ice", rate: 0.4 }, { spell: "e_silence", rate: 0.2 }] },
   frostgar:  { name: "フロストガーゴイル", spr: "gargoyle", pal: "light", hp: 70, atk: 24, def: 9, agi: 11, exp: 55, gold: 50,
     weak: ["fire"] },
@@ -353,7 +353,7 @@ DATA.monsters = {
     race: "dragon", absorb: ["ice"],
     acts: [{ spell: "e_breath", rate: 0.3 }, { spell: "e_ice", rate: 0.2 }] },
 
-  // ---- ちかすいろ ----
+  // ---- 地下水路 ----
   mudtoad:  { name: "マッドトード", spr: "toad", pal: "dark", hp: 45, atk: 20, def: 6, agi: 7, exp: 40, gold: 35,
     weak: ["ice"], inflict: { status: "poison", rate: 0.3 }, acts: [{ spell: "e_toad", rate: 0.2 }] },
   sewerbat: { name: "げすいコウモリ", spr: "bat", pal: "dark", hp: 30, atk: 18, def: 4, agi: 14, exp: 30, gold: 25,
@@ -367,10 +367,10 @@ DATA.monsters = {
     resist: ["fire", "ice"],
     acts: [{ spell: "e_wave", rate: 0.3 }, { spell: "e_ink", rate: 0.25 }] },
 
-  // ---- おおあなのそこ (ちていへの いりぐち) ----
+  // ---- おおあなのそこ (地底への いりぐち) ----
   flamegoblin: { name: "フレイムゴブリン", spr: "goblin", pal: "dark", hp: 55, atk: 26, def: 8, agi: 9, exp: 70, gold: 60,
     weak: ["ice"] },
-  flamewiz: { name: "ほのおのまじゅつし", spr: "wizard", hp: 70, atk: 20, def: 8, agi: 11, exp: 90, gold: 95,
+  flamewiz: { name: "炎のまじゅつし", spr: "wizard", hp: 70, atk: 20, def: 8, agi: 11, exp: 90, gold: 95,
     weak: ["ice"], absorb: ["fire"], acts: [{ spell: "e_fire2", rate: 0.35 }] },
   magmagolem: { name: "マグマゴーレム", spr: "golem", pal: "dark", hp: 160, atk: 34, def: 18, agi: 5, exp: 160, gold: 150,
     weak: ["ice"], absorb: ["fire"] },
@@ -380,7 +380,7 @@ DATA.monsters = {
     race: "dragon", weak: ["ice"], acts: [{ spell: "e_fire", rate: 0.3 }] },
   darkknight: { name: "あんこくへい", spr: "hero_d", pal: "dark", hp: 130, atk: 36, def: 16, agi: 12, exp: 180, gold: 160,
     weak: ["holy"] },
-  darksoldier: { name: "やみのへいし", spr: "soldier", pal: "dark", hp: 100, atk: 32, def: 14, agi: 14, exp: 150, gold: 140,
+  darksoldier: { name: "闇の兵士", spr: "soldier", pal: "dark", hp: 100, atk: 32, def: 14, agi: 14, exp: 150, gold: 140,
     weak: ["holy"] },
   // ---- まよいのもり ----
   woodgoblin: { name: "もりゴブリン", spr: "goblin", hp: 40, atk: 18, def: 5, agi: 8, exp: 30, gold: 28,
@@ -389,12 +389,12 @@ DATA.monsters = {
     weak: ["fire"], inflict: { status: "blind", rate: 0.25 } },
   madflower: { name: "マッドフラワー", spr: "toad", pal: "light", hp: 50, atk: 20, def: 6, agi: 6, exp: 38, gold: 34,
     weak: ["fire"], inflict: { status: "poison", rate: 0.35 }, acts: [{ spell: "e_toad", rate: 0.15 }] },
-  treant: { name: "もりのぬし トレント", spr: "treant", boss: true, scale: 4,
+  treant: { name: "森のぬし トレント", spr: "treant", boss: true, scale: 4,
     hp: 2600, atk: 36, def: 14, agi: 8, exp: 1000, gold: 1200,
     weak: ["fire"], resist: ["ice", "thunder"],
     acts: [{ spell: "e_gale", rate: 0.3 }, { spell: "e_toad", rate: 0.2 }] },
 
-  // ---- ミスリルけい (レアな かせぎてき。かたくて すぐにげる) ----
+  // ---- ミスリルけい (レアな かせぎてき。かたくて すぐ逃げる) ----
   mithrilbaby: { name: "ミスリルベビー", spr: "dragon", pal: "light",
     hp: 6, atk: 10, def: 250, agi: 30, exp: 2500, gold: 500,
     race: "dragon", absorb: ["fire", "ice", "thunder"], flees: 0.35 },
@@ -408,7 +408,7 @@ DATA.monsters = {
     race: "dragon", absorb: ["fire", "ice", "thunder"],
     acts: [{ spell: "e_starfall", rate: 0.25 }, { spell: "e_bigwave", rate: 0.2 }, { spell: "e_eruption", rate: 0.2 }] },
 
-  // ---- ほしのとう (さいしゅうしょう) ----
+  // ---- 星のとう (さいしゅうしょう) ----
   arcdemon: { name: "アークデーモン", spr: "demon", pal: "dark", hp: 260, atk: 48, def: 18, agi: 18, exp: 450, gold: 400,
     race: "demon", weak: ["holy"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
   chaosknight: { name: "カオスナイト", spr: "hero_d", pal: "dark", hp: 280, atk: 52, def: 22, agi: 16, exp: 480, gold: 430,
@@ -421,7 +421,7 @@ DATA.monsters = {
   greenslime: { name: "グリーンゼリー", spr: "slime", hp: 26, atk: 9, def: 6, agi: 5, exp: 8, gold: 10,
     weak: ["fire"] },
   bladehopper: { name: "カマとび",     spr: "mantis", hp: 60, atk: 16, def: 8, agi: 14, exp: 30, gold: 25 },
-  dunestalker: { name: "すなかまきり", spr: "mantis", pal: "dark", hp: 90, atk: 22, def: 10, agi: 16, exp: 60, gold: 50 },
+  dunestalker: { name: "す仲間きり", spr: "mantis", pal: "dark", hp: 90, atk: 22, def: 10, agi: 16, exp: 60, gold: 50 },
   gazer: { name: "ゲイザー", spr: "eye", hp: 150, atk: 30, def: 14, agi: 12, exp: 130, gold: 120,
     inflict: { status: "blind", rate: 0.3 } },
   iceslime: { name: "アイスゼリー", spr: "slime", pal: "light", hp: 120, atk: 24, def: 12, agi: 8, exp: 95, gold: 80,
@@ -444,8 +444,8 @@ DATA.monsters = {
     weak: ["fire"] },
   stareater: { name: "スターイーター", spr: "eye", pal: "light", hp: 640, atk: 70, def: 28, agi: 22, exp: 1600, gold: 1300,
     weak: ["holy"], inflict: { status: "toad", rate: 0.15 } },
-  // げんじゅう (そら/ちてい/うみに ひそむ せいれいがたの レアボス)
-  sylphid: { name: "かぜのげんじゅう シルフィド", spr: "bird", pal: "light", boss: true, scale: 3,
+  // げんじゅう (そら/地底/うみに ひそむ 精霊がたの レアボス)
+  sylphid: { name: "風のげんじゅう シルフィド", spr: "bird", pal: "light", boss: true, scale: 3,
     hp: 3000, atk: 68, def: 26, agi: 34, exp: 8000, gold: 4000,
     resist: ["thunder"], weak: ["ice"],
     acts: [{ spell: "e_tornado", rate: 0.25 }, { spell: "e_gale", rate: 0.3 }] },
@@ -453,11 +453,11 @@ DATA.monsters = {
     hp: 3600, atk: 76, def: 44, agi: 10, exp: 9000, gold: 4500,
     resist: ["fire"], weak: ["thunder"],
     acts: [{ spell: "e_quake", rate: 0.3 }] },
-  undina: { name: "みずのげんじゅう ウンディナ", spr: "kraken", pal: "light", boss: true, scale: 3,
+  undina: { name: "水のげんじゅう ウンディナ", spr: "kraken", pal: "light", boss: true, scale: 3,
     hp: 3300, atk: 72, def: 30, agi: 22, exp: 8500, gold: 4200,
     absorb: ["ice"], weak: ["thunder"],
     acts: [{ spell: "e_bigwave", rate: 0.25 }, { spell: "e_wave", rate: 0.3 }] },
-  // らいめいのしま (Lv65〜85たい)
+  // 雷鳴の島 (Lv65〜85たい)
   stormimp: { name: "らいうんインプ", spr: "goblin", pal: "light", hp: 780, atk: 82, def: 32, agi: 34, exp: 1550, gold: 1150,
     absorb: ["thunder"], weak: ["ice"] },
   thunderhawk: { name: "らいめいタカ", spr: "bird", pal: "light", hp: 720, atk: 84, def: 28, agi: 42, exp: 1500, gold: 1100,
@@ -474,7 +474,7 @@ DATA.monsters = {
     hp: 10000, atk: 104, def: 46, agi: 32, exp: 60000, gold: 20000,
     absorb: ["thunder"], resist: ["fire"], weak: ["ice"],
     acts: [{ spell: "e_bolt2", rate: 0.3 }, { spell: "e_tornado", rate: 0.2 }, { spell: "e_starfall", rate: 0.12 }] },
-  // みどりのぐんとう (Lv60〜80たい)
+  // 緑の群島 (Lv60〜80たい)
   junglecat: { name: "みどりのひょう", spr: "cat", pal: "dark", hp: 740, atk: 78, def: 30, agi: 38, exp: 1450, gold: 1050,
     weak: ["fire"] },
   vineflower: { name: "つるはなつかい", spr: "treant", pal: "dark", hp: 800, atk: 74, def: 36, agi: 14, exp: 1500, gold: 1100,
@@ -487,18 +487,18 @@ DATA.monsters = {
     absorb: ["ice"], weak: ["fire"], acts: [{ spell: "e_quake", rate: 0.2 }] },
   shadowmonkey: { name: "かげざる", spr: "goblin", pal: "dark", hp: 700, atk: 74, def: 28, agi: 36, exp: 1400, gold: 1000,
     inflict: { status: "blind", rate: 0.3 } },
-  guardios: { name: "まもりがみ ガーディオス", spr: "golem", boss: true, scale: 4,
+  guardios: { name: "守りがみ ガーディオス", spr: "golem", boss: true, scale: 4,
     hp: 9000, atk: 100, def: 48, agi: 20, exp: 55000, gold: 18000,
     resist: ["fire", "ice"], weak: ["thunder"],
     acts: [{ spell: "e_quake", rate: 0.25 }, { spell: "e_bolt2", rate: 0.2 }, { spell: "e_meteo", rate: 0.15 }] },
-  // すなのおうこく (Lv55〜75たい)
+  // 砂の王国 (Lv55〜75たい)
   sandworm2: { name: "すなワーム", spr: "worm", pal: "dark", hp: 820, atk: 76, def: 34, agi: 16, exp: 1350, gold: 1000,
     weak: ["ice"] },
   scarab: { name: "おうごんスカラベ", spr: "slime", pal: "dark", hp: 700, atk: 70, def: 44, agi: 22, exp: 1300, gold: 1400,
     resist: ["fire", "thunder"], weak: ["ice"] },
   mummy: { name: "ミイラへい", spr: "skeleton", pal: "dark", hp: 780, atk: 74, def: 32, agi: 18, exp: 1400, gold: 1050,
     race: "undead", weak: ["fire", "holy"], inflict: { status: "poison", rate: 0.25 } },
-  desertghost: { name: "さばくのぼうれい", spr: "wizard", pal: "dark", hp: 680, atk: 68, def: 28, agi: 26, exp: 1300, gold: 950,
+  desertghost: { name: "砂漠のぼうれい", spr: "wizard", pal: "dark", hp: 680, atk: 68, def: 28, agi: 26, exp: 1300, gold: 950,
     race: "undead", weak: ["holy"], acts: [{ spell: "e_fire2", rate: 0.3 }] },
   vulture: { name: "おおハゲタカ", spr: "bird", pal: "dark", hp: 660, atk: 72, def: 26, agi: 36, exp: 1250, gold: 900,
     acts: [{ spell: "e_gale", rate: 0.3 }] },
@@ -508,10 +508,10 @@ DATA.monsters = {
     hp: 8200, atk: 96, def: 42, agi: 24, exp: 45000, gold: 16000,
     race: "undead", resist: ["ice", "thunder"], weak: ["fire", "holy"],
     acts: [{ spell: "e_quake", rate: 0.25 }, { spell: "e_meteo", rate: 0.18 }, { spell: "e_toad", rate: 0.15 }] },
-  // こおりのれっとう (Lv50〜70たい)
+  // 氷の列島 (Lv50〜70たい)
   snowwolf: { name: "ゆきおおかみ", spr: "gargoyle", pal: "light", hp: 680, atk: 70, def: 30, agi: 28, exp: 1200, gold: 880,
     weak: ["fire"] },
-  icemaiden: { name: "こおりのまいひめ", spr: "celia", pal: "light", hp: 640, atk: 64, def: 28, agi: 24, exp: 1150, gold: 840,
+  icemaiden: { name: "氷のまいひめ", spr: "celia", pal: "light", hp: 640, atk: 64, def: 28, agi: 24, exp: 1150, gold: 840,
     weak: ["fire"], acts: [{ spell: "e_breath", rate: 0.25 }] },
   glacierworm: { name: "ひょうがワーム", spr: "worm", pal: "light", hp: 760, atk: 72, def: 36, agi: 14, exp: 1300, gold: 950,
     absorb: ["ice"], weak: ["fire"] },
@@ -525,11 +525,11 @@ DATA.monsters = {
     hp: 7500, atk: 92, def: 40, agi: 26, exp: 40000, gold: 14000,
     absorb: ["ice"], resist: ["thunder"], weak: ["fire"],
     acts: [{ spell: "e_bigwave", rate: 0.22 }, { spell: "e_breath", rate: 0.25 }, { spell: "e_starfall", rate: 0.15 }] },
-  // ひがしのたいりく (Lv40〜60たい)
+  // 東の大陸 (Lv40〜60たい)
   mirrorling: { name: "ミラーリング", spr: "eye", pal: "light", hp: 500, atk: 60, def: 28, agi: 22, exp: 850, gold: 640,
     weak: ["thunder"] },
   twinfang: { name: "ツインファング", spr: "mantis", pal: "dark", hp: 560, atk: 66, def: 26, agi: 26, exp: 950, gold: 700 },
-  lakeserpent: { name: "みずうみのおろち", spr: "kraken", hp: 700, atk: 64, def: 30, agi: 16, exp: 1100, gold: 850,
+  lakeserpent: { name: "湖のおろち", spr: "kraken", hp: 700, atk: 64, def: 30, agi: 16, exp: 1100, gold: 850,
     absorb: ["ice"], weak: ["thunder"], acts: [{ spell: "e_wave", rate: 0.25 }] },
   chronomite: { name: "クロノマイト", spr: "slime", pal: "dark", hp: 620, atk: 62, def: 34, agi: 20, exp: 1000, gold: 760,
     resist: ["fire", "ice"] },
@@ -541,7 +541,7 @@ DATA.monsters = {
     hp: 5200, atk: 84, def: 36, agi: 24, exp: 28000, gold: 9000,
     resist: ["ice", "thunder"], weak: ["fire"],
     acts: [{ spell: "e_bolt2", rate: 0.25 }, { spell: "e_tornado", rate: 0.2 }] },
-  chronova: { name: "ときのばんにん クロノヴァ", spr: "wizard", pal: "light", boss: true, scale: 3,
+  chronova: { name: "ときの番人 クロノヴァ", spr: "wizard", pal: "light", boss: true, scale: 3,
     hp: 6400, atk: 90, def: 38, agi: 28, exp: 35000, gold: 12000,
     absorb: ["thunder"], weak: ["holy"],
     acts: [{ spell: "e_starfall", rate: 0.22 }, { spell: "e_quake", rate: 0.22 }] },
@@ -557,7 +557,7 @@ DATA.monsters = {
     absorb: ["thunder"], weak: ["ice"], acts: [{ spell: "e_bolt", rate: 0.3 }] },
   seacrab: { name: "しおガニ", spr: "crab", pal: "light", hp: 300, atk: 46, def: 26, agi: 12, exp: 340, gold: 300,
     absorb: ["ice"], weak: ["thunder"] },
-  ghostwisp: { name: "たましいび", spr: "wisp", pal: "light", hp: 340, atk: 50, def: 18, agi: 24, exp: 420, gold: 360,
+  ghostwisp: { name: "魂び", spr: "wisp", pal: "light", hp: 340, atk: 50, def: 18, agi: 24, exp: 420, gold: 360,
     race: "undead", weak: ["holy"] },
   mirrorwisp: { name: "かがみビ", spr: "wisp", pal: "light", hp: 520, atk: 60, def: 24, agi: 26, exp: 900, gold: 700,
     resist: ["ice", "thunder"], weak: ["fire"] },
@@ -587,20 +587,20 @@ DATA.monsters = {
     resist: ["fire", "ice", "thunder"], flees: 0.4 },
   mithrilwisp: { name: "ミスリルビ", spr: "wisp", pal: "light", hp: 12, atk: 50, def: 300, agi: 40, exp: 8000, gold: 100,
     absorb: ["fire", "ice", "thunder", "holy"], flees: 0.35 },
-  // よるのくに (Lv70〜90たい さいこうきゅうの かりば)
+  // 夜の国 (Lv70〜90たい さいこうきゅうの かりば)
   nightbat: { name: "よるコウモリ", spr: "bat", pal: "dark", hp: 900, atk: 88, def: 34, agi: 44, exp: 1750, gold: 1300,
     weak: ["fire"], inflict: { status: "blind", rate: 0.25 } },
   duskwolf: { name: "たそがれオオカミ", spr: "gargoyle", pal: "dark", hp: 950, atk: 92, def: 38, agi: 40, exp: 1850, gold: 1400,
     weak: ["fire"] },
   shadeknight: { name: "シェイドナイト", spr: "pal_d", pal: "dark", hp: 1000, atk: 96, def: 48, agi: 30, exp: 1950, gold: 1550,
     race: "undead", weak: ["fire", "holy"] },
-  nighteye: { name: "よるのひとみ", spr: "eye", pal: "dark", hp: 880, atk: 86, def: 36, agi: 34, exp: 1700, gold: 1250,
+  nighteye: { name: "夜のひとみ", spr: "eye", pal: "dark", hp: 880, atk: 86, def: 36, agi: 34, exp: 1700, gold: 1250,
     weak: ["holy"], inflict: { status: "silence", rate: 0.25 } },
   dreamslime: { name: "ゆめくいゼリー", spr: "slime", pal: "dark", hp: 920, atk: 84, def: 42, agi: 26, exp: 1800, gold: 1350,
     resist: ["ice", "thunder"], weak: ["fire"], inflict: { status: "toad", rate: 0.18 } },
   starmoth: { name: "ほしガ", spr: "mantis", pal: "light", hp: 860, atk: 90, def: 32, agi: 46, exp: 1750, gold: 1300,
     weak: ["fire"], acts: [{ spell: "e_gale", rate: 0.3 }] },
-  noctia: { name: "よるのじょおう ノクティア", spr: "celia", pal: "dark", boss: true, scale: 4,
+  noctia: { name: "夜のじょおう ノクティア", spr: "celia", pal: "dark", boss: true, scale: 4,
     hp: 16000, atk: 110, def: 52, agi: 34, exp: 80000, gold: 35000,
     absorb: ["ice", "thunder"], resist: ["holy"], weak: ["fire"],
     acts: [{ spell: "e_starfall", rate: 0.25 }, { spell: "e_meteo", rate: 0.2 }, { spell: "e_silence", rate: 0.15 }] },
@@ -609,16 +609,16 @@ DATA.monsters = {
     hp: 14000, atk: 105, def: 50, agi: 30, exp: 70000, gold: 30000,
     absorb: ["fire", "ice", "thunder"], weak: ["holy"],
     acts: [{ spell: "e_meteo", rate: 0.22 }, { spell: "e_starfall", rate: 0.2 }, { spell: "e_toad", rate: 0.12 }] },
-  // ほしのはかの ぬし (さいきょうの かくしボス)
-  granstella: { name: "ほしぼしのおう グランステラ", spr: "voidos", pal: "light", boss: true, scale: 4,
+  // 星のはかの ぬし (最強の かくしボス)
+  granstella: { name: "星々のおう グランステラ", spr: "voidos", pal: "light", boss: true, scale: 4,
     hp: 12000, atk: 95, def: 40, agi: 26, exp: 50000, gold: 20000,
     absorb: ["ice", "thunder"], resist: ["fire"], weak: ["holy"],
     acts: [{ spell: "e_starfall", rate: 0.25 }, { spell: "e_meteo", rate: 0.2 }, { spell: "e_bigwave", rate: 0.2 }] },
-  // しれんのやまの ぬし (かくとうかの ライバル)
+  // 試練の山の ぬし (かくとうかの ライバル)
   garon: { name: "けんおう ガロン", spr: "gou", pal: "dark", boss: true, scale: 2,
     hp: 1400, atk: 46, def: 20, agi: 22, exp: 3000, gold: 0,
     resist: ["fire", "ice", "thunder"] },
-  // ほしのせかい (Lv30〜のレベリングエリア)
+  // 星の世界 (Lv30〜のレベリングエリア)
   starimp: { name: "スターインプ", spr: "goblin", pal: "light", hp: 380, atk: 58, def: 24, agi: 20, exp: 700, gold: 520,
     race: "demon", weak: ["fire"] },
   lunabat: { name: "ルナバット", spr: "bat", pal: "light", hp: 340, atk: 54, def: 18, agi: 26, exp: 650, gold: 450,
@@ -642,7 +642,7 @@ DATA.monsters = {
     race: "demon", weak: ["holy"], absorb: ["fire", "ice", "thunder"],
     acts: [{ spell: "e_starfall", rate: 0.3 }, { spell: "e_tornado", rate: 0.2 }] },
 
-  // ---- うみのそこ / かいていしんでん ----
+  // ---- 海の底 / かいてい神殿 ----
   octopus: { name: "オクトパス", spr: "kraken", pal: "light", hp: 180, atk: 40, def: 14, agi: 15, exp: 340, gold: 300,
     weak: ["thunder"], acts: [{ spell: "e_ink", rate: 0.3 }] },
   deepworm: { name: "ディープワーム", spr: "worm", pal: "dark", hp: 220, atk: 44, def: 18, agi: 8, exp: 360, gold: 320,
@@ -656,7 +656,7 @@ DATA.monsters = {
     absorb: ["ice"], resist: ["fire"],
     acts: [{ spell: "e_bigwave", rate: 0.3 }, { spell: "e_ink", rate: 0.25 }] },
 
-  // ---- そらのしま / かぜのしんでん ----
+  // ---- 空の島 / 風の神殿 ----
   stormbird: { name: "ストームバード", spr: "bird", hp: 150, atk: 40, def: 14, agi: 18, exp: 280, gold: 250,
     weak: ["thunder"] },
   harpy: { name: "スカイハーピー", spr: "bird", pal: "light", hp: 130, atk: 36, def: 12, agi: 20, exp: 260, gold: 240,
@@ -665,12 +665,12 @@ DATA.monsters = {
     race: "dragon", acts: [{ spell: "e_bolt", rate: 0.3 }] },
   winddemon: { name: "ウィンドデーモン", spr: "demon", hp: 170, atk: 40, def: 15, agi: 17, exp: 300, gold: 280,
     race: "demon", weak: ["holy"], acts: [{ spell: "e_gale", rate: 0.35 }] },
-  tempest: { name: "あらしのおう テンペスト", spr: "bird", boss: true, scale: 4,
+  tempest: { name: "嵐のおう テンペスト", spr: "bird", boss: true, scale: 4,
     hp: 2400, atk: 42, def: 18, agi: 16, exp: 1800, gold: 2200,
     absorb: ["thunder"], resist: ["ice"],
     acts: [{ spell: "e_tornado", rate: 0.3 }, { spell: "e_bolt2", rate: 0.25 }] },
 
-  // ---- ちていしんでん ----
+  // ---- 地底神殿 ----
   darkpriest: { name: "ダークプリースト", spr: "wizard", pal: "light", hp: 90, atk: 24, def: 10, agi: 12, exp: 200, gold: 180,
     weak: ["holy"], acts: [{ spell: "e_bolt", rate: 0.35 }, { spell: "e_silence", rate: 0.2 }] },
   guardian: { name: "ガーディアン", spr: "golem", pal: "light", hp: 180, atk: 36, def: 20, agi: 6, exp: 240, gold: 220,
@@ -679,11 +679,11 @@ DATA.monsters = {
     race: "undead", weak: ["fire", "holy"] },
   shadowbeast: { name: "シャドウビースト", spr: "gargoyle", pal: "dark", hp: 140, atk: 38, def: 14, agi: 16, exp: 230, gold: 200,
     weak: ["holy"] },
-  meteogolem: { name: "いんせきのばんにん", spr: "golem", pal: "light", boss: true, scale: 3,
+  meteogolem: { name: "いんせきの番人", spr: "golem", pal: "light", boss: true, scale: 3,
     hp: 1500, atk: 38, def: 20, agi: 6, exp: 900, gold: 1200,
     resist: ["fire", "ice"],
     acts: [{ spell: "e_quake", rate: 0.3 }] },
-  glad: { name: "ちていのまじん グラード", spr: "demon", pal: "light", boss: true, scale: 4,
+  glad: { name: "地底のまじん グラード", spr: "demon", pal: "light", boss: true, scale: 4,
     hp: 2000, atk: 38, def: 16, agi: 12, exp: 1200, gold: 1500,
     race: "demon", resist: ["fire"],
     acts: [{ spell: "e_quake", rate: 0.25 }, { spell: "e_silence", rate: 0.2 }, { spell: "e_fire2", rate: 0.2 }] },
@@ -693,14 +693,14 @@ DATA.monsters = {
     acts: [{ spell: "e_eruption", rate: 0.3 }, { spell: "e_fire2", rate: 0.2 }] },
 
   // ボスは 8ばい弱点で とけないよう たいせい/きゅうしゅう ちゅうしん。
-  // れいがい: ザルバ しんのすがた だけ せい属性が じゃくてん (せいけんが きめて)
+  // れいがい: ザルバ しんのすがた だけ せい属性が じゃくてん (聖剣が きめて)
   demonguard: { name: "デーモンガード", spr: "demon", boss: true, scale: 3,
     hp: 260, atk: 15, def: 5, agi: 6, exp: 90, gold: 150,
     race: "demon", absorb: ["ice"],
     acts: [{ spell: "e_ice_all", rate: 0.35 }] },
   shadow: { name: "あんこくのかげ", spr: "hero_d", pal: "dark", boss: true, scale: 3, trial: true,
     hp: 999, atk: 17, def: 99, agi: 7, exp: 0, gold: 0 },
-  zarba: { name: "まおうザルバ", spr: "zarba", boss: true, scale: 3,
+  zarba: { name: "魔王ザルバ", spr: "zarba", boss: true, scale: 3,
     hp: 600, atk: 24, def: 8, agi: 9, exp: 0, gold: 0,
     race: "demon", resist: ["fire", "ice"],
     acts: [{ spell: "e_fire2", rate: 0.3 }], phase2: "zarba2" },
@@ -774,29 +774,29 @@ Object.assign(DATA.items, (() => {
   const ALL = ["leon", "glen", "gou", "celia", "rod"];
   return {
     // 売店ティア
-    acc_gauntlet: { name: "ちからのこて",     kind: "acc", price: 900,  str: 5, tag: "ちから+5",    who: ALL, desc: "ちからが 5 あがる" },
-    acc_boots:    { name: "はやてのくつ",     kind: "acc", price: 1000, agi: 5, tag: "すばやさ+5",  who: ALL, desc: "すばやさが 5 あがる" },
-    acc_belt:     { name: "たいりょくベルト", kind: "acc", price: 900,  vit: 8, tag: "たいりょく+8", who: ALL, desc: "たいりょくが 8 あがる" },
-    acc_circlet:  { name: "けんじゃのわ",     kind: "acc", price: 1000, int: 5, tag: "ちせい+5",    who: ALL, desc: "ちせいが 5 あがる" },
+    acc_gauntlet: { name: "力の籠手",     kind: "acc", price: 900,  str: 5, tag: "ちから+5",    who: ALL, desc: "力が 5 あがる" },
+    acc_boots:    { name: "はやてのくつ",     kind: "acc", price: 1000, agi: 5, tag: "素早さ+5",  who: ALL, desc: "素早さが 5 あがる" },
+    acc_belt:     { name: "体力ベルト", kind: "acc", price: 900,  vit: 8, tag: "体力+8", who: ALL, desc: "体力が 8 あがる" },
+    acc_circlet:  { name: "賢者のわ",     kind: "acc", price: 1000, int: 5, tag: "知性+5",    who: ALL, desc: "知性が 5 あがる" },
     acc_firecape: { name: "ひよけのマント",   kind: "acc", price: 1400, resist: { fire: 0.5 }, tag: "ほのお半減", who: ALL, desc: "ほのおダメージ半減" },
     acc_icecape:  { name: "ゆきよけのマント", kind: "acc", price: 1400, resist: { ice: 0.5 },  tag: "こおり半減", who: ALL, desc: "こおりダメージ半減" },
     // イベントティア
-    acc_boltcharm: { name: "らいよけのおまもり", kind: "acc", price: 0, resist: { thunder: 0 }, tag: "かみなり無効", who: ALL, desc: "かみなりダメージ無効" },
-    acc_venomband: { name: "どくよけのバングル", kind: "acc", price: 0, guard: ["poison"], tag: "どく防止", who: ALL, desc: "どくに かからない" },
-    acc_bellcharm: { name: "ぎんのすず",         kind: "acc", price: 0, guard: ["silence", "toad"], tag: "沈黙/カエル防止", who: ALL, desc: "ちんもくと カエルを ふせぐ" },
-    acc_owlcharm:  { name: "ふくろうのおまもり", kind: "acc", price: 0, guard: ["blind"], agi: 3, tag: "くらやみ防止", who: ALL, desc: "くらやみを ふせぐ" },
-    acc_warcharm:  { name: "とうこんのおまもり", kind: "acc", price: 0, abil: "limitx2", tag: "ひっさつ2倍速", who: ALL, desc: "ひっさつゲージが 2ばい たまる" },
-    acc_moonveil:  { name: "つきのベール",       kind: "acc", price: 0, resist: { holy: 0.5 }, int: 3, tag: "せい半減", who: ALL, desc: "せいなるダメージ半減" },
+    acc_boltcharm: { name: "らいよけのお守り", kind: "acc", price: 0, resist: { thunder: 0 }, tag: "雷無効", who: ALL, desc: "雷ダメージ無効" },
+    acc_venomband: { name: "毒よけのバングル", kind: "acc", price: 0, guard: ["poison"], tag: "どく防止", who: ALL, desc: "毒に かからない" },
+    acc_bellcharm: { name: "ぎんのすず",         kind: "acc", price: 0, guard: ["silence", "toad"], tag: "沈黙/カエル防止", who: ALL, desc: "沈黙と カエルを ふせぐ" },
+    acc_owlcharm:  { name: "ふくろうのお守り", kind: "acc", price: 0, guard: ["blind"], agi: 3, tag: "暗闇防止", who: ALL, desc: "暗闇を ふせぐ" },
+    acc_warcharm:  { name: "とうこんのお守り", kind: "acc", price: 0, abil: "limitx2", tag: "必殺2倍速", who: ALL, desc: "必殺ゲージが 2ばい たまる" },
+    acc_moonveil:  { name: "月のベール",       kind: "acc", price: 0, resist: { holy: 0.5 }, int: 3, tag: "せい半減", who: ALL, desc: "せいなるダメージ半減" },
     // レアティア (かくし宝箱)
-    acc_manaring: { name: "マナのゆびわ",     kind: "acc", price: 0, abil: "mphalf", int: 4, tag: "MP半減",       who: ALL, desc: "MPしょうひ半減" },
-    acc_lifeorb:  { name: "いのちのたま",     kind: "acc", price: 0, abil: "regen",  tag: "HPじどう回復",  who: ALL, desc: "ターンごとに HPかいふく" },
-    acc_hawkring: { name: "たかのめのゆびわ", kind: "acc", price: 0, abil: "critx2", str: 3, tag: "かいしん2倍", who: ALL, desc: "かいしんのいちげき 2ばい" },
-    acc_aegis:    { name: "イージスのかけら", kind: "acc", price: 0, abil: "autoprotect", def: 5, tag: "オートプロテス", who: ALL, desc: "せんとう開始時から プロテス" },
-    acc_windpin:  { name: "かぜのかんざし",   kind: "acc", price: 0, agi: 10, tag: "すばやさ+10", who: ALL, desc: "すばやさが 10 あがる" },
+    acc_manaring: { name: "マナの指輪",     kind: "acc", price: 0, abil: "mphalf", int: 4, tag: "MP半減",       who: ALL, desc: "MPしょうひ半減" },
+    acc_lifeorb:  { name: "命のたま",     kind: "acc", price: 0, abil: "regen",  tag: "HPじどう回復",  who: ALL, desc: "ターンごとに HP回復" },
+    acc_hawkring: { name: "たかのめの指輪", kind: "acc", price: 0, abil: "critx2", str: 3, tag: "かいしん2倍", who: ALL, desc: "会心の一撃 2ばい" },
+    acc_aegis:    { name: "イージスのかけら", kind: "acc", price: 0, abil: "autoprotect", def: 5, tag: "オートプロテス", who: ALL, desc: "戦闘開始時から プロテス" },
+    acc_windpin:  { name: "風のかんざし",   kind: "acc", price: 0, agi: 10, tag: "素早さ+10", who: ALL, desc: "素早さが 10 あがる" },
     // 伝説級
-    acc_dragonheart: { name: "りゅうのこころ",   kind: "acc", price: 0, str: 8, vit: 8, resist: { fire: 0.5, ice: 0.5, thunder: 0.5 }, tag: "三属性半減", who: ALL, desc: "炎氷雷半減+ちから体力+8" },
-    acc_stargem:     { name: "ほしのもんしょう", kind: "acc", price: 0, str: 6, agi: 6, vit: 6, int: 6, tag: "全ステ+6", who: ALL, desc: "ぜんステータスが 6 あがる" },
-    acc_voidseal:    { name: "こくうのふういん", kind: "acc", price: 0, def: 8, guard: ["poison", "blind", "silence", "toad"], tag: "全異常防止", who: ALL, desc: "すべての じょうたい異常を ふせぐ" },
+    acc_dragonheart: { name: "りゅうの心",   kind: "acc", price: 0, str: 8, vit: 8, resist: { fire: 0.5, ice: 0.5, thunder: 0.5 }, tag: "三属性半減", who: ALL, desc: "炎氷雷半減+ちから体力+8" },
+    acc_stargem:     { name: "星のもんしょう", kind: "acc", price: 0, str: 6, agi: 6, vit: 6, int: 6, tag: "全ステ+6", who: ALL, desc: "ぜんステータスが 6 あがる" },
+    acc_voidseal:    { name: "こくうのふういん", kind: "acc", price: 0, def: 8, guard: ["poison", "blind", "silence", "toad"], tag: "全異常防止", who: ALL, desc: "すべての 状態異常を ふせぐ" },
     // フィールドアイテム
     wing_return: { name: "きかんのつばさ", kind: "use", price: 120, escape: true, desc: "まちや ダンジョンから そとへ ひとっとび" },
   };
@@ -835,13 +835,13 @@ DATA.shops = {
             "w_twin", "a_lake"],
   },
   selene: {
-    name: "つきのみやこの みせ",
+    name: "月のみやこの みせ",
     stock: ["xpotion", "megapotion", "elixir", "hiether", "phoenix", "remedy",
             "w_comet", "w_starlance", "w_cosmoclaw", "w_nebularod", "w_moonwand",
             "a_comet", "a_moonrobe", "a_stargi"],
   },
   royal: {
-    name: "おうきゅうごようたし",
+    name: "王宮ごようたし",
     stock: ["megapotion", "elixir", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
             "a_royalmail", "a_royal"],
   },
@@ -954,22 +954,22 @@ DATA.maps.world = {
     { x: 16, y: 10, type: "enter", warp: { map: "trialmt1", x: 7, y: 10, dir: "u" } },
     { x: 13, y: 3, type: "enter",
       cond: { all: ["craterBoss", "mirrorBoss", "glacierBoss", "tombBoss", "ruinsBoss", "stormBoss"] },
-      failScript: [{ msg: "きたの そらに しろのような しんきろうが\nゆらめいている……。すべての ちいきの ぬしが\nしずまるとき とびらは ひらくという。" }],
+      failScript: [{ msg: "きたの そらに しろのような しんきろうが\nゆらめいている……。すべての ちいきの ぬしが\nしずまるとき 扉は ひらくという。" }],
       warp: { map: "phantomhall", x: 7, y: 10, dir: "u" } },
     { x: 8, y: 4, type: "enter",
       cond: { flag: "crystal" },
-      failScript: [{ msg: "ほこらのとびらは かたく とざされている。\n(せいなる クリスタルが ひつようだ)" }],
+      failScript: [{ msg: "ほこらの扉は かたく とざされている。\n(せいなる クリスタルが ひつようだ)" }],
       warp: { map: "shrine", x: 7, y: 14, dir: "u" } },
     { x: 28, y: 4, type: "enter",
       cond: { flag: "paladin" },
-      failScript: [{ msg: "とうは くろい けっかいに\nつつまれている……!" }],
+      failScript: [{ msg: "とうは くろい 結界に\nつつまれている……!" }],
       warp: { map: "tower1", x: 6, y: 10, dir: "u" } },
     { x: 21, y: 7, type: "enter", warp: { map: "icecave", x: 1, y: 12, dir: "u" } },
     { x: 9, y: 30, type: "enter", warp: { map: "waterway", x: 1, y: 8, dir: "u" } },
     { x: 30, y: 16, type: "enter", warp: { map: "port", x: 10, y: 1, dir: "d" } },
     { x: 29, y: 28, type: "enter",
       cond: { flag: "paladin" },
-      failScript: [{ msg: "じめんに おおきな あなが あいている。\nそこから ねっぷうが ふきあげてくる…\n(いまは おりるべきでは なさそうだ)" }],
+      failScript: [{ msg: "じめんに おおきな あなが あいている。\nそこから ねっぷうが ふきあげてくる…\n(今は おりるべきでは なさそうだ)" }],
       warp: { map: "magma", x: 1, y: 1, dir: "d" } },
     { x: 5, y: 24, type: "enter", warp: { map: "lostwoods", x: 5, y: 8, dir: "u" } },
   ],
@@ -977,9 +977,9 @@ DATA.maps.world = {
   chests: [],
 };
 
-// ---------------- バロンじょう ----------------
+// ---------------- バロン城 ----------------
 DATA.maps.castle = {
-  name: "バロンじょう",
+  name: "バロン城",
   bgm: "town",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -1012,37 +1012,37 @@ DATA.maps.castle = {
     { id: "minister", x: 5, y: 1, spr: "villager", showFlag: "clear",
       script: [
         { cond: { flag: "summitDone" },
-          then: [{ msg: "だいじん「せかいかいぎの ごえんは いまも\nつづいております。すべて あなたがたの\nおかげですぞ」" }],
+          then: [{ msg: "大臣「世界会議の ごえんは 今も\nつづいております。すべて あなたがたの\nおかげですぞ」" }],
           else: [
             { cond: { all: ["inviteTwine", "inviteFrim", "inviteZahra", "inviteDverg"] },
               then: [
-                { msg: "だいじん「かくちの おさが そろいましたぞ!\nでは、だいいっかい せかいかいぎを\nかいさい いたします!」" },
-                { msg: "トワインのおさ「みずうみの さちを わかちあおう」\nフリムのむらおさ「こおりの みちを ひらこう」" },
-                { msg: "ザハラのぞくちょう「さばくの キャラバンが\nみなを つなごう」\nバルドおう「ちていの てつを とどけるぞ! ガハハ」" },
-                { msg: "こうして せかいは ひとつの わになった。\nはしわたしを した えいゆうたちに\nかんしゃの おくりものが おくられた。" },
+                { msg: "大臣「かくちの おさが そろいましたぞ!\nでは、だいいっかい 世界会議を\nかいさい いたします!」" },
+                { msg: "トワインのおさ「湖の さちを わかちあおう」\nフリムのむらおさ「氷の みちを ひらこう」" },
+                { msg: "ザハラのぞくちょう「砂漠の キャラバンが\nみなを つなごう」\nバルドおう「地底の てつを とどけるぞ! ガハハ」" },
+                { msg: "こうして 世界は ひとつの わになった。\nはしわたしを した 英雄たちに\n感謝の おくりものが おくられた。" },
                 { give: { item: "a_unity" } },
                 { give: { gold: 10000 } },
-                { msg: "きずなのマントと 10000ギルを てにいれた!" },
+                { msg: "絆のマントと 10000ギルを 手に入れた!" },
                 { flag: ["summitDone", 1] },
               ],
               else: [
                 { cond: { flag: "summitQuest" },
-                  then: [{ msg: "だいじん「トワイン・フリム・ザハラ・ちていの\nおうきゅう。4にんの おさに しょうたいを\nつたえて くだされ」" }],
+                  then: [{ msg: "大臣「トワイン・フリム・ザハラ・地底の\n王宮。4にんの おさに しょうたいを\nつたえて くだされ」" }],
                   else: [
                     { cond: { all: ["mirrorBoss", "glacierBoss", "tombBoss"] },
                       then: [
-                        { msg: "だいじん「かくちの わざわいを しずめた\nあなたがたに おねがいが ござる。おうは\n『せかいかいぎ』を ひらきたいと おおせだ」" },
-                        { msg: "「トワイン・フリム・ザハラの おさと\nちていの バルドおうに しょうたいを\nとどけては くださらんか」" },
+                        { msg: "大臣「かくちの わざわいを しずめた\nあなたがたに お願いが ござる。おうは\n『世界会議』を ひらきたいと おおせだ」" },
+                        { msg: "「トワイン・フリム・ザハラの おさと\n地底の バルドおうに しょうたいを\nとどけては くださらんか」" },
                         { flag: ["summitQuest", 1] },
                       ],
-                      else: [{ msg: "だいじん「せかいには まだ わざわいの けはいが\nのこっております。かがみ・ひょうが・だいびょう……\nおさたちの なやみを といてくだされ」" }] },
+                      else: [{ msg: "大臣「世界には まだ わざわいの けはいが\nのこっております。かがみ・ひょうが・だいびょう……\nおさたちの な闇を といてくだされ」" }] },
                   ] },
               ] },
           ] },
       ] },
     { id: "hall_guide", x: 14, y: 1, spr: "soldier", showFlag: "clear",
       script: [
-        { msg: "ばんにん「ここは えいゆうの きろくを\nまつる『でんどうのま』への いりぐち。\nはいられますか?」" },
+        { msg: "番人「ここは 英雄の きろくを\nまつる『でんどうのま』への いりぐち。\nはいられますか?」" },
         { menu: { options: [
           { label: "はいる", ops: [{ warp: { map: "halloffame", x: 6, y: 7, dir: "u" } }] },
           { label: "やめる", ops: [] },
@@ -1054,55 +1054,55 @@ DATA.maps.castle = {
           then: [{ msg: "ろうきし「そなたの ちちうえも きっと\nほこりに おもっておられる。\nよい かおに なったな、レオンどの」" }],
           else: [
             { msg: "ろうきし「レオンどの。 わしは そなたの\nちちうえに つかえた ふるい きしじゃ。\nすこし はなしても よいかな」" },
-            { msg: "「やみに おちても なお たちあがり、\nひかりを とりもどした そなたの あゆみ、\nすべて みせてもろうた」" },
-            { msg: "「ちちうえが のこした この マントを\nそなたに。 『まもるべきものの ために けんをとれ』\n……くちぐせで あられたよ」" },
+            { msg: "「やみに おちても なお たちあがり、\n光を とりもどした そなたの あゆみ、\nすべて みせてもろうた」" },
+            { msg: "「ちちうえが のこした この マントを\nそなたに。 『守るべきものの ために けんをとれ』\n……くちぐせで あられたよ」" },
             { msg: "レオン「……ちちうえの。 ありがたく。\nこの ちかい、けっして わすれません」" },
             { give: { item: "a_oath" } },
-            { msg: "ちかいのマントを てにいれた!" },
+            { msg: "ちかいのマントを 手に入れた!" },
             { flag: ["leonEp2", 1] },
           ] },
       ] },
     { id: "castle_maid", x: 4, y: 9, spr: "villager", wander: true,
       script: [
         { cond: { flag: "trueClear" },
-          then: [{ msg: "じじょ「おしろにも ほんとうの へいわが\nもどりました。おうさまは まいあさ\nはたけを たがやして おいでです」" }],
+          then: [{ msg: "じじょ「おしろにも ほんとうの 平和が\nもどりました。王様は まいあさ\nはたけを たがやして おいでです」" }],
           else: [
             { cond: { flag: "clear" },
-              then: [{ msg: "じじょ「おうさまが もとに もどられて\nしろじゅうが おおよろこびです。\nありがとうございます……!」" }],
-              else: [{ msg: "じじょ「さいきんの おうさまは\nどこか ようすが へんなのです。\nめつきが するどいというか……」" }] },
+              then: [{ msg: "じじょ「王様が もとに もどられて\nしろじゅうが おおよろこびです。\nありがとうございます……!」" }],
+              else: [{ msg: "じじょ「さいきんの 王様は\nどこか ようすが へんなのです。\nめ月が するどいというか……」" }] },
           ] },
       ] },
     { id: "king", x: 9, y: 1, spr: "king",
       script: [
         { cond: { flag: "clear" },
-          then: [{ msg: "バロンおう「レオンよ……\nこのくには おまえたちに すくわれた。\nこころから れいを いう」" }],
+          then: [{ msg: "バロンおう「レオンよ……\nこのくには おまえたちに すくわれた。\n心から れいを いう」" }],
           else: [
             { cond: { flag: "paladin" },
-              then: [{ msg: "バロンおう「……ちからが…… みなぎる……\nくくく…… こい レオン……\nまてんろうで まっているぞ……」" }],
+              then: [{ msg: "バロンおう「……力が…… みなぎる……\nくくく…… こい レオン……\nまてんろうで まっているぞ……」" }],
               else: [{ msg: "バロンおう「クリスタルは まだか!\nはやく うばってくるのだ!\nこれは めいれいだ!!」" }] },
           ] },
       ] },
     { id: "guard1", x: 8, y: 9, spr: "soldier",
       script: [
         { cond: { flag: "trueClear" },
-          then: [{ msg: "へいし「せかいの きゅうせいしゅ\nばんざーい!! おうさまも たいへん\nおよろこびです!」" }],
+          then: [{ msg: "兵士「世界の きゅうせいしゅ\nばんざーい!! 王様も たいへん\nおよろこびです!」" }],
           else: [
             { cond: { flag: "clear" },
-              then: [{ msg: "へいし「レオンさま ばんざい!\nパラディン ばんざい!」" }],
-              else: [{ msg: "へいし「にしのどうくつを ぬければ\nミストのむらへ いけます」" }] },
+              then: [{ msg: "兵士「レオンさま ばんざい!\nパラディン ばんざい!」" }],
+              else: [{ msg: "兵士「にしの洞窟を ぬければ\nミストのむらへ いけます」" }] },
           ] },
       ] },
     { id: "guard2", x: 11, y: 9, spr: "soldier",
       script: [
         { cond: { flag: "clear" },
-          then: [{ msg: "へいし「おうさまが もとに\nもどられた! ぶかんちょうも\nうれしなきして おりました」" }],
+          then: [{ msg: "兵士「王様が もとに\nもどられた! ぶかんちょうも\nうれしなきして おりました」" }],
           else: [
             { cond: { flag: "paladin" },
-              then: [{ msg: "へいし「おうさまの ようすが\nあきらかに おかしい……。\nきたのとうに なにかあるのでは……」" }],
-              else: [{ msg: "へいし「さいきん おうさまは\nひとが かわってしまわれた……」" }] },
+              then: [{ msg: "兵士「王様の ようすが\nあきらかに おかしい……。\nきたのとうに なにかあるのでは……」" }],
+              else: [{ msg: "兵士「さいきん 王様は\nひとが かわってしまわれた……」" }] },
           ] },
       ] },
-    // じょうの ふっこうイベント (ザルバとうばつご)
+    // じょうの ふっこうイベント (ザルバ討伐ご)
     { id: "bukan", x: 14, y: 9, spr: "soldier", showFlag: "clear",
       script: [
         { cond: { flag: "castleReward" },
@@ -1112,12 +1112,12 @@ DATA.maps.castle = {
               then: [
                 { cond: { flag: "trueClear" },
                   then: [
-                    { msg: "ぶかんちょう「おうさまから きみたちへ\nほうしょうを あずかっている。\nふっこうしえんの れいも こめてだ」" },
+                    { msg: "ぶかんちょう「王様から きみたちへ\nほうしょうを あずかっている。\nふっこうしえんの れいも こめてだ」" },
                     { give: { gold: 10000 } },
-                    { msg: "10000ギルを てにいれた!!" },
+                    { msg: "10000ギルを 手に入れた!!" },
                     { flag: ["castleReward", 1] },
                   ],
-                  else: [{ msg: "ぶかんちょう「しきんの おかげで\nふっこうは じゅんちょうだ。\nおうきゅうに みせも ひらいたぞ」" }] },
+                  else: [{ msg: "ぶかんちょう「しきんの おかげで\nふっこうは じゅんちょうだ。\n王宮に みせも ひらいたぞ」" }] },
               ],
               else: [
                 { msg: "ぶかんちょう「ザルバの いっけんで\nじょうかは あれてしまった。\nふっこうの しきんが たりんのだ…」" },
@@ -1128,7 +1128,7 @@ DATA.maps.castle = {
                       ok: [
                         { msg: "ぶかんちょう「かたじけない!!\nこの ごおんは わすれんぞ。\nかならず じょうを たてなおす!」" },
                         { flag: ["castleFund", 1] },
-                        { msg: "(おうきゅうに みせが ひらいたようだ)" },
+                        { msg: "(王宮に みせが ひらいたようだ)" },
                       ],
                       ng: [{ msg: "ぶかんちょう「むりを いってすまん。\nまた こんど たのむ」" }] } },
                   ] },
@@ -1139,7 +1139,7 @@ DATA.maps.castle = {
               ] },
           ] },
       ] },
-    // おうきゅうごようたし (ふっこうしえんご)
+    // 王宮ごようたし (ふっこうしえんご)
     { id: "royalshop", x: 5, y: 4, spr: "villager", showFlag: "castleFund",
       script: [
         { msg: "ごようたし「ふっこうしえんの おかたと\nおみうけします。とくべつな しなを\nごらんください」" },
@@ -1149,14 +1149,14 @@ DATA.maps.castle = {
     { id: "mia", x: 5, y: 10, spr: "celia", showFlag: "paladin",
       script: [
         { cond: { flag: "glenEvent" },
-          then: [{ msg: "ミア「にいさんを よろしくおねがいします。\nいってらっしゃい!」" }],
+          then: [{ msg: "ミア「にいさんを よろしくお願いします。\nいってらっしゃい!」" }],
           else: [
             { msg: "ミア「あっ、にいさん!!\nぶじだったのね……!」" },
             { msg: "グレン「ミア!? むらから でてきたのか。\n……しんぱいかけたな」" },
             { msg: "ミア「これ、とうさんの やり。\nにいさんが もつべきだと おもって\nもってきたの」" },
-            { msg: "グレン「おやじの……。 ああ、\nたしかに うけとった。 みてろよ、\nおれは りゅうきしを つらぬく」" },
+            { msg: "グレン「おやじの……。 ああ、\nたしかに うけとった。 みてろよ、\nおれは 竜騎士を つらぬく」" },
             { give: { item: "w_kizuna" } },
-            { msg: "きずなのやりを てにいれた!\n(あくましゅぞくに 8ばいの ちからを はっき)" },
+            { msg: "絆の槍を 手に入れた!\n(あくましゅぞくに 8ばいの 力を はっき)" },
             { flag: ["glenEvent", 1] },
           ] },
       ] },
@@ -1214,46 +1214,46 @@ DATA.maps.town = {
     { id: "vil1", x: 5, y: 11, spr: "villager", wander: true,
       script: [
         { cond: { flag: "allCrystals" },
-          then: [{ msg: "むらびと「よぞらに ひかる とうが\nみえるじゃろ? あれが うわさの\nほしのとう じゃよ……」" }],
+          then: [{ msg: "むらびと「よぞらに ひかる とうが\nみえるじゃろ? あれが うわさの\n星のとう じゃよ……」" }],
           else: [
             { cond: { flag: "paladin" },
-              then: [{ msg: "むらびと「おお ひかりのきしさま!\nどうか ザルバを たおしてくだされ!」" }],
+              then: [{ msg: "むらびと「おお 光のきしさま!\nどうか ザルバを たおしてくだされ!」" }],
               else: [{ msg: "むらびと「さいきん モンスターが\nふえたのう。おちおち はたけにも\nいけんわい」" }] },
           ] },
       ] },
     { id: "vil2", x: 14, y: 12, spr: "villager", wander: true,
       script: [
         { cond: { flag: "trueClear" },
-          then: [{ msg: "むらびと「ほしのとうの かがやきが\nきえたのう。あんたたちの おかげじゃと\nみんな いうておるよ」" }],
+          then: [{ msg: "むらびと「星のとうの かがやきが\nきえたのう。あんたたちの おかげじゃと\nみんな いうておるよ」" }],
           else: [
             { cond: { flag: "earthCrystal" },
-              then: [{ msg: "むらびと「ちていに くにが あったとは\nおどろきじゃ。ドワーフの さけは\nうまいと きくがのう」" }],
+              then: [{ msg: "むらびと「地底に くにが あったとは\nおどろきじゃ。ドワーフの さけは\nうまいと きくがのう」" }],
               else: [
                 { cond: { flag: "clear" },
                   then: [{ msg: "むらびと「まてんろうの くろいくもが\nはれたのう! これで はたけしごとも\nはかどるわい」" }],
-                  else: [{ msg: "むらびと「きたのほこらには\n『こころのかがみ』が あるそうじゃ。\nみたものの こころを うつすとか」" }] },
+                  else: [{ msg: "むらびと「きたのほこらには\n『心のかがみ』が あるそうじゃ。\nみたものの 心を うつすとか」" }] },
               ] },
           ] },
       ] },
     { id: "kid", x: 8, y: 6, spr: "villager", pal: "light", wander: true,
       script: [
         { cond: { flag: "trueClear" },
-          then: [{ msg: "こども「でんせつの ゆうしゃだー!!\nぼく、おおきくなったら\nクリスタルナイツに はいるんだ!」" }],
+          then: [{ msg: "子供「伝説の 勇者だー!!\nぼく、おおきくなったら\nクリスタルナイツに はいるんだ!」" }],
           else: [
             { cond: { flag: "paladin" },
-              then: [{ msg: "こども「ひかりの きしさまだー!\nかっこいい! やりの おにいちゃんも\nこぶしの おじちゃんも すごーい!」" }],
-              else: [{ msg: "こども「ぼうけんしゃだ!\nねえねえ、まものと たたかったこと\nある? こわくないの?」" }] },
+              then: [{ msg: "子供「光の きしさまだー!\nかっこいい! やりの おにいちゃんも\nこぶしの おじちゃんも すごーい!」" }],
+              else: [{ msg: "子供「ぼうけんしゃだ!\nねえねえ、魔物と たたかったこと\nある? こわくないの?」" }] },
           ] },
       ] },
     { id: "kid_seek", x: 12, y: 5, spr: "villager", pal: "light",
       script: [
         { cond: { flag: "hideSeekDone" },
-          then: [{ msg: "こども「また かくれんぼ しようね!\nこんどは ぼくが かくれる ばん!」" }],
+          then: [{ msg: "子供「また かくれんぼ しようね!\nこんどは ぼくが かくれる ばん!」" }],
           else: [
             { cond: { flag: "hideSeek" },
-              then: [{ msg: "こども「モコちゃんは むらの どこかに\nかくれてるんだ。きのちかくが\nあやしいと おもうんだけどなー」" }],
+              then: [{ msg: "子供「モコちゃんは むらの どこかに\nかくれてるんだ。きのちかくが\nあやしいと おもうんだけどなー」" }],
               else: [
-                { msg: "こども「かくれんぼの とちゅうなんだけど\nモコちゃんが ぜんぜん みつからないの。\nいっしょに さがしてくれる?」" },
+                { msg: "子供「かくれんぼの とちゅうなんだけど\nモコちゃんが ぜんぜん みつからないの。\nいっしょに さがしてくれる?」" },
                 { flag: ["hideSeek", 1] },
               ] },
           ] },
@@ -1265,10 +1265,10 @@ DATA.maps.town = {
         { give: { item: "potion" } },
         { give: { item: "potion" } },
         { give: { item: "potion" } },
-        { msg: "ポーションを 3つ てにいれた!" },
+        { msg: "ポーションを 3つ 手に入れた!" },
         { flag: ["hideSeekDone", 1] },
       ] },
-    // セリアのこじんイベント (かぜのクリスタルご)
+    // セリアのこじんイベント (風のクリスタルご)
     { id: "sister", x: 10, y: 12, spr: "celia", showFlag: "windCrystal",
       script: [
         { cond: { flag: "celiaEvent" },
@@ -1276,13 +1276,13 @@ DATA.maps.town = {
             { cond: { all: ["nightBoss"] },
               then: [
                 { cond: { flag: "celiaEp2" },
-                  then: [{ msg: "シスター「あなたの いのりは もう\nわたしの てを はなれて、せかいじゅうを\nてらしているのね」" }],
+                  then: [{ msg: "シスター「あなたの いのりは もう\nわたしの てを はなれて、世界中を\nてらしているのね」" }],
                   else: [
-                    { msg: "シスター「おかえりなさい、セリア。\nよるのくにの じょおうさまの はなし、\nきかせて もらえる?」" },
-                    { msg: "セリア「はい。 かなしみは、けすものじゃなくて\nてらすものだって……。 じょおうさまが\nおしえてくれた きがします」" },
-                    { msg: "シスター「……りっぱに なったのね。\nこのベールは だいだいの シスターのもの。\nいまは あなたが つけるべきだわ」" },
+                    { msg: "シスター「おかえりなさい、セリア。\n夜の国の じょ王様の はなし、\nきかせて もらえる?」" },
+                    { msg: "セリア「はい。 かなしみは、けすものじゃなくて\nてらすものだって……。 じょ王様が\nおしえてくれた きがします」" },
+                    { msg: "シスター「……りっぱに なったのね。\nこのベールは だいだいの シスターのもの。\n今は あなたが つけるべきだわ」" },
                     { give: { item: "a_prayer" } },
-                    { msg: "いのりのベールを てにいれた!" },
+                    { msg: "いのりのベールを 手に入れた!" },
                     { flag: ["celiaEp2", 1] },
                   ] },
               ],
@@ -1291,16 +1291,16 @@ DATA.maps.town = {
           else: [
             { msg: "シスター「セリア! おおきくなって……。\nちいさいころ ないてばかりだった\nあなたが りっぱに なったのね」" },
             { msg: "セリア「シスター・マーレ!\nわたし、みんなを まもれるように\nなりたくて……」" },
-            { msg: "シスター「その こころが あれば\nだいじょうぶ。 これは あなたの\nおかあさんの かたみの ロッドよ」" },
+            { msg: "シスター「その 心が あれば\nだいじょうぶ。 これは あなたの\nおかあさんの かたみの ロッドよ」" },
             { msg: "セリア「おかあさんの……。\nありがとう。 たいせつに つかうわ」" },
             { give: { item: "w_prayrod" } },
-            { msg: "いのりのロッドを てにいれた!" },
+            { msg: "いのりのロッドを 手に入れた!" },
             { flag: ["celiaEvent", 1] },
           ] },
       ] },
     { id: "board", x: 3, y: 7, spr: "soldier",
       script: [
-        { msg: "ぼしゅうがかり「むらの まものたいじに\nほうびを だしているよ。\nどの たいじを ほうこくするんだい?」" },
+        { msg: "ぼしゅうがかり「むらの 魔物たいじに\nほうびを だしているよ。\nどの たいじを ほうこくするんだい?」" },
         { menu: { options: [
           { label: "ガーゴイル5", ops: [
             { cond: { flag: "qGar" },
@@ -1310,7 +1310,7 @@ DATA.maps.town = {
                   then: [
                     { msg: "ぼしゅうがかり「ガーゴイル 5たい かくにん!\nほうびを うけとりな!」" },
                     { give: { gold: 800 } },
-                    { msg: "800ギルを てにいれた!" },
+                    { msg: "800ギルを 手に入れた!" },
                     { flag: ["qGar", 1] },
                   ],
                   else: [{ msg: "ぼしゅうがかり「ガーゴイルを 5たい\nたおしてきておくれ。きたのもりや\nほこらに でるやつだ」" }] },
@@ -1324,7 +1324,7 @@ DATA.maps.town = {
                   then: [
                     { msg: "ぼしゅうがかり「ゴーレム 5たい かくにん!\nたいしたもんだ!」" },
                     { give: { gold: 1500 } },
-                    { msg: "1500ギルを てにいれた!" },
+                    { msg: "1500ギルを 手に入れた!" },
                     { flag: ["qGolem", 1] },
                   ],
                   else: [{ msg: "ぼしゅうがかり「ゴーレムを 5たい\nたのむよ。まてんろうの あたりに\nでる いわの きょじんだ」" }] },
@@ -1336,12 +1336,12 @@ DATA.maps.town = {
               else: [
                 { cond: { kills: { id: "skydragon", n: 3 } },
                   then: [
-                    { msg: "ぼしゅうがかり「スカイドラゴン 3たい!?\nでんせつの りゅうがりだ!!」" },
+                    { msg: "ぼしゅうがかり「スカイドラゴン 3たい!?\n伝説の りゅうがりだ!!」" },
                     { give: { gold: 3000 } },
-                    { msg: "3000ギルを てにいれた!" },
+                    { msg: "3000ギルを 手に入れた!" },
                     { flag: ["qSkyD", 1] },
                   ],
-                  else: [{ msg: "ぼしゅうがかり「そらのしまの\nスカイドラゴンを 3たい。\nむちゃは しなさんなよ」" }] },
+                  else: [{ msg: "ぼしゅうがかり「空の島の\nスカイドラゴンを 3たい。\nむちゃは しなさんなよ」" }] },
               ] },
           ] },
           { label: "やめる", ops: [] },
@@ -1350,17 +1350,17 @@ DATA.maps.town = {
     { id: "hunter", x: 13, y: 11, spr: "villager",
       script: [
         { cond: { flag: "iceReward" },
-          then: [{ msg: "ハンター「そういや みなみの ちかすいろで\nみずおとの おかしい ばしょが あるって\nうわさだぜ。なにか あるのかもな」" }],
+          then: [{ msg: "ハンター「そういや みなみの 地下水路で\nみずおとの おかしい ばしょが あるって\nうわさだぜ。なにか あるのかもな」" }],
           else: [
             { cond: { flag: "iceBoss" },
               then: [
                 { msg: "ハンター「な なんと! ほんとうに\nりゅうを たおしちまったのか!!\nやくそくの ほうびだ、うけとりな!」" },
                 { give: { gold: 1000 } },
-                { msg: "1000ギルを てにいれた!" },
+                { msg: "1000ギルを 手に入れた!" },
                 { flag: ["iceReward", 1] },
               ],
               else: [
-                { msg: "ハンター「きたのもりの どうくつに\nりゅうが すみついちまった。\nたおせば 1000ギル はらうぜ」" },
+                { msg: "ハンター「きたの森の 洞窟に\nりゅうが すみついちまった。\nたおせば 1000ギル はらうぜ」" },
                 { flag: ["iceQuest", 1] },
               ] },
           ] },
@@ -1401,7 +1401,7 @@ DATA.maps.inn = {
   chests: [],
 };
 
-// ---------------- どうぐや ----------------
+// ---------------- 道具や ----------------
 DATA.maps.shop = {
   name: "みせ",
   bgm: "town",
@@ -1432,9 +1432,9 @@ DATA.maps.shop = {
   chests: [],
 };
 
-// ---------------- ちょうろうのいえ ----------------
+// ---------------- 長老のいえ ----------------
 DATA.maps.elder = {
-  name: "ちょうろうのいえ",
+  name: "長老のいえ",
   bgm: "town",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -1471,14 +1471,14 @@ DATA.maps.elder = {
     { id: "elderman", x: 5, y: 2, spr: "elder",
       script: [
         { cond: { flag: "worldtearGiven" },
-          then: [{ msg: "ちょうろう「せかいのしずくは\nつかったかの? おぬしらの たびに\nかごが あらんことを」" }],
+          then: [{ msg: "長老「世界のしずくは\nつかったかの? おぬしらの たびに\nかごが あらんことを」" }],
           else: [
             { cond: { flag: "allCrystals" },
               then: [
-                { msg: "ちょうろう「おお…… 4つのクリスタルの\nひかりを かんじる。よくぞ ここまで」" },
+                { msg: "長老「おお…… 4つのクリスタルの\n光を かんじる。よくぞ ここまで」" },
                 { give: { item: "worldtear" } },
                 { flag: ["worldtearGiven", 1] },
-                { msg: "せかいのしずくを さずかった!\n(なかまぜんいんが かんぜんかいふくする\nいちどきりの ひほう)" },
+                { msg: "世界のしずくを さずかった!\n(仲間ぜんいんが 完全回復する\nいちどきりの ひほう)" },
               ],
               else: [] },
           ] },
@@ -1488,22 +1488,22 @@ DATA.maps.elder = {
             { cond: { flag: "crystal" },
           then: [
             { cond: { flag: "paladin" },
-              then: [{ msg: "ちょうろう「せいなるひかりを えたのじゃな。\nきたのとうへ ゆけ。\nザルバを たおすのじゃ!」" }],
-              else: [{ msg: "ちょうろう「きたのほこらで\nこころのやみと むきあうのじゃ。\nクリスタルが みちびいてくれよう」" }] },
+              then: [{ msg: "長老「せいなる光を えたのじゃな。\nきたのとうへ ゆけ。\nザルバを 倒すのじゃ!」" }],
+              else: [{ msg: "長老「きたのほこらで\n心のやみと むきあうのじゃ。\nクリスタルが みちびいてくれよう」" }] },
           ],
           else: [
-            { msg: "ちょうろう「おお…… バロンの あんこくきし。\nクリスタルを うばいに きたのか」" },
+            { msg: "長老「おお…… バロンの 暗黒騎士。\nクリスタルを うばいに きたのか」" },
             { msg: "レオン「………すまぬ。\nこれは おうの めいれいなのだ」" },
-            { msg: "ちょうろう「クリスタルは わたそう。\nだが しるがよい。バロンおうは\nまじん ザルバに あやつられておる」" },
-            { msg: "ちょうろう「ザルバを たおせるのは\nせいなるちからを えた きしのみ。\nだが いまの おぬしのこころは\nやみに とざされておる」" },
-            { msg: "ちょうろう「きたのほこらで こころのやみと\nむきあうのじゃ。クリスタルを さずけよう。\nそれが おぬしを みちびく」" },
+            { msg: "長老「クリスタルは わたそう。\nだが しるがよい。バロンおうは\nまじん ザルバに あやつられておる」" },
+            { msg: "長老「ザルバを たおせるのは\nせいなる力を えた きしのみ。\nだが 今の おぬしの心は\nやみに とざされておる」" },
+            { msg: "長老「きたのほこらで 心のやみと\nむきあうのじゃ。クリスタルを さずけよう。\nそれが おぬしを みちびく」" },
             { give: { item: "crystal" } },
-            { msg: "クリスタルを てにいれた!" },
+            { msg: "クリスタルを 手に入れた!" },
             { flag: ["crystal", 1] },
-            { msg: "セリア「おじいさま わたしも いきます!\nしろまほうで このひとを ささえるわ」" },
-            { msg: "ちょうろう「セリア……。 たのんだぞ。\nレオンどの、まごを よろしくたのむ」" },
+            { msg: "セリア「おじいさま わたしも いきます!\nしろ魔法で このひとを ささえるわ」" },
+            { msg: "長老「セリア……。 たのんだぞ。\nレオンどの、まごを よろしくたのむ」" },
             { join: "celia" },
-            { msg: "セリアが なかまに くわわった!" },
+            { msg: "セリアが 仲間に くわわった!" },
           ] },
           ] },
       ] },
@@ -1511,9 +1511,9 @@ DATA.maps.elder = {
   chests: [],
 };
 
-// ---------------- にしのどうくつ ----------------
+// ---------------- にしの洞窟 ----------------
 DATA.maps.cave = {
-  name: "にしのどうくつ",
+  name: "にしの洞窟",
   bgm: "dungeon",
   encounter: "cave",
   legend: {
@@ -1551,17 +1551,17 @@ DATA.maps.cave = {
         { msg: "デーモンガード\n「ここから さきへは いかせん!\nおうの めいれいなど しったことか!」" },
         { battle: { group: ["demonguard"], boss: true } },
         { flag: ["caveBoss", 1] },
-        { msg: "レオン「おうの なも しらぬ まもの……。\nやはり なにかが おかしい」" },
+        { msg: "レオン「おうの なも しらぬ 魔物……。\nやはり なにかが おかしい」" },
       ] },
   ],
   npcs: [
     { id: "rodnpc", x: 11, y: 12, spr: "rod", hideFlag: "rodJoined",
       script: [
-        { msg: "ロッド「おっと! ひとかい?\nオレは ロッド。まどうしだ。\nモンスターが ふえたわけを\nしらべてたのさ」" },
-        { msg: "ロッド「ミストのむらへ いくのか?\nちょうど いい。オレも つれてけ!\nくろまほうなら まかせろ」" },
+        { msg: "ロッド「おっと! ひとかい?\nオレは ロッド。魔道士だ。\nモンスターが ふえたわけを\nしらべてたのさ」" },
+        { msg: "ロッド「ミストのむらへ いくのか?\nちょうど いい。オレも つれてけ!\nくろ魔法なら まかせろ」" },
         { join: "rod" },
         { flag: ["rodJoined", 1] },
-        { msg: "ロッドが なかまに くわわった!" },
+        { msg: "ロッドが 仲間に くわわった!" },
       ] },
   ],
   chests: [
@@ -1570,9 +1570,9 @@ DATA.maps.cave = {
   ],
 };
 
-// ---------------- こころのほこら ----------------
+// ---------------- 心のほこら ----------------
 DATA.maps.shrine = {
-  name: "こころのほこら",
+  name: "心のほこら",
   bgm: "dungeon",
   encounter: "shrine",
   legend: {
@@ -1606,13 +1606,13 @@ DATA.maps.shrine = {
     { x: 7, y: 1, type: "enter",
       cond: { flag: "paladin" },
       failScript: [
-        { msg: "こころのかがみが レオンのすがたを\nうつしている……。" },
-        { msg: "『……おまえのやみが おまえをためす。\nやみを ちからで ねじふせることは\nできぬ……』" },
-        { msg: "かがみのなかから\nもうひとりの レオンが あらわれた!!" },
+        { msg: "心のかがみが レオンのすがたを\nうつしている……。" },
+        { msg: "『……おまえの闇が おまえをためす。\n闇を 力で ねじふせることは\nできぬ……』" },
+        { msg: "かがみのなかから\nもうひとりの レオンが 現れた!!" },
         { battle: { group: ["shadow"], boss: true, music: "boss" } },
         { msg: "かがみが くだけちり……\nクリスタルが まばゆく かがやいた!" },
         { classchange: true },
-        { msg: "レオンは パラディンに クラスチェンジした!\nひかりのつるぎと ひかりのよろいを\nみにつけた!" },
+        { msg: "レオンは パラディンに クラスチェンジした!\n光の剣と 光の鎧を\nみにつけた!" },
         { msg: "セリア「レオン…… すてきよ。\nこれで ザルバと たたかえるわ!」" },
         { flag: ["paladin", 1] },
       ] },
@@ -1621,24 +1621,24 @@ DATA.maps.shrine = {
     { id: "master_ghost", x: 3, y: 13, spr: "gou", pal: "light", showFlag: "nightBoss",
       script: [
         { cond: { flag: "gouEp2" },
-          then: [{ msg: "しのまぼろし「こぶしは こころ。\nもう おしえることは なにもない。\nいけ、ゴウ」" }],
+          then: [{ msg: "しのまぼろし「こぶしは 心。\nもう おしえることは なにもない。\nいけ、ゴウ」" }],
           else: [
-            { msg: "ほのかな ひかりが ひとのかたちに……。\nゴウ「……ししょう!? まさか……」" },
-            { msg: "しのまぼろし「ゴウよ。 かがみが うつした\nわしは まぼろし。 じゃが おまえの こころが\nよんだ まぼろしじゃ」" },
-            { msg: "「おまえの こぶしは もはや やまを こえ、\nほしに とどいた。 さいごの おしえじゃ。\n……つよさとは、まもりぬくこと」" },
+            { msg: "ほのかな 光が ひとのかたちに……。\nゴウ「……ししょう!? まさか……」" },
+            { msg: "しのまぼろし「ゴウよ。 かがみが うつした\nわしは まぼろし。 じゃが おまえの 心が\nよんだ まぼろしじゃ」" },
+            { msg: "「おまえの こぶしは もはや 山を こえ、\nほしに とどいた。 最後の おしえじゃ。\n……強さとは、守りぬくこと」" },
             { msg: "ゴウ「……ししょう!! おれ、やります!\nぜったい だれも しなせません!!」" },
             { give: { item: "a_master2" } },
-            { msg: "しんいのおびを てにいれた!" },
+            { msg: "しんいのおびを 手に入れた!" },
             { flag: ["gouEp2", 1] },
           ] },
       ] },
     { id: "gounpc", x: 7, y: 12, spr: "gou", hideFlag: "gouJoined",
       script: [
-        { msg: "ゴウ「おれは ながれの モンク、ゴウ。\nこの ほこらの やみは\nただものじゃねえ ぜ」" },
+        { msg: "ゴウ「おれは ながれの モンク、ゴウ。\nこの ほこらの 闇は\nただものじゃねえ ぜ」" },
         { msg: "ゴウ「いどむ かおだな……。 きにいった!\nおれの こぶしも かしてやる!」" },
         { join: "gou" },
         { flag: ["gouJoined", 1] },
-        { msg: "モンクのゴウが なかまに くわわった!" },
+        { msg: "モンクのゴウが 仲間に くわわった!" },
       ] },
   ],
   chests: [
@@ -1750,9 +1750,9 @@ DATA.maps.towertop = {
   chests: [],
 };
 
-// ---------------- こおりのどうくつ ----------------
+// ---------------- 氷の洞窟 ----------------
 DATA.maps.icecave = {
-  name: "こおりのどうくつ",
+  name: "氷の洞窟",
   bgm: "dungeon",
   encounter: "icecave",
   legend: {
@@ -1785,7 +1785,7 @@ DATA.maps.icecave = {
   npcs: [
     { id: "icedragonnpc", x: 14, y: 1, spr: "dragon", hideFlag: "iceBoss",
       script: [{ runScript: "iceDragon" }] },
-    // しんエンドごに あらわれる かくしボス
+    // しんエンドごに 現れる かくしボス
     { id: "vahanpc", x: 7, y: 1, spr: "dragon", pal: "dark",
       showFlag: "trueClear", hideFlag: "superBoss",
       script: [{ runScript: "vahaFight" }] },
@@ -1837,11 +1837,11 @@ DATA.maps.port = {
     { id: "port_merchant", x: 2, y: 6, spr: "villager",
       script: [
         { cond: { flag: "submarine" },
-          then: [{ msg: "しょうにん「うみのそこに しんでんが\nあるらしいね。しんじゅの そうばが\nきになる きになる」" }],
+          then: [{ msg: "商人「海の底に 神殿が\nあるらしいね。しんじゅの そうばが\nきになる きになる」" }],
           else: [
             { cond: { flag: "airship" },
-              then: [{ msg: "しょうにん「ひこうせんで ひとっとび とは\nうらやましい。うちの にもつも\nはこんでほしいくらいだよ」" }],
-              else: [{ msg: "しょうにん「ふねの こうろが まものだらけで\nしょうばいあがったりさ。はやく\nへいわに なってほしいもんだ」" }] },
+              then: [{ msg: "商人「ひこうせんで ひとっとび とは\nうらやましい。うちの にもつも\nはこんでほしいくらいだよ」" }],
+              else: [{ msg: "商人「ふねの こうろが 魔物だらけで\nしょうばいあがったりさ。はやく\n平和に なってほしいもんだ」" }] },
           ] },
       ] },
     { id: "port_angler", x: 12, y: 7, spr: "villager",
@@ -1849,12 +1849,12 @@ DATA.maps.port = {
         { cond: { flag: "fishKing" },
           then: [
             { cond: { flag: "anglerGift" },
-              then: [{ msg: "つりずき「でんせつの つりびとどの!\nあの やり、つかいこなしてるかい?」" }],
+              then: [{ msg: "つりずき「伝説の つりびとどの!\nあの やり、つかいこなしてるかい?」" }],
               else: [
-                { msg: "つりずき「つりぼりの ぬしを つりあげたって!?\nあんた でんせつの つりびとだよ!」" },
+                { msg: "つりずき「つりぼりの ぬしを つりあげたって!?\nあんた 伝説の つりびとだよ!」" },
                 { msg: "「じつは ぬしの ぬまの そこから\nふるい やりを ひきあげたんだ。\nあんたが もつべきだ、うけとってくれ!」" },
                 { give: { item: "w_skypierce" } },
-                { msg: "そらのやりを てにいれた!\n(こうげき60・かみなりぞくせい)" },
+                { msg: "空の槍を 手に入れた!\n(攻撃60・雷ぞくせい)" },
                 { flag: ["anglerGift", 1] },
               ] },
           ],
@@ -1867,35 +1867,35 @@ DATA.maps.port = {
             { cond: { flag: "seaReward" },
               then: [
                 { cond: { flag: "trueClear" },
-                  then: [{ msg: "せんいん「こおりのどうくつの おくで\nくろい りゅうを みたって うわさだ。\nうでに おぼえが あるなら……」" }],
+                  then: [{ msg: "せんいん「氷の洞窟の おくで\nくろい りゅうを みたって うわさだ。\nうでに おぼえが あるなら……」" }],
                   else: [{ msg: "せんいん「うみが しずかに なった。\nあんたたちの おかげだな!」" }] },
               ],
               else: [
-                { msg: "せんいん「うみのそこの ぬしを\nたおしてくれたのか!! これで あんしんして\nりょうが できる。れいだ、うけとってくれ!」" },
+                { msg: "せんいん「海の底の ぬしを\nたおしてくれたのか!! これで あんしんして\nりょうが できる。れいだ、うけとってくれ!」" },
                 { give: { gold: 2500 } },
-                { msg: "2500ギルを てにいれた!" },
+                { msg: "2500ギルを 手に入れた!" },
                 { flag: ["seaReward", 1] },
               ] },
           ],
           else: [
-            { msg: "せんいん「よう! ここは みなとまち\nソレイユ。うみの むこうで よなよな\nあかい ひかりが みえるんだ」" },
-            { msg: "せんいん「ちていに つづく おおあなが\nひらいたって うわさも ある。\nいやな よかんが するぜ……」" },
+            { msg: "せんいん「よう! ここは みなとまち\nソレイユ。海の むこうで よなよな\nあかい 光が みえるんだ」" },
+            { msg: "せんいん「地底に つづく おおあなが\nひらいたって うわさも ある。\nいやな よかんが するぜ……」" },
           ] },
       ] },
     { id: "obaba", x: 5, y: 6, spr: "villager", wander: true,
       script: [
         { cond: { flag: "chest_pier1" },
-          then: [{ msg: "おばあさん「さんばしの ひかりもの、\nみつけたんだってね。 めが いいねえ。\nわかいって いいことだよ」" }],
-          else: [{ msg: "おばあさん「さんばしの さきっぽで\nなにかが ひかったのを みたんだよ。\nしらべてみたら どうだい?」" }] },
+          then: [{ msg: "おばあさん「桟橋の ひかりもの、\nみつけたんだってね。 めが いいねえ。\nわかいって いいことだよ」" }],
+          else: [{ msg: "おばあさん「桟橋の さきっぽで\nなにかが ひかったのを みたんだよ。\nしらべてみたら どうだい?」" }] },
       ] },
     { id: "merchant", x: 14, y: 6, spr: "villager", wander: true,
       script: [
         { cond: { flag: "arenaGold" },
-          then: [{ msg: "しょうにん「とうぎじょうの チャンピオン!\nうちの みせの しなも つかってくれて\nこうえいだよ!」" }],
+          then: [{ msg: "商人「闘技場の チャンピオン!\nうちの みせの しなも つかってくれて\nこうえいだよ!」" }],
           else: [
             { cond: { flag: "submarine" },
-              then: [{ msg: "しょうにん「うみのそこへ いける\nおきゃくは はじめてだよ。\nしんかいの おみやげ まってるよ!」" }],
-              else: [{ msg: "しょうにん「ソレイユのみせは\nミストより いいものぞろいだよ!\nぜひ みていっとくれ」" }] },
+              then: [{ msg: "商人「海の底へ いける\nおきゃくは はじめてだよ。\nしんかいの おみやげ まってるよ!」" }],
+              else: [{ msg: "商人「ソレイユのみせは\nミストより いいものぞろいだよ!\nぜひ みていっとくれ」" }] },
           ] },
       ] },
     // つりぼり
@@ -1910,14 +1910,14 @@ DATA.maps.port = {
     { id: "roushi", x: 6, y: 5, spr: "elder", showFlag: "earthCrystal",
       script: [
         { cond: { flag: "gouEvent" },
-          then: [{ msg: "ロウシ「こぶしは こころ。\nわすれるでないぞ ゴウよ」" }],
+          then: [{ msg: "ロウシ「こぶしは 心。\nわすれるでないぞ ゴウよ」" }],
           else: [
             { msg: "ロウシ「……そのあしおと、ゴウか」" },
             { msg: "ゴウ「し、ししょう!? なんで\nこんなところに いるんすか!」" },
-            { msg: "ロウシ「たびの かぜの うわさでな。\nおまえの こぶしが まよいを すてたと\nきいた。 これを さずけよう」" },
+            { msg: "ロウシ「たびの 風の うわさでな。\nおまえの こぶしが まよいを すてたと\nきいた。 これを さずけよう」" },
             { msg: "ゴウ「ししょうの はちまき……!\nおれ、もっと つよくなります!!」" },
             { give: { item: "a_hachimaki" } },
-            { msg: "せんしのはちまきを てにいれた!" },
+            { msg: "せんしのはちまきを 手に入れた!" },
             { flag: ["gouEvent", 1] },
           ] },
       ] },
@@ -1933,14 +1933,14 @@ DATA.maps.port = {
     { id: "scholar", x: 18, y: 6, spr: "elder",
       script: [
         { cond: { flag: "glowReward" },
-          then: [{ msg: "がくしゃ「かがやくいしの けんきゅうは\nじゅんちょうじゃ。ちていには きっと\nすごい ひみつが ねむっておる…」" }],
+          then: [{ msg: "がくしゃ「かがやくいしの けんきゅうは\nじゅんちょうじゃ。地底には きっと\nすごい ひみつが ねむっておる…」" }],
           else: [
             { cond: { item: "glowstone" },
               then: [
-                { msg: "がくしゃ「おお! それは まさしく\nちていの 『かがやくいし』!!\nけんきゅうのため ゆずってくれんか」" },
+                { msg: "がくしゃ「おお! それは まさしく\n地底の 『かがやくいし』!!\nけんきゅうのため ゆずってくれんか」" },
                 { take: { item: "glowstone" } },
                 { give: { gold: 1500 } },
-                { msg: "かがやくいしを わたして\n1500ギルを てにいれた!" },
+                { msg: "かがやくいしを わたして\n1500ギルを 手に入れた!" },
                 { flag: ["glowReward", 1] },
               ],
               else: [
@@ -2015,9 +2015,9 @@ DATA.maps.portshop = {
   chests: [],
 };
 
-// ---------------- ちかすいろ ----------------
+// ---------------- 地下水路 ----------------
 DATA.maps.waterway = {
-  name: "ちかすいろ",
+  name: "地下水路",
   bgm: "dungeon",
   encounter: "waterway",
   legend: {
@@ -2103,9 +2103,9 @@ DATA.maps.magma = {
   ],
 };
 
-// ---------------- ちていせかい ----------------
+// ---------------- 地底世界 ----------------
 DATA.maps.underworld = {
-  name: "ちていせかい",
+  name: "地底世界",
   outdoor: true,
   bgm: "under",
   encounter: "underworld",
@@ -2144,7 +2144,7 @@ DATA.maps.underworld = {
     { x: 12, y: 9, type: "enter", warp: { map: "muspel", x: 10, y: 12, dir: "u" } },
     { x: 26, y: 5, type: "enter", warp: { map: "dwarfhall", x: 7, y: 10, dir: "u" } },
     { x: 24, y: 15, type: "enter", scriptId: "templeEnter" },
-    // しんでんの まわりは いんせきのばんにんが まもっている
+    // 神殿の まわりは いんせきの番人が 守っている
     { x: 24, y: 14, type: "enter", scriptId: "meteoFight" },
     { x: 24, y: 16, type: "enter", scriptId: "meteoFight" },
     { x: 23, y: 15, type: "enter", scriptId: "meteoFight" },
@@ -2156,12 +2156,12 @@ DATA.maps.underworld = {
     { id: "gnomosnpc", x: 5, y: 17, spr: "golem",
       showFlag: "allCrystals", hideFlag: "gnomosDown",
       script: [
-        { msg: "だいちが もりあがり きょだいな かげが\nたちはだかる……! つちのげんじゅう ノーモス!!" },
+        { msg: "大地が もりあがり きょだいな かげが\nたちはだかる……! つちのげんじゅう ノーモス!!" },
         { battle: { group: ["gnomos"], boss: true, music: "spirit" } },
         { flag: ["gnomosDown", 1] },
-        { msg: "ノーモスは だいちに かえっていった。\nあとに おおきな たてが のこされた。" },
+        { msg: "ノーモスは 大地に かえっていった。\nあとに おおきな たてが のこされた。" },
         { give: { item: "a_gnomos" } },
-        { msg: "だいちのおおたてを てにいれた!" },
+        { msg: "大地のおおたてを 手に入れた!" },
       ] },
   ],
   chests: [
@@ -2169,9 +2169,9 @@ DATA.maps.underworld = {
   ],
 };
 
-// ---------------- ドヴェルグおうきゅう ----------------
+// ---------------- ドヴェルグ王宮 ----------------
 DATA.maps.dwarfhall = {
-  name: "ドヴェルグおうきゅう",
+  name: "ドヴェルグ王宮",
   bgm: "hall",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -2206,12 +2206,12 @@ DATA.maps.dwarfhall = {
             { cond: { flag: "inviteDverg" },
               then: [],
               else: [
-                { msg: "バルドおう「ちじょうの かいぎに ちていの おうを\nよぶとはのう! ガハハハ! てつの さかずきを\nもって さんか するぞ!」" },
+                { msg: "バルドおう「ちじょうの かいぎに 地底の おうを\nよぶとはのう! ガハハハ! てつの さかずきを\nもって さんか するぞ!」" },
                 { flag: ["inviteDverg", 1] },
               ] },
           ], else: [] },
         { cond: { flag: "dvergReward" },
-          then: [{ msg: "ドヴェルグおう バルド「そなたらは ちていの\nおんじんじゃ。 ゆっくり していくがよい。\nガハハハ!」" }],
+          then: [{ msg: "ドヴェルグおう バルド「そなたらは 地底の\nおんじんじゃ。 ゆっくり していくがよい。\nガハハハ!」" }],
           else: [
             { cond: { flag: "dvergQuest" },
               then: [
@@ -2220,13 +2220,13 @@ DATA.maps.dwarfhall = {
                     { msg: "バルド「おお! マグマトカゲを 5たいも\nうちはらってくれたか! これで たみも\nあんしんして くらせるわい」" },
                     { give: { item: "w_dverg" } },
                     { give: { gold: 4000 } },
-                    { msg: "ドヴェルグアクスと 4000ギルを てにいれた!" },
+                    { msg: "ドヴェルグアクスと 4000ギルを 手に入れた!" },
                     { flag: ["dvergReward", 1] },
                   ],
-                  else: [{ msg: "バルド「マグマトカゲは まだ あばれておる。\n5たい たおしたら もどってまいれ。\nずかんで かずを かくにんできるぞ」" }] },
+                  else: [{ msg: "バルド「マグマトカゲは まだ あばれておる。\n5たい 倒したら もどってまいれ。\nずかんで かずを かくにんできるぞ」" }] },
               ],
               else: [
-                { msg: "ドヴェルグおう バルド「ようこそ ちていの\nおうきゅうへ! ちじょうの ものが くるとは\nめずらしい。ガハハハ!」" },
+                { msg: "ドヴェルグおう バルド「ようこそ 地底の\n王宮へ! ちじょうの ものが くるとは\nめずらしい。ガハハハ!」" },
                 { msg: "「じつは マグマトカゲどもが ふえて\nたみが こまっておる。5たい たいじして\nくれたら ほうびを とらせよう」" },
                 { flag: ["dvergQuest", 1] },
               ] },
@@ -2235,7 +2235,7 @@ DATA.maps.dwarfhall = {
     { id: "dverg_guard1", x: 5, y: 6, spr: "soldier",
       script: [{ msg: "えいへい「おうは ああみえて くにいちばんの\nおのの つかいてなのだ」" }] },
     { id: "dverg_guard2", x: 10, y: 6, spr: "soldier",
-      script: [{ msg: "えいへい「たからのまは おうきゅうの ちか。\nかべの すきまを しらべてみるといい……\nおっと、ひとりごとだ」" }] },
+      script: [{ msg: "えいへい「たからのまは 王宮の ちか。\nかべの すきまを しらべてみるといい……\nおっと、ひとりごとだ」" }] },
     { id: "cat5", x: 12, y: 3, spr: "cat",
       script: [
         { cond: { flag: "cat5" },
@@ -2246,7 +2246,7 @@ DATA.maps.dwarfhall = {
           ] },
       ] },
     { id: "dverg_maid", x: 3, y: 3, spr: "villager", wander: true,
-      script: [{ msg: "じじゅう「ムスペルの かじばには おうきゅうの\nしょくにんも かよっているんですよ」" }] },
+      script: [{ msg: "じじゅう「ムスペルの かじばには 王宮の\nしょくにんも かよっているんですよ」" }] },
   ],
   chests: [
     { id: "dh1", x: 4, y: 9, gold: 5000 },
@@ -2255,9 +2255,9 @@ DATA.maps.dwarfhall = {
   ],
 };
 
-// ---------------- ちていしんでん ----------------
+// ---------------- 地底神殿 ----------------
 DATA.maps.temple = {
-  name: "ちていしんでん",
+  name: "地底神殿",
   bgm: "shrine",
   encounter: "temple",
   legend: {
@@ -2299,9 +2299,9 @@ DATA.maps.temple = {
   ],
 };
 
-// ---------------- かじやのさと ムスペル ----------------
+// ---------------- 鍛冶屋のさと ムスペル ----------------
 DATA.maps.muspel = {
-  name: "かじやのさと ムスペル",
+  name: "鍛冶屋のさと ムスペル",
   bgm: "town",
   exit: { map: "underworld", x: 12, y: 10, dir: "d" },
   legend: {
@@ -2341,24 +2341,24 @@ DATA.maps.muspel = {
     { id: "smith_apprentice", x: 13, y: 10, spr: "villager", pal: "dark",
       script: [
         { cond: { flag: "forged" },
-          then: [{ msg: "かじやのでし「かがやくいしの つるぎは\nおやかたの さいこうけっさくだべ。\nだいじに つかってくれよな」" }],
+          then: [{ msg: "鍛冶屋のでし「かがやくいしの つるぎは\nおやかたの さいこうけっさくだべ。\nだいじに つかってくれよな」" }],
           else: [
             { cond: { flag: "magmaBoss" },
-              then: [{ msg: "かじやのでし「かがやくいしを もってるなら\nおやかたに みせてみるだ。\nすごいもんが できるかもだよ」" }],
-              else: [{ msg: "かじやのでし「おらは まだ くぎしか\nうたせてもらえねえだ。いつか\nでんせつのつるぎを うつのが ゆめだべ」" }] },
+              then: [{ msg: "鍛冶屋のでし「かがやくいしを もってるなら\nおやかたに みせてみるだ。\nすごいもんが できるかもだよ」" }],
+              else: [{ msg: "鍛冶屋のでし「おらは まだ くぎしか\nうたせてもらえねえだ。いつか\n伝説の剣を うつのが ゆめだべ」" }] },
           ] },
       ] },
     { id: "dwarf1", x: 5, y: 10, spr: "villager", pal: "dark", wander: true,
       script: [
         { cond: { flag: "submarine" },
-          then: [{ msg: "ドワーフ「せんすいそうちの ちょうしは\nどうだべ? うみのそこも\nひこうせんから いけるだよ」" }],
+          then: [{ msg: "ドワーフ「せんすいそうちの ちょうしは\nどうだべ? 海の底も\nひこうせんから いけるだよ」" }],
           else: [
             { cond: { flag: "windCrystal" },
               then: [
-                { msg: "ドワーフ「かぜのクリスタルだべか!!\nそれが あれば ひこうせんに\nせんすいそうちを つけられるだ!」" },
-                { msg: "ドワーフ「よし、くみこんでおいただ!\nおおうずしおの したの うみのそこへ\nもぐれるように なっただよ」" },
+                { msg: "ドワーフ「風のクリスタルだべか!!\nそれが あれば ひこうせんに\nせんすいそうちを つけられるだ!」" },
+                { msg: "ドワーフ「よし、くみこんでおいただ!\nおおうずしおの したの 海の底へ\nもぐれるように なっただよ」" },
                 { flag: ["submarine", 1] },
-                { msg: "ひこうせんが せんすいできるように なった!\n(いきさきに うみのそこ が ふえました)" },
+                { msg: "ひこうせんが せんすいできるように なった!\n(いきさきに 海の底 が ふえました)" },
               ],
               else: [{ msg: "ドワーフ「ようこそ ムスペルへ!\nちじょうの ひとが くるのは\nひさしぶりだべ」" }] },
           ] },
@@ -2366,16 +2366,16 @@ DATA.maps.muspel = {
     { id: "dwarf2", x: 14, y: 11, spr: "villager", pal: "dark", wander: true,
       script: [
         { cond: { flag: "airship" },
-          then: [{ msg: "ドワーフ「そらのたびは どうだ?\nソレイユの さんばしから のれるだよ」" }],
+          then: [{ msg: "ドワーフ「空のたびは どうだ?\nソレイユの 桟橋から のれるだよ」" }],
           else: [
             { cond: { flag: "earthCrystal" },
               then: [
-                { msg: "ドワーフ「ちのクリスタルを\nてにいれただか!! それが あれば\nきゅうひこうせんが うごくだ!」" },
+                { msg: "ドワーフ「ちのクリスタルを\n手に入れただか!! それが あれば\nきゅうひこうせんが うごくだ!」" },
                 { msg: "ドワーフ「ソレイユの おきに ういてた\nふるい ひこうせんを なおして\nどうりょくを くみこんでおいただ!」" },
                 { flag: ["airship", 1] },
-                { msg: "ひこうせんが つかえるように なった!\n(ソレイユの さんばしから とべます)" },
+                { msg: "ひこうせんが つかえるように なった!\n(ソレイユの 桟橋から とべます)" },
               ],
-              else: [{ msg: "ドワーフ「みなみの しんでんに\n『ちのクリスタル』が ねむってるだ。\nだども けっかいで はいれねえだ」" }] },
+              else: [{ msg: "ドワーフ「みなみの 神殿に\n『ちのクリスタル』が ねむってるだ。\nだども 結界で はいれねえだ」" }] },
           ] },
       ] },
   ],
@@ -2416,7 +2416,7 @@ DATA.maps.muspelinn = {
   npcs: [
     { id: "muspelinnkeep", x: 4, y: 2, spr: "villager", pal: "dark",
       script: [{ inn: 60 }] },
-    // ロッドのこじんイベント (ちていかいほうご)
+    // ロッドのこじんイベント (地底かいほうご)
     { id: "mentor", x: 7, y: 5, spr: "rod", showFlag: "underOpen",
       script: [
         { cond: { flag: "rodEvent" },
@@ -2426,11 +2426,11 @@ DATA.maps.muspelinn = {
                 { cond: { flag: "rodEp2" },
                   then: [{ msg: "ガレフ「『こえてみせる』と いった でしに\nこえられる ひが くるとはな。\n……わるくない きぶんだ」" }],
                   else: [
-                    { msg: "ガレフ「ロッド、しょもつは よみおえたか」\nロッド「とっくに。 ついでに ほしのはかの\nまじゅつしきも かいどくしましたよ」" },
+                    { msg: "ガレフ「ロッド、しょもつは よみおえたか」\nロッド「とっくに。 ついでに 星のはかの\nまじゅつしきも かいどくしましたよ」" },
                     { msg: "ガレフ「……なんと。 わしが 30ねん かけても\nとけなかった しきを か。\n……まけたよ。 これを かぶっていけ」" },
                     { msg: "ロッド「せんせいの ぼうし……。\n……ちょっとだけ、おもいですね。\nいろんな いみで」" },
                     { give: { item: "a_wisdom" } },
-                    { msg: "えいちのぼうしを てにいれた!" },
+                    { msg: "えいちのぼうしを 手に入れた!" },
                     { flag: ["rodEp2", 1] },
                   ] },
               ],
@@ -2442,7 +2442,7 @@ DATA.maps.muspelinn = {
             { msg: "ガレフ「はっはっは。 くちも たつように\nなった。 ならば これを よみこなせるな。\nわしの けんきゅうの すべてだ」" },
             { msg: "ロッド「せんせいの しょもつ……。\n……うけとります。 ぜんぶ おぼえて\nこえてみせますよ」" },
             { give: { item: "w_truthbook" } },
-            { msg: "しんりのしょを てにいれた!" },
+            { msg: "しんりのしょを 手に入れた!" },
             { flag: ["rodEvent", 1] },
           ] },
       ] },
@@ -2481,7 +2481,7 @@ DATA.maps.muspelshop = {
 };
 
 DATA.maps.forge = {
-  name: "ドヴェルグのかじや",
+  name: "ドヴェルグの鍛冶屋",
   bgm: "town",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -2508,7 +2508,7 @@ DATA.maps.forge = {
     { id: "dverg", x: 5, y: 2, spr: "elder",
       script: [
         { cond: { flag: "forged" },
-          then: [{ msg: "ドヴェルグ「どうだ ほしくずのつるぎは。\nわしの さいこうけっさくだべ」" }],
+          then: [{ msg: "ドヴェルグ「どうだ ほしくずの剣は。\nわしの さいこうけっさくだべ」" }],
           else: [
             { cond: { item: "glowstone" },
               then: [
@@ -2517,10 +2517,10 @@ DATA.maps.forge = {
                 { take: { item: "glowstone" } },
                 { give: { item: "w_star" } },
                 { flag: ["forged", 1] },
-                { msg: "ほしくずのつるぎを てにいれた!" },
+                { msg: "ほしくずの剣を 手に入れた!" },
               ],
               else: [
-                { msg: "ドヴェルグ「おおあなのそこの\n『かがやくいし』を もってくれば\nでんせつのぶきを うってやるだ」" },
+                { msg: "ドヴェルグ「おおあなのそこの\n『かがやくいし』を もってくれば\n伝説のぶきを うってやるだ」" },
               ] },
           ] },
       ] },
@@ -2528,9 +2528,9 @@ DATA.maps.forge = {
   chests: [],
 };
 
-// ---------------- そらのしま ----------------
+// ---------------- 空の島 ----------------
 DATA.maps.skyisland = {
-  name: "そらのしま",
+  name: "空の島",
   outdoor: true,
   bgm: "sky",
   encounter: "sky",
@@ -2563,23 +2563,23 @@ DATA.maps.skyisland = {
     { x: 9, y: 8, type: "enter", warp: { map: "windtemple", x: 2, y: 12, dir: "u" } },
     { x: 8, y: 2, type: "enter",
       cond: { flag: "allCrystals" },
-      failScript: [{ msg: "そらが かすかに ゆらいでいる……。\nなにかが あらわれる よかんがする。" }],
+      failScript: [{ msg: "空が かすかに ゆらいでいる……。\nなにかが 現れる よかんがする。" }],
       warp: { map: "startower1", x: 6, y: 10, dir: "u" } },
     { x: 13, y: 2, type: "enter",
       cond: { flag: "starGate" },
-      failScript: [{ msg: "そらに ちいさな ひかりのわが\nうかんでいる。 いまは とおれない。" }],
+      failScript: [{ msg: "そらに ちいさな 光のわが\nうかんでいる。 今は とおれない。" }],
       warp: { map: "starworld", x: 11, y: 12, dir: "u" } },
   ],
   npcs: [
     { id: "sylphidnpc", x: 15, y: 4, spr: "bird", pal: "light",
       showFlag: "allCrystals", hideFlag: "sylphidDown",
       script: [
-        { msg: "かぜが うずを まいて けもののかたちに……!\nかぜのげんじゅう シルフィドだ!!" },
+        { msg: "風が うずを まいて けもののかたちに……!\n風のげんじゅう シルフィドだ!!" },
         { battle: { group: ["sylphid"], boss: true, music: "spirit" } },
         { flag: ["sylphidDown", 1] },
         { msg: "シルフィドは かぜにとけて きえた。\nあとに マントが ひらりと まいおちた。" },
         { give: { item: "a_sylphid" } },
-        { msg: "かぜのマントを てにいれた!" },
+        { msg: "風のマントを 手に入れた!" },
       ] },
   ],
   chests: [
@@ -2587,9 +2587,9 @@ DATA.maps.skyisland = {
   ],
 };
 
-// ---------------- ほしのせかい (第2ワールド) ----------------
+// ---------------- 星の世界 (第2ワールド) ----------------
 DATA.maps.starworld = {
-  name: "ほしのせかい",
+  name: "星の世界",
   outdoor: true,
   bgm: "star",
   encounter: "starworld",
@@ -2627,7 +2627,7 @@ DATA.maps.starworld = {
     { x: 16, y: 7, type: "enter", warp: { map: "powertemple", x: 6, y: 7, dir: "u" } },
     { x: 2, y: 9, type: "enter",
       cond: { flag: "craterBoss" },
-      failScript: [{ msg: "ふるい はかの とびらは かたく とざされている。\nクレーターの ぬしの けはいが きえれば\nひらきそうだ……。" }],
+      failScript: [{ msg: "ふるい はかの 扉は かたく とざされている。\nクレーターの ぬしの けはいが きえれば\nひらきそうだ……。" }],
       warp: { map: "stargrave1", x: 8, y: 11, dir: "u" } },
   ],
   npcs: [],
@@ -2639,9 +2639,9 @@ DATA.maps.starworld = {
   ],
 };
 
-// ---------------- つきのみやこ セレーネ ----------------
+// ---------------- 月のみやこ セレーネ ----------------
 DATA.maps.moonpalace = {
-  name: "つきのみやこ セレーネ",
+  name: "月のみやこ セレーネ",
   bgm: "star",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -2680,20 +2680,20 @@ DATA.maps.moonpalace = {
         { cond: { flag: "craterBoss" },
           then: [
             { cond: { flag: "stellaDone" },
-              then: [{ msg: "つきびとの ちょうろう「ステラも すっかり\nげんきじゃ。ほしの たみは あなたがたを\nけっして わすれぬ」" }],
+              then: [{ msg: "つきびとの 長老「ステラも すっかり\nげんきじゃ。星の たみは あなたがたを\nけっして わすれぬ」" }],
               else: [
                 { cond: { flag: "stellaFound" },
                   then: [
-                    { msg: "ちょうろう「おお ステラが もどってきた!\nほんとうに ありがとう……。\nこれは ほしのたみに つたわる たからじゃ」" },
+                    { msg: "長老「おお ステラが もどってきた!\nほんとうに ありがとう……。\nこれは 星のたみに つたわる たからじゃ」" },
                     { give: { item: "a_stellar" } },
-                    { msg: "ほしのまもりを てにいれた!" },
+                    { msg: "星のま森を 手に入れた!" },
                     { flag: ["stellaDone", 1] },
                   ],
                   else: [
                     { cond: { flag: "stellaQuest" },
-                      then: [{ msg: "ちょうろう「ステラは クレーターの おくで\nほしのかけらを ひろうのが すきでな……。\nどうか さがしだしてくれ」" }],
+                      then: [{ msg: "長老「ステラは クレーターの おくで\n星のかけらを ひろうのが すきでな……。\nどうか さがしだしてくれ」" }],
                       else: [
-                        { msg: "ちょうろう「ぬしを しずめてくれて れいをいう。\nじゃが こまったことが おきた。むらの こども\nステラの すがたが みえんのじゃ」" },
+                        { msg: "長老「ぬしを しずめてくれて れいをいう。\nじゃが こまったことが おきた。むらの 子供\nステラの すがたが みえんのじゃ」" },
                         { msg: "「ぬしが きえたのを みて クレーターの おくへ\nほしひろいに いったのやもしれぬ……。\nどうか つれもどしてくれぬか」" },
                         { flag: ["stellaQuest", 1] },
                       ] },
@@ -2701,26 +2701,26 @@ DATA.maps.moonpalace = {
               ] },
           ],
           else: [
-            { msg: "つきびとの ちょうろう「ようこそ ほしのせかいへ。\nわしらは ふるい ほしの たみ。\nしずかに くらしてきた」" },
-            { msg: "「じゃが きょだいな クレーターに ぬしが\nすみつき、だいちが あれはじめた。\nちからある ものよ、たすけてくれぬか」" },
+            { msg: "つきびとの 長老「ようこそ 星の世界へ。\nわしらは ふるい 星の たみ。\nしずかに くらしてきた」" },
+            { msg: "「じゃが きょだいな クレーターに ぬしが\nすみつき、大地が あれはじめた。\nちからある ものよ、助けてくれぬか」" },
           ] },
       ] },
     { id: "selene_bard", x: 4, y: 8, spr: "villager", showFlag: "trueClear",
       script: [
         { cond: { flag: "bardGift" },
-          then: [{ msg: "たびのうたひと「やみを こえた きしたちの うた、\nほしの すみずみまで ひびかせますよ」" }],
+          then: [{ msg: "たびのうたひと「闇を こえた きしたちの うた、\n星の すみずみまで ひびかせますよ」" }],
           else: [
-            { msg: "たびのうたひと「おお、うわさに きく\nひかりのきし ごいっこう!\nあなたがたの たびを うたに しました」" },
-            { msg: "♪ やみを まといて ひかりへ あゆみ\n♪ よっつの ひかりが ほしを つなぐ……\nこころに しみる うただ。" },
+            { msg: "たびのうたひと「おお、うわさに きく\n光のきし ごいっこう!\nあなたがたの たびを うたに しました」" },
+            { msg: "♪ 闇を まといて ひかりへ あゆみ\n♪ よっつの 光が 星を つなぐ……\n心に しみる うただ。" },
             { give: { item: "elixir" } },
             { msg: "うたの おれいにと エリクサーを くれた!" },
             { flag: ["bardGift", 1] },
           ] },
       ] },
     { id: "selene_girl", x: 10, y: 6, spr: "villager", wander: true,
-      script: [{ msg: "つきびとの こども「ここの まものは\nとーっても つよいの。でも けいけんに\nなるって おとなが いってた!」" }] },
+      script: [{ msg: "つきびとの 子供「ここの 魔物は\nとーっても つよいの。でも けいけんに\nなるって 大人が いってた!」" }] },
     { id: "selene_watcher", x: 13, y: 8, spr: "soldier",
-      script: [{ msg: "ほしのばんにん「クレーターの おくは\nぬしの すみか。かくごの ないものは\nちかづかぬことだ」" }] },
+      script: [{ msg: "星の番人「クレーターの おくは\nぬしの すみか。かくごの ないものは\nちかづかぬことだ」" }] },
   ],
   chests: [
     { id: "mp1", x: 14, y: 1, item: "megapotion" },
@@ -2796,8 +2796,8 @@ DATA.maps.crater2 = {
   npcs: [
     { id: "stella", x: 6, y: 6, spr: "villager", showFlag: "stellaQuest", hideFlag: "stellaFound",
       script: [
-        { msg: "ステラ「ほしひろいに きたら まものが\nいっぱいで うごけなく なっちゃったの……。\nおにいちゃんたち つよいんだね!」" },
-        { msg: "ステラは ひろった ほしのかけらを\nぎゅっと にぎりしめて うなずいた。" },
+        { msg: "ステラ「ほしひろいに きたら 魔物が\nいっぱいで うごけなく なっちゃったの……。\nおにいちゃんたち つよいんだね!」" },
+        { msg: "ステラは ひろった 星のかけらを\nぎゅっと にぎりしめて うなずいた。" },
         { flag: ["stellaFound", 1] },
         { msg: "ステラは ひとあし さきに\nセレーネへ かけていった。" },
       ] },
@@ -2811,9 +2811,9 @@ DATA.maps.crater2 = {
   ],
 };
 
-// ---------------- よるのくに (だい8のちいき) ----------------
+// ---------------- 夜の国 (だい8のちいき) ----------------
 DATA.maps.world7 = {
-  name: "よるのくに",
+  name: "夜の国",
   outdoor: true,
   bgm: "star",
   encounter: "world7",
@@ -2856,9 +2856,9 @@ DATA.maps.world7 = {
   ],
 };
 
-// ---------------- よるのまち ノクス ----------------
+// ---------------- 夜のまち ノクス ----------------
 DATA.maps.nox = {
-  name: "よるのまち ノクス",
+  name: "夜のまち ノクス",
   bgm: "star",
   exit: { map: "world7", x: 9, y: 4, dir: "d" },
   legend: {
@@ -2891,24 +2891,24 @@ DATA.maps.nox = {
         { cond: { flag: "nightBoss" },
           then: [
             { cond: { flag: "nightReward" },
-              then: [{ msg: "まちのおさ「じょおうさまが しずまり、\nよるは やさしい しじまに もどった。\nほしが きれいじゃろう?」" }],
+              then: [{ msg: "まちのおさ「じょ王様が しずまり、\n夜は やさしい しじまに もどった。\n星が きれいじゃろう?」" }],
               else: [
-                { msg: "まちのおさ「じょおうさまを といてくれたか!\nこの まちの こころばかりの れいじゃ。\nうけとって くだされ」" },
+                { msg: "まちのおさ「じょ王様を といてくれたか!\nこの まちの 心ばかりの れいじゃ。\nうけとって くだされ」" },
                 { give: { gold: 8000 } },
-                { msg: "8000ギルを てにいれた!" },
+                { msg: "8000ギルを 手に入れた!" },
                 { flag: ["nightReward", 1] },
               ] },
           ],
           else: [
-            { msg: "まちのおさ「この くにの よるは やさしかった。\nじゃが だいせいどうの じょおうさまが\nかなしみに のまれてしもうての……」" },
-            { msg: "「あさが こない くにに なってしもうた。\nどうか じょおうさまの かなしみを\nといて くだされ。ほのおの ひかりが かぎじゃ」" },
+            { msg: "まちのおさ「この くにの 夜は やさしかった。\nじゃが 大聖堂の じょ王様が\nかなしみに のまれてしもうての……」" },
+            { msg: "「朝が こない くにに なってしもうた。\nどうか じょ王様の かなしみを\nといて くだされ。炎の 光が 鍵じゃ」" },
             { flag: ["nightQuest", 1] },
           ] },
       ] },
     { id: "nox_hunter", x: 5, y: 8, spr: "soldier",
       script: [
         { cond: { flag: "duskReward" },
-          then: [{ msg: "よまわり「たそがれオオカミが へって\nよみちも あんしんだ。かんしゃするよ」" }],
+          then: [{ msg: "よまわり「たそがれオオカミが へって\nよみちも あんしんだ。感謝するよ」" }],
           else: [
             { cond: { flag: "duskQuest" },
               then: [
@@ -2917,7 +2917,7 @@ DATA.maps.nox = {
                     { msg: "よまわり「4とうも しとめたか!\nやくそくの ほうびだ、うけとってくれ」" },
                     { give: { gold: 6000 } },
                     { give: { item: "nightdrop" } },
-                    { msg: "6000ギルと よるのしずくを てにいれた!" },
+                    { msg: "6000ギルと 夜のしずくを 手に入れた!" },
                     { flag: ["duskReward", 1] },
                   ],
                   else: [{ msg: "よまわり「たそがれオオカミは くにの あちこちに\nいる。4とう たのむぞ。ずかんで\nかずを かぞえられる」" }] },
@@ -2929,11 +2929,11 @@ DATA.maps.nox = {
           ] },
       ] },
     { id: "nox_kid", x: 14, y: 8, spr: "villager", pal: "light", wander: true,
-      script: [{ msg: "こども「ここの よぞらは ほしが いっぱいで\nだいすき! でも たまには おひさまも\nみてみたいなあ」" }] },
+      script: [{ msg: "子供「ここの よぞらは 星が いっぱいで\nだいすき! でも たまには おひさまも\nみてみたいなあ」" }] },
     { id: "nox_granny", x: 3, y: 9, spr: "villager", wander: true,
-      script: [{ msg: "おばあさん「じょおうさまは むかし、たみの\nねむりを まもる やさしい おかたじゃった。\nかなしみが あのかたを かえてしもうた……」" }] },
+      script: [{ msg: "おばあさん「じょ王様は むかし、たみの\nねむりを 守る やさしい おかたじゃった。\nかなしみが あのかたを かえてしもうた……」" }] },
     { id: "nox_guard", x: 16, y: 6, spr: "soldier",
-      script: [{ msg: "ばんにん「だいせいどうの まものは よるの\nけはいを まとう。ほのおの まほうと ぶきを\nわすれるな」" }] },
+      script: [{ msg: "番人「大聖堂の 魔物は 夜の\nけはいを まとう。炎の 魔法と ぶきを\nわすれるな」" }] },
   ],
   chests: [
     { id: "nx1", x: 17, y: 9, item: "elixir", hidden: true },
@@ -2996,9 +2996,9 @@ DATA.maps.noxshop = {
   chests: [],
 };
 
-// ---------------- やみのだいせいどう ----------------
+// ---------------- 闇の大聖堂 ----------------
 DATA.maps.cathedral1 = {
-  name: "やみのだいせいどう",
+  name: "闇の大聖堂",
   bgm: "under",
   encounter: "cathedral",
   legend: {
@@ -3035,7 +3035,7 @@ DATA.maps.cathedral1 = {
 };
 
 DATA.maps.cathedral2 = {
-  name: "じょおうのせいどう",
+  name: "じょおうの聖堂",
   bgm: "under",
   encounter: "cathedral",
   legend: {
@@ -3063,15 +3063,15 @@ DATA.maps.cathedral2 = {
   npcs: [
     { id: "noctianpc", x: 6, y: 6, spr: "celia", pal: "dark", hideFlag: "nightBoss",
       script: [
-        { msg: "せいどうの おくで ほしあかりが ゆらぎ\nくろい ドレスの かげが ふりむいた……。" },
-        { msg: "『……ねむりなさい。 よるは やさしい。\nあさなど こなければ だれも\nかなしまずに すむのだから……』" },
+        { msg: "聖堂の おくで ほしあかりが ゆらぎ\nくろい ドレスの かげが ふりむいた……。" },
+        { msg: "『……ねむりなさい。 夜は やさしい。\nあさなど こなければ だれも\nかなしまずに すむのだから……』" },
         { battle: { group: ["noctia"], boss: true, music: "spirit" } },
         { flag: ["nightBoss", 1] },
-        { msg: "『……あたたかい ほのお。 そう、あさは\nかなしみごと ひとを てらすのね。\nありがとう……』" },
+        { msg: "『……あ戦い ほのお。 そう、朝は\nかなしみごと ひとを てらすのね。\nありがとう……』" },
         { give: { item: "w_dawn" } },
         { give: { item: "acc_moonveil" } },
-        { msg: "よあけのやりと つきのベールを てにいれた!\n(こうげき63・ほのおぞくせい / せい半減)" },
-        { msg: "よるのくにの そらに、ほんのり\nあかつきの ひかりが さしこんだ……。" },
+        { msg: "よあけの槍と 月のベールを 手に入れた!\n(攻撃63・ほのおぞくせい / せい半減)" },
+        { msg: "夜の国の そらに、ほんのり\nあか月の 光が さしこんだ……。" },
       ] },
   ],
   chests: [
@@ -3081,9 +3081,9 @@ DATA.maps.cathedral2 = {
   ],
 };
 
-// ---------------- らいめいのしま (だい7のちいき) ----------------
+// ---------------- 雷鳴の島 (だい7のちいき) ----------------
 DATA.maps.world6 = {
-  name: "らいめいのしま",
+  name: "雷鳴の島",
   weather: "rain",
   outdoor: true,
   bgm: "field",
@@ -3127,9 +3127,9 @@ DATA.maps.world6 = {
   ],
 };
 
-// ---------------- あらしのむら ボルテ ----------------
+// ---------------- 嵐のむら ボルテ ----------------
 DATA.maps.volte = {
-  name: "あらしのむら ボルテ",
+  name: "嵐のむら ボルテ",
   weather: "rain",
   bgm: "town",
   exit: { map: "world6", x: 9, y: 4, dir: "d" },
@@ -3163,24 +3163,24 @@ DATA.maps.volte = {
         { cond: { flag: "stormBoss" },
           then: [
             { cond: { flag: "stormReward" },
-              then: [{ msg: "むらおさ「かみなりが しずまり ほしぞらが\nもどった。この しまは あなたがたの\nだいにの ふるさとじゃ」" }],
+              then: [{ msg: "むらおさ「雷が しずまり ほしぞらが\nもどった。この しまは あなたがたの\nだいにの ふるさとじゃ」" }],
               else: [
                 { msg: "むらおさ「らいじんの けしんを しずめるとは……!\nむらの ほこりじゃ。れいを うけとって\nくだされ」" },
                 { give: { gold: 6000 } },
-                { msg: "6000ギルを てにいれた!" },
+                { msg: "6000ギルを 手に入れた!" },
                 { flag: ["stormReward", 1] },
               ] },
           ],
           else: [
-            { msg: "むらおさ「ほこらの らいじんが いかりだし、\nひるも よるも かみなりが やまぬ。\nはたけも ふねも だいそんがいじゃ」" },
-            { msg: "「らいじんは こおりの ちからを にがてと\nしておる。どうか いかりを\nしずめて くだされ」" },
+            { msg: "むらおさ「ほこらの らいじんが いかりだし、\nひるも よるも 雷が やまぬ。\nはたけも ふねも だいそんがいじゃ」" },
+            { msg: "「らいじんは 氷の 力を にがてと\nしておる。どうか いかりを\nしずめて くだされ」" },
             { flag: ["stormQuest", 1] },
           ] },
       ] },
     { id: "volte_hunter", x: 5, y: 8, spr: "soldier",
       script: [
         { cond: { flag: "hawkReward" },
-          then: [{ msg: "とりおい「らいめいタカが へって そらが\nしずかに なった。ふねも あんしんだ」" }],
+          then: [{ msg: "とりおい「らいめいタカが へって 空が\nしずかに なった。ふねも あんしんだ」" }],
           else: [
             { cond: { flag: "hawkQuest" },
               then: [
@@ -3189,10 +3189,10 @@ DATA.maps.volte = {
                     { msg: "とりおい「4わも おとしたのか! たいした\nうでだ。ほうびを うけとってくれ」" },
                     { give: { gold: 5000 } },
                     { give: { item: "hiether" } },
-                    { msg: "5000ギルと ハイエーテルを てにいれた!" },
+                    { msg: "5000ギルと ハイエーテルを 手に入れた!" },
                     { flag: ["hawkReward", 1] },
                   ],
-                  else: [{ msg: "とりおい「らいめいタカは しまの そらを\nとんでいる。4わ たのむ。ずかんで\nかずを かくにんできるぞ」" }] },
+                  else: [{ msg: "とりおい「らいめいタカは しまの 空を\nとんでいる。4わ たのむ。ずかんで\nかずを かくにんできるぞ」" }] },
               ],
               else: [
                 { msg: "とりおい「らいめいタカが ふねの ほばしらに\nいたずらして こまっている。4わ おとして\nくれたら ほうびを だそう」" },
@@ -3201,11 +3201,11 @@ DATA.maps.volte = {
           ] },
       ] },
     { id: "volte_kid", x: 14, y: 8, spr: "villager", pal: "light", wander: true,
-      script: [{ msg: "こども「かみなりの よるは おふとんに\nもぐるんだ! でも ちょっとだけ\nかっこいいとも おもうんだ」" }] },
+      script: [{ msg: "子供「雷の 夜は おふとんに\nもぐるんだ! でも ちょっとだけ\nかっこいいとも おもうんだ」" }] },
     { id: "volte_granny", x: 3, y: 9, spr: "villager", wander: true,
-      script: [{ msg: "おばあさん「らいじんさまは ほんらい\nめぐみの あめを くれる やさしい かみさま\nなんだよ。なにかが いかりに ふれたのさ」" }] },
+      script: [{ msg: "おばあさん「らいじんさまは ほんらい\nめぐみの あめを くれる やさしい 神様\nなんだよ。なにかが いかりに ふれたのさ」" }] },
     { id: "volte_guard", x: 16, y: 6, spr: "soldier",
-      script: [{ msg: "ばんにん「ほこらへは きたの みちを いけ。\nブリザガや こおりのぶきが あれば\nらいじんにも たちうちできるはずだ」" }] },
+      script: [{ msg: "番人「ほこらへは きたの みちを いけ。\nブリザガや 氷のぶきが あれば\nらいじんにも たちうちできるはずだ」" }] },
   ],
   chests: [
     { id: "vo1", x: 17, y: 9, item: "xpotion", hidden: true },
@@ -3333,14 +3333,14 @@ DATA.maps.stormshrine2 = {
   npcs: [
     { id: "tonitrusnpc", x: 6, y: 6, spr: "demon", pal: "light", hideFlag: "stormBoss",
       script: [
-        { msg: "そらが さけ、いなずまが ほこらに\nふりそそぐ……!" },
+        { msg: "空が さけ、稲妻が ほこらに\nふりそそぐ……!" },
         { msg: "『ちいさきものよ……。 わが いかづちを\nうけながら なお たとうと するか。\nよかろう、その いさみ ためしてくれる』" },
         { battle: { group: ["tonitrus"], boss: true, music: "spirit" } },
         { flag: ["stormBoss", 1] },
-        { msg: "『……よき たましい なり。 いかりは\nしずまった。めぐみの あめを しまに\nかえそう』 らいじんは そらへ のぼった。" },
+        { msg: "『……よき 魂 なり。 いかりは\nしずまった。めぐみの あめを しまに\nかえそう』 らいじんは 空へ のぼった。" },
         { give: { item: "acc_boltcharm" } },
-        { msg: "らいよけのおまもりを てにいれた!\n(かみなりダメージ無効)" },
-        { msg: "しまの そらが はれわたっていく……。" },
+        { msg: "らいよけのおま森を 手に入れた!\n(雷ダメージ無効)" },
+        { msg: "しまの 空が はれわたっていく……。" },
       ] },
   ],
   chests: [
@@ -3349,9 +3349,9 @@ DATA.maps.stormshrine2 = {
   ],
 };
 
-// ---------------- みどりのぐんとう (だい6のちいき) ----------------
+// ---------------- 緑の群島 (だい6のちいき) ----------------
 DATA.maps.world5 = {
-  name: "みどりのぐんとう",
+  name: "緑の群島",
   outdoor: true,
   bgm: "field",
   encounter: "world5",
@@ -3429,24 +3429,24 @@ DATA.maps.liefe = {
         { cond: { flag: "ruinsBoss" },
           then: [
             { cond: { flag: "ruinsReward" },
-              then: [{ msg: "むらおさ「いせきの まもりがみが しずまり\nもりに しずけさが もどった。こかげは\nいつでも あなたがたの やすみばじゃ」" }],
+              then: [{ msg: "むらおさ「いせきの 守りがみが しずまり\nもりに しずけさが もどった。こかげは\nいつでも あなたがたの やすみばじゃ」" }],
               else: [
-                { msg: "むらおさ「まもりがみを しずめてくれたか!\nこれは むらに つたわる おれいのしなじゃ。\nうけとって くだされ」" },
+                { msg: "むらおさ「守りがみを しずめてくれたか!\nこれは むらに つたわる おれいのしなじゃ。\nうけとって くだされ」" },
                 { give: { gold: 5000 } },
-                { msg: "5000ギルを てにいれた!" },
+                { msg: "5000ギルを 手に入れた!" },
                 { flag: ["ruinsReward", 1] },
               ] },
           ],
           else: [
-            { msg: "むらおさ「もりの おくの こだいいせきで\nまもりがみが あばれだしてのう。よるごとに\nじひびきが むらまで とどくのじゃ」" },
-            { msg: "「いにしえの ばんにんは かみなりを\nおそれると いいつたえに ある。どうか\nしずめて くだされ」" },
+            { msg: "むらおさ「森の おくの こだいいせきで\n守りがみが あばれだしてのう。よるごとに\nじひびきが むらまで とどくのじゃ」" },
+            { msg: "「いにしえの 番人は 雷を\nおそれると いいつたえに ある。どうか\nしずめて くだされ」" },
             { flag: ["ruinsQuest", 1] },
           ] },
       ] },
     { id: "liefe_hunter", x: 5, y: 8, spr: "soldier",
       script: [
         { cond: { flag: "catReward2" },
-          then: [{ msg: "もりびと「みどりのひょうが へって\nこどもたちも もりで あそべる。\nありがとうな」" }],
+          then: [{ msg: "もりびと「みどりのひょうが へって\n子供たちも もりで あそべる。\nありがとうな」" }],
           else: [
             { cond: { flag: "catQuest2" },
               then: [
@@ -3455,7 +3455,7 @@ DATA.maps.liefe = {
                     { msg: "もりびと「4とうも しとめたのか!\nさすがだ。やくそくの ほうびを\nうけとってくれ」" },
                     { give: { gold: 4500 } },
                     { give: { item: "xpotion" } },
-                    { msg: "4500ギルと エクスポーションを てにいれた!" },
+                    { msg: "4500ギルと エクスポーションを 手に入れた!" },
                     { flag: ["catReward2", 1] },
                   ],
                   else: [{ msg: "もりびと「みどりのひょうは しまの あちこちだ。\n4とう たのむぞ。ずかんで かずを\nかくにんできるからな」" }] },
@@ -3467,11 +3467,11 @@ DATA.maps.liefe = {
           ] },
       ] },
     { id: "liefe_kid", x: 14, y: 8, spr: "villager", pal: "light", wander: true,
-      script: [{ msg: "こども「いせきの おくには ぴかぴかの\nこぶしが かざってあるんだって!\nみてみたいなー!」" }] },
+      script: [{ msg: "子供「いせきの おくには ぴかぴかの\nこぶしが かざってあるんだって!\nみてみたいなー!」" }] },
     { id: "liefe_granny", x: 3, y: 9, spr: "villager", wander: true,
-      script: [{ msg: "おばあさん「この むらの きのみずは\nからだに いいんだよ。むかしから\nびょうきしらずの むらでねえ」" }] },
+      script: [{ msg: "おばあさん「この むらの きのみずは\nからだに いいんだよ。昔から\nびょうきしらずの むらでねえ」" }] },
     { id: "liefe_guard", x: 16, y: 6, spr: "soldier",
-      script: [{ msg: "ばんにん「いせきの ばんへいは てごわいぞ。\nかみなりの まほうが あれば\nみちは ひらけるはずだ」" }] },
+      script: [{ msg: "番人「いせきの ばんへいは てごわいぞ。\n雷の 魔法が あれば\nみちは ひらけるはずだ」" }] },
   ],
   chests: [
     { id: "lf1", x: 17, y: 9, item: "hiether", hidden: true },
@@ -3571,7 +3571,7 @@ DATA.maps.ruins1 = {
 };
 
 DATA.maps.ruins2 = {
-  name: "まもりがみのま",
+  name: "守りがみのま",
   bgm: "under",
   encounter: "ruins",
   legend: {
@@ -3603,10 +3603,10 @@ DATA.maps.ruins2 = {
         { msg: "『シンニュウシャ ヲ カクニン……。\nコダイ ノ チカイ ニ ヨリ\nハイジョ スル』" },
         { battle: { group: ["guardios"], boss: true, music: "boss" } },
         { flag: ["ruinsBoss", 1] },
-        { msg: "『キロク ヲ コウシン……。 アタラシキ\nマモリテ ト ミトメル……』\nまもりがみは しずかに ひざを ついた。" },
+        { msg: "『キロク ヲ コウシン……。 アタラシキ\nマモリテ ト ミトメル……』\n守りがみは しずかに ひざを ついた。" },
         { give: { item: "w_guardfist" } },
         { give: { item: "acc_owlcharm" } },
-        { msg: "まもりのこぶしと ふくろうのおまもりを\nてにいれた!" },
+        { msg: "ま森のこぶしと ふくろうのおま森を\n手に入れた!" },
       ] },
   ],
   chests: [
@@ -3615,9 +3615,9 @@ DATA.maps.ruins2 = {
   ],
 };
 
-// ---------------- すなのおうこく (だい5のちいき) ----------------
+// ---------------- 砂の王国 (だい5のちいき) ----------------
 DATA.maps.world4 = {
-  name: "すなのおうこく",
+  name: "砂の王国",
   weather: "sand",
   outdoor: true,
   bgm: "field",
@@ -3661,9 +3661,9 @@ DATA.maps.world4 = {
   ],
 };
 
-// ---------------- さばくのみやこ ザハラ ----------------
+// ---------------- 砂漠のみやこ ザハラ ----------------
 DATA.maps.zahra = {
-  name: "さばくのみやこ ザハラ",
+  name: "砂漠のみやこ ザハラ",
   weather: "sand",
   bgm: "town",
   exit: { map: "world4", x: 9, y: 4, dir: "d" },
@@ -3700,7 +3700,7 @@ DATA.maps.zahra = {
             { cond: { flag: "inviteZahra" },
               then: [],
               else: [
-                { msg: "ぞくちょう「さばくの たみを かいぎに まねくとは\nバロンおうも ふところが ふかい。\nキャラバンを つれて うかがおう」" },
+                { msg: "ぞくちょう「砂漠の たみを かいぎに まねくとは\nバロンおうも ふところが ふかい。\nキャラバンを つれて うかがおう」" },
                 { flag: ["inviteZahra", 1] },
               ] },
           ], else: [] },
@@ -3711,13 +3711,13 @@ DATA.maps.zahra = {
               else: [
                 { msg: "ぞくちょう「よみがえった おうを もういちど\nねむりに つかせて くれたのだな。\nこれは いちぞくからの れいだ」" },
                 { give: { gold: 4000 } },
-                { msg: "4000ギルを てにいれた!" },
+                { msg: "4000ギルを 手に入れた!" },
                 { flag: ["tombReward", 1] },
               ] },
           ],
           else: [
-            { msg: "ぞくちょう「だいびょうに ねむる いにしえの\nおうが よみがえってしもうた。よるごとに\nすなあらしが まちを おそうのだ」" },
-            { msg: "「おうは ほのおと せいなる ちからを\nおそれている。どうか ふたたび\nねむらせて やってくれ」" },
+            { msg: "ぞくちょう「だいびょうに ねむる いにしえの\nおうが よみがえってしもうた。よるごとに\nすな嵐が まちを おそうのだ」" },
+            { msg: "「おうは ほのおと せいなる 力を\nおそれている。どうか ふたたび\nねむらせて やってくれ」" },
             { flag: ["tombQuest", 1] },
           ] },
       ] },
@@ -3733,10 +3733,10 @@ DATA.maps.zahra = {
                     { msg: "すなかりびと「4ひきも しとめたか!\nたいした うでまえだ。 やくそくの\nほうびを うけとってくれ」" },
                     { give: { gold: 4000 } },
                     { give: { item: "remedy" } },
-                    { msg: "4000ギルと ばんのうやくを てにいれた!" },
+                    { msg: "4000ギルと ばんのうやくを 手に入れた!" },
                     { flag: ["wormReward", 1] },
                   ],
-                  else: [{ msg: "すなかりびと「すなワームは さばくの\nあちこちに いる。4ひき たのんだぞ。\nずかんで かずを かくにんできる」" }] },
+                  else: [{ msg: "すなかりびと「すなワームは 砂漠の\nあちこちに いる。4ひき たのんだぞ。\nずかんで かずを かくにんできる」" }] },
               ],
               else: [
                 { msg: "すなかりびと「すなワームどもが キャラバンを\nおそって こまっている。4ひき たいじして\nくれたら ほうびを だそう」" },
@@ -3745,11 +3745,11 @@ DATA.maps.zahra = {
           ] },
       ] },
     { id: "zahra_dancer", x: 14, y: 8, spr: "celia", wander: true,
-      script: [{ msg: "おどりこ「オアシスの よるは おどりと\nうたで あける。あなたも いちど\nみていくと いいわ」" }] },
+      script: [{ msg: "おどりこ「オアシスの 夜は おどりと\nうたで あける。あなたも いちど\nみていくと いいわ」" }] },
     { id: "zahra_kid", x: 3, y: 9, spr: "villager", pal: "light", wander: true,
-      script: [{ msg: "こども「だいびょうには おうさまの たからが\nねむってるんだって! でも おばけが\nでるから だれも ちかづかないの」" }] },
+      script: [{ msg: "子供「だいびょうには 王様の たからが\nねむってるんだって! でも おばけが\nでるから だれも ちかづかないの」" }] },
     { id: "zahra_merchant", x: 16, y: 6, spr: "villager",
-      script: [{ msg: "しょうにん「えんげつとうは さばくの ほこり。\nほのおを やどす きっさきは\nこおりの まものに よくきくぞ」" }] },
+      script: [{ msg: "商人「えんげつとうは 砂漠の ほこり。\n炎を やどす きっさきは\n氷の 魔物に よくきくぞ」" }] },
   ],
   chests: [
     { id: "za1", x: 17, y: 9, item: "xpotion", hidden: true },
@@ -3884,7 +3884,7 @@ DATA.maps.sandtomb2 = {
         { msg: "『……ながき ゆめで あった。 とわの やすらぎを\nくれた なんじらに、わが やりを たくす』\nおうは しずかに ねむりに ついた。" },
         { give: { item: "w_sandlance" } },
         { give: { item: "acc_venomband" } },
-        { msg: "すなあらしのやりと どくよけのバングルを\nてにいれた!" },
+        { msg: "すな嵐の槍と 毒よけのバングルを\n手に入れた!" },
       ] },
   ],
   chests: [
@@ -3894,9 +3894,9 @@ DATA.maps.sandtomb2 = {
   ],
 };
 
-// ---------------- こおりのれっとう (だい4のちいき) ----------------
+// ---------------- 氷の列島 (だい4のちいき) ----------------
 DATA.maps.world3 = {
-  name: "こおりのれっとう",
+  name: "氷の列島",
   weather: "snow",
   outdoor: true,
   bgm: "field",
@@ -3978,7 +3978,7 @@ DATA.maps.frim = {
             { cond: { flag: "inviteFrim" },
               then: [],
               else: [
-                { msg: "むらおさ「せかいかいぎ……! ゆきに とざされた\nむらにも はるが くるようじゃ。\nぜひ さんか させてもらう」" },
+                { msg: "むらおさ「世界会議……! ゆきに とざされた\nむらにも はるが くるようじゃ。\nぜひ さんか させてもらう」" },
                 { flag: ["inviteFrim", 1] },
               ] },
           ], else: [] },
@@ -3987,22 +3987,22 @@ DATA.maps.frim = {
             { cond: { flag: "glacierReward" },
               then: [{ msg: "むらおさ「ひょうがの めがみが しずまり\nふぶきも やわらいだ。むらの おんじんよ、\nいつでも たずねてきなされ」" }],
               else: [
-                { msg: "むらおさ「めがみを しずめてくれたか!\nこれは むらからの こころばかりの れいじゃ」" },
+                { msg: "むらおさ「めがみを しずめてくれたか!\nこれは むらからの 心ばかりの れいじゃ」" },
                 { give: { gold: 3000 } },
-                { msg: "3000ギルを てにいれた!" },
+                { msg: "3000ギルを 手に入れた!" },
                 { flag: ["glacierReward", 1] },
               ] },
           ],
           else: [
             { msg: "むらおさ「ひょうがの おくに ねむる めがみが\nめざめてしもうた。ふぶきが やまず\nりょうにも でられん……」" },
-            { msg: "「どうか めがみを しずめて くだされ。\nほのおの ちからが あれば\nみちは ひらけるはずじゃ」" },
+            { msg: "「どうか めがみを しずめて くだされ。\n炎の 力が あれば\nみちは ひらけるはずじゃ」" },
             { flag: ["glacierQuest", 1] },
           ] },
       ] },
     { id: "frim_hunter", x: 5, y: 7, spr: "soldier",
       script: [
         { cond: { flag: "wolfReward" },
-          then: [{ msg: "かりゅうど「ゆきおおかみの むれが へって\nむらの こどもも そとで あそべるように\nなった。おかげさまだ」" }],
+          then: [{ msg: "かりゅうど「ゆきおおかみの むれが へって\nむらの 子供も そとで あそべるように\nなった。おかげさまだ」" }],
           else: [
             { cond: { flag: "wolfQuest" },
               then: [
@@ -4011,10 +4011,10 @@ DATA.maps.frim = {
                     { msg: "かりゅうど「ゆきおおかみを 3とうも!?\nあんた ほんものの かりゅうどだ。\nやくそくの ほうびだ、うけとってくれ」" },
                     { give: { gold: 3500 } },
                     { give: { item: "xpotion" } },
-                    { msg: "3500ギルと エクスポーションを てにいれた!" },
+                    { msg: "3500ギルと エクスポーションを 手に入れた!" },
                     { flag: ["wolfReward", 1] },
                   ],
-                  else: [{ msg: "かりゅうど「ゆきおおかみは しまの あちこちに\nいる。3とう たおしたら もどってきてくれ。\nずかんで かずを かぞえられるぞ」" }] },
+                  else: [{ msg: "かりゅうど「ゆきおおかみは しまの あちこちに\nいる。3とう 倒したら もどってきてくれ。\nずかんで かずを かぞえられるぞ」" }] },
               ],
               else: [
                 { msg: "かりゅうど「ゆきおおかみが ふえすぎて\nこまっている。3とう たいじして\nくれないか? ほうびは はずむぞ」" },
@@ -4023,11 +4023,11 @@ DATA.maps.frim = {
           ] },
       ] },
     { id: "frim_kid", x: 14, y: 8, spr: "villager", pal: "light", wander: true,
-      script: [{ msg: "こども「ゆきだるま つくったら\nいちばん うえの たまが ころがって\nいっちゃったの! さがしてるの!」" }] },
+      script: [{ msg: "子供「ゆきだるま つくったら\nいちばん うえの たまが ころがって\nいっちゃったの! さがしてるの!」" }] },
     { id: "frim_granny", x: 3, y: 8, spr: "villager", wander: true,
       script: [{ msg: "おばあさん「ひょうがの おくには むかし、\nうつくしい めがみさまが すんでいたと\nいいつたえに あるんだよ」" }] },
     { id: "frim_guard", x: 16, y: 6, spr: "soldier",
-      script: [{ msg: "ばんにん「ひょうがのどうくつは このさきだ。\nこおりの まものは ほのおに よわい。\nじゅんびは いいか?」" }] },
+      script: [{ msg: "番人「ひょうがの洞窟は このさきだ。\n氷の 魔物は ほのおに よわい。\nじゅんびは いいか?」" }] },
   ],
   chests: [
     { id: "fr1", x: 17, y: 9, item: "hiether", hidden: true },
@@ -4090,9 +4090,9 @@ DATA.maps.frimshop = {
   chests: [],
 };
 
-// ---------------- ひょうがのどうくつ ----------------
+// ---------------- ひょうがの洞窟 ----------------
 DATA.maps.glaciercave1 = {
-  name: "ひょうがのどうくつ",
+  name: "ひょうがの洞窟",
   bgm: "dungeon",
   encounter: "glaciercave",
   legend: {
@@ -4155,13 +4155,13 @@ DATA.maps.glaciercave2 = {
   npcs: [
     { id: "glaciellanpc", x: 6, y: 6, spr: "celia", pal: "light", hideFlag: "glacierBoss",
       script: [
-        { msg: "さいだんの こおりが ひかり、\nうつくしい かげが たちあがる……。" },
+        { msg: "さいだんの 氷が ひかり、\nうつくしい かげが たちあがる……。" },
         { msg: "『……ふぶきの こもりうたを みだすのは\nだれ。 わたくしの ねむりを さまたげるもの、\nこおりに とけて きえなさい』" },
         { battle: { group: ["glaciella"], boss: true, music: "spirit" } },
         { flag: ["glacierBoss", 1] },
-        { msg: "『……あたたかい ちから。 ながい ゆめは\nおわったのね。 ふぶきは やみ、\nはるが おとずれるでしょう』" },
+        { msg: "『……あ戦い ちから。 ながい ゆめは\nおわったのね。 ふぶきは やみ、\nはるが おとずれるでしょう』" },
         { give: { item: "a_aurora" } },
-        { msg: "オーロラのマントを てにいれた!" },
+        { msg: "オーロラのマントを 手に入れた!" },
       ] },
   ],
   chests: [
@@ -4171,9 +4171,9 @@ DATA.maps.glaciercave2 = {
   ],
 };
 
-// ---------------- ひがしのたいりく (だい3のちいき) ----------------
+// ---------------- 東の大陸 (だい3のちいき) ----------------
 DATA.maps.world2 = {
-  name: "ひがしのたいりく",
+  name: "東の大陸",
   outdoor: true,
   bgm: "field",
   encounter: "world2",
@@ -4215,7 +4215,7 @@ DATA.maps.world2 = {
     { x: 6, y: 12, type: "enter", warp: { map: "mirrorcave1", x: 2, y: 10, dir: "u" } },
     { x: 19, y: 8, type: "enter",
       cond: { flag: "mirrorBoss" },
-      failScript: [{ msg: "とうの とびらには かがみのもんしょう。\nかがみのどうくつの ぬしの けはいが\nきえれば ひらきそうだ。" }],
+      failScript: [{ msg: "とうの 扉には かがみのもんしょう。\nかがみの洞窟の ぬしの けはいが\nきえれば ひらきそうだ。" }],
       warp: { map: "eternaltower1", x: 8, y: 11, dir: "u" } },
   ],
   npcs: [],
@@ -4225,9 +4225,9 @@ DATA.maps.world2 = {
   ],
 };
 
-// ---------------- みずうみのまち トワイン ----------------
+// ---------------- 湖のまち トワイン ----------------
 DATA.maps.twine = {
-  name: "みずうみのまち トワイン",
+  name: "湖のまち トワイン",
   bgm: "town",
   exit: { map: "world2", x: 11, y: 4, dir: "d" },
   legend: {
@@ -4263,37 +4263,37 @@ DATA.maps.twine = {
             { cond: { flag: "inviteTwine" },
               then: [],
               else: [
-                { msg: "まちのおさ「バロンおうから せかいかいぎの\nしょうたいとは こうえいだ。\nよろこんで さんか しよう」" },
+                { msg: "まちのおさ「バロンおうから 世界会議の\nしょうたいとは こうえいだ。\nよろこんで さんか しよう」" },
                 { flag: ["inviteTwine", 1] },
               ] },
           ], else: [] },
         { cond: { flag: "mirrorBoss" },
           then: [
             { cond: { flag: "twinReward" },
-              then: [{ msg: "まちのおさ「かがみのぬしは もう いない。\nみずうみに うつる そらが\nこんなに あおいとはのう……」" }],
+              then: [{ msg: "まちのおさ「かがみのぬしは もう いない。\n湖に うつる 空が\nこんなに あおいとはのう……」" }],
               else: [
                 { msg: "まちのおさ「かがみのぬしを たおして\nくれたのか! まちの みんなに かわって\nれいを いわせてくれ」" },
                 { give: { gold: 2000 } },
-                { msg: "2000ギルを てにいれた!" },
+                { msg: "2000ギルを 手に入れた!" },
                 { flag: ["twinReward", 1] },
               ] },
           ],
           else: [
-            { msg: "まちのおさ「にしの どうくつには かがみの\nまものが すみついておる。みずうみに\nうつる かげまで ぬすまれる ありさまじゃ」" },
+            { msg: "まちのおさ「にしの 洞窟には かがみの\n魔物が すみついておる。湖に\nうつる かげまで ぬすまれる ありさまじゃ」" },
             { msg: "「たびのかた、どうか ぬしを\nたいじして くださらんか」" },
             { flag: ["twinQuest", 1] },
           ] },
       ] },
     { id: "twine_fisher", x: 5, y: 8, spr: "villager",
-      script: [{ msg: "つりびと「この みずうみには おろちが\nすんでいてね。ちいさい ふねじゃ\nこわくて こげないんだ」" }] },
+      script: [{ msg: "つりびと「この 湖には おろちが\nすんでいてね。ちいさい ふねじゃ\nこわくて こげないんだ」" }] },
     { id: "twine_kid", x: 14, y: 8, spr: "villager", pal: "light", wander: true,
-      script: [{ msg: "こども「とうの てっぺんには『ときの ばんにん』が\nいるんだって! じかんを とめられるって\nほんとかなー?」" }] },
+      script: [{ msg: "子供「とうの てっぺんには『ときの 番人』が\nいるんだって! じかんを とめられるって\nほんとかなー?」" }] },
     { id: "twine_merchant", x: 3, y: 9, spr: "villager", wander: true,
-      script: [{ msg: "しょうにん「ふたごのやりは この まちの\nめいぶつさ。みずうみに うつる かげと\nふたりで たたかえるって わけ」" }] },
+      script: [{ msg: "商人「ふたごの槍は この まちの\nめいぶつさ。湖に うつる かげと\nふたりで たたかえるって わけ」" }] },
     { id: "twine_guard", x: 16, y: 6, spr: "soldier",
       script: [
         { cond: { flag: "chronoBoss" },
-          then: [{ msg: "けいびへい「とうの ひかりが しずまった……。\nあんたたちが やったのか。 たいしたもんだ」" }],
+          then: [{ msg: "けいびへい「とうの 光が しずまった……。\nあんたたちが やったのか。 たいしたもんだ」" }],
           else: [{ msg: "けいびへい「ひがしの とうには ちかづくな。\nよるな よるな、じかんが くるうぞ」" }] },
       ] },
   ],
@@ -4358,9 +4358,9 @@ DATA.maps.twineshop = {
   chests: [],
 };
 
-// ---------------- かがみのどうくつ ----------------
+// ---------------- かがみの洞窟 ----------------
 DATA.maps.mirrorcave1 = {
-  name: "かがみのどうくつ",
+  name: "かがみの洞窟",
   bgm: "dungeon",
   encounter: "mirrorcave",
   legend: {
@@ -4429,7 +4429,7 @@ DATA.maps.mirrorcave2 = {
         { msg: "かがみは くだけ、とらわれていた\nまちの かげたちが かえっていった。" },
         { give: { item: "w_mirror" } },
         { give: { item: "acc_bellcharm" } },
-        { msg: "ミラーブレードと ぎんのすずを てにいれた!\n(ひがしの とうの ふういんも とけたようだ)" },
+        { msg: "ミラーブレードと ぎんのすずを 手に入れた!\n(ひがしの とうの ふういんも とけたようだ)" },
       ] },
   ],
   chests: [
@@ -4476,7 +4476,7 @@ DATA.maps.eternaltower1 = {
 };
 
 DATA.maps.eternaltower2 = {
-  name: "ときのちょうじょう",
+  name: "ときの頂上",
   bgm: "dungeon",
   encounter: "eternaltower",
   legend: {
@@ -4502,13 +4502,13 @@ DATA.maps.eternaltower2 = {
   npcs: [
     { id: "chronovanpc", x: 7, y: 5, spr: "wizard", pal: "light", hideFlag: "chronoBoss",
       script: [
-        { msg: "とうの ちょうじょうで すなどけいが\nひっくりかえる おとが した……。" },
-        { msg: "『ときを みだす ものども……。\nわれは ときのばんにん クロノヴァ。\nこの ときを こえてみせよ』" },
+        { msg: "とうの 頂上で すなどけいが\nひっくりかえる おとが した……。" },
+        { msg: "『ときを みだす ものども……。\nわれは ときの番人 クロノヴァ。\nこの ときを こえてみせよ』" },
         { battle: { group: ["chronova"], boss: true, music: "spirit" } },
         { flag: ["chronoBoss", 1] },
-        { msg: "『……ときは ふたたび ながれはじめた。\nなんじらの あゆみに しゅくふくを』\nばんにんは すなに かえっていった。" },
+        { msg: "『……ときは ふたたび ながれはじめた。\nなんじらの あゆみに しゅくふくを』\n番人は すなに かえっていった。" },
         { give: { item: "a_chrono" } },
-        { msg: "ときのよろいを てにいれた!" },
+        { msg: "ときの鎧を 手に入れた!" },
       ] },
   ],
   chests: [
@@ -4596,15 +4596,15 @@ DATA.maps.house2 = {
           else: [
             { cond: { all: ["cat1", "cat2", "cat3", "cat4", "cat5"] },
               then: [
-                { msg: "おばあさん「まあまあ! むらじゅうの ねこと\nなかよく なったんだって?\nあんた ねこの こころが わかるひとだね」" },
+                { msg: "おばあさん「まあまあ! むらじゅうの ねこと\nなかよく なったんだって?\nあんた ねこの 心が わかるひとだね」" },
                 { give: { item: "a_bell" } },
                 { give: { gold: 3000 } },
-                { msg: "ねこのすずと 3000ギルを てにいれた!" },
+                { msg: "ねこのすずと 3000ギルを 手に入れた!" },
                 { flag: ["catDone", 1] },
               ],
               else: [
-                { msg: "ねこずきの おばあさん「せかいには 5ひき、\nとくべつな ねこが いるんだよ。\nなでて なかよく なってごらん」" },
-                { msg: "「きしの たまごの いえ、やまのさとの 2けん、\nちょうろうの いえ、それに ちていの おうきゅう。\nみんな きまぐれだから やさしくね」" },
+                { msg: "ねこずきの おばあさん「世界には 5ひき、\nとくべつな ねこが いるんだよ。\nなでて なかよく なってごらん」" },
+                { msg: "「きしの たまごの いえ、山のさとの 2けん、\n長老の いえ、それに 地底の 王宮。\nみんな きまぐれだから やさしくね」" },
                 { flag: ["catQuest", 1] },
               ] },
           ] },
@@ -4689,8 +4689,8 @@ DATA.maps.house4 = {
     { id: "h4_collector", x: 3, y: 4, spr: "villager", pal: "dark",
       script: [
         { cond: { item: "heroproof" },
-          then: [{ msg: "しゅうしゅうか「え!? えいゆうのあかしを\nもってるだか!? いちど さわらせて……\nああ、なんて かがやきだべ……」" }],
-          else: [{ msg: "しゅうしゅうか「おらの コレクションは\nちていいちだべ。でんせつの『えいゆうのあかし』を\nいつか この めで みてみたいもんだ」" }] },
+          then: [{ msg: "しゅうしゅうか「え!? 英雄のあかしを\nもってるだか!? いちど さわらせて……\nああ、なんて かがやきだべ……」" }],
+          else: [{ msg: "しゅうしゅうか「おらの コレクションは\n地底いちだべ。伝説の『英雄のあかし』を\nいつか この めで みてみたいもんだ」" }] },
       ] },
     { id: "cat3", x: 7, y: 3, spr: "cat",
       script: [
@@ -4741,7 +4741,7 @@ DATA.maps.phantomhall = {
     { id: "ph_ghost1", x: 3, y: 4, spr: "villager", pal: "light",
       script: [{ msg: "ぼんやりした ひとかげ「ここは まぼろしの\nおうこく……。おうは えいえんに\nたみを まちつづけて おられる……」" }] },
     { id: "ph_ghost2", x: 12, y: 8, spr: "soldier", pal: "light",
-      script: [{ msg: "ぼんやりした えいへい「おうの けんは\nすべてを つらぬく ひかりの けん……。\nかてる ものにのみ ゆずられる……」" }] },
+      script: [{ msg: "ぼんやりした えいへい「おうの けんは\nすべてを つらぬく 光の けん……。\nかてる ものにのみ ゆずられる……」" }] },
   ],
   chests: [
     { id: "ph1", x: 14, y: 10, gold: 20000, hidden: true },
@@ -4750,7 +4750,7 @@ DATA.maps.phantomhall = {
 };
 
 DATA.maps.phantomthrone = {
-  name: "まぼろしのぎょくざ",
+  name: "まぼろしの玉座",
   bgm: "shrine",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -4776,13 +4776,13 @@ DATA.maps.phantomthrone = {
   npcs: [
     { id: "regalianpc", x: 7, y: 3, spr: "king", pal: "light", hideFlag: "phantomBoss",
       script: [
-        { msg: "ぎょくざの おうが しずかに たちあがる。\nその すがたは ひかりに すけていた……。" },
-        { msg: "『よくぞ まいった、わかき えいゆうたちよ。\nわしは まぼろしの おう レガリア。\nわが けんに いどむ しかくを しめせ』" },
+        { msg: "玉座の おうが しずかに たちあがる。\nその すがたは ひかりに すけていた……。" },
+        { msg: "『よくぞ まいった、わかき 英雄たちよ。\nわしは まぼろしの おう レガリア。\nわが けんに いどむ しかくを しめせ』" },
         { battle: { group: ["regalia"], boss: true, music: "spirit" } },
         { flag: ["phantomBoss", 1] },
-        { msg: "『……みごとじゃ。 この けんは もはや\nまぼろしに あらず。 なんじの てで\nげんじつの ひかりと なるがよい』" },
+        { msg: "『……みごとじゃ。 この けんは もはや\nまぼろしに あらず。 なんじの てで\nげんじつの 光と なるがよい』" },
         { give: { item: "w_regalia" } },
-        { msg: "おうのつるぎ レガリアを てにいれた!!\n(こうげき65・せい・3しゅぞくとっこう)" },
+        { msg: "おうの剣 レガリアを 手に入れた!!\n(攻撃65・せい・3しゅぞくとっこう)" },
         { msg: "おうと しろは ほのかな ひかりに つつまれ\nしずかに きえていった……。" },
       ] },
   ],
@@ -4791,9 +4791,9 @@ DATA.maps.phantomthrone = {
   ],
 };
 
-// ---------------- ちからのしんでん (じょういジョブの せいち) ----------------
+// ---------------- 力の神殿 (じょういジョブの せいち) ----------------
 DATA.maps.powertemple = {
-  name: "ちからのしんでん",
+  name: "力の神殿",
   bgm: "shrine",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -4820,13 +4820,13 @@ DATA.maps.powertemple = {
       script: [
         { cond: { flag: "ascended" },
           then: [
-            { msg: "しんでんのけんじゃ「めざめし ちからは\nもう なんじらのもの。 その かがやき、\nほしぼしにも まけておらぬ」" },
+            { msg: "神殿の賢者「めざめし 力は\nもう なんじらのもの。 その かがやき、\n星々にも まけておらぬ」" },
           ],
           else: [
             { cond: { flag: "trueClear" },
               then: [
-                { msg: "しんでんのけんじゃ「ここは ちからのしんでん。\nほしを すくいし えいゆうにのみ、その とびらは\nひらかれる」" },
-                { msg: "「せかいのしずくを 3つ ささげよ。\nさすれば たましいの きゅうきょくの すがたへ\nみちびこう」" },
+                { msg: "神殿の賢者「ここは 力の神殿。\n星を すくいし 英雄にのみ、その 扉は\nひらかれる」" },
+                { msg: "「世界のしずくを 3つ ささげよ。\nさすれば 魂の きゅうきょくの すがたへ\nみちびこう」" },
                 { cond: { itemCount: { id: "worldtear", n: 3 } },
                   then: [
                     { menu: { x: 130, y: 150, options: [
@@ -4834,21 +4834,21 @@ DATA.maps.powertemple = {
                         { take: { item: "worldtear" } },
                         { take: { item: "worldtear" } },
                         { take: { item: "worldtear" } },
-                        { msg: "3つの しずくが うかびあがり、\nまばゆい ひかりが 5にんを つつむ……!!" },
+                        { msg: "3つの しずくが うかびあがり、\nまばゆい 光が 5にんを つつむ……!!" },
                         { ascend: 1 },
-                        { msg: "けんじゃ「これぞ きゅうきょくの ジョブ。\nちからは みなぎり、あらたな わざも\nじきに めざめよう……」" },
+                        { msg: "賢者「これぞ きゅうきょくの ジョブ。\n力は みなぎり、あらたな わざも\nじきに めざめよう……」" },
                       ] },
                       { label: "やめておく", ops: [
-                        { msg: "けんじゃ「こころの じゅんびが できたら\nまた くるがよい」" },
+                        { msg: "賢者「心の じゅんびが できたら\nまた くるがよい」" },
                       ] },
                     ] } },
                   ],
                   else: [
-                    { msg: "「……まだ しずくが たりぬようだな。\nせかいのしずくは かくちの ぬしの もとや\nふかき ダンジョンに ねむっておる」" },
+                    { msg: "「……まだ しずくが たりぬようだな。\n世界のしずくは かくちの ぬしの もとや\nふかき ダンジョンに ねむっておる」" },
                   ] },
               ],
               else: [
-                { msg: "しんでんのけんじゃ「ほしの やみを はらいし もの\nのみが この しんでんの こえを きける。\nいまは まだ そのときに あらず」" },
+                { msg: "神殿の賢者「星の 闇を はらいし もの\nのみが この 神殿の こえを きける。\n今は まだ そのときに あらず」" },
               ] },
           ] },
       ] },
@@ -4858,9 +4858,9 @@ DATA.maps.powertemple = {
   ],
 };
 
-// ---------------- みずうみのさんばし (トワインきたの つりば) ----------------
+// ---------------- 湖の桟橋 (トワインきたの つりば) ----------------
 DATA.maps.lakepier = {
-  name: "みずうみのさんばし",
+  name: "湖の桟橋",
   bgm: "town",
   legend: {
     "w": { tile: "water", solid: true },
@@ -4891,17 +4891,17 @@ DATA.maps.lakepier = {
         { cond: { all: ["fishKing", "lakeKing"] },
           then: [
             { cond: { flag: "anglerKing" },
-              then: [{ msg: "つりびとロロ「そらと みずうみ、ふたりのぬしを\nつりあげた でんせつの つりし……。\nいっしょに つれて こうえいだよ」" }],
+              then: [{ msg: "つりびとロロ「そらと 湖、ふたりのぬしを\nつりあげた 伝説の つりし……。\nいっしょに つれて こうえいだよ」" }],
               else: [
-                { msg: "つりびとロロ「そらのぬしも みずうみのぬしも\nつりあげたのかい!? たまげた!!\nこいつは わたしの きもちだ、うけとってくれ」" },
+                { msg: "つりびとロロ「空のぬしも 湖のぬしも\nつりあげたのかい!? たまげた!!\nこいつは わたしの きもちだ、うけとってくれ」" },
                 { give: { gold: 5000 } },
-                { msg: "5000ギルを てにいれた!" },
+                { msg: "5000ギルを 手に入れた!" },
                 { flag: ["anglerKing", 1] },
               ] },
           ],
           else: [
-            { msg: "つりびとロロ「この みずうみには でっかい\nぬしが すんでいてね。さんばしの さきで\nさおを たらして ごらんよ」" },
-            { msg: "「そういえば そらのしまにも つりばが\nあるらしいね。りょうほうの ぬしを つったら\nたいしたもんだ」" },
+            { msg: "つりびとロロ「この 湖には でっかい\nぬしが すんでいてね。桟橋の さきで\nさおを たらして ごらんよ」" },
+            { msg: "「そういえば 空の島にも つりばが\nあるらしいね。りょうほうの ぬしを つったら\nたいしたもんだ」" },
           ] },
       ] },
   ],
@@ -4910,9 +4910,9 @@ DATA.maps.lakepier = {
   ],
 };
 
-// ---------------- みはりのとう (ちゅうおうさんみゃくの 見張り塔) ----------------
+// ---------------- 見張りの塔 (ちゅうおう山脈の 見張り塔) ----------------
 DATA.maps.watchtower1 = {
-  name: "みはりのとう",
+  name: "見張りの塔",
   bgm: "town",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -4941,7 +4941,7 @@ DATA.maps.watchtower1 = {
   npcs: [
     { id: "tower_guard", x: 8, y: 3, spr: "villager", pal: "dark",
       script: [
-        { msg: "とうもり「ここは ちゅうおうさんみゃくの\nみはりのとう。うえの かいから\nせかいじゅうが みわたせるぞ」" },
+        { msg: "とうもり「ここは ちゅうおう山脈の\n見張りの塔。うえの かいから\n世界中が みわたせるぞ」" },
       ] },
   ],
   chests: [
@@ -4950,7 +4950,7 @@ DATA.maps.watchtower1 = {
 };
 
 DATA.maps.watchtower2 = {
-  name: "みはりのとう ちょうじょう",
+  name: "見張りの塔 頂上",
   bgm: "town",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -4977,13 +4977,13 @@ DATA.maps.watchtower2 = {
     { id: "watchman", x: 8, y: 2, spr: "soldier",
       script: [
         { cond: { flag: "trueClear" },
-          then: [{ msg: "ものみのワッツ「せかいは しずかだ。\nこの けしきを まもったのは\nあんたたちだよ」" }],
+          then: [{ msg: "ものみのワッツ「世界は しずかだ。\nこの けしきを まもったのは\nあんたたちだよ」" }],
           else: [
             { cond: { flag: "airship" },
-              then: [{ msg: "ものみのワッツ「きのう そらとぶ ふねが\nくもを きって とんでいくのを みたぞ!\nありゃあ たまげた!」" }],
-              else: [{ msg: "ものみのワッツ「きたの そらが なんだか\nさわがしい。バロンの ほうかくも\nちかごろ ようすが おかしい……」" }] },
+              then: [{ msg: "ものみのワッツ「きのう 空飛ぶ ふねが\nくもを きって とんでいくのを みたぞ!\nありゃあ たまげた!」" }],
+              else: [{ msg: "ものみのワッツ「きたの 空が なんだか\nさわがしい。バロンの ほうかくも\nちかごろ ようすが おかしい……」" }] },
           ] },
-        { msg: "「そうそう、かぜの つよい ひは たいまつの\nかげも ゆれる…… とうの かげは\nよくよく しらべてみる もんだ」" },
+        { msg: "「そうそう、風の つよい ひは たいまつの\nかげも ゆれる…… とうの かげは\nよくよく しらべてみる もんだ」" },
       ] },
   ],
   chests: [
@@ -4991,9 +4991,9 @@ DATA.maps.watchtower2 = {
   ],
 };
 
-// ---------------- そらのふなつきば (ひこうせいび場) ----------------
+// ---------------- 空の船着き場 (ひこうせいび場) ----------------
 DATA.maps.airdock = {
-  name: "そらのふなつきば",
+  name: "空の船着き場",
   bgm: "town",
   legend: {
     "f": { tile: "forest", solid: true },
@@ -5026,24 +5026,24 @@ DATA.maps.airdock = {
         { cond: { flag: "dockDone" },
           then: [
             { cond: { flag: "airship" },
-              then: [{ msg: "ぎしちょうガレット「シリウスごうは きょうも\nばっちり せいびずみだ! そらの たびは\nわしらに まかせておけ!」" }],
-              else: [{ msg: "ぎしちょうガレット「そうこも きれいに なったし\nさぎょうが はかどる はかどる!\nかんせいしたら いちばんに のせてやろう」" }] },
+              then: [{ msg: "技師長ガレット「シリウスごうは きょうも\nばっちり せいびずみだ! 空の たびは\nわしらに まかせておけ!」" }],
+              else: [{ msg: "技師長ガレット「そうこも きれいに なったし\nさぎょうが はかどる はかどる!\nかんせいしたら いちばんに のせてやろう」" }] },
           ],
           else: [
             { cond: { flag: "dockQuest" },
               then: [
                 { cond: { kills: { id: "bat", n: 5 } },
                   then: [
-                    { msg: "ぎしちょうガレット「おお! そうこの コウモリを\nたいじして くれたのか! これで あんしんして\nぶひんを しまえるわい」" },
+                    { msg: "技師長ガレット「おお! そうこの コウモリを\nたいじして くれたのか! これで あんしんして\nぶひんを しまえるわい」" },
                     { give: { gold: 2500 } },
                     { give: { item: "xpotion" } },
-                    { msg: "2500ギルと エクスポーションを てにいれた!" },
+                    { msg: "2500ギルと エクスポーションを 手に入れた!" },
                     { flag: ["dockDone", 1] },
                   ],
-                  else: [{ msg: "ぎしちょうガレット「コウモリは どうくつに\nむれて おるぞ。5ひきも へらせば\nしばらく よりつくまい」" }] },
+                  else: [{ msg: "技師長ガレット「コウモリは 洞窟に\nむれて おるぞ。5ひきも へらせば\nしばらく よりつくまい」" }] },
               ],
               else: [
-                { msg: "ぎしちょうガレット「ここは そらとぶ ふねの\nふなつきば。わしが ぎしちょうの ガレットだ」" },
+                { msg: "技師長ガレット「ここは 空飛ぶ ふねの\n船着き場。わしが 技師長の ガレットだ」" },
                 { msg: "「じつは こまっておってな…… ぶひんそうこに\nコウモリが すみついて さぎょうに ならん。\n5ひき たいじして くれんか?」" },
                 { flag: ["dockQuest", 1] },
               ] },
@@ -5052,8 +5052,8 @@ DATA.maps.airdock = {
     { id: "dock_boy", x: 4, y: 7, spr: "villager", pal: "light", wander: true,
       script: [
         { cond: { flag: "airship" },
-          then: [{ msg: "みならいぎしピコ「シリウスごうが そらを とぶすがた\nぼく なんども みたんだ! いつか ぼくも\nそうじゅうしを やるんだ!」" }],
-          else: [{ msg: "みならいぎしピコ「ここに でっかい けいりゅうとうを\nたてるんだって! そらとぶ ふねが とまるんだよ!\nはやく みたいなあ」" }] },
+          then: [{ msg: "みならいぎしピコ「シリウスごうが 空を とぶすがた\nぼく なんども みたんだ! いつか ぼくも\nそうじゅうしを やるんだ!」" }],
+          else: [{ msg: "みならいぎしピコ「ここに でっかい けいりゅうとうを\nたてるんだって! 空飛ぶ ふねが とまるんだよ!\nはやく みたいなあ」" }] },
       ] },
     { id: "dock_master", x: 13, y: 3, spr: "villager", pal: "dark",
       script: [
@@ -5094,17 +5094,17 @@ DATA.maps.halloffame = {
   ],
   npcs: [
     { id: "hall_cry1", x: 5, y: 2, spr: "crystal",
-      script: [{ msg: "クリスタルの ひかりが\nしずかに ゆれている……。" }] },
+      script: [{ msg: "クリスタルの 光が\nしずかに ゆれている……。" }] },
     { id: "hall_cry2", x: 8, y: 2, spr: "crystal",
-      script: [{ msg: "クリスタルの ひかりが\nあたたかく つつんでくれる。" }] },
+      script: [{ msg: "クリスタルの 光が\nあたたかく つつんでくれる。" }] },
     { id: "rush_keeper", x: 10, y: 6, spr: "soldier",
       script: [
         { cond: { flag: "trueClear" },
           then: [
-            { msg: "けいしょうのばんにん「ここは たたかいの きおくを\nよみがえらせる ま。れんせんの あいだ、\nかいふくは かくせんごの いやし だけだ」" },
+            { msg: "けいしょうの番人「ここは 戦いの きおくを\nよみがえらせる ま。れんせんの あいだ、\n回復は かくせんごの いやし だけだ」" },
             { menu: { options: [
-              { label: "ものがたりのみち", ops: [
-                { msg: "ばんにん「ものがたりの 5せん!\nいざ、きおくの とびらへ!!」" },
+              { label: "物語のみち", ops: [
+                { msg: "番人「物語の 5せん!\nいざ、きおくの 扉へ!!」" },
                 { battle: { group: ["demonguard"], boss: true, music: "boss" } },
                 { healParty: 0.4 },
                 { battle: { group: ["kraken"], boss: true, music: "boss" } },
@@ -5115,19 +5115,19 @@ DATA.maps.halloffame = {
                 { healParty: 0.4 },
                 { battle: { group: ["voidos"], boss: true, music: "last" } },
                 { cond: { flag: "rush1" },
-                  then: [{ msg: "ばんにん「なんども こえていくとは……\nあっぱれと しか いいようがない!」" }],
+                  then: [{ msg: "番人「なんども こえていくとは……\nあっぱれと しか いいようがない!」" }],
                   else: [
-                    { msg: "ばんにん「ものがたりのみち かんぱ!!\nほうびを うけとってくれ!」" },
+                    { msg: "番人「物語のみち 完破!!\nほうびを うけとってくれ!」" },
                     { give: { gold: 20000 } },
                     { give: { item: "elixir" } },
-                    { msg: "20000ギルと エリクサーを てにいれた!" },
+                    { msg: "20000ギルと エリクサーを 手に入れた!" },
                     { flag: ["rush1", 1] },
                   ] },
               ] },
               { label: "ぬしのみち", ops: [
                 { cond: { flag: "rush1" },
                   then: [
-                    { msg: "ばんにん「かくちの ぬし 6れんせん!\nこころして いけ!!」" },
+                    { msg: "番人「かくちの ぬし 6れんせん!\n心して いけ!!」" },
                     { battle: { group: ["lunavora"], boss: true, music: "spirit" } },
                     { healParty: 0.4 },
                     { battle: { group: ["mirrorfiend"], boss: true, music: "boss" } },
@@ -5140,22 +5140,22 @@ DATA.maps.halloffame = {
                     { healParty: 0.4 },
                     { battle: { group: ["tonitrus"], boss: true, music: "spirit" } },
                     { cond: { flag: "rush2" },
-                      then: [{ msg: "ばんにん「ぬしたちも よろこんで いるだろう」" }],
+                      then: [{ msg: "番人「ぬしたちも よろこんで いるだろう」" }],
                       else: [
-                        { msg: "ばんにん「ぬしのみち かんぱ!!\nすさまじい つわものだ!」" },
+                        { msg: "番人「ぬしのみち 完破!!\nすさまじい つわものだ!」" },
                         { give: { gold: 40000 } },
                         { give: { item: "worldtear" } },
                         { give: { item: "acc_dragonheart" } },
-                        { msg: "40000ギル、せかいのしずく、\nりゅうのこころを てにいれた!" },
+                        { msg: "40000ギル、世界のしずく、\nりゅうの心を 手に入れた!" },
                         { flag: ["rush2", 1] },
                       ] },
                   ],
-                  else: [{ msg: "ばんにん「まずは ものがたりのみちを\nこえてからだ」" }] },
+                  else: [{ msg: "番人「まずは 物語のみちを\nこえてからだ」" }] },
               ] },
               { label: "しんえんのみち", ops: [
                 { cond: { flag: "rush2" },
                   then: [
-                    { msg: "ばんにん「しんえんの 4れんせん……。\nいきて かえれる ほしょうは ない。\nそれでも いくか!!」" },
+                    { msg: "番人「しんえんの 4れんせん……。\nいきて かえれる ほしょうは ない。\nそれでも いくか!!」" },
                     { battle: { group: ["vaha"], boss: true, music: "boss" } },
                     { healParty: 0.4 },
                     { battle: { group: ["granstella"], boss: true, music: "spirit" } },
@@ -5164,36 +5164,36 @@ DATA.maps.halloffame = {
                     { healParty: 0.4 },
                     { battle: { group: ["noctia"], boss: true, music: "spirit" } },
                     { cond: { flag: "rush3" },
-                      then: [{ msg: "ばんにん「しんえんすら あそびばに するか……。\nおそれいった」" }],
+                      then: [{ msg: "番人「しんえんすら あそびばに するか……。\nおそれいった」" }],
                       else: [
-                        { msg: "ばんにん「し、しんえんのみち かんぱ!!!\nでんせつの なかの でんせつだ!!」" },
+                        { msg: "番人「し、しんえんのみち 完破!!!\n伝説の なかの 伝説だ!!」" },
                         { give: { gold: 100000 } },
                         { give: { item: "acc_stargem" } },
-                        { msg: "100000ギルと ほしのもんしょうを てにいれた!\nでんどうに 『けいしょうしゃ』の なが きざまれた。" },
+                        { msg: "100000ギルと 星のもんしょうを 手に入れた!\nでんどうに 『けいしょうしゃ』の なが きざまれた。" },
                         { flag: ["rush3", 1] },
                       ] },
                   ],
-                  else: [{ msg: "ばんにん「ぬしのみちを こえたものだけが\nいどめる みちだ」" }] },
+                  else: [{ msg: "番人「ぬしのみちを こえたものだけが\nいどめる みちだ」" }] },
               ] },
               { label: "やめる", ops: [] },
             ] } },
           ],
-          else: [{ msg: "けいしょうのばんにん「ものがたりを さいごまで\nみとどけた ものだけが、この まに\nいどむことが できる」" }] },
+          else: [{ msg: "けいしょうの番人「物語を 最後まで\nみとどけた ものだけが、この まに\nいどむことが できる」" }] },
       ] },
     { id: "hall_bard", x: 3, y: 6, spr: "villager",
       script: [
         { cond: { flag: "haouGiven" },
-          then: [{ msg: "かたりべ「かくしぶきの うわさは まだある。\nぬまのそこの やり、めがみのさいだんの つえ、\nときのちょうじょうの つえ……」" }],
+          then: [{ msg: "かたりべ「かくしぶきの うわさは まだある。\nぬまのそこの やり、めがみのさいだんの つえ、\nときの頂上の つえ……」" }],
           else: [
             { cond: { flag: "arenaPlatinum" },
               then: [
-                { msg: "かたりべ「とうぎじょうの プラチナを せいはした\nでんせつの こぶしに、この つめを\nささげましょう」" },
+                { msg: "かたりべ「闘技場の プラチナを せいはした\n伝説の こぶしに、この つめを\nささげましょう」" },
                 { give: { item: "w_haou" } },
-                { msg: "はおうのつめを てにいれた!\n(こうげき62・けんおうも おそれる つめ)" },
+                { msg: "はおうの爪を 手に入れた!\n(攻撃62・けんおうも おそれる つめ)" },
                 { flag: ["haouGiven", 1] },
               ],
               else: [
-                { msg: "かたりべ「せかいには かくされた ぶきが\nねむっています。ぬしの ぬま、めがみの さいだん、\nときの ちょうじょう、とうぎじょうの ちょうてん……」" },
+                { msg: "かたりべ「世界には かくされた ぶきが\nねむっています。ぬしの ぬま、めがみの さいだん、\nときの 頂上、闘技場の ちょうてん……」" },
               ] },
           ] },
       ] },
@@ -5206,18 +5206,18 @@ DATA.maps.halloffame = {
             { cond: { flag: "hallHero" },
               then: [
                 { cond: { flag: "herobandGiven" },
-                  then: [{ msg: "きろくがかり「あなたがたこそ しんの えいゆう。\nその なは えいえんに かたりつがれます」" }],
+                  then: [{ msg: "きろくがかり「あなたがたこそ しんの 英雄。\nその なは えいえんに かたりつがれます」" }],
                   else: [
-                    { msg: "きろくがかり「えいゆうのあかしを もつ おかたへ\nでんどうから もうひとつ おくりものが\nございます」" },
+                    { msg: "きろくがかり「英雄のあかしを もつ おかたへ\nでんどうから もうひとつ おくりものが\nございます」" },
                     { give: { item: "a_heroband" } },
-                    { msg: "えいゆうのおびを てにいれた!\n(だれでも そうびできる さいこうきゅうの おび)" },
+                    { msg: "英雄のおびを 手に入れた!\n(だれでも そうびできる さいこうきゅうの おび)" },
                     { flag: ["herobandGiven", 1] },
                   ] },
               ],
               else: [
-                { msg: "きろくがかり「すべての しれんを こえた もの……。\nでんせつは ここに かんせいしました。\nこれを うけとってください」" },
+                { msg: "きろくがかり「すべての 試練を こえた もの……。\n伝説は ここに かんせいしました。\nこれを うけとってください」" },
                 { give: { item: "heroproof" } },
-                { msg: "えいゆうのあかしを てにいれた!!" },
+                { msg: "英雄のあかしを 手に入れた!!" },
                 { flag: ["hallHero", 1] },
               ] },
           ],
@@ -5227,9 +5227,9 @@ DATA.maps.halloffame = {
   chests: [],
 };
 
-// ---------------- ほしのはか (かくしダンジョン) ----------------
+// ---------------- 星のはか (かくしダンジョン) ----------------
 DATA.maps.stargrave1 = {
-  name: "ほしのはか",
+  name: "星のはか",
   bgm: "under",
   encounter: "stargrave",
   legend: {
@@ -5266,7 +5266,7 @@ DATA.maps.stargrave1 = {
 };
 
 DATA.maps.stargrave2 = {
-  name: "ほしのはか さいしんぶ",
+  name: "星のはか さいしんぶ",
   bgm: "under",
   encounter: "stargrave",
   legend: {
@@ -5292,14 +5292,14 @@ DATA.maps.stargrave2 = {
   npcs: [
     { id: "granstellanpc", x: 7, y: 5, spr: "voidos", pal: "light", hideFlag: "graveBoss",
       script: [
-        { msg: "はかの おくで ほしの ひかりが\nうずを まいている……。" },
-        { msg: "『……ねむりを やぶるものよ。\nわれは ほしぼしの おう グランステラ。\nちからを しめしてみせよ』" },
+        { msg: "はかの おくで 星の 光が\nうずを まいている……。" },
+        { msg: "『……ねむりを やぶるものよ。\nわれは 星々の おう グランステラ。\n力を しめしてみせよ』" },
         { battle: { group: ["granstella"], boss: true, music: "spirit" } },
         { flag: ["graveBoss", 1] },
-        { msg: "『みごとなり……。 ほしの まもりを\nなんじらに たくそう』\nひかりは しずかに ねむりに ついた。" },
+        { msg: "『みごとなり……。 星の ま森を\nなんじらに たくそう』\n光は しずかに ねむりに ついた。" },
         { give: { item: "a_crown" } },
         { give: { item: "acc_voidseal" } },
-        { msg: "ほしのおうかんと こくうのふういんを\nてにいれた!" },
+        { msg: "星のおうかんと こくうのふういんを\n手に入れた!" },
       ] },
   ],
   chests: [
@@ -5309,9 +5309,9 @@ DATA.maps.stargrave2 = {
   ],
 };
 
-// ---------------- しれんのやま (つづらおりの さんどう) ----------------
+// ---------------- 試練のやま (つづらおりの さんどう) ----------------
 DATA.maps.trialmt1 = {
-  name: "しれんのやま さんどう",
+  name: "試練のやま さんどう",
   outdoor: true,
   bgm: "dungeon",
   encounter: "trialmt",
@@ -5347,7 +5347,7 @@ DATA.maps.trialmt1 = {
 };
 
 DATA.maps.trialmt2 = {
-  name: "しれんのやま さんちょう",
+  name: "試練のやま さんちょう",
   outdoor: true,
   bgm: "dungeon",
   encounter: "trialmt",
@@ -5379,21 +5379,21 @@ DATA.maps.trialmt2 = {
             { cond: { all: ["nightBoss"] },
               then: [
                 { cond: { flag: "glenEp2" },
-                  then: [{ msg: "ガロン「やりの かぜが かわったな。\nまもる ものが ある やつの かぜだ。\nいつでも うちに こい」" }],
+                  then: [{ msg: "ガロン「やりの 風が かわったな。\n守る ものが ある やつの かぜだ。\nいつでも うちに こい」" }],
                   else: [
-                    { msg: "ガロン「もどってきたか、りゅうきし。\nよるのくにの はなしは やまに まで\nとどいているぞ。ひとつ けいこと いくか」" },
+                    { msg: "ガロン「もどってきたか、竜騎士。\n夜の国の はなしは やまに まで\nとどいているぞ。ひとつ けいこと いくか」" },
                     { msg: "グレン「のぞむところだ!\n……ふうっ。 あいかわらず おそろしい\nこぶしだな、あんた」" },
-                    { msg: "ガロン「おまえの やりも な。 ……これを もて。\nりゅうの こころは まもるもののために もえる。\nおまえに こそ ふさわしい」" },
+                    { msg: "ガロン「おまえの やりも な。 ……これを もて。\nりゅうの 心は 守るもののために もえる。\nおまえに こそ ふさわしい」" },
                     { give: { item: "a_dragonheart" } },
-                    { msg: "りゅうのこころを てにいれた!" },
+                    { msg: "りゅうの心を 手に入れた!" },
                     { flag: ["glenEp2", 1] },
                   ] },
               ],
-              else: [{ msg: "けんおうガロン「よい こぶしだった……。\nおまえたちなら ほしの やみさえ\nうちはらえるだろう」" }] },
+              else: [{ msg: "けんおうガロン「よい こぶしだった……。\nおまえたちなら 星の やみさえ\nうちはらえるだろう」" }] },
           ],
           else: [
-            { msg: "けんおうガロン「この やまの ちょうじょうで\nおれは さいきょうの あいてを\nまちつづけてきた」" },
-            { msg: "「おまえたちから ただならぬ きはくを\nかんじる…… いざ、しょうぶ!!」" },
+            { msg: "けんおうガロン「この 山の 頂上で\nおれは 最強の あいてを\nまちつづけてきた」" },
+            { msg: "「おまえたちから ただならぬ きはくを\nかんじる…… いざ、勝負!!」" },
             { flag: ["garonSeen", 1] },
             { battle: { group: ["garon"], boss: true, music: "boss" } },
             { flag: ["garonBeat", 1] },
@@ -5401,7 +5401,7 @@ DATA.maps.trialmt2 = {
             { give: { item: "w_garon" } },
             { give: { item: "acc_warcharm" } },
             { give: { gold: 3000 } },
-            { msg: "ごうけつのつめ、とうこんのおまもり、\n3000ギルを てにいれた!" },
+            { msg: "ごうけつの爪、とうこんのお守り、\n3000ギルを 手に入れた!" },
           ] },
       ] },
   ],
@@ -5410,9 +5410,9 @@ DATA.maps.trialmt2 = {
   ],
 };
 
-// ---------------- かぜのしんでん ----------------
+// ---------------- 風の神殿 ----------------
 DATA.maps.windtemple = {
-  name: "かぜのしんでん",
+  name: "風の神殿",
   bgm: "sky",
   encounter: "sky",
   legend: {
@@ -5448,16 +5448,16 @@ DATA.maps.windtemple = {
     { id: "stargazer", x: 15, y: 12, spr: "elder",
       script: [
         { cond: { flag: "starGate" },
-          then: [{ msg: "ほしよみの けんじゃ「ほしのわは ひらいた。\nそらのしまの ひがしの ひかりから\nほしのせかいへ わたるがよい」" }],
+          then: [{ msg: "ほしよみの 賢者「星のわは ひらいた。\n空の島の ひがしの ひかりから\n星の世界へ わたるがよい」" }],
           else: [
             { cond: { flag: "allCrystals" },
               then: [
-                { msg: "ほしよみの けんじゃ「4つの クリスタルの\nひかり…… ときは きたようじゃ」" },
-                { msg: "けんじゃが ふるい ことばを となえると\nとおくの そらで ひかりのわが\nひらく おとが した……!" },
+                { msg: "ほしよみの 賢者「4つの クリスタルの\nひかり…… ときは きたようじゃ」" },
+                { msg: "賢者が ふるい ことばを となえると\nとおくの そらで 光のわが\nひらく おとが した……!" },
                 { flag: ["starGate", 1] },
-                { msg: "そらのしまの ひがしに ほしのわが\nあらわれた! (ほしのせかいへ いける)" },
+                { msg: "空の島の ひがしに 星のわが\n現れた! (星の世界へ いける)" },
               ],
-              else: [{ msg: "ほしよみの けんじゃ「わしは ほしを よむもの。\n4つの クリスタルが そろうとき\nほしへの みちが ひらくじゃろう」" }] },
+              else: [{ msg: "ほしよみの 賢者「わしは 星を よむもの。\n4つの クリスタルが そろうとき\nほしへの みちが ひらくじゃろう」" }] },
           ] },
       ] },
   ],
@@ -5469,9 +5469,9 @@ DATA.maps.windtemple = {
   ],
 };
 
-// ---------------- うみのそこ ----------------
+// ---------------- 海の底 ----------------
 DATA.maps.seafloor = {
-  name: "うみのそこ",
+  name: "海の底",
   outdoor: true,
   bgm: "sea",
   encounter: "sea",
@@ -5505,12 +5505,12 @@ DATA.maps.seafloor = {
     { id: "undinanpc", x: 18, y: 3, spr: "kraken", pal: "light",
       showFlag: "allCrystals", hideFlag: "undinaDown",
       script: [
-        { msg: "うずしおが たかまき ひかりのけものが\nすがたを あらわす……! みずのげんじゅう ウンディナ!!" },
+        { msg: "うずしおが たかまき 光のけものが\nすがたを あらわす……! 水のげんじゅう ウンディナ!!" },
         { battle: { group: ["undina"], boss: true, music: "spirit" } },
         { flag: ["undinaDown", 1] },
         { msg: "ウンディナは しぶきとなって きえた。\nうずの なかから つえが うかびあがる。" },
         { give: { item: "w_undina" } },
-        { msg: "うみなりのつえを てにいれた!" },
+        { msg: "うみなりの杖を 手に入れた!" },
       ] },
   ],
   chests: [
@@ -5518,9 +5518,9 @@ DATA.maps.seafloor = {
   ],
 };
 
-// ---------------- かいていしんでん ----------------
+// ---------------- かいてい神殿 ----------------
 DATA.maps.seatemple = {
-  name: "かいていしんでん",
+  name: "かいてい神殿",
   bgm: "sea",
   encounter: "sea",
   legend: {
@@ -5562,9 +5562,9 @@ DATA.maps.seatemple = {
   ],
 };
 
-// ---------------- ほしのとう (さいしゅうしょう) ----------------
+// ---------------- 星のとう (さいしゅうしょう) ----------------
 DATA.maps.startower1 = {
-  name: "ほしのとう 1F",
+  name: "星のとう 1F",
   bgm: "last",
   encounter: "startower",
   legend: {
@@ -5601,7 +5601,7 @@ DATA.maps.startower1 = {
 };
 
 DATA.maps.startower2 = {
-  name: "ほしのとう 2F",
+  name: "星のとう 2F",
   bgm: "last",
   encounter: "startower",
   legend: {
@@ -5636,7 +5636,7 @@ DATA.maps.startower2 = {
 };
 
 DATA.maps.startowertop = {
-  name: "ほしのとう さいじょうかい",
+  name: "星のとう さいじょうかい",
   bgm: "last",
   legend: {
     "#": { tile: "wall", solid: true },
@@ -5705,7 +5705,7 @@ DATA.maps.lostwoods = {
 };
 
 DATA.maps.lostwoods2 = {
-  name: "もりのおくち",
+  name: "森のおくち",
   bgm: "shrine",
   legend: {
     "f": { tile: "forest", solid: true },
@@ -5741,13 +5741,13 @@ DATA.maps.lostwoods2 = {
 };
 
 // ---------------- きょうつうスクリプト ----------------
-// ---------------- 上位ジョブ (ちからのしんでん) ----------------
+// ---------------- 上位ジョブ (力の神殿) ----------------
 DATA.ascendJobs = {
   leon:  { cls: "ゴッドパラディン" },
-  glen:  { cls: "りゅうていきし" },
-  gou:   { cls: "けんせい" },
-  celia: { cls: "せいじょ" },
-  rod:   { cls: "おんみょうじ" },
+  glen:  { cls: "竜帝騎士" },
+  gou:   { cls: "拳聖" },
+  celia: { cls: "聖女" },
+  rod:   { cls: "陰陽師" },
 };
 
 DATA.scripts = {
@@ -5759,19 +5759,19 @@ DATA.scripts = {
     { msg: "とおめがねを のぞいてみた……。" },
     { cond: { flag: "trueClear" },
       then: [
-        { msg: "みずうみは かがみのように しずまり、\nむらむらから ゆうげの けむりが のぼる。\nおだやかな せかいが ひろがっていた。" },
+        { msg: "湖は かがみのように しずまり、\nむらむらから ゆうげの けむりが のぼる。\nおだやかな 世界が ひろがっていた。" },
       ],
       else: [
         { cond: { flag: "airship" },
-          then: [{ msg: "とおくの そらに ひこうせんの かげ。\nうみの むこうには みたことのない\nたいりくが かすんで みえる……。" }],
-          else: [{ msg: "きたに バロンじょうの ほうかく。\nみなみの もりの おくに、ちいさな むらの\nやねが ちらりと みえる。" }] },
+          then: [{ msg: "とおくの そらに ひこうせんの かげ。\n海の むこうには みたことのない\nたいりくが かすんで みえる……。" }],
+          else: [{ msg: "きたに バロン城の ほうかく。\nみなみの 森の おくに、ちいさな むらの\nやねが ちらりと みえる。" }] },
       ] },
     { cond: { flag: "towerView" },
       then: [],
       else: [
         { msg: "とおめがねの だいざの すきまに\nだれかの わすれものが はさまっている。" },
         { give: { item: "elixir" } },
-        { msg: "エリクサーを てにいれた!" },
+        { msg: "エリクサーを 手に入れた!" },
         { flag: ["towerView", 1] },
       ] },
   ],
@@ -5782,7 +5782,7 @@ DATA.scripts = {
         { msg: "ようがんが うずをまき……\nじひびきとともに マグマウォームが\nはいあがってきた!!" },
         { battle: { group: ["magmaworm"], boss: true, music: "boss" } },
         { flag: ["magmaBoss", 1] },
-        { msg: "おおあなの そこに しずけさが もどった。\nおくには かたく とざされた\nおおとびらが みえる……。" },
+        { msg: "おおあなの そこに しずけさが もどった。\nおくには かたく とざされた\nおお扉が みえる……。" },
       ] },
   ],
   sealedDoor: [
@@ -5791,13 +5791,13 @@ DATA.scripts = {
         { cond: { flag: "underOpen" },
           then: [{ warp: { map: "underworld", x: 3, y: 1, dir: "d" } }],
           else: [
-            { msg: "クリスタルが まばゆく かがやき……\nおおとびらが ゆっくりと ひらいた!!" },
+            { msg: "クリスタルが まばゆく かがやき……\nおお扉が ゆっくりと ひらいた!!" },
             { flag: ["underOpen", 1] },
-            { msg: "とびらのむこうに、あかく ひかる\nひろがりが みえる。\n―― だい2しょう ちていへん ――" },
+            { msg: "扉のむこうに、あかく ひかる\nひろがりが みえる。\n―― だい2しょう 地底へん ――" },
             { warp: { map: "underworld", x: 3, y: 1, dir: "d" } },
           ] },
       ],
-      else: [{ msg: "ちていへ つづく おおとびら……\nふしぎな ちからで とざされている。" }] },
+      else: [{ msg: "地底へ つづく おお扉……\nふしぎな 力で とざされている。" }] },
   ],
   // まよいのもり: ただしいじゅんろは きた→にし→きた
   lwNorth: [
@@ -5808,7 +5808,7 @@ DATA.scripts = {
             // 3ばんめ: きた → ゴール
             { flag: ["lwA", 0] },
             { flag: ["lwB", 0] },
-            { msg: "きりが はれていく……!\nもりの おくちに たどりついた!" },
+            { msg: "きりが はれていく……!\n森の おくちに たどりついた!" },
             { warp: { map: "lostwoods2", x: 6, y: 7, dir: "u" } },
           ],
           else: [
@@ -5857,14 +5857,14 @@ DATA.scripts = {
     { cond: { flag: "forestBoss" },
       then: [],
       else: [
-        { msg: "こだいじゅが めをさました……!\nもりのぬし トレントが\nえだを ふりあげる!!" },
+        { msg: "こだいじゅが めをさました……!\n森のぬし トレントが\nえだを ふりあげる!!" },
         { battle: { group: ["treant"], boss: true, music: "boss" } },
         { flag: ["forestBoss", 1] },
         { msg: "もりが しずかに ざわめいた。\nどこかで とりが ないている。" },
       ] },
   ],
   arenaEntry: [
-    { msg: "うけつけ「ソレイユとうぎじょうへ ようこそ!\n3れんせんを かちぬけば しょうきんだ。\nランクを えらびな!」" },
+    { msg: "うけつけ「ソレイユ闘技場へ ようこそ!\n3れんせんを かちぬけば しょうきんだ。\nランクを えらびな!」" },
     { menu: { options: [
       { label: "ブロンズ300G", ops: [
         { payGold: { amount: 300,
@@ -5876,10 +5876,10 @@ DATA.scripts = {
             { msg: "うけつけ「みごとな かちっぷりだ!\nしょうきんと しょうひんを うけとりな!」" },
             { give: { gold: 800 } },
             { give: { item: "hipotion" } },
-            { msg: "800ギルと ハイポーションを てにいれた!" },
+            { msg: "800ギルと ハイポーションを 手に入れた!" },
             { flag: ["arenaBronze", 1] },
           ],
-          ng: [{ msg: "うけつけ「おかねが たりないよ!」" }] } },
+          ng: [{ msg: "うけつけ「お金が たりないよ!」" }] } },
       ] },
       { label: "シルバー1000G", ops: [
         { payGold: { amount: 1000,
@@ -5891,15 +5891,15 @@ DATA.scripts = {
             { msg: "うけつけ「つよい! しょうきんだ!」" },
             { give: { gold: 2500 } },
             { give: { item: "elixir" } },
-            { msg: "2500ギルと エリクサーを てにいれた!" },
+            { msg: "2500ギルと エリクサーを 手に入れた!" },
             { flag: ["arenaSilver", 1] },
           ],
-          ng: [{ msg: "うけつけ「おかねが たりないよ!」" }] } },
+          ng: [{ msg: "うけつけ「お金が たりないよ!」" }] } },
       ] },
       { label: "ゴールド3000G", ops: [
         { payGold: { amount: 3000,
           ok: [
-            { msg: "うけつけ「ゴールドランク……\nいのちの ほしょうは しないよ!!」" },
+            { msg: "うけつけ「ゴールドランク……\n命の ほしょうは しないよ!!」" },
             { battle: { group: ["darkknight", "darksoldier", "darksoldier"], boss: true } },
             { battle: { group: ["deathknight", "shadowbeast"], boss: true } },
             { battle: { group: ["arcdemon", "voidgolem"], boss: true } },
@@ -5907,31 +5907,31 @@ DATA.scripts = {
             { give: { gold: 8000 } },
             { give: { item: "elixir" } },
             { give: { item: "a_champ" } },
-            { msg: "8000ギルと エリクサー、そして\nチャンピオンベルトを てにいれた!!" },
+            { msg: "8000ギルと エリクサー、そして\nチャンピオンベルトを 手に入れた!!" },
             { flag: ["arenaGold", 1] },
           ],
-          ng: [{ msg: "うけつけ「おかねが たりないよ!」" }] } },
+          ng: [{ msg: "うけつけ「お金が たりないよ!」" }] } },
       ] },
       { label: "プラチナ8000G", ops: [
         { cond: { all: ["mirrorBoss", "glacierBoss", "tombBoss"] },
           then: [
             { payGold: { amount: 8000,
               ok: [
-                { msg: "うけつけ「プラチナランク……!\nかくちの ぬしたちの まぼろしと たたかう\nでんせつの 4れんせんだよ!!」" },
+                { msg: "うけつけ「プラチナランク……!\nかくちの ぬしたちの まぼろしと たたかう\n伝説の 4れんせんだよ!!」" },
                 { battle: { group: ["mirrorfiend"], boss: true, music: "boss" } },
                 { battle: { group: ["glaciella"], boss: true, music: "boss" } },
                 { battle: { group: ["kham"], boss: true, music: "boss" } },
                 { battle: { group: ["lunavora"], boss: true, music: "spirit" } },
-                { msg: "うけつけ「4にんの ぬしを れんぱ……!?\nあんたたちは とうぎじょうの でんせつだ!!」" },
+                { msg: "うけつけ「4にんの ぬしを れんぱ……!?\nあんたたちは 闘技場の 伝説だ!!」" },
                 { give: { gold: 30000 } },
                 { give: { item: "elixir" } },
                 { give: { item: "worldtear" } },
-                { msg: "30000ギルと エリクサーと せかいのしずくを\nてにいれた!" },
+                { msg: "30000ギルと エリクサーと 世界のしずくを\n手に入れた!" },
                 { flag: ["arenaPlatinum", 1] },
               ],
-              ng: [{ msg: "うけつけ「おかねが たりないよ!」" }] } },
+              ng: [{ msg: "うけつけ「お金が たりないよ!」" }] } },
           ],
-          else: [{ msg: "うけつけ「プラチナは かくちの ぬしを\nたおした ものだけが ちょうせんできる。\nかがみ・ひょうが・だいびょうの ぬしをな」" }] },
+          else: [{ msg: "うけつけ「プラチナは かくちの ぬしを\n倒した ものだけが 挑戦できる。\nかがみ・ひょうが・だいびょうの ぬしをな」" }] },
       ] },
       { label: "やめる", ops: [] },
     ] } },
@@ -5943,31 +5943,31 @@ DATA.scripts = {
         { cond: { flag: "submarine" },
           then: [
             { menu: { options: [
-              { label: "バロンじょう", ops: [{ warp: { map: "world", x: 7, y: 27, dir: "d" } }] },
+              { label: "バロン城", ops: [{ warp: { map: "world", x: 7, y: 27, dir: "d" } }] },
               { label: "ミストのむら", ops: [{ warp: { map: "world", x: 27, y: 23, dir: "d" } }] },
               { label: "ソレイユ",     ops: [{ warp: { map: "port", x: 10, y: 7, dir: "u" } }] },
-              { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
-              { label: "うみのそこ",   ops: [{ warp: { map: "seafloor", x: 3, y: 11, dir: "d" } }] },
-              { label: "ひがしのたいりく", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
-              { label: "こおりのれっとう", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
-              { label: "すなのおうこく", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
-              { label: "みどりのぐんとう", ops: [{ warp: { map: "world5", x: 21, y: 5, dir: "d" } }] },
-              { label: "らいめいのしま", ops: [{ warp: { map: "world6", x: 21, y: 5, dir: "d" } }] },
-              { label: "よるのくに", ops: [{ warp: { map: "world7", x: 21, y: 5, dir: "d" } }] },
+              { label: "空の島",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
+              { label: "海の底",   ops: [{ warp: { map: "seafloor", x: 3, y: 11, dir: "d" } }] },
+              { label: "東の大陸", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
+              { label: "氷の列島", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
+              { label: "砂の王国", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
+              { label: "緑の群島", ops: [{ warp: { map: "world5", x: 21, y: 5, dir: "d" } }] },
+              { label: "雷鳴の島", ops: [{ warp: { map: "world6", x: 21, y: 5, dir: "d" } }] },
+              { label: "夜の国", ops: [{ warp: { map: "world7", x: 21, y: 5, dir: "d" } }] },
             ] } },
           ],
           else: [
             { menu: { options: [
-              { label: "バロンじょう", ops: [{ warp: { map: "world", x: 7, y: 27, dir: "d" } }] },
+              { label: "バロン城", ops: [{ warp: { map: "world", x: 7, y: 27, dir: "d" } }] },
               { label: "ミストのむら", ops: [{ warp: { map: "world", x: 27, y: 23, dir: "d" } }] },
               { label: "ソレイユ",     ops: [{ warp: { map: "port", x: 10, y: 7, dir: "u" } }] },
-              { label: "そらのしま",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
-              { label: "ひがしのたいりく", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
-              { label: "こおりのれっとう", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
-              { label: "すなのおうこく", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
-              { label: "みどりのぐんとう", ops: [{ warp: { map: "world5", x: 21, y: 5, dir: "d" } }] },
-              { label: "らいめいのしま", ops: [{ warp: { map: "world6", x: 21, y: 5, dir: "d" } }] },
-              { label: "よるのくに", ops: [{ warp: { map: "world7", x: 21, y: 5, dir: "d" } }] },
+              { label: "空の島",   ops: [{ warp: { map: "skyisland", x: 3, y: 9, dir: "d" } }] },
+              { label: "東の大陸", ops: [{ warp: { map: "world2", x: 12, y: 7, dir: "d" } }] },
+              { label: "氷の列島", ops: [{ warp: { map: "world3", x: 22, y: 5, dir: "d" } }] },
+              { label: "砂の王国", ops: [{ warp: { map: "world4", x: 21, y: 5, dir: "d" } }] },
+              { label: "緑の群島", ops: [{ warp: { map: "world5", x: 21, y: 5, dir: "d" } }] },
+              { label: "雷鳴の島", ops: [{ warp: { map: "world6", x: 21, y: 5, dir: "d" } }] },
+              { label: "夜の国", ops: [{ warp: { map: "world7", x: 21, y: 5, dir: "d" } }] },
             ] } },
           ] },
       ],
@@ -5977,29 +5977,29 @@ DATA.scripts = {
     { cond: { flag: "craterBoss" },
       then: [],
       else: [
-        { msg: "だいちが ゆれている……。\nクレーターの ぬしが めをさました!!" },
+        { msg: "大地が ゆれている……。\nクレーターの ぬしが めをさました!!" },
         { battle: { group: ["lunavora"], boss: true, music: "boss" } },
         { flag: ["craterBoss", 1] },
-        { msg: "ぬしは ほしのちりとなって きえた。\nだいちに しずけさが もどっていく。" },
+        { msg: "ぬしは 星のちりとなって きえた。\n大地に しずけさが もどっていく。" },
         { give: { gold: 5000 } },
-        { msg: "ぬしの すみかから 5000ギルを みつけた!\nセレーネの ちょうろうに ほうこくしよう。" },
+        { msg: "ぬしの すみかから 5000ギルを みつけた!\nセレーネの 長老に ほうこくしよう。" },
       ] },
   ],
   starFight: [
     { cond: { flag: "trueClear" },
       then: [],
       else: [
-        { msg: "ヴォイドス「ようこそ ほしのとうへ……。\nザルバも おうも わしの ゆびさきに\nすぎなかったと しれ」" },
-        { msg: "レオン「すべての げんきょうは おまえか!\nみんな、クリスタルに いのりを!」" },
-        { msg: "4つのクリスタルが きょうめいし\nパーティを ひかりが つつんだ!!" },
+        { msg: "ヴォイドス「ようこそ 星のとうへ……。\nザルバも おうも わしの ゆびさきに\nすぎなかったと しれ」" },
+        { msg: "レオン「すべての 元凶は おまえか!\nみんな、クリスタルに いのりを!」" },
+        { msg: "4つのクリスタルが きょうめいし\nパーティを 光が つつんだ!!" },
         { battle: { group: ["voidos"], boss: true, music: "last" } },
         { flag: ["trueClear", 1] },
         { msg: "ヴォイドスは ほしくずとなって\nよぞらに きえていった……。" },
         { warp: { map: "castle", x: 9, y: 3, dir: "u" } },
-        { msg: "バロンおう「すべて おわったのだな……。\nレオン、そなたらは このくにの\nいや、せかいの きゅうせいしゅだ」" },
+        { msg: "バロンおう「すべて おわったのだな……。\nレオン、そなたらは このくにの\nいや、世界の きゅうせいしゅだ」" },
         { msg: "セリア「ながい たびだったわね」\nロッド「けんきゅうざいりょうは\nたっぷり あつまったぜ」" },
         { msg: "ゴウ「うでが なっちまうな!」\nグレン「なあ レオン、つぎは どこへ\nとぶ?」" },
-        { msg: "レオン「……そうだな。クリスタルの\nひかりが とどく かぎり、どこへでも」" },
+        { msg: "レオン「……そうだな。クリスタルの\n光が とどく かぎり、どこへでも」" },
         { ending: true },
       ] },
   ],
@@ -6007,46 +6007,46 @@ DATA.scripts = {
     { cond: { flag: "seaBoss" },
       then: [],
       else: [
-        { msg: "うみが うねり くらやみの そこから\nしんかいのぬし リヴァイアが\nうかびあがってきた!!" },
+        { msg: "うみが うねり 暗闇の そこから\nしんかいのぬし リヴァイアが\nうかびあがってきた!!" },
         { battle: { group: ["levia"], boss: true, music: "boss" } },
         { flag: ["seaBoss", 1] },
         { msg: "しずかになった さいだんに\nあおい けっしょうが ゆらめいている。" },
         { give: { item: "watercrystal" } },
         { flag: ["waterCrystal", 1] },
-        { msg: "みずのクリスタルを てにいれた!!" },
-        { msg: "4つのクリスタルが きょうめいし……\nそらたかく こだいのとう\n『ほしのとう』が すがたをあらわした!!" },
+        { msg: "水のクリスタルを 手に入れた!!" },
+        { msg: "4つのクリスタルが きょうめいし……\nそらたかく こだいのとう\n『星のとう』が すがたをあらわした!!" },
         { flag: ["allCrystals", 1] },
-        { msg: "―― さいしゅうしょう ――\nほしのとうが そらのしまの きたに\nあらわれた。すべての けつまつへ……" },
+        { msg: "―― さいしゅうしょう ――\n星のとうが 空の島の きたに\n現れた。すべての けつまつへ……" },
       ] },
   ],
   tempestFight: [
     { cond: { flag: "skyBoss" },
       then: [],
       else: [
-        { msg: "テンペスト「クエーッ!!\nわが そらを みだすものよ……\nあらしの えじきと なれい!!」" },
+        { msg: "テンペスト「クエーッ!!\nわが 空を みだすものよ……\n嵐の えじきと なれい!!」" },
         { battle: { group: ["tempest"], boss: true, music: "boss" } },
         { flag: ["skyBoss", 1] },
-        { msg: "あらしが やみ、さいだんに\nみどりいろの けっしょうが あらわれた。" },
+        { msg: "嵐が やみ、さいだんに\nみどりいろの けっしょうが 現れた。" },
         { give: { item: "windcrystal" } },
         { flag: ["windCrystal", 1] },
-        { msg: "かぜのクリスタルを てにいれた!!" },
-        { msg: "のこるは みずのクリスタル……。\nふかき うみのそこが よんでいる。\n―― だい4しょうへ つづく ――" },
+        { msg: "風のクリスタルを 手に入れた!!" },
+        { msg: "のこるは 水のクリスタル……。\nふかき 海の底が よんでいる。\n―― だい4しょうへ つづく ――" },
       ] },
   ],
   meteoFight: [
     { cond: { flag: "meteorDown" },
       then: [],
       else: [
-        { msg: "いわが うごきだした……!?\nいんせきのばんにんが しんでんへの\nみちを ふさいでいる!!" },
+        { msg: "いわが うごきだした……!?\nいんせきの番人が 神殿への\nみちを ふさいでいる!!" },
         { battle: { group: ["meteogolem"], boss: true, music: "boss" } },
         { flag: ["meteorDown", 1] },
-        { msg: "ばんにんが くだけると ともに\nいんせきの けっかいが きえていく……!" },
+        { msg: "番人が くだけると ともに\nいんせきの 結界が きえていく……!" },
       ] },
   ],
   templeEnter: [
     { cond: { flag: "meteorDown" },
       then: [{ warp: { map: "temple", x: 2, y: 12, dir: "u" } }],
-      else: [{ msg: "ちていしんでん……。\nいんせきの けっかいに つつまれていて\nはいれない。" }] },
+      else: [{ msg: "地底神殿……。\nいんせきの 結界に つつまれていて\nはいれない。" }] },
   ],
   gladFight: [
     { cond: { flag: "templeBoss" },
@@ -6055,11 +6055,11 @@ DATA.scripts = {
         { msg: "グラード「よくぞ ここまできた\nちじょうの ものども……。\nちのクリスタルは わたさぬ!!」" },
         { battle: { group: ["glad"], boss: true, music: "boss" } },
         { flag: ["templeBoss", 1] },
-        { msg: "さいだんの おくで だいちいろの\nけっしょうが かがやいている……。" },
+        { msg: "さいだんの おくで 大地いろの\nけっしょうが かがやいている……。" },
         { give: { item: "earthcrystal" } },
         { flag: ["earthCrystal", 1] },
-        { msg: "ちのクリスタルを てにいれた!!" },
-        { msg: "のこる クリスタルは あと2つ……。\nものがたりは だい3しょうへ つづく。" },
+        { msg: "ちのクリスタルを 手に入れた!!" },
+        { msg: "のこる クリスタルは あと2つ……。\n物語は だい3しょうへ つづく。" },
       ] },
   ],
   wwWarn: [
@@ -6084,33 +6084,33 @@ DATA.scripts = {
     { cond: { flag: "superBoss" },
       then: [],
       else: [
-        { msg: "こおりの おくで くろい りゅうが\nめを ひらいた……。" },
-        { msg: "ヴァハ「ヴォイドスを ほろぼした\nちからを もつもの……。\nわが しんえんに いどむか?」" },
+        { msg: "氷の おくで くろい りゅうが\nめを ひらいた……。" },
+        { msg: "ヴァハ「ヴォイドスを ほろぼした\n力を もつもの……。\nわが しんえんに いどむか?」" },
         { battle: { group: ["vaha"], boss: true, music: "boss" } },
         { flag: ["superBoss", 1] },
         { msg: "ヴァハ「……みごとだ。\nおまえたちこそ しんの\nクリスタルナイツ で ある」" },
         { give: { item: "w_kingclaw" } },
-        { msg: "りゅうおうのつめを てにいれた!!\nすべてを やりとげた あなたは\nまさしく でんせつの ゆうしゃだ!" },
+        { msg: "りゅうおうの爪を 手に入れた!!\nすべてを やりとげた あなたは\nまさしく 伝説の 勇者だ!" },
       ] },
   ],
   iceDragon: [
     { cond: { flag: "iceBoss" },
       then: [],
       else: [
-        { msg: "フロストドラゴン\n「グルルル…… ここは わしの ねぐら。\nこおりの はかに うまりたいものから\nかかってくるがいい」" },
+        { msg: "フロストドラゴン\n「グルルル…… ここは わしの ねぐら。\n氷の はかに うまりたいものから\nかかってくるがいい」" },
         { battle: { group: ["frostdragon"], boss: true, music: "boss" } },
         { flag: ["iceBoss", 1] },
-        { msg: "どうくつの おくで なにかが\nひかっている……!" },
+        { msg: "洞窟の おくで なにかが\nひかっている……!" },
       ] },
   ],
   intro: [
-    { msg: "バロンおう「あんこくきし レオンよ。\nミストのむらの ちょうろうがもつ\nクリスタルを うばってくるのだ」" },
-    { msg: "レオン「……なぜ クリスタルを?\nミストのむらは へいわな むらです」" },
-    { msg: "バロンおう「たみを まもるためだ。\nゆけ! これは めいれいだ!!」" },
+    { msg: "バロンおう「暗黒騎士 レオンよ。\nミストのむらの 長老がもつ\nクリスタルを うばってくるのだ」" },
+    { msg: "レオン「……なぜ クリスタルを?\nミストのむらは 平和な むらです」" },
+    { msg: "バロンおう「たみを 守るためだ。\nゆけ! これは めいれいだ!!」" },
     { msg: "レオン(……おうは かわられた。\nだが きしである わたしに\nめいれいに そむくことは できぬ……)" },
-    { msg: "グレン「まて レオン! オレも いくぜ。\nしんゆうを ひとりで\nいかせられるかよ」" },
+    { msg: "グレン「まて レオン! オレも いくぜ。\n親友を ひとりで\nいかせられるかよ」" },
     { join: "glen" },
-    { msg: "りゅうきしグレンが なかまに くわわった!" },
+    { msg: "竜騎士グレンが 仲間に くわわった!" },
     { flag: ["intro", 1] },
   ],
   zarbaFight: [
@@ -6118,7 +6118,7 @@ DATA.scripts = {
       then: [],
       else: [
         { msg: "ザルバ「よくぞきた パラディンよ……。\nバロンのおうは よくできた\nあやつりにんぎょうだったぞ?」" },
-        { msg: "レオン「ザルバ!! おうのこころを\nもてあそんだ つみ……\nこの せいけんで つぐなわせる!」" },
+        { msg: "レオン「ザルバ!! おうの心を\nもてあそんだ つみ……\nこの 聖剣で つぐなわせる!」" },
         { battle: { group: ["zarba"], boss: true, music: "boss" } },
         { flag: ["clear", 1] },
         { msg: "ザルバは ちりとなって きえた……。\nクリスタルが やさしく かがやく。" },
@@ -6127,8 +6127,8 @@ DATA.scripts = {
         { msg: "レオン「おうよ、かおを あげてください。\nすべては ザルバの しわざ。\nミストのむらとの わかいを」" },
         { msg: "セリア「これで みんな もとどおりね」" },
         { msg: "ロッド「オレの けんきゅうも\nこれにて かんりょう、っとね」" },
-        { msg: "こうして クリスタルのひかりは\nせかいに もどった。\nでんせつは かたりつがれていく……。" },
-        { msg: "……だが そのよる、みなみの だいちに\nあかい ひかりが はしったという。\nぼうけんは まだ おわらない――" },
+        { msg: "こうして クリスタルの光は\n世界に もどった。\n伝説は かたりつがれていく……。" },
+        { msg: "……だが そのよる、みなみの 大地に\nあかい 光が はしったという。\nぼうけんは まだ おわらない――" },
         { ending: true },
       ] },
   ],

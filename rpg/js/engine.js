@@ -283,13 +283,13 @@ const AudioSys = {
                bass: [[38,4],[41,4],[43,4],[38,4]] },
     last:    { tempo: 152, notes: [[57,0.5],[57,0.5],[60,0.5],[62,0.5],[64,1],[62,0.5],[60,0.5],[64,0.5],[64,0.5],[67,0.5],[69,0.5],[71,1],[69,0.5],[67,0.5],[64,1],[62,1],[60,0.5],[57,1.5]],
                bass: [[33,1],[33,1],[36,1],[38,1],[40,1],[38,1],[36,1],[33,1]] },
-    // ほしのせかい: ゆったりした 3びょうしの こもりうた
+    // 星の世界: ゆったりした 3びょうしの こもりうた
     star:    { tempo: 92,  notes: [[74,1],[78,1],[81,1],[79,2],[76,1],[78,1.5],[74,0.5],[76,3],[71,1],[73,1],[76,1],[78,2],[73,1],[74,3],[71,1],[69,3]],
                bass: [[50,3],[47,3],[52,3],[45,3],[50,3],[43,3]] },
-    // ドヴェルグおうきゅう: ちからづよい こうしんきょく
+    // ドヴェルグ王宮: ちからづよい こうしんきょく
     hall:    { tempo: 108, notes: [[55,1],[55,0.5],[57,0.5],[59,1],[62,1],[59,1],[57,1],[55,1.5],[53,0.5],[55,1],[57,1.5],[59,0.5],[60,2],[59,1],[57,1],[55,2]],
                bass: [[43,1],[50,1],[43,1],[50,1],[41,1],[48,1],[43,1],[50,1]] },
-    // げんじゅうせん: うずまく はやい みつどの たたかい
+    // げんじゅうせん: うずまく はやい みつどの 戦い
     spirit:  { tempo: 172, notes: [[62,0.5],[65,0.5],[69,0.5],[70,0.5],[69,0.5],[65,0.5],[62,0.5],[60,0.5],[62,0.5],[65,0.5],[70,0.5],[72,1],[70,0.5],[69,0.5],[65,0.5],[62,0.5],[63,0.5],[62,1.5]],
                bass: [[38,0.5],[38,0.5],[45,0.5],[38,0.5],[36,0.5],[36,0.5],[43,0.5],[36,0.5]] },
   },
@@ -333,7 +333,7 @@ const AudioSys = {
   },
 };
 
-// ---------------- ゲームぜんたい ----------------
+// ---------------- ゲーム全体 ----------------
 const G = {
   scenes: [],
   state: null,
@@ -385,10 +385,10 @@ const G = {
       spells: d.spells.slice(),
       row: d.row || "front",
       poison: false, paladin: false,
-      limit: 0, // ひっさつゲージ (0..100)
+      limit: 0, // 必殺ゲージ (0..100)
     };
     this.applyStats(h);
-    // レベルに おうじた しゅうとくずみ じゅもん
+    // レベルに 王子た しゅうとくずみ 呪文
     for (const [l, sp] of Object.entries(d.learn)) {
       if (lv >= +l && !h.spells.includes(sp)) h.spells.push(sp);
     }
@@ -434,7 +434,7 @@ const G = {
   addExp(h, amount) {
     const msgs = [];
     h.exp += amount;
-    // レベル99が じょうげん。あまった けいけんちは きりすて
+    // レベル99が じょうげん。あまった 経験値は きりすて
     const capExp = this.expTotalFor(this.MAX_LV);
     if (h.exp > capExp) h.exp = capExp;
     while (h.lv < this.MAX_LV && h.exp >= this.expTotalFor(h.lv + 1)) {
@@ -539,7 +539,7 @@ const G = {
 
   slotKey(n) { return this.SAVE_KEY + "_slot" + n; },
 
-  // むかしの 1スロットセーブを スロット1へ ひっこし
+  // 昔の 1スロットセーブを スロット1へ ひっこし
   migrateLegacy() {
     try {
       const old = Store.get(this.SAVE_KEY);
@@ -629,12 +629,12 @@ const G = {
     for (const [id, n] of Object.entries(src.items || {})) {
       if (DATA.items[id] && DATA.items[id].kind !== "key") this.state.items[id] = n;
     }
-    // なかまは ものがたりで さいかにゅう (そだてた すがたのまま)
+    // 仲間は 物語で さいかにゅう (そだてた すがたのまま)
     this.state.ngHeroes = {};
     for (const h of src.party) {
       this.state.ngHeroes[h.id] = JSON.parse(JSON.stringify(h));
     }
-    // レオンは あんこくきしに もどって さいしゅっぱつ
+    // レオンは 暗黒騎士に もどって さいしゅっぱつ
     const leon = JSON.parse(JSON.stringify(this.state.ngHeroes.leon));
     const base = DATA.heroes.leon;
     leon.paladin = false;
@@ -665,7 +665,7 @@ const G = {
         if (h.acc === undefined) h.acc = null;
         // はいばんした ぶきの ひっこし
         if (h.weapon === "w_boltstaff") h.weapon = "w_sagestaff";
-        // ふるいセーブは command が null のことがある (ロッドのかくせい等を補完)
+        // ふるいセーブは command が null のことがある (ロッドの覚醒等を補完)
         if (h.command == null) {
           h.command = h.paladin ? DATA.paladin.command
             : (DATA.heroes[h.id] && DATA.heroes[h.id].command) || null;
@@ -795,7 +795,7 @@ class SlotPickScene {
       const info = G.slotInfo(i + 1);
       Gfx.text(i + 1 > G.SLOTS ? "オートセーブ" : `スロット${i + 1}`, 58, y, 3, 11);
       if (info) {
-        Gfx.text(`${info.name} Lv${info.lv} なかま${info.members}にん`, 58, y + 14, 3, 9);
+        Gfx.text(`${info.name} Lv${info.lv} 仲間${info.members}にん`, 58, y + 14, 3, 9);
         Gfx.textR(`${info.map} ${info.min}ふん`, 276, y + 14, 3, 9);
       } else {
         Gfx.text("(からっぽ)", 58, y + 14, 1, 9);
@@ -911,7 +911,7 @@ function runScript(ops, onDone) {
       }
       if (op.flag) { G.setFlag(op.flag[0], op.flag[1]); continue; }
       if (op.cond) {
-        // flag / item(しょじひん) / kills(ずかんの とうばつすう) / all(ぜんフラグ) で ぶんき
+        // flag / item(しょじひん) / kills(ずかんの 討伐すう) / all(ぜんフラグ) で ぶんき
         let pass;
         if (op.cond.item) pass = (G.state.items[op.cond.item] || 0) > 0;
         else if (op.cond.itemCount) pass = (G.state.items[op.cond.itemCount.id] || 0) >= op.cond.itemCount.n;
@@ -965,7 +965,7 @@ function runScript(ops, onDone) {
         continue;
       }
       if (op.healParty) {
-        // れんせん用: いきているぜんいんを わりあいで かいふく
+        // れんせん用: いきているぜんいんを わりあいで 回復
         G.state.party.forEach((h) => {
           if (h.hp > 0) h.hp = Math.min(h.maxhp, h.hp + Math.round(h.maxhp * op.healParty));
         });
@@ -989,7 +989,7 @@ function runScript(ops, onDone) {
       }
       if (op.join) {
         if (!G.state.party.some((h) => h.id === op.join) && G.state.party.length < 5) {
-          // 2しゅうめは そだてた なかまが もどってくる
+          // 2しゅうめは そだてた 仲間が もどってくる
           const saved = G.state.ngHeroes && G.state.ngHeroes[op.join];
           if (saved) {
             const h = JSON.parse(JSON.stringify(saved));
@@ -1032,7 +1032,7 @@ function runScript(ops, onDone) {
           G.push(new ChoiceScene(["はい", "いいえ"], (sel) => {
             if (sel === 0) {
               if (G.state.gold < price) {
-                G.push(new MessageScene("やどや「おかねが たりないよ!」", next));
+                G.push(new MessageScene("やどや「お金が たりないよ!」", next));
               } else {
                 G.state.gold -= price;
                 G.fade(() => {
