@@ -212,7 +212,8 @@ class BattleScene {
       for (const p of this.aliveParty()) {
         if (p.casting || p.airborne) continue;
         const was = p.atb;
-        p.atb = Math.min(100, p.atb + (25 + G.agiOf(p.h) * 3) * (p.haste ? 1.5 : 1) * dt);
+        const spd = (p.haste ? 1.5 : 1) * (p.boost > 0 ? 1.4 : 1) * (p.fatigue > 0 ? 0.5 : 1);
+        p.atb = Math.min(100, p.atb + (25 + G.agiOf(p.h) * 3) * spd * dt);
         // いのちのたま: ターンが まわってくるたび HPかいふく
         if (was < 100 && p.atb >= 100 && G.accAbil(p.h, "regen") && p.h.hp < p.h.maxhp) {
           const heal = Math.max(1, Math.round(p.h.maxhp * 0.05));
@@ -281,6 +282,17 @@ class BattleScene {
       if (p.h.hp <= 0) continue;
       this.ready = p;
       p.defending = false;
+      // げんかいかいほうの けいか: きれたら 2ターンの つかれ
+      if (p.boost > 0) {
+        p.boost--;
+        if (p.boost === 0) {
+          delete p.h._boost;
+          p.fatigue = 2;
+          this.log = `${p.h.name}は ちからを つかいはたした……\n(2ターンのあいだ うごきが にぶい)`;
+        }
+      } else if (p.fatigue > 0) {
+        p.fatigue--;
+      }
       if (this.poisonTick(p)) { this.ready = null; return; }
       this.phase = "command";
       this.menu = "root";
@@ -324,11 +336,16 @@ class BattleScene {
     }
     if (h.special === "dark") cmds.push({ id: "dark", name: "あんこく" });
     if (h.special === "holy") cmds.push({ id: "holy", name: "せいけん" });
-    if (h.command === "jump") cmds.push({ id: "jump", name: p.jumpCount > 0 ? "ダブルジャンプ" : "ジャンプ" });
+    if (h.command === "jump") {
+      const jname = h.ascended && p.jumpCount > 1 ? "トリプルジャンプ"
+        : p.jumpCount > 0 ? "ダブルジャンプ" : "ジャンプ";
+      cmds.push({ id: "jump", name: jname });
+    }
     if (h.command === "charge") cmds.push({ id: "charge", name: "ためる" });
     if (h.command === "focus") cmds.push({ id: "focus", name: "かくせい" });
     if (h.command === "pray") cmds.push({ id: "pray", name: "いのる" });
     if (h.command === "cover") cmds.push({ id: "cover", name: "かばう" });
+    if (h.ascended && !p.boostUsed) cmds.push({ id: "boost", name: "げんかいかいほう" });
     if (h.spells.length > 0) cmds.push({ id: "spell", name: "じゅもん" });
     cmds.push({ id: "guard", name: "ぼうぎょ" });
     cmds.push({ id: "item", name: "どうぐ" });
@@ -372,6 +389,7 @@ class BattleScene {
           if (h.silence || h.toad) { AudioSys.sfx("buzz"); this.log = "こえが でない!"; return; }
           this.menu = "spell"; this.sel2 = 0;
         }
+        else if (cmd.id === "boost") this.doPlayerAction({ type: "boost" });
         else if (cmd.id === "guard") this.doPlayerAction({ type: "guard" });
         else if (cmd.id === "item") { this.menu = "item"; this.sel2 = 0; }
         else if (cmd.id === "run") this.doPlayerAction({ type: "run" });
@@ -709,6 +727,9 @@ class BattleScene {
         this.queueHitEnemy(events, t, dmg, "hit");
       } else {
         const crit = Math.random() < (G.accAbil(h, "critx2") ? 2 : 1) / 16;
+        // ごくい (けんせい): クリティカルが つづくほど いりょくが のびる
+        const gokui = h.ascended && h.id === "gou";
+        const chainMul = gokui && crit ? 1 + 0.25 * (p.chain || 0) : 1;
         // ためる: 2/4/8ばい (つかったら リセット)
         const chargeMul = Math.pow(2, p.charge);
         if (p.charge > 0) {
@@ -716,7 +737,13 @@ class BattleScene {
           p.charge = 0;
         }
         let dmg = this.physDmg(G.atkOf(h), t.def.def);
-        dmg = Math.max(1, Math.round(dmg * this.weaponMod(h, t.def) * (crit ? 2 : 1) * rowMul * chargeMul));
+        dmg = Math.max(1, Math.round(dmg * this.weaponMod(h, t.def) * (crit ? 2 : 1) * rowMul * chargeMul * chainMul));
+        if (gokui) {
+          if (crit) {
+            p.chain = (p.chain || 0) + 1;
+            if (p.chain >= 2) this.log = `ごくい! かいしんの れんげき ${p.chain}れんさ!!`;
+          } else p.chain = 0;
+        }
         if (crit) events.push({ t: 0.35, fn: () => { this.log = "かいしんの いちげき!!"; } });
         this.queueHitEnemy(events, t, dmg, crit || chargeMul > 1 ? "crit" : "hit");
       }
@@ -731,6 +758,21 @@ class BattleScene {
         AudioSys.sfx("confirm");
       } });
       dur = 0.7;
+    }
+    else if (act.type === "boost") {
+      // げんかいかいほう: 5ターン こうげき/まほう2ばい+ATBかそく → そのご 2ターン つかれ
+      p.boost = 5;
+      p.boostUsed = true;
+      h._boost = 2;
+      this.setPose(p, "skill", 1.0);
+      this.screenFlash = 0.3;
+      const pos = this.partyPos(this.party.indexOf(p));
+      this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind: "fire", t: 0, size: 36 });
+      events.push({ t: 0, fn: () => {
+        this.log = `${h.name}は げんかいを かいほうした!!\n(5ターン ちからが 2ばいに たかまる!)`;
+        AudioSys.sfx("levelup");
+      } });
+      dur = 1.0;
     }
     else if (act.type === "focus") {
       p.focus = Math.min(3, p.focus + 1);
@@ -913,8 +955,9 @@ class BattleScene {
     p.airborne = null;
     if (!target || target.dead) target = this.aliveEnemies()[0];
     const events = [];
+    const tripleName = double && h.ascended && p.jumpCount > 2;
     events.push({ t: 0, fn: () => {
-      this.log = `${h.name}の ${double ? "ダブルジャンプ!!" : "ジャンプこうげき!"}`;
+      this.log = `${h.name}の ${tripleName ? "トリプルジャンプ!!!" : double ? "ダブルジャンプ!!" : "ジャンプこうげき!"}`;
       AudioSys.sfx("crit");
     } });
     if (!target) {
@@ -922,13 +965,14 @@ class BattleScene {
       this.startAnim(events, 0.8);
       return;
     }
-    const hits = double ? 2 : 1;
-    const per = double ? 1.8 : 2.2;
+    const triple = double && h.ascended && p.jumpCount > 2;
+    const hits = triple ? 3 : double ? 2 : 1;
+    const per = triple ? 1.6 : double ? 1.8 : 2.2;
     for (let i = 0; i < hits; i++) {
       const dmg = Math.max(1, Math.round(this.physDmg(Math.round(G.atkOf(h) * per), target.def.def)));
       this.queueHitEnemy(events, target, dmg, "crit");
-      // 2げきめは すこし おくらせる
-      if (i === 1) events[events.length - 1].t = 0.75;
+      // 2げきめいこうは すこしずつ おくらせる
+      if (i >= 1) events[events.length - 1].t = 0.45 + i * 0.3;
     }
     this.startAnim(events, double ? 1.3 : 1.0);
   }
@@ -1768,6 +1812,8 @@ class BattleScene {
       if (p.focus > 0) Gfx.text(`か${p.focus}`, 172, y, 2, 8);
       if (p.protect && !dead) Gfx.text("プ", 184, y, 2, 8);
       if (p.haste && !dead) Gfx.text("ヘ", 194, y, 2, 8);
+      if (p.boost > 0 && !dead) Gfx.text(`かい${p.boost}`, 204, y, 2, 8);
+      if (p.fatigue > 0 && !dead) Gfx.text("つかれ", 204, y, 2, 8);
       Gfx.textR(`${p.h.hp}`, 218, y, dead ? 2 : 3, fs);
       Gfx.text(`/${p.h.maxhp}`, 220, y, 3, compact ? 8 : 9);
       if (p.airborne) {

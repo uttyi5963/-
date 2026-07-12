@@ -457,13 +457,13 @@ const G = {
   strOf(h) { return h.str + (this.accOf(h).str || 0); },
   agiOf(h) { return h.agi + (this.accOf(h).agi || 0); },
   vitOf(h) { return h.vit + (this.accOf(h).vit || 0); },
-  atkOf(h) { return this.strOf(h) + (DATA.items[h.weapon]?.atk || 0); },
+  atkOf(h) { return Math.round((this.strOf(h) + (DATA.items[h.weapon]?.atk || 0)) * (h._boost || 1)); },
   defOf(h) {
     return (DATA.items[h.armor]?.def || 0) + (this.accOf(h).def || 0) + Math.floor(this.vitOf(h) / 4);
   },
   intOf(h) {
-    return h.int + (this.accOf(h).int || 0)
-      + (DATA.items[h.weapon]?.int || 0) + (DATA.items[h.armor]?.int || 0);
+    return Math.round((h.int + (this.accOf(h).int || 0)
+      + (DATA.items[h.weapon]?.int || 0) + (DATA.items[h.armor]?.int || 0)) * (h._boost || 1));
   },
   // アクセサリの とくしゅこうか
   accGuards(h, st) { return (this.accOf(h).guard || []).includes(st); },
@@ -554,13 +554,18 @@ const G = {
   AUTO_SLOT: 5,
   autosave() {
     try {
-      Store.set(this.slotKey(this.AUTO_SLOT), JSON.stringify(this.state));
+      Store.set(this.slotKey(this.AUTO_SLOT), this.serialize());
     } catch (e) { /* ようりょうオーバーなどは だまって むし */ }
+  },
+
+  // _ ではじまるキーは 戦闘中だけの一時強化なので セーブに含めない
+  serialize() {
+    return JSON.stringify(this.state, (k, v) => (k.startsWith && k.startsWith("_") ? undefined : v));
   },
 
   save(slot = 1) {
     try {
-      Store.set(this.slotKey(slot), JSON.stringify(this.state));
+      Store.set(this.slotKey(slot), this.serialize());
       return true;
     } catch (e) { return false; }
   },
