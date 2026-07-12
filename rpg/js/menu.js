@@ -568,6 +568,10 @@ class QuestScene {
       const rank = f("arenaGold") ? "チャンピオン!" : f("arenaSilver") ? "シルバーせいは" : "ブロンズせいは";
       list.push(["とうぎじょう", rank]);
     }
+    if (f("starGate")) {
+      list.push(["クレーターのぬし たいじ",
+        f("craterBoss") ? "かんりょう" : "ほしのせかいの だいクレーターへ"]);
+    }
     if (f("worldtearGiven")) list.push(["ちょうろうの おくりもの", "せかいのしずくを さずかった"]);
     if (f("fishKing")) list.push(["つりぼりの ぬし", "つりあげた!"]);
     if (f("forestBoss")) list.push(["まよいのもりの ぬし", "とうばつ かんりょう"]);

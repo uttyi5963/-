@@ -297,6 +297,21 @@ DATA.monsters = {
     weak: ["thunder"], acts: [{ spell: "e_gale", rate: 0.3 }] },
   voidgolem: { name: "ヴォイドゴーレム", spr: "golem", pal: "dark", hp: 320, atk: 50, def: 28, agi: 8, exp: 520, gold: 480,
     weak: ["thunder"], absorb: ["fire", "ice"] },
+  // ほしのせかい (Lv30〜のレベリングエリア)
+  starimp: { name: "スターインプ", spr: "goblin", pal: "light", hp: 380, atk: 58, def: 24, agi: 20, exp: 700, gold: 520,
+    race: "demon", weak: ["fire"] },
+  lunabat: { name: "ルナバット", spr: "bat", pal: "light", hp: 340, atk: 54, def: 18, agi: 26, exp: 650, gold: 450,
+    weak: ["thunder"], inflict: { status: "blind", rate: 0.2 } },
+  cometwisp: { name: "コメットウィスプ", spr: "wizard", pal: "light", hp: 420, atk: 50, def: 22, agi: 24, exp: 820, gold: 600,
+    weak: ["ice"], acts: [{ spell: "e_bolt2", rate: 0.3 }] },
+  stargolem: { name: "スターゴーレム", spr: "golem", pal: "light", hp: 620, atk: 66, def: 40, agi: 6, exp: 1150, gold: 900,
+    weak: ["ice"], absorb: ["thunder"] },
+  moondragon: { name: "ムーンドラゴン", spr: "dragon", pal: "light", hp: 750, atk: 72, def: 30, agi: 18, exp: 1400, gold: 1100,
+    race: "dragon", weak: ["holy"], acts: [{ spell: "e_breath", rate: 0.25 }] },
+  lunavora: { name: "クレーターのぬし ルナヴォラ", spr: "worm", pal: "light", boss: true, scale: 3,
+    hp: 4200, atk: 82, def: 34, agi: 20, exp: 25000, gold: 8000,
+    weak: ["holy"], resist: ["fire", "ice"],
+    acts: [{ spell: "e_quake", rate: 0.25 }, { spell: "e_starfall", rate: 0.2 }] },
   voidos: { name: "ほしくらい ヴォイドス", spr: "voidos", boss: true, scale: 4,
     hp: 3200, atk: 48, def: 20, agi: 16, exp: 0, gold: 0,
     absorb: ["fire", "ice", "thunder"],
@@ -395,10 +410,18 @@ DATA.encounters = {
   lostwoods: { rate: 1 / 12, groups: [["woodgoblin", "woodgoblin"], ["vampbat", "vampbat"], ["madflower"], ["woodgoblin", "vampbat"], ["madflower", "woodgoblin"]] },
   startower: { rate: 1 / 14, groups: [["arcdemon"], ["chaosknight"], ["nebulabird", "nebulabird"], ["voidgolem"], ["arcdemon", "nebulabird"], ["chaosknight", "arcdemon"]],
     rare: ["mithrildragon"], rareRate: 0.06 },
+  starworld: { rate: 1 / 14, groups: [["starimp", "starimp"], ["lunabat", "lunabat"], ["cometwisp"], ["starimp", "lunabat"], ["stargolem"], ["cometwisp", "lunabat"]],
+    rare: ["mithrildragon"], rareRate: 0.07 },
+  crater: { rate: 1 / 12, groups: [["stargolem", "starimp"], ["moondragon"], ["cometwisp", "cometwisp"], ["stargolem", "stargolem"], ["moondragon", "lunabat"], ["starimp", "starimp", "lunabat"]],
+    rare: ["mithrildragon", "mithrilbaby"], rareRate: 0.07 },
 };
 
 // ---------------- ショップ ----------------
 DATA.shops = {
+  selene: {
+    name: "つきのみやこの みせ",
+    stock: ["megapotion", "elixir", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss"],
+  },
   royal: {
     name: "おうきゅうごようたし",
     stock: ["megapotion", "elixir", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
@@ -1795,11 +1818,12 @@ DATA.maps.skyisland = {
     ".": { tile: "grass" },
     "D": { tile: "icon_shrine" },
     "X": { tile: "icon_tower" },
+    "G": { tile: "icon_shrine" },
   },
   rows: [
     "wwwwwwwwwwwwwwwwwwwwwwww",
     "wwww........wwwwwwwwwwww",
-    "ww......X.....wwwwwwwwww",
+    "ww......X....G..wwwwwwww",
     "ww..mm..........wwwwwwww",
     "ww..mm...........wwwwwww",
     "www........mm....wwwwwww",
@@ -1819,10 +1843,182 @@ DATA.maps.skyisland = {
       cond: { flag: "allCrystals" },
       failScript: [{ msg: "そらが かすかに ゆらいでいる……。\nなにかが あらわれる よかんがする。" }],
       warp: { map: "startower1", x: 6, y: 10, dir: "u" } },
+    { x: 13, y: 2, type: "enter",
+      cond: { flag: "starGate" },
+      failScript: [{ msg: "そらに ちいさな ひかりのわが\nうかんでいる。 いまは とおれない。" }],
+      warp: { map: "starworld", x: 11, y: 12, dir: "u" } },
   ],
   npcs: [],
   chests: [
     { id: "sky1", x: 17, y: 7, gold: 2500, hidden: true },
+  ],
+};
+
+// ---------------- ほしのせかい (第2ワールド) ----------------
+DATA.maps.starworld = {
+  name: "ほしのせかい",
+  outdoor: true,
+  bgm: "sky",
+  encounter: "starworld",
+  legend: {
+    "w": { tile: "water", solid: true },
+    "m": { tile: "mountain", solid: true },
+    ".": { tile: "path" },
+    "f": { tile: "forest" },
+    "T": { tile: "icon_town" },
+    "C": { tile: "icon_cave" },
+    "G": { tile: "icon_shrine" },
+  },
+  rows: [
+    "wwwwwwwwwwwwwwwwwwwwwwww",
+    "ww......mmm.........wwww",
+    "w...mm..m.m....mm.....ww",
+    "w...m.....m....m.m....ww",
+    "w..........T...mm......w",
+    "w...ff.................w",
+    "w...ff.......mmm.....C.w",
+    "ww......mm...m.m......ww",
+    "ww......mm...mmm......ww",
+    "w.....................ww",
+    "w....mm.......ff......ww",
+    "w....m.m......ff.....www",
+    "ww...mm....G........wwww",
+    "wwwwwwwwwwwwwwwwwwwwwwww",
+  ],
+  events: [
+    { x: 11, y: 12, type: "enter", warp: { map: "skyisland", x: 13, y: 3, dir: "d" } },
+    { x: 11, y: 4, type: "enter", warp: { map: "moonpalace", x: 7, y: 10, dir: "u" } },
+    { x: 21, y: 6, type: "enter", warp: { map: "crater1", x: 2, y: 10, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "sw1", x: 9, y: 2, gold: 5000, hidden: true },
+    { id: "sw2", x: 12, y: 10, item: "elixir", hidden: true },
+  ],
+};
+
+// ---------------- つきのみやこ セレーネ ----------------
+DATA.maps.moonpalace = {
+  name: "つきのみやこ セレーネ",
+  bgm: "town",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "p": { tile: "pillar", solid: true },
+    "c": { tile: "counter", solid: true },
+    "b": { tile: "bed" },
+    "t": { tile: "table", solid: true },
+    "r": { tile: "carpet" },
+  },
+  rows: [
+    "################",
+    "#....p....p....#",
+    "#.bb.........c.#",
+    "#.bb...rr......#",
+    "#......rr....t.#",
+    "#....p....p....#",
+    "#..............#",
+    "#.c.........t..#",
+    "#..............#",
+    "#....p....p....#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 7, y: 10, type: "enter", warp: { map: "starworld", x: 12, y: 5, dir: "d" } },
+    { x: 8, y: 10, type: "enter", warp: { map: "starworld", x: 12, y: 5, dir: "d" } },
+  ],
+  npcs: [
+    { id: "selene_inn", x: 14, y: 2, spr: "innkeep",
+      script: [{ inn: 400 }] },
+    { id: "selene_shop", x: 1, y: 7, spr: "shopkeep",
+      script: [{ shop: "selene" }] },
+    { id: "selene_elder", x: 7, y: 3, spr: "elder",
+      script: [
+        { cond: { flag: "craterBoss" },
+          then: [{ msg: "つきびとの ちょうろう「クレーターの ぬしを\nしずめてくれたのじゃな。ほしの たみは\nあなたがたを わすれぬ」" }],
+          else: [
+            { msg: "つきびとの ちょうろう「ようこそ ほしのせかいへ。\nわしらは ふるい ほしの たみ。\nしずかに くらしてきた」" },
+            { msg: "「じゃが きょだいな クレーターに ぬしが\nすみつき、だいちが あれはじめた。\nちからある ものよ、たすけてくれぬか」" },
+          ] },
+      ] },
+    { id: "selene_girl", x: 10, y: 6, spr: "villager", wander: true,
+      script: [{ msg: "つきびとの こども「ここの まものは\nとーっても つよいの。でも けいけんに\nなるって おとなが いってた!」" }] },
+    { id: "selene_watcher", x: 13, y: 8, spr: "soldier",
+      script: [{ msg: "ほしのばんにん「クレーターの おくは\nぬしの すみか。かくごの ないものは\nちかづかぬことだ」" }] },
+  ],
+  chests: [
+    { id: "mp1", x: 14, y: 1, item: "megapotion" },
+  ],
+};
+
+// ---------------- だいクレーター ----------------
+DATA.maps.crater1 = {
+  name: "だいクレーター",
+  bgm: "dungeon",
+  encounter: "crater",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#...........s..#",
+    "#..######..##..#",
+    "#.......#......#",
+    "######..#..#####",
+    "#.......#......#",
+    "#..######..##..#",
+    "#..#...........#",
+    "#..#..######..##",
+    "#..............#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 2, y: 10, type: "enter", warp: { map: "starworld", x: 20, y: 6, dir: "d" } },
+    { x: 12, y: 1, type: "enter", warp: { map: "crater2", x: 3, y: 1, dir: "d" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "cr1", x: 14, y: 3, gold: 4000 },
+    { id: "cr2", x: 1, y: 7, item: "elixir" },
+  ],
+};
+
+DATA.maps.crater2 = {
+  name: "クレーターさいしんぶ",
+  bgm: "dungeon",
+  encounter: "crater",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "################",
+    "#..s...........#",
+    "#..#########...#",
+    "#...........#..#",
+    "#..#######..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..#.....#..#..#",
+    "#..##.####..#..#",
+    "#...........#..#",
+    "#..............#",
+    "################",
+  ],
+  events: [
+    { x: 3, y: 1, type: "enter", warp: { map: "crater1", x: 12, y: 1, dir: "d" } },
+    { x: 5, y: 8, type: "enter", scriptId: "lunavoraFight" },
+  ],
+  npcs: [],
+  chests: [
+    { id: "cr3", x: 8, y: 5, item: "worldtear" },
+    { id: "cr4", x: 4, y: 5, gold: 8000, hidden: true },
+    { id: "cr5", x: 14, y: 5, item: "elixir" },
   ],
 };
 
@@ -1861,6 +2057,21 @@ DATA.maps.windtemple = {
   npcs: [
     { id: "tempestnpc", x: 8, y: 1, spr: "bird", hideFlag: "skyBoss",
       script: [{ runScript: "tempestFight" }] },
+    { id: "stargazer", x: 15, y: 12, spr: "elder",
+      script: [
+        { cond: { flag: "starGate" },
+          then: [{ msg: "ほしよみの けんじゃ「ほしのわは ひらいた。\nそらのしまの ひがしの ひかりから\nほしのせかいへ わたるがよい」" }],
+          else: [
+            { cond: { flag: "allCrystals" },
+              then: [
+                { msg: "ほしよみの けんじゃ「4つの クリスタルの\nひかり…… ときは きたようじゃ」" },
+                { msg: "けんじゃが ふるい ことばを となえると\nとおくの そらで ひかりのわが\nひらく おとが した……!" },
+                { flag: ["starGate", 1] },
+                { msg: "そらのしまの ひがしに ほしのわが\nあらわれた! (ほしのせかいへ いける)" },
+              ],
+              else: [{ msg: "ほしよみの けんじゃ「わしは ほしを よむもの。\n4つの クリスタルが そろうとき\nほしへの みちが ひらくじゃろう」" }] },
+          ] },
+      ] },
   ],
   chests: [
     { id: "wt1", x: 12, y: 1, item: "w_windspear" },
@@ -2296,6 +2507,18 @@ DATA.scripts = {
           ] },
       ],
       else: [{ msg: "おきに ふるびた ひこうせんが\nういている。うごきそうにない。" }] },
+  ],
+  lunavoraFight: [
+    { cond: { flag: "craterBoss" },
+      then: [],
+      else: [
+        { msg: "だいちが ゆれている……。\nクレーターの ぬしが めをさました!!" },
+        { battle: { group: ["lunavora"], boss: true, music: "boss" } },
+        { flag: ["craterBoss", 1] },
+        { msg: "ぬしは ほしのちりとなって きえた。\nだいちに しずけさが もどっていく。" },
+        { give: { gold: 5000 } },
+        { msg: "ぬしの すみかから 5000ギルを みつけた!\nセレーネの ちょうろうに ほうこくしよう。" },
+      ] },
   ],
   starFight: [
     { cond: { flag: "trueClear" },
