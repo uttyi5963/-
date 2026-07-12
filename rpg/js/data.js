@@ -181,6 +181,7 @@ DATA.items = {
   a_sandgi:  { name: "すなのどうぎ",     kind: "armor", price: 9500, def: 30, who: ["gou"] },
   w_sandlance: { name: "すなあらしのやり", kind: "weapon", price: 0, atk: 52, who: ["glen"] },
   oasiswater: { name: "オアシスのみず",  kind: "use", price: 300, heal: 400, desc: "HPを 400 かいふく" },
+  a_unity:   { name: "きずなのマント",   kind: "armor", price: 0, def: 30, int: 6, who: ["leon", "glen", "gou", "rod", "celia"] },
 
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる ひかりを やどす" },
   heroproof: { name: "えいゆうのあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
@@ -771,6 +772,37 @@ DATA.maps.castle = {
     { x: 10, y: 11, type: "enter", warp: { map: "world", x: 7, y: 27, dir: "d" } },
   ],
   npcs: [
+    { id: "minister", x: 5, y: 1, spr: "villager", showFlag: "clear",
+      script: [
+        { cond: { flag: "summitDone" },
+          then: [{ msg: "だいじん「せかいかいぎの ごえんは いまも\nつづいております。すべて あなたがたの\nおかげですぞ」" }],
+          else: [
+            { cond: { all: ["inviteTwine", "inviteFrim", "inviteZahra", "inviteDverg"] },
+              then: [
+                { msg: "だいじん「かくちの おさが そろいましたぞ!\nでは、だいいっかい せかいかいぎを\nかいさい いたします!」" },
+                { msg: "トワインのおさ「みずうみの さちを わかちあおう」\nフリムのむらおさ「こおりの みちを ひらこう」" },
+                { msg: "ザハラのぞくちょう「さばくの キャラバンが\nみなを つなごう」\nバルドおう「ちていの てつを とどけるぞ! ガハハ」" },
+                { msg: "こうして せかいは ひとつの わになった。\nはしわたしを した えいゆうたちに\nかんしゃの おくりものが おくられた。" },
+                { give: { item: "a_unity" } },
+                { give: { gold: 10000 } },
+                { msg: "きずなのマントと 10000ギルを てにいれた!" },
+                { flag: ["summitDone", 1] },
+              ],
+              else: [
+                { cond: { flag: "summitQuest" },
+                  then: [{ msg: "だいじん「トワイン・フリム・ザハラ・ちていの\nおうきゅう。4にんの おさに しょうたいを\nつたえて くだされ」" }],
+                  else: [
+                    { cond: { all: ["mirrorBoss", "glacierBoss", "tombBoss"] },
+                      then: [
+                        { msg: "だいじん「かくちの わざわいを しずめた\nあなたがたに おねがいが ござる。おうは\n『せかいかいぎ』を ひらきたいと おおせだ」" },
+                        { msg: "「トワイン・フリム・ザハラの おさと\nちていの バルドおうに しょうたいを\nとどけては くださらんか」" },
+                        { flag: ["summitQuest", 1] },
+                      ],
+                      else: [{ msg: "だいじん「せかいには まだ わざわいの けはいが\nのこっております。かがみ・ひょうが・だいびょう……\nおさたちの なやみを といてくだされ」" }] },
+                  ] },
+              ] },
+          ] },
+      ] },
     { id: "hall_guide", x: 14, y: 1, spr: "soldier", showFlag: "clear",
       script: [
         { msg: "ばんにん「ここは えいゆうの きろくを\nまつる『でんどうのま』への いりぐち。\nはいられますか?」" },
@@ -1870,6 +1902,15 @@ DATA.maps.dwarfhall = {
   npcs: [
     { id: "dverg_king", x: 7, y: 4, spr: "king",
       script: [
+        { cond: { flag: "summitQuest" },
+          then: [
+            { cond: { flag: "inviteDverg" },
+              then: [],
+              else: [
+                { msg: "バルドおう「ちじょうの かいぎに ちていの おうを\nよぶとはのう! ガハハハ! てつの さかずきを\nもって さんか するぞ!」" },
+                { flag: ["inviteDverg", 1] },
+              ] },
+          ], else: [] },
         { cond: { flag: "dvergReward" },
           then: [{ msg: "ドヴェルグおう バルド「そなたらは ちていの\nおんじんじゃ。 ゆっくり していくがよい。\nガハハハ!」" }],
           else: [
@@ -2531,6 +2572,15 @@ DATA.maps.zahra = {
   npcs: [
     { id: "zahra_chief", x: 12, y: 6, spr: "elder",
       script: [
+        { cond: { flag: "summitQuest" },
+          then: [
+            { cond: { flag: "inviteZahra" },
+              then: [],
+              else: [
+                { msg: "ぞくちょう「さばくの たみを かいぎに まねくとは\nバロンおうも ふところが ふかい。\nキャラバンを つれて うかがおう」" },
+                { flag: ["inviteZahra", 1] },
+              ] },
+          ], else: [] },
         { cond: { flag: "tombBoss" },
           then: [
             { cond: { flag: "tombReward" },
@@ -2796,6 +2846,15 @@ DATA.maps.frim = {
   npcs: [
     { id: "frim_elder", x: 10, y: 6, spr: "elder",
       script: [
+        { cond: { flag: "summitQuest" },
+          then: [
+            { cond: { flag: "inviteFrim" },
+              then: [],
+              else: [
+                { msg: "むらおさ「せかいかいぎ……! ゆきに とざされた\nむらにも はるが くるようじゃ。\nぜひ さんか させてもらう」" },
+                { flag: ["inviteFrim", 1] },
+              ] },
+          ], else: [] },
         { cond: { flag: "glacierBoss" },
           then: [
             { cond: { flag: "glacierReward" },
@@ -3069,6 +3128,15 @@ DATA.maps.twine = {
   npcs: [
     { id: "twine_elder", x: 10, y: 6, spr: "elder",
       script: [
+        { cond: { flag: "summitQuest" },
+          then: [
+            { cond: { flag: "inviteTwine" },
+              then: [],
+              else: [
+                { msg: "まちのおさ「バロンおうから せかいかいぎの\nしょうたいとは こうえいだ。\nよろこんで さんか しよう」" },
+                { flag: ["inviteTwine", 1] },
+              ] },
+          ], else: [] },
         { cond: { flag: "mirrorBoss" },
           then: [
             { cond: { flag: "twinReward" },
@@ -4191,6 +4259,27 @@ DATA.scripts = {
             { flag: ["arenaGold", 1] },
           ],
           ng: [{ msg: "うけつけ「おかねが たりないよ!」" }] } },
+      ] },
+      { label: "プラチナ8000G", ops: [
+        { cond: { all: ["mirrorBoss", "glacierBoss", "tombBoss"] },
+          then: [
+            { payGold: { amount: 8000,
+              ok: [
+                { msg: "うけつけ「プラチナランク……!\nかくちの ぬしたちの まぼろしと たたかう\nでんせつの 4れんせんだよ!!」" },
+                { battle: { group: ["mirrorfiend"], boss: true, music: "boss" } },
+                { battle: { group: ["glaciella"], boss: true, music: "boss" } },
+                { battle: { group: ["kham"], boss: true, music: "boss" } },
+                { battle: { group: ["lunavora"], boss: true, music: "spirit" } },
+                { msg: "うけつけ「4にんの ぬしを れんぱ……!?\nあんたたちは とうぎじょうの でんせつだ!!」" },
+                { give: { gold: 30000 } },
+                { give: { item: "elixir" } },
+                { give: { item: "worldtear" } },
+                { msg: "30000ギルと エリクサーと せかいのしずくを\nてにいれた!" },
+                { flag: ["arenaPlatinum", 1] },
+              ],
+              ng: [{ msg: "うけつけ「おかねが たりないよ!」" }] } },
+          ],
+          else: [{ msg: "うけつけ「プラチナは かくちの ぬしを\nたおした ものだけが ちょうせんできる。\nかがみ・ひょうが・だいびょうの ぬしをな」" }] },
       ] },
       { label: "やめる", ops: [] },
     ] } },

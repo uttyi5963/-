@@ -622,9 +622,14 @@ class QuestScene {
       list.push(["うみのぬし たいじ",
         f("seaReward") ? "かんりょう" : "ソレイユの せんいんに ほうこく"]);
     }
-    if (f("arenaBronze") || f("arenaSilver") || f("arenaGold")) {
-      const rank = f("arenaGold") ? "チャンピオン!" : f("arenaSilver") ? "シルバーせいは" : "ブロンズせいは";
+    if (f("arenaBronze") || f("arenaSilver") || f("arenaGold") || f("arenaPlatinum")) {
+      const rank = f("arenaPlatinum") ? "でんせつ (プラチナせいは)" : f("arenaGold") ? "チャンピオン!" : f("arenaSilver") ? "シルバーせいは" : "ブロンズせいは";
       list.push(["とうぎじょう", rank]);
+    }
+    if (f("summitQuest")) {
+      const inv = ["inviteTwine", "inviteFrim", "inviteZahra", "inviteDverg"].filter(f).length;
+      list.push(["せかいかいぎ",
+        f("summitDone") ? "かいさい された!" : `おさたちに しょうたいを とどける (${inv}/4)`]);
     }
     if (f("starGate")) {
       list.push(["クレーターのぬし たいじ",
