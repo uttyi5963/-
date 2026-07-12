@@ -768,6 +768,39 @@ DATA.encounters = {
     rare: ["mithrildragon", "mithrilbaby"], rareRate: 0.07 },
 };
 
+// ---------------- アクセサリ (だい3のそうびわく・だれでも装備可) ----------------
+Object.assign(DATA.items, (() => {
+  const ALL = ["leon", "glen", "gou", "celia", "rod"];
+  return {
+    // 売店ティア
+    acc_gauntlet: { name: "ちからのこて",     kind: "acc", price: 900,  str: 5, tag: "ちから+5",    who: ALL, desc: "ちからが 5 あがる" },
+    acc_boots:    { name: "はやてのくつ",     kind: "acc", price: 1000, agi: 5, tag: "すばやさ+5",  who: ALL, desc: "すばやさが 5 あがる" },
+    acc_belt:     { name: "たいりょくベルト", kind: "acc", price: 900,  vit: 8, tag: "たいりょく+8", who: ALL, desc: "たいりょくが 8 あがる" },
+    acc_circlet:  { name: "けんじゃのわ",     kind: "acc", price: 1000, int: 5, tag: "ちせい+5",    who: ALL, desc: "ちせいが 5 あがる" },
+    acc_firecape: { name: "ひよけのマント",   kind: "acc", price: 1400, resist: { fire: 0.5 }, tag: "ほのお半減", who: ALL, desc: "ほのおダメージ半減" },
+    acc_icecape:  { name: "ゆきよけのマント", kind: "acc", price: 1400, resist: { ice: 0.5 },  tag: "こおり半減", who: ALL, desc: "こおりダメージ半減" },
+    // イベントティア
+    acc_boltcharm: { name: "らいよけのおまもり", kind: "acc", price: 0, resist: { bolt: 0 }, tag: "かみなり無効", who: ALL, desc: "かみなりダメージ無効" },
+    acc_venomband: { name: "どくよけのバングル", kind: "acc", price: 0, guard: ["poison"], tag: "どく防止", who: ALL, desc: "どくに かからない" },
+    acc_bellcharm: { name: "ぎんのすず",         kind: "acc", price: 0, guard: ["silence", "toad"], tag: "沈黙/カエル防止", who: ALL, desc: "ちんもくと カエルを ふせぐ" },
+    acc_owlcharm:  { name: "ふくろうのおまもり", kind: "acc", price: 0, guard: ["blind"], agi: 3, tag: "くらやみ防止", who: ALL, desc: "くらやみを ふせぐ" },
+    acc_warcharm:  { name: "とうこんのおまもり", kind: "acc", price: 0, abil: "limitx2", tag: "ひっさつ2倍速", who: ALL, desc: "ひっさつゲージが 2ばい たまる" },
+    acc_moonveil:  { name: "つきのベール",       kind: "acc", price: 0, resist: { holy: 0.5 }, int: 3, tag: "せい半減", who: ALL, desc: "せいなるダメージ半減" },
+    // レアティア (かくし宝箱)
+    acc_manaring: { name: "マナのゆびわ",     kind: "acc", price: 0, abil: "mphalf", int: 4, tag: "MP半減",       who: ALL, desc: "MPしょうひ半減" },
+    acc_lifeorb:  { name: "いのちのたま",     kind: "acc", price: 0, abil: "regen",  tag: "HPじどう回復",  who: ALL, desc: "ターンごとに HPかいふく" },
+    acc_hawkring: { name: "たかのめのゆびわ", kind: "acc", price: 0, abil: "critx2", str: 3, tag: "かいしん2倍", who: ALL, desc: "かいしんのいちげき 2ばい" },
+    acc_aegis:    { name: "イージスのかけら", kind: "acc", price: 0, abil: "autoprotect", def: 5, tag: "オートプロテス", who: ALL, desc: "せんとう開始時から プロテス" },
+    acc_windpin:  { name: "かぜのかんざし",   kind: "acc", price: 0, agi: 10, tag: "すばやさ+10", who: ALL, desc: "すばやさが 10 あがる" },
+    // 伝説級
+    acc_dragonheart: { name: "りゅうのこころ",   kind: "acc", price: 0, str: 8, vit: 8, resist: { fire: 0.5, ice: 0.5, bolt: 0.5 }, tag: "三属性半減", who: ALL, desc: "炎氷雷半減+ちから体力+8" },
+    acc_stargem:     { name: "ほしのもんしょう", kind: "acc", price: 0, str: 6, agi: 6, vit: 6, int: 6, tag: "全ステ+6", who: ALL, desc: "ぜんステータスが 6 あがる" },
+    acc_voidseal:    { name: "こくうのふういん", kind: "acc", price: 0, def: 8, guard: ["poison", "blind", "silence", "toad"], tag: "全異常防止", who: ALL, desc: "すべての じょうたい異常を ふせぐ" },
+    // フィールドアイテム
+    wing_return: { name: "きかんのつばさ", kind: "use", price: 120, escape: true, desc: "まちや ダンジョンから そとへ ひとっとび" },
+  };
+})());
+
 // ---------------- ショップ ----------------
 DATA.shops = {
   nox: {
@@ -793,7 +826,7 @@ DATA.shops = {
   frim: {
     name: "フリムの みせ",
     stock: ["hipotion", "megapotion", "xpotion", "ether", "hiether", "phoenix", "remedy",
-            "w_icefang", "a_frostmail"],
+            "w_icefang", "a_frostmail", "wing_return", "acc_icecape"],
   },
   twine: {
     name: "トワインの みせ",
@@ -815,19 +848,20 @@ DATA.shops = {
     name: "ムスペルのかじば",
     stock: ["hipotion", "megapotion", "ether", "elixir", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
             "w_iceblade", "w_halberd", "w_battleclaw", "w_sagestaff", "w_spiritrod",
-            "a_dwarf", "a_sage", "a_master"],
+            "a_dwarf", "a_sage", "a_master", "wing_return", "acc_firecape"],
   },
   port: {
     name: "ソレイユのみせ",
     stock: ["potion", "hipotion", "megapotion", "ether", "phoenix", "antidote", "eyedrops", "echoherb", "kiss",
             "w_flame", "w_lance", "w_thunderclaw", "w_crystalrod",
-            "a_aqua", "a_ice", "a_gi"],
+            "a_aqua", "a_ice", "a_gi",
+            "wing_return", "acc_gauntlet", "acc_boots", "acc_belt", "acc_circlet"],
   },
   town: {
     name: "ミストのみせ",
     stock: ["potion", "hipotion", "ether", "antidote", "eyedrops", "echoherb", "kiss", "phoenix",
             "w_steel", "w_mythril", "w_lance", "w_ironclaw", "w_wizstaff", "w_mace",
-            "a_steel", "a_leather", "a_silk"],
+            "a_steel", "a_leather", "a_silk", "wing_return"],
   },
 };
 
@@ -3017,13 +3051,15 @@ DATA.maps.cathedral2 = {
         { flag: ["nightBoss", 1] },
         { msg: "『……あたたかい ほのお。 そう、あさは\nかなしみごと ひとを てらすのね。\nありがとう……』" },
         { give: { item: "w_dawn" } },
-        { msg: "よあけのやりを てにいれた!\n(こうげき63・ほのおぞくせい)" },
+        { give: { item: "acc_moonveil" } },
+        { msg: "よあけのやりと つきのベールを てにいれた!\n(こうげき63・ほのおぞくせい / せい半減)" },
         { msg: "よるのくにの そらに、ほんのり\nあかつきの ひかりが さしこんだ……。" },
       ] },
   ],
   chests: [
     { id: "ca4", x: 8, y: 5, item: "worldtear" },
     { id: "ca5", x: 4, y: 5, gold: 18000, hidden: true },
+    { id: "ca6", x: 14, y: 10, item: "acc_lifeorb", hidden: true },
   ],
 };
 
@@ -3282,6 +3318,8 @@ DATA.maps.stormshrine2 = {
         { battle: { group: ["tonitrus"], boss: true, music: "spirit" } },
         { flag: ["stormBoss", 1] },
         { msg: "『……よき たましい なり。 いかりは\nしずまった。めぐみの あめを しまに\nかえそう』 らいじんは そらへ のぼった。" },
+        { give: { item: "acc_boltcharm" } },
+        { msg: "らいよけのおまもりを てにいれた!\n(かみなりダメージ無効)" },
         { msg: "しまの そらが はれわたっていく……。" },
       ] },
   ],
@@ -3547,7 +3585,8 @@ DATA.maps.ruins2 = {
         { flag: ["ruinsBoss", 1] },
         { msg: "『キロク ヲ コウシン……。 アタラシキ\nマモリテ ト ミトメル……』\nまもりがみは しずかに ひざを ついた。" },
         { give: { item: "w_guardfist" } },
-        { msg: "まもりのこぶしを てにいれた!" },
+        { give: { item: "acc_owlcharm" } },
+        { msg: "まもりのこぶしと ふくろうのおまもりを\nてにいれた!" },
       ] },
   ],
   chests: [
@@ -3822,12 +3861,14 @@ DATA.maps.sandtomb2 = {
         { flag: ["tombBoss", 1] },
         { msg: "『……ながき ゆめで あった。 とわの やすらぎを\nくれた なんじらに、わが やりを たくす』\nおうは しずかに ねむりに ついた。" },
         { give: { item: "w_sandlance" } },
-        { msg: "すなあらしのやりを てにいれた!" },
+        { give: { item: "acc_venomband" } },
+        { msg: "すなあらしのやりと どくよけのバングルを\nてにいれた!" },
       ] },
   ],
   chests: [
     { id: "st4", x: 8, y: 5, item: "worldtear" },
     { id: "st5", x: 4, y: 5, gold: 12000, hidden: true },
+    { id: "st6", x: 14, y: 10, item: "acc_aegis", hidden: true },
   ],
 };
 
@@ -4361,7 +4402,8 @@ DATA.maps.mirrorcave2 = {
         { flag: ["mirrorBoss", 1] },
         { msg: "かがみは くだけ、とらわれていた\nまちの かげたちが かえっていった。" },
         { give: { item: "w_mirror" } },
-        { msg: "ミラーブレードを てにいれた!\n(ひがしの とうの ふういんも とけたようだ)" },
+        { give: { item: "acc_bellcharm" } },
+        { msg: "ミラーブレードと ぎんのすずを てにいれた!\n(ひがしの とうの ふういんも とけたようだ)" },
       ] },
   ],
   chests: [
@@ -4447,6 +4489,7 @@ DATA.maps.eternaltower2 = {
     { id: "et4", x: 2, y: 8, item: "xpotion" },
     { id: "et5", x: 13, y: 8, item: "elixir", hidden: true },
     { id: "et6", x: 2, y: 2, item: "w_genja", hidden: true },
+    { id: "et7", x: 14, y: 8, item: "acc_manaring", hidden: true },
   ],
 };
 
@@ -4717,7 +4760,9 @@ DATA.maps.phantomthrone = {
         { msg: "おうと しろは ほのかな ひかりに つつまれ\nしずかに きえていった……。" },
       ] },
   ],
-  chests: [],
+  chests: [
+    { id: "pt1", x: 14, y: 9, item: "acc_windpin", hidden: true },
+  ],
 };
 
 // ---------------- でんどうのま (じっせきの ホール) ----------------
@@ -4799,7 +4844,8 @@ DATA.maps.halloffame = {
                         { msg: "ばんにん「ぬしのみち かんぱ!!\nすさまじい つわものだ!」" },
                         { give: { gold: 40000 } },
                         { give: { item: "worldtear" } },
-                        { msg: "40000ギルと せかいのしずくを てにいれた!" },
+                        { give: { item: "acc_dragonheart" } },
+                        { msg: "40000ギル、せかいのしずく、\nりゅうのこころを てにいれた!" },
                         { flag: ["rush2", 1] },
                       ] },
                   ],
@@ -4821,7 +4867,8 @@ DATA.maps.halloffame = {
                       else: [
                         { msg: "ばんにん「し、しんえんのみち かんぱ!!!\nでんせつの なかの でんせつだ!!」" },
                         { give: { gold: 100000 } },
-                        { msg: "100000ギルを てにいれた!\nでんどうに 『けいしょうしゃ』の なが きざまれた。" },
+                        { give: { item: "acc_stargem" } },
+                        { msg: "100000ギルと ほしのもんしょうを てにいれた!\nでんどうに 『けいしょうしゃ』の なが きざまれた。" },
                         { flag: ["rush3", 1] },
                       ] },
                   ],
@@ -4950,12 +4997,14 @@ DATA.maps.stargrave2 = {
         { flag: ["graveBoss", 1] },
         { msg: "『みごとなり……。 ほしの まもりを\nなんじらに たくそう』\nひかりは しずかに ねむりに ついた。" },
         { give: { item: "a_crown" } },
-        { msg: "ほしのおうかんを てにいれた!" },
+        { give: { item: "acc_voidseal" } },
+        { msg: "ほしのおうかんと こくうのふういんを\nてにいれた!" },
       ] },
   ],
   chests: [
     { id: "sg5", x: 2, y: 8, item: "xpotion" },
     { id: "sg6", x: 13, y: 8, item: "elixir", hidden: true },
+    { id: "sg7", x: 14, y: 8, item: "acc_hawkring", hidden: true },
   ],
 };
 
@@ -5049,8 +5098,9 @@ DATA.maps.trialmt2 = {
             { flag: ["garonBeat", 1] },
             { msg: "ガロン「……みごとだ。 おれの まけだ。\nこの つめを もっていけ。\nおまえたちの こぶしに たくそう」" },
             { give: { item: "w_garon" } },
+            { give: { item: "acc_warcharm" } },
             { give: { gold: 3000 } },
-            { msg: "ごうけつのつめと 3000ギルを てにいれた!" },
+            { msg: "ごうけつのつめ、とうこんのおまもり、\n3000ギルを てにいれた!" },
           ] },
       ] },
   ],

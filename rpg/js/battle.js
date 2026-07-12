@@ -35,7 +35,7 @@ class BattleScene {
     });
 
     this.party = G.state.party.map((h) => ({
-      h, atb: rnd(20, 60), defending: false, protect: false,
+      h, atb: rnd(20, 60), defending: false, protect: G.accAbil(h, "autoprotect"),
       casting: null, flash: 0,
       airborne: null,   // ジャンプちゅう {t, dur, target, double}
       jumpCount: 0,     // 2かいめからは ダブルジャンプ
@@ -128,7 +128,13 @@ class BattleScene {
   // ひっさつゲージ: うけたダメージに おうじて たまる
   gainLimit(victim, dmg) {
     if (victim.h.hp <= 0) return;
-    victim.h.limit = Math.min(100, (victim.h.limit || 0) + Math.round(dmg / victim.h.maxhp * 90));
+    const mul = G.accAbil(victim.h, "limitx2") ? 2 : 1;
+    victim.h.limit = Math.min(100, (victim.h.limit || 0) + Math.round(dmg / victim.h.maxhp * 90 * mul));
+  }
+
+  // アクセサリ「マナのゆびわ」で MPしょうひ半減
+  mpCost(h, sp) {
+    return G.accAbil(h, "mphalf") ? Math.ceil((sp.mp || 0) / 2) : (sp.mp || 0);
   }
 
   // しゅうとくずみの ひっさつわざ
@@ -200,7 +206,16 @@ class BattleScene {
     if (!waitPause) {
       // ATBゲージ (えいしょう/ジャンプちゅうは たまらない)
       for (const p of this.aliveParty()) {
-        if (!p.casting && !p.airborne) p.atb = Math.min(100, p.atb + (25 + p.h.agi * 3) * dt);
+        if (p.casting || p.airborne) continue;
+        const was = p.atb;
+        p.atb = Math.min(100, p.atb + (25 + G.agiOf(p.h) * 3) * dt);
+        // いのちのたま: ターンが まわってくるたび HPかいふく
+        if (was < 100 && p.atb >= 100 && G.accAbil(p.h, "regen") && p.h.hp < p.h.maxhp) {
+          const heal = Math.max(1, Math.round(p.h.maxhp * 0.05));
+          p.h.hp = Math.min(p.h.maxhp, p.h.hp + heal);
+          const pos = this.partyPos(this.party.indexOf(p));
+          this.pop(pos.x, pos.y, "+" + heal, 3);
+        }
       }
       for (const e of this.aliveEnemies()) {
         if (!e.casting) e.atb = Math.min(100, e.atb + (25 + e.def.agi * 3) * dt);
@@ -374,7 +389,7 @@ class BattleScene {
       if (Input.tap("b")) { AudioSys.sfx("cancel"); this.menu = "root"; return; }
       if (Input.tap("a")) {
         const sp = spells[this.sel2];
-        if (this.ready.h.mp < sp.def.mp) { AudioSys.sfx("buzz"); return; }
+        if (this.ready.h.mp < this.mpCost(this.ready.h, sp.def)) { AudioSys.sfx("buzz"); return; }
         AudioSys.sfx("confirm");
         this.pendingAct = { type: "spell", spell: sp };
         if (sp.def.target === "enemy") {
@@ -511,7 +526,7 @@ class BattleScene {
         return;
       }
       if ((sp.cast || 0) > 0) {
-        h.mp -= sp.mp;
+        h.mp -= this.mpCost(h, sp);
         p.casting = { act, t: 0, dur: sp.cast };
         this.log = `${h.name}は ${sp.name}の えいしょうを はじめた`;
         AudioSys.sfx("cursor");
@@ -659,7 +674,7 @@ class BattleScene {
         events.push({ t: 0.2, fn: () => { this.log = `${h.name}の カエルパンチ…`; } });
         this.queueHitEnemy(events, t, dmg, "hit");
       } else {
-        const crit = Math.random() < 1 / 16;
+        const crit = Math.random() < (G.accAbil(h, "critx2") ? 2 : 1) / 16;
         // ためる: 2/4/8ばい (つかったら リセット)
         const chargeMul = Math.pow(2, p.charge);
         if (p.charge > 0) {
@@ -888,7 +903,7 @@ class BattleScene {
 
     events.push({ t: 0, fn: () => {
       this.log = `${h.name}は ${sp.name}を となえた!`;
-      if (payMp) h.mp -= sp.mp;
+      if (payMp) h.mp -= this.mpCost(h, sp);
       AudioSys.sfx(sp.type === "dmg" ? "magic" : "heal");
     } });
 
@@ -1036,7 +1051,8 @@ class BattleScene {
       AudioSys.sfx("hit");
       // ついかこうか (どく/くらやみ など)。みがわり時は はつどうしない
       const inf = e.def.inflict || (e.def.poison ? { status: "poison", rate: e.def.poison } : null);
-      if (!covered && inf && Math.random() < inf.rate && victim.h.hp > 0 && !victim.h[inf.status]) {
+      if (!covered && inf && Math.random() < inf.rate && victim.h.hp > 0
+          && !victim.h[inf.status] && !G.accGuards(victim.h, inf.status)) {
         victim.h[inf.status] = true;
         this.log = `${victim.h.name}は ${DATA.statuses[inf.status].name}に かかった!`;
       }
@@ -1074,6 +1090,10 @@ class BattleScene {
       const p = targets[Math.floor(Math.random() * targets.length)];
       events.push({ t: 0.5, fn: () => {
         if (p.h.hp <= 0) return;
+        if (G.accGuards(p.h, sp.status)) {
+          this.log = `${p.h.name}は アクセサリに まもられた!`;
+          return;
+        }
         if (p.h[sp.status]) { this.log = "しかし きかなかった!"; return; }
         p.h[sp.status] = true;
         p.flash = 0.25;
@@ -1088,9 +1108,11 @@ class BattleScene {
       events.push({ t: 0.45, fn: () => {
         if (p.h.hp <= 0) return;
         let dmg = Math.round(sp.pow * (1 + (e.def.int || 8) / 16) * rnd(0.9, 1.1));
+        const res = G.accResist(p.h, sp.elem);
+        dmg = Math.round(dmg * res);
         if (p.defending) dmg = Math.round(dmg * 0.5);
         if (p.protect) dmg = Math.round(dmg * 0.7);
-        dmg = Math.max(1, dmg);
+        dmg = res === 0 ? 0 : Math.max(1, dmg);
         p.h.hp = Math.max(0, p.h.hp - dmg);
         p.flash = 0.25;
         this.gainLimit(p, dmg);
@@ -1608,7 +1630,7 @@ class BattleScene {
       const h = shown.length * 16 + 14;
       Gfx.window(4, 60, 150, h);
       shown.forEach((s, i) => {
-        const ok = this.ready.h.mp >= s.def.mp;
+        const ok = this.ready.h.mp >= this.mpCost(this.ready.h, s.def);
         Gfx.text(s.def.name, 26, 67 + i * 16, ok ? 3 : 1, 11);
         Gfx.textR(String(s.def.mp), 138, 67 + i * 16, ok ? 3 : 1, 10);
       });

@@ -379,7 +379,7 @@ const G = {
     const h = {
       id, name: d.name, cls: d.cls, spr: d.spr,
       lv, exp: this.expTotalFor(lv),
-      weapon: d.weapon, armor: d.armor,
+      weapon: d.weapon, armor: d.armor, acc: null,
       special: d.special || null,
       command: d.command || null,
       spells: d.spells.slice(),
@@ -447,11 +447,25 @@ const G = {
     return msgs;
   },
 
-  atkOf(h) { return h.str + (DATA.items[h.weapon]?.atk || 0); },
-  defOf(h) { return (DATA.items[h.armor]?.def || 0) + Math.floor(h.vit / 4); },
-  intOf(h) {
-    return h.int + (DATA.items[h.weapon]?.int || 0) + (DATA.items[h.armor]?.int || 0);
+  accOf(h) { return (h.acc && DATA.items[h.acc]) || {}; },
+  strOf(h) { return h.str + (this.accOf(h).str || 0); },
+  agiOf(h) { return h.agi + (this.accOf(h).agi || 0); },
+  vitOf(h) { return h.vit + (this.accOf(h).vit || 0); },
+  atkOf(h) { return this.strOf(h) + (DATA.items[h.weapon]?.atk || 0); },
+  defOf(h) {
+    return (DATA.items[h.armor]?.def || 0) + (this.accOf(h).def || 0) + Math.floor(this.vitOf(h) / 4);
   },
+  intOf(h) {
+    return h.int + (this.accOf(h).int || 0)
+      + (DATA.items[h.weapon]?.int || 0) + (DATA.items[h.armor]?.int || 0);
+  },
+  // アクセサリの とくしゅこうか
+  accGuards(h, st) { return (this.accOf(h).guard || []).includes(st); },
+  accResist(h, elem) {
+    const r = this.accOf(h).resist;
+    return r && elem != null && r[elem] != null ? r[elem] : 1;
+  },
+  accAbil(h, k) { return this.accOf(h).abil === k; },
   calcHeal(h, spell) { return Math.round(spell.pow * (1 + this.intOf(h) / 16)); },
 
   classChange() {
@@ -530,6 +544,14 @@ const G = {
     } catch (e) { /* ignore */ }
   },
 
+  // オートセーブ (スロット5に じどうきろく。マップいどうごとに よばれる)
+  AUTO_SLOT: 5,
+  autosave() {
+    try {
+      Store.set(this.slotKey(this.AUTO_SLOT), JSON.stringify(this.state));
+    } catch (e) { /* ようりょうオーバーなどは だまって むし */ }
+  },
+
   save(slot = 1) {
     try {
       Store.set(this.slotKey(slot), JSON.stringify(this.state));
@@ -562,7 +584,7 @@ const G = {
   },
 
   hasSave() {
-    for (let n = 1; n <= this.SLOTS; n++) if (this.slotInfo(n)) return true;
+    for (let n = 1; n <= this.SLOTS + 1; n++) if (this.slotInfo(n)) return true;
     return false;
   },
 
@@ -629,6 +651,7 @@ const G = {
       const patchHero = (h) => {
         if (!h.row) h.row = (DATA.heroes[h.id] && DATA.heroes[h.id].row) || "front";
         if (h.limit == null) h.limit = 0;
+        if (h.acc === undefined) h.acc = null;
         // はいばんした ぶきの ひっこし
         if (h.weapon === "w_boltstaff") h.weapon = "w_sagestaff";
         // ふるいセーブは command が null のことがある (ロッドのかくせい等を補完)
@@ -733,10 +756,12 @@ class SlotPickScene {
     this.onPick = onPick;
     this.sel = 0;
     this.opaque = false;
+    // ロードじは オートセーブわくも えらべる
+    this.count = mode === "load" ? G.SLOTS + 1 : G.SLOTS;
   }
   update() {
-    if (Input.tap("up")) { this.sel = (this.sel + G.SLOTS - 1) % G.SLOTS; AudioSys.sfx("cursor"); }
-    if (Input.tap("down")) { this.sel = (this.sel + 1) % G.SLOTS; AudioSys.sfx("cursor"); }
+    if (Input.tap("up")) { this.sel = (this.sel + this.count - 1) % this.count; AudioSys.sfx("cursor"); }
+    if (Input.tap("down")) { this.sel = (this.sel + 1) % this.count; AudioSys.sfx("cursor"); }
     if (Input.tap("b")) {
       AudioSys.sfx("cancel");
       G.pop();
@@ -752,12 +777,12 @@ class SlotPickScene {
     }
   }
   draw() {
-    Gfx.window(30, 60, 260, 168);
-    Gfx.text(this.mode === "save" ? "どこに きろくしますか?" : "どの きろくで はじめますか?", 44, 68, 3, 11);
-    for (let i = 0; i < G.SLOTS; i++) {
-      const y = 92 + i * 32;
+    Gfx.window(30, 40, 260, this.count * 32 + 44);
+    Gfx.text(this.mode === "save" ? "どこに きろくしますか?" : "どの きろくで はじめますか?", 44, 48, 3, 11);
+    for (let i = 0; i < this.count; i++) {
+      const y = 72 + i * 32;
       const info = G.slotInfo(i + 1);
-      Gfx.text(`スロット${i + 1}`, 58, y, 3, 11);
+      Gfx.text(i + 1 > G.SLOTS ? "オートセーブ" : `スロット${i + 1}`, 58, y, 3, 11);
       if (info) {
         Gfx.text(`${info.name} Lv${info.lv} なかま${info.members}にん`, 58, y + 14, 3, 9);
         Gfx.textR(`${info.map} ${info.min}ふん`, 276, y + 14, 3, 9);

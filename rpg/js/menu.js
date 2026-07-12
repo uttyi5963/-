@@ -226,6 +226,19 @@ class MenuScene {
     if (Input.tap("a") && items.length > 0) {
       const it = items[Math.min(this.sub, items.length - 1)];
       if (it.def.kind !== "use") { AudioSys.sfx("buzz"); return; }
+      if (it.def.escape) {
+        const w = G.state.lastWorld;
+        if (!w || /^(world\d*|underworld|starworld)$/.test(G.state.map)) { AudioSys.sfx("buzz"); return; }
+        AudioSys.sfx("confirm");
+        G.removeItem(it.id);
+        G.pop();
+        G.fade(() => {
+          G.state.map = w.map; G.state.x = w.x; G.state.y = w.y;
+          const f = G.scenes.find((s) => s instanceof FieldScene);
+          if (f) f.loadMap();
+        });
+        return;
+      }
       AudioSys.sfx("confirm");
       this.pendingItem = it;
       this.state = "targetPick";
@@ -269,10 +282,10 @@ class MenuScene {
   }
 
   updEquipSlot() {
-    this.nav(2, "sel2");
+    this.nav(3, "sel2");
     if (Input.tap("b")) { AudioSys.sfx("cancel"); this.state = "heroPick"; return; }
     if (Input.tap("a")) {
-      this.slot = this.sel2 === 0 ? "weapon" : "armor";
+      this.slot = ["weapon", "armor", "acc"][this.sel2];
       const cands = this.equipCandidates(this.picked, this.slot);
       if (cands.length === 0) { AudioSys.sfx("buzz"); return; }
       AudioSys.sfx("confirm");
@@ -291,10 +304,10 @@ class MenuScene {
     if (Input.tap("a") && cands.length > 0) {
       const it = cands[Math.min(this.sel3, cands.length - 1)];
       const h = this.picked;
-      const old = this.slot === "weapon" ? h.weapon : h.armor;
+      const old = h[this.slot];
       if (old) G.addItem(old);
       G.removeItem(it.id);
-      if (this.slot === "weapon") h.weapon = it.id; else h.armor = it.id;
+      h[this.slot] = it.id;
       AudioSys.sfx("confirm");
       this.state = "equipSlot";
     }
@@ -383,20 +396,27 @@ class MenuScene {
     Gfx.text(`${h.name}の そうび`, 32, 48);
     const wname = h.weapon ? DATA.items[h.weapon].name : "なし";
     const aname = h.armor ? DATA.items[h.armor].name : "なし";
-    Gfx.text("ぶき  : " + wname, 48, 74);
-    Gfx.text("よろい: " + aname, 48, 93);
-    Gfx.text(`こうげき ${G.atkOf(h)}  ぼうぎょ ${G.defOf(h)}`, 48, 116, 3, 10);
+    const cname = h.acc ? DATA.items[h.acc].name : "なし";
+    Gfx.text("ぶき  : " + wname, 48, 70);
+    Gfx.text("よろい: " + aname, 48, 88);
+    Gfx.text("アクセ: " + cname, 48, 106);
+    Gfx.text(`こうげき ${G.atkOf(h)}  ぼうぎょ ${G.defOf(h)}`, 48, 126, 3, 10);
     if (this.state === "equipSlot") {
-      Gfx.cursor(34, 77 + this.sel2 * 19);
+      Gfx.cursor(34, 73 + this.sel2 * 18);
     } else {
       const cands = this.equipCandidates(h, this.slot);
-      cands.forEach((it, i) => {
-        const y = 140 + i * 18;
-        const stat = it.def.kind === "weapon" ? `こうげき${it.def.atk}` : `ぼうぎょ${it.def.def}`;
+      const view = 5;
+      const start = Math.max(0, Math.min(this.sel3 - (view - 1), cands.length - view));
+      cands.slice(start, start + view).forEach((it, i) => {
+        const y = 144 + i * 18;
+        const stat = it.def.kind === "weapon" ? `こうげき${it.def.atk}`
+          : it.def.kind === "armor" ? `ぼうぎょ${it.def.def}` : (it.def.tag || "");
         Gfx.text(it.def.name, 60, y, 3, 11);
         Gfx.textR(stat, 280, y, 3, 10);
-        if (i === this.sel3) Gfx.cursor(46, y + 3);
+        if (start + i === this.sel3) Gfx.cursor(46, y + 3);
       });
+      if (start > 0) Gfx.text("▲", 286, 144, 3, 10);
+      if (start + view < cands.length) Gfx.text("▼", 286, 144 + (view - 1) * 18, 3, 10);
     }
   }
 
@@ -409,9 +429,9 @@ class MenuScene {
     const rows = [
       ["HP", `${h.hp}/${h.maxhp}`],
       ["MP", `${h.mp}/${h.maxmp}`],
-      ["ちから", h.str],
-      ["すばやさ", h.agi],
-      ["たいりょく", h.vit],
+      ["ちから", G.strOf(h)],
+      ["すばやさ", G.agiOf(h)],
+      ["たいりょく", G.vitOf(h)],
       ["ちせい", G.intOf(h)],
       ["こうげき", G.atkOf(h)],
       ["ぼうぎょ", G.defOf(h)],

@@ -18,6 +18,11 @@ class FieldScene {
 
   loadMap() {
     const m = this.map;
+    // きかんのつばさ用: さいごに いた そとのせかいを おぼえておく
+    if (/^(world\d*|underworld|starworld)$/.test(G.state.map)) {
+      G.state.lastWorld = { map: G.state.map, x: G.state.x, y: G.state.y };
+    }
+    G.autosave();
     this.moving = null;
     this.nameTimer = 2.2;
     this.npcs = (m.npcs || []).map((n) => {
