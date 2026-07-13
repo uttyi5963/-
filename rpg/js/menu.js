@@ -1011,6 +1011,94 @@ class ConfigScene {
   }
 }
 
+// スロットマシン (ソレイユの酒場の奥、レトロカジノ)
+class SlotScene {
+  constructor() {
+    this.opaque = false;
+    this.bet = 100;
+    this.symbols = ["7", "剣", "星", "月", "実"];
+    this.reels = [0, 1, 2];
+    this.spin = [0, 0, 0];   // 0=停止, >0=回転中
+    this.state = "ask";      // ask / spin / result
+    this.t = 0;
+    this.msg = "";
+  }
+  payout(a, b, c) {
+    if (a === 0 && b === 0 && c === 0) return [5000, "777!! 大当たり!!"];
+    if (a === b && b === c) return [1000, this.symbols[a] + "が 3つ そろった!"];
+    if (a === b || b === c || a === c) return [200, "おしい! ペア!"];
+    return [0, "はずれ……。"];
+  }
+  update(dt) {
+    this.t += dt;
+    if (this.state === "ask") {
+      if (Input.tap("a")) {
+        if (G.state.gold < this.bet) {
+          this.msg = "お金が たりない!";
+          this.state = "result"; this.t = 0;
+          AudioSys.sfx("buzz");
+          return;
+        }
+        G.state.gold -= this.bet;
+        AudioSys.sfx("confirm");
+        this.state = "spin";
+        this.spin = [0.7 + Math.random() * 0.4, 1.3 + Math.random() * 0.5, 2.0 + Math.random() * 0.6];
+        this.reels = this.reels.map(() => Math.floor(Math.random() * 5));
+      } else if (Input.tap("b")) {
+        AudioSys.sfx("cancel");
+        G.pop();
+      }
+      return;
+    }
+    if (this.state === "spin") {
+      let done = true;
+      for (let i = 0; i < 3; i++) {
+        if (this.spin[i] > 0) {
+          this.spin[i] -= dt;
+          this.reels[i] = Math.floor(this.t * 12 + i * 7) % 5;
+          if (this.spin[i] <= 0) {
+            this.reels[i] = Math.floor(Math.random() * 5);
+            AudioSys.sfx("cursor");
+          } else done = false;
+        }
+      }
+      if (done) {
+        const [win, msg] = this.payout(this.reels[0], this.reels[1], this.reels[2]);
+        if (win > 0) { G.gainGold(win); AudioSys.sfx(win >= 1000 ? "levelup" : "chest"); }
+        else AudioSys.sfx("cancel");
+        this.msg = msg + (win > 0 ? `\n${win}ギル かくとく!` : "");
+        this.state = "result"; this.t = 0;
+      }
+      return;
+    }
+    if (this.state === "result" && this.t > 0.4 && (Input.tap("a") || Input.tap("b"))) {
+      this.state = "ask";
+      this.msg = "";
+    }
+  }
+  draw() {
+    Gfx.window(60, 60, 200, 168);
+    Gfx.text("クリスタルスロット", 88, 70);
+    // リールまど
+    for (let i = 0; i < 3; i++) {
+      const x = 84 + i * 54;
+      Gfx.window(x, 96, 44, 44);
+      const sym = this.symbols[this.reels[i]];
+      Gfx.text(sym, x + 15, 110, this.state === "spin" && this.spin[i] > 0 ? 1 : 3, 13);
+    }
+    Gfx.text(`かけ金 ${this.bet}G`, 92, 152, 3, 10);
+    Gfx.textR(`しょじ ${G.state.gold}G`, 246, 152, 3, 10);
+    if (this.state === "ask") {
+      Gfx.text("A: まわす  B: やめる", 92, 176, 1, 10);
+      Gfx.text("777で 5000ギル!", 100, 196, 2, 10);
+    } else if (this.state === "result") {
+      this.msg.split("\n").forEach((l, i) => Gfx.text(l, 84, 176 + i * 18, 3, 10));
+    } else {
+      Gfx.text("まわっている……", 106, 176, 1, 10);
+    }
+  }
+}
+
 class FishingScene {
   constructor(price, onDone, table) {
     this.opaque = false;

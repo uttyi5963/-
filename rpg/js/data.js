@@ -2119,6 +2119,14 @@ DATA.maps.portinn = {
     { x: 5, y: 7, type: "enter", warp: { map: "port", x: 4, y: 5, dir: "d" } },
   ],
   npcs: [
+    { id: "slot_geezer", x: 7, y: 2, spr: "villager", pal: "dark",
+      script: [
+        { msg: "スロットじいさん「へっへっへ、\nみなとの 男の あそびと いえば\nこいつよ。 1かい 100ギルだ」" },
+        { menu: { options: [
+          { label: "まわす", ops: [{ slot: true }] },
+          { label: "やめる", ops: [] },
+        ] } },
+      ] },
     { id: "portinnkeep", x: 4, y: 2, spr: "villager",
       script: [{ inn: 40 }] },
   ],

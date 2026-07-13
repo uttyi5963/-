@@ -1059,6 +1059,10 @@ function runScript(ops, onDone) {
         ops = ops.slice(0, i).concat(branch, ops.slice(i));
         continue;
       }
+      if (op.slot) {
+        G.push(new SlotScene());
+        return;
+      }
       if (op.fishing) {
         G.push(new FishingScene(op.fishing.price || 50, next, op.fishing.table));
         return;
