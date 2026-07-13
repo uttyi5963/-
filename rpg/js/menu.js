@@ -103,7 +103,7 @@ class MenuScene {
     this.scroll = 0;
     this.target = 0;
     this.picked = null;
-    this.commands = ["強さ", "呪文", "道具", "そうび", "たいれつ", "図鑑", "クエスト", "せってい", "パスワード", "セーブ"];
+    this.commands = ["強さ", "呪文", "道具", "そうび", "たいれつ", "図鑑", "クエスト", "せってい", "パスワード", "セーブ", "ちず"];
   }
 
   update() {
@@ -138,6 +138,7 @@ class MenuScene {
       else if (cmd === "たいれつ") { this.state = "heroPick"; this.mode = "row"; this.sub = 0; }
       else if (cmd === "図鑑") { G.push(new BestiaryScene()); }
       else if (cmd === "クエスト") { G.push(new QuestScene()); }
+      else if (cmd === "ちず") { G.push(new MapScene()); }
       else if (cmd === "せってい") {
         G.push(new ConfigScene());
       }
@@ -351,9 +352,9 @@ class MenuScene {
     // コマンド (みぎうえ)
     Gfx.window(204, 4, 112, 184);
     this.commands.forEach((c, i) => {
-      Gfx.text(c, 226, 12 + i * 17, 3, 11);
+      Gfx.text(c, 226, 11 + i * 16, 3, 11);
     });
-    if (this.state === "main") Gfx.cursor(212, 15 + this.sel * 17);
+    if (this.state === "main") Gfx.cursor(212, 14 + this.sel * 16);
 
     // しょじきん / プレイじかん (みぎした)
     Gfx.window(204, 192, 112, 58);
@@ -610,6 +611,67 @@ class BestiaryScene {
 }
 
 // ============================================================
+// ワールドちず (メニューの「ちず」)
+class MapScene {
+  constructor() {
+    this.t = 0;
+    // 屋外マップなら それを、屋内なら さいごに いた ワールドを うつす
+    const cur = DATA.maps[G.state.map];
+    if (cur.outdoor) {
+      this.mapId = G.state.map;
+      this.px = G.state.x; this.py = G.state.y;
+    } else if (G.state.lastWorld) {
+      this.mapId = G.state.lastWorld.map;
+      this.px = G.state.lastWorld.x; this.py = G.state.lastWorld.y;
+    } else {
+      this.mapId = null;
+    }
+  }
+  update(dt) {
+    this.t += dt;
+    if (Input.tap("a") || Input.tap("b")) { AudioSys.sfx("cancel"); G.pop(); }
+  }
+  draw() {
+    Gfx.window(10, 10, 300, 268);
+    if (!this.mapId) {
+      Gfx.text("この あたりの ちずは ない。", 60, 130, 3, 12);
+      Gfx.textR("A/Bで とじる", 292, 254, 1, 10);
+      return;
+    }
+    const m = DATA.maps[this.mapId];
+    const w = m.rows[0].length, h = m.rows.length;
+    const s = Math.max(2, Math.min(8, Math.floor(272 / w), Math.floor(216 / h)));
+    const ox = 160 - (w * s) / 2, oy = 34 + (212 - h * s) / 2;
+    const c = Gfx.ctx;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const t = m.legend[m.rows[y][x]];
+        if (!t) continue;
+        let col;
+        switch (t.tile) {
+          case "water": case "water2": col = PAL[2]; break;
+          case "mountain": col = PAL[3]; break;
+          case "forest": case "pine": case "palm": case "deadtree": col = PAL[1]; break;
+          case "grass": case "sand": case "snow": case "path": case "scree":
+          case "nightgrass": case "flower": case "bridge": col = PAL[0]; break;
+          default: col = PAL[3]; // まち/ほこら などの アイコンは こいマーカー
+        }
+        c.fillStyle = col;
+        c.fillRect(ox + x * s, oy + y * s, s, s);
+      }
+    }
+    // げんざいち (てんめつする ひかり)
+    if (Math.floor(this.t * 3) % 2 === 0) {
+      c.fillStyle = PAL[3];
+      c.fillRect(ox + this.px * s - 1, oy + this.py * s - 1, s + 2, s + 2);
+      c.fillStyle = PAL[0];
+      c.fillRect(ox + this.px * s, oy + this.py * s, s, s);
+    }
+    Gfx.text(m.name, 24, 18);
+    Gfx.textR("A/Bで とじる", 292, 18, 1, 10);
+  }
+}
+
 // クエストちょう
 // ============================================================
 class QuestScene {
