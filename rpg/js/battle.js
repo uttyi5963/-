@@ -1757,6 +1757,19 @@ class BattleScene {
         c.fillStyle = PAL[0];
         c.fillRect(150, 20, 3, 30); c.fillRect(140, 50, 3, 26); c.fillRect(150, 76, 3, 30);
       }
+      // 地平の丘と 風にしなる木
+      c.fillStyle = PAL[2];
+      c.beginPath();
+      c.moveTo(0, 168); c.lineTo(0, 156);
+      c.quadraticCurveTo(90, 146, 180, 158);
+      c.quadraticCurveTo(260, 166, 320, 154); c.lineTo(320, 168);
+      c.fill();
+      [[60, 150], [250, 148]].forEach(([x, y]) => {
+        c.fillRect(x, y - 16, 3, 18);
+        c.fillRect(x - 12, y - 22, 14, 4); // 風下へ ながれる こずえ
+        c.fillRect(x - 16, y - 18, 10, 3);
+        c.fillRect(x - 8, y - 26, 8, 3);
+      });
       c.fillStyle = PAL[2];
       for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 162 + (i % 2) * 3, 10, 2);
     }
@@ -1764,10 +1777,18 @@ class BattleScene {
       // みつりんの きぎと つるくさ
       c.fillStyle = PAL[2];
       for (let i = 0; i < 7; i++) {
-        const x = 10 + i * 46;
-        c.fillRect(x + 8, 30 + (i % 2) * 8, 4, 138 - (i % 2) * 8);
-        c.beginPath(); c.arc(x + 10, 34 + (i % 2) * 8, 13, 0, Math.PI * 2); c.fill();
+        const x = 10 + i * 46, top = 30 + (i * 11) % 26, r = 10 + (i % 3) * 4;
+        c.fillRect(x + 8, top, 4, 168 - top);
+        c.beginPath(); c.arc(x + 10, top + 4, r, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(x + 10 - r * 0.7, top + 10, r * 0.6, 0, Math.PI * 2); c.fill();
       }
+      // 地面のシダ
+      c.fillStyle = PAL[2];
+      [[40, 158], [150, 160], [270, 156]].forEach(([x, y]) => {
+        c.fillRect(x, y, 1, 8);
+        c.fillRect(x - 4, y + 2, 4, 1); c.fillRect(x + 1, y + 1, 4, 1);
+        c.fillRect(x - 3, y + 5, 3, 1); c.fillRect(x + 1, y + 4, 3, 1);
+      });
       c.fillStyle = PAL[1];
       for (let i = 0; i < 5; i++) {
         c.fillRect(30 + i * 64, 0, 2, 20 + (i % 3) * 10);
