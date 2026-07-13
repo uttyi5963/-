@@ -1000,6 +1000,12 @@ function runScript(ops, onDone) {
         AudioSys.sfx("chest");
         continue;
       }
+      if (op.prof) {
+        // 熟練度を あたえる: { prof: ["leon", 10] }
+        const ph = G.state.party.find((x) => x.id === op.prof[0]);
+        if (ph) { ph.prof = Math.min(99, (ph.prof || 0) + op.prof[1]); G.applyStats(ph); }
+        continue;
+      }
       if (op.take) {
         if (op.take.item) G.removeItem(op.take.item);
         continue;

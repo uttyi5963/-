@@ -778,6 +778,11 @@ class QuestScene {
       list.push(["ひとりひとりの あゆみ",
         eps >= 5 ? "かんりょう" : `仲間の 物語を たどる (${eps}/5)`]);
     }
+    if (f("trueClear") && ["leonEp2", "glenEp2", "gouEp2", "celiaEp2", "rodEp2"].every(f)) {
+      const eps3 = ["leonEp3", "glenEp3", "gouEp3", "celiaEp3", "rodEp3"].filter(f).length;
+      list.push(["きわみへの あゆみ",
+        eps3 >= 5 ? "かんりょう" : `師との 語らい (${eps3}/5)`]);
+    }
     if (f("nightQuest")) {
       list.push(["女王の かなしみ",
         f("nightReward") ? "かんりょう" : f("nightBoss") ? "ノクスのまちのおさに ほうこく" : "闇の大聖堂の おくへ"]);
