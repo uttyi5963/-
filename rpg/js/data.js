@@ -1258,6 +1258,14 @@ DATA.maps.town = {
     { x: 16, y: 13, type: "enter", warp: { map: "house2", x: 4, y: 5, dir: "u" } },
   ],
   npcs: [
+    { id: "miko", x: 6, y: 6, spr: "celia", pal: "light",
+      script: [
+        { msg: "みこ「クリスタルさまの おみくじは いかが?\nひとつ 100ギルよ」" },
+        { menu: { options: [
+          { label: "ひく (100ギル)", ops: [{ omikuji: true }] },
+          { label: "やめる", ops: [] },
+        ] } },
+      ] },
     { id: "vil1", x: 5, y: 11, spr: "villager", wander: true,
       script: [
         { cond: { flag: "allCrystals" },

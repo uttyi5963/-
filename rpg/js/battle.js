@@ -49,6 +49,13 @@ class BattleScene {
 
     this.phase = "intro";   // intro / atb / command / waitend
     this.introT = 0;
+    // おみくじの ごりやく (1戦闘かぎり)
+    if (G.state.omikuji === "daikichi") {
+      this.party.forEach((q) => { q.h.limit = Math.min(100, (q.h.limit || 0) + 50); });
+    } else if (G.state.omikuji === "kichi") {
+      this.party.forEach((q) => { q.atb = 100; });
+    }
+    delete G.state.omikuji;
     this.ready = null;      // コマンドにゅうりょくちゅうの プレイヤー
     this.readyQueue = [];
     this.menu = "root";

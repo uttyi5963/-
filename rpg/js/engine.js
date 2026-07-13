@@ -1000,6 +1000,35 @@ function runScript(ops, onDone) {
         AudioSys.sfx("chest");
         continue;
       }
+      if (op.omikuji) {
+        // クリスタルおみくじ: 100ギルで 運だめし
+        if (G.state.gold < 100) {
+          G.push(new MessageScene("みこ「あら、100ギルが たりないみたい。\nまた きてね」", next));
+          return;
+        }
+        G.state.gold -= 100;
+        const r = Math.random();
+        let msg;
+        if (r < 0.2) {
+          G.state.omikuji = "daikichi";
+          msg = "【大吉】 つぎの 戦闘で 全員の\nひっさつゲージが 半分たまる!";
+        } else if (r < 0.5) {
+          G.state.omikuji = "kichi";
+          msg = "【吉】 つぎの 戦闘は 全員\nATB満タンで はじまる!";
+        } else if (r < 0.8) {
+          G.state.party.forEach((h) => {
+            if (h.hp > 0) h.hp = Math.min(h.maxhp, h.hp + Math.floor(h.maxhp * 0.3));
+          });
+          msg = "【小吉】 からだが かるくなった。\n(全員のHPが 30%かいふく)";
+        } else if (r < 0.95) {
+          msg = "【凶】 ……きにしない きにしない。\n(なにも おこらなかった)";
+        } else {
+          G.gainGold(10);
+          msg = "【大凶】 みこ「これは ひどい……。\nおわびに 10ギル おかえしします」";
+        }
+        G.push(new MessageScene("おみくじを ひいた……\n" + msg, next));
+        return;
+      }
       if (op.prof) {
         // 熟練度を あたえる: { prof: ["leon", 10] }
         const ph = G.state.party.find((x) => x.id === op.prof[0]);
