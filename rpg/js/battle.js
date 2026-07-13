@@ -1639,6 +1639,22 @@ class BattleScene {
       for (let i = 0; i < 8; i++) c.fillRect(20 + i * 40, 162 + (i % 2) * 3, 12, 3);
     }
     else if (t === "ice") {
+      // オーロラの ゆらめき
+      const aph = Math.floor(performance.now() / 600) % 2;
+      c.fillStyle = PAL[1];
+      for (let x = 0; x < SCREEN_W; x += 16) {
+        const y = 12 + Math.round(6 * Math.sin(x / 40 + aph * 0.9));
+        c.fillRect(x, y, 12, 3);
+        c.fillRect(x + 4, y + 6, 8, 2);
+      }
+      // 遠くの 氷山
+      c.fillStyle = PAL[1];
+      [[10, 46, 22], [120, 60, 30], [240, 50, 24]].forEach(([x, w, h]) => {
+        c.beginPath();
+        c.moveTo(x, 160); c.lineTo(x + w * 0.35, 160 - h); c.lineTo(x + w * 0.55, 160 - h * 0.6);
+        c.lineTo(x + w * 0.75, 160 - h * 0.85); c.lineTo(x + w, 160);
+        c.fill();
+      });
       // 氷の けっしょう と ひかるゆか
       c.fillStyle = PAL[1];
       for (let i = 0; i < 6; i++) {
@@ -1700,6 +1716,26 @@ class BattleScene {
       c.beginPath(); c.arc(262, 34, 14, 0, Math.PI * 2); c.fill();
       c.fillStyle = PAL[0];
       c.beginPath(); c.arc(268, 30, 12, 0, Math.PI * 2); c.fill();
+      // おおきな 星の またたき
+      c.fillStyle = PAL[2];
+      [[40, 30], [150, 55], [90, 100], [220, 80]].forEach(([x, y], i) => {
+        if ((i + Math.floor(performance.now() / 900)) % 4 === 0) return;
+        c.fillRect(x - 3, y, 7, 1); c.fillRect(x, y - 3, 1, 7);
+      });
+      // ながれ星 (ときどき)
+      const nph = Math.floor(performance.now() / 500) % 12;
+      if (nph < 3) {
+        c.fillStyle = PAL[1];
+        for (let k = 0; k < 5; k++) c.fillRect(60 + nph * 34 + k * 5, 24 + nph * 12 + k * 3, 4, 1);
+      }
+      // 丘の稜線
+      c.fillStyle = PAL[2];
+      c.beginPath();
+      c.moveTo(0, 168); c.lineTo(0, 150);
+      c.quadraticCurveTo(60, 136, 130, 152);
+      c.quadraticCurveTo(200, 166, 260, 148);
+      c.quadraticCurveTo(295, 140, 320, 152); c.lineTo(320, 168);
+      c.fill();
       c.fillStyle = PAL[2];
       for (let i = 0; i < 10; i++) c.fillRect(12 + i * 32, 162 + (i % 2) * 3, 10, 2);
     }
@@ -1748,6 +1784,26 @@ class BattleScene {
         c.fill();
       }
       c.beginPath(); c.arc(270, 28, 12, 0, Math.PI * 2); c.fill();
+      // ピラミッドの 遠景
+      c.fillStyle = PAL[2];
+      [[36, 60, 34], [190, 44, 24]].forEach(([x, w, h]) => {
+        c.beginPath();
+        c.moveTo(x, 160); c.lineTo(x + w / 2, 160 - h); c.lineTo(x + w, 160);
+        c.fill();
+      });
+      c.fillStyle = PAL[1];
+      c.fillRect(36 + 26, 160 - 34, 4, 8); // 頂の ハイライト
+      // サボテン
+      c.fillStyle = PAL[2];
+      [[130, 146], [286, 150]].forEach(([x, y]) => {
+        c.fillRect(x, y, 4, 20);
+        c.fillRect(x - 5, y + 5, 5, 3); c.fillRect(x - 5, y - 1, 3, 8);
+        c.fillRect(x + 4, y + 8, 5, 3); c.fillRect(x + 6, y + 2, 3, 8);
+      });
+      // かげろうの ゆらぎ
+      const dph = Math.floor(performance.now() / 350) % 2;
+      c.fillStyle = PAL[1];
+      for (let i = 0; i < 6; i++) c.fillRect(20 + i * 52 + dph * 4, 120 + (i % 2) * 10, 10, 1);
       c.fillStyle = PAL[2];
       for (let i = 0; i < 8; i++) c.fillRect(16 + i * 40, 162 + (i % 2) * 3, 12, 2);
     }
