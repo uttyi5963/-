@@ -164,12 +164,28 @@ class GameOverScene {
   constructor() {
     this.opaque = true;
     this.t = 0;
+    this.sel = 0;
+    // オートセーブが あれば「つづきから」を だせる
+    this.canContinue = !!G.slotInfo(G.AUTO_SLOT);
   }
   update(dt) {
     this.t += dt;
-    if (this.t > 1.2 && Input.tap("a")) {
+    if (this.t < 1.2) return;
+    if (this.canContinue && (Input.tap("up") || Input.tap("down"))) {
+      this.sel = 1 - this.sel;
+      AudioSys.sfx("cursor");
+    }
+    if (Input.tap("a")) {
       AudioSys.sfx("confirm");
-      G.fade(() => G.replace(new TitleScene()));
+      if (this.canContinue && this.sel === 0) {
+        // オートセーブから さいかい
+        G.fade(() => {
+          if (G.load(G.AUTO_SLOT)) G.replace(new FieldScene());
+          else G.replace(new TitleScene());
+        });
+      } else {
+        G.fade(() => G.replace(new TitleScene()));
+      }
     }
   }
   draw() {
@@ -178,8 +194,15 @@ class GameOverScene {
     c.font = "bold 22px 'MS Gothic', monospace";
     c.fillStyle = PAL[0];
     const s = "ゲームオーバー";
-    c.fillText(s, (SCREEN_W - c.measureText(s).width) / 2, 110);
-    if (this.t > 1.2 && Math.floor(this.t * 2) % 2 === 0) {
+    c.fillText(s, (SCREEN_W - c.measureText(s).width) / 2, 100);
+    if (this.t <= 1.2) return;
+    if (this.canContinue) {
+      const opts = ["つづきから (オートセーブ)", "タイトルへ"];
+      opts.forEach((o, i) => {
+        Gfx.text(o, 116, 156 + i * 22, this.sel === i ? 0 : 1, 11);
+        if (this.sel === i) Gfx.text("▶", 102, 156 + i * 22, 0, 11);
+      });
+    } else if (Math.floor(this.t * 2) % 2 === 0) {
       Gfx.text("Aボタンで タイトルへ", 96, 180, 1, 12);
     }
   }
