@@ -557,8 +557,8 @@ const G = {
   flag(k) { return !!this.state.flags[k]; },
 
   // げんざいの章 (フラグから逆算)
-  currentChapter() {
-    const f = this.state.flags;
+  currentChapter(flags) {
+    const f = flags || this.state.flags;
     if (f.trueClear) return "全七章 クリア";
     if (f.towerOpen) return "第七章 星の塔編";
     if (f.mirrorBoss && f.glacierBoss && f.tombBoss) return "第六章 常夜編";
@@ -673,6 +673,7 @@ const G = {
         min: Math.floor((s.playtime || 0) / 60),
         members: s.party.length,
         trueClear: !!(s.flags && s.flags.trueClear),
+        chapter: this.currentChapter(s.flags || {}),
       };
     } catch (e) { return null; }
   },
@@ -864,6 +865,7 @@ class SlotPickScene {
       const info = G.slotInfo(i + 1);
       Gfx.text(i + 1 > G.SLOTS ? "オートセーブ" : `スロット${i + 1}`, 58, y, 3, 11);
       if (info) {
+        Gfx.textR(info.chapter, 276, y, 2, 9);
         Gfx.text(`${info.name} Lv${info.lv} 仲間${info.members}にん`, 58, y + 14, 3, 9);
         Gfx.textR(`${info.map} ${info.min}ふん`, 276, y + 14, 3, 9);
       } else {
