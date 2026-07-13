@@ -1527,6 +1527,7 @@ DATA.maps.elder = {
     "#####dd#####",
   ],
   events: [
+    { x: 1, y: 1, type: "enter", cond: { flag: "trueClear" }, scriptId: "devroomEnter" },
     { x: 5, y: 8, type: "enter", warp: { map: "town", x: 10, y: 10, dir: "d" } },
     { x: 6, y: 8, type: "enter", warp: { map: "town", x: 10, y: 10, dir: "d" } },
   ],
@@ -1591,13 +1592,14 @@ DATA.maps.cave = {
   legend: {
     "D": { tile: "stairs" },
     "#": { tile: "mountain", solid: true },
+    "F": { tile: "mountain" },
     ".": { tile: "path" },
   },
   rows: [
     "########################",
     "#......................#",
-    "#..##......##.....##...#",
-    "#..##......##.....##...#",
+    "#..F#......##.....##...#",
+    "#..F#......##.....##...#",
     "#......................#",
     "#....##...........##...#",
     "#....##...####.....##..#",
@@ -1638,6 +1640,7 @@ DATA.maps.cave = {
       ] },
   ],
   chests: [
+    { id: "cave_wall", x: 3, y: 2, gold: 2500, hidden: true },
     { id: "cave1", x: 1, y: 1, gold: 150 },
     { id: "cave2", x: 22, y: 18, item: "ether" },
   ],
@@ -6247,7 +6250,67 @@ DATA.helpPages = [
   ] },
 ];
 
+// 開発室 (真エンド後の隠し部屋、FC/SFC時代へのオマージュ)
+DATA.maps.devroom = {
+  name: "かいはつしつ",
+  bgm: "hall",
+  exit: { map: "elder", x: 1, y: 2, dir: "d" },
+  legend: {
+    "#": { tile: "wall", solid: true },
+    "s": { tile: "shelf", solid: true },
+    ".": { tile: "floor" },
+    "t": { tile: "table", solid: true },
+    "c": { tile: "carpet" },
+    "d": { tile: "door" },
+  },
+  rows: [
+    "#ss#ss#ss#ss#",
+    "#...........#",
+    "#..t.....t..#",
+    "#...ccccc...#",
+    "#...ccccc...#",
+    "#...........#",
+    "#####d#######",
+  ],
+  events: [
+    { x: 5, y: 6, type: "enter", warp: { map: "elder", x: 1, y: 2, dir: "d" } },
+  ],
+  npcs: [
+    { id: "dev_dir", x: 4, y: 2, spr: "elder",
+      script: [
+        { msg: "ディレクターのクリフ「ようこそ 開発室へ!\nここは 物語の そとがわ。\nくつろいで いってくれたまえ」" },
+        { msg: "「5章で 完成の よていが、きがつけば\n7章だ。 スタッフは みな 白目だが\nわたしは まんぞくして いる!」" },
+      ] },
+    { id: "dev_dot", x: 8, y: 2, spr: "villager", pal: "light",
+      script: [
+        { msg: "ドッターのテンテン「この 世界の ぜんぶは\n8x8の ドットで できてるの。\nヤシの木、なんど うちなおしたか……」" },
+        { msg: "「4しょくしか つかえないのに\n『夜っぽく』とか いわれるのよ?\nでも できちゃうのが ドットのミラクル!」" },
+      ] },
+    { id: "dev_snd", x: 2, y: 4, spr: "villager", pal: "dark", wander: true,
+      script: [
+        { msg: "サウンドのオクタ「BGMは ぜんぶ 2声の\nチップチューン。 3声めが ほしいと\nいったら よさんが なかった」" },
+      ] },
+    { id: "dev_bug", x: 10, y: 4, spr: "slime", wander: true,
+      script: [
+        { msg: "デバッガーのバグバグ「ボクが この 世界の\nバグを ぜんぶ たべました。\nプルプル。 ……ぜんぶ、たべたよね?」" },
+      ] },
+    { id: "dev_pla", x: 6, y: 3, spr: "villager", wander: true,
+      script: [
+        { msg: "プランナーのマスメ「熟練度も おみくじも\nよぞらの 釣りも、ぜんぶ きかくしょ\n1まいから 生まれたんですよ」" },
+        { msg: "「あなたが あそんでくれた じかんが\nわたしたちの 経験値です。\nありがとう、ほんとうに!」" },
+      ] },
+  ],
+  chests: [
+    { id: "dev1", x: 1, y: 1, item: "elixir" },
+    { id: "dev2", x: 11, y: 1, gold: 7777, hidden: true },
+  ],
+};
+
 DATA.scripts = {
+  devroomEnter: [
+    { msg: "本棚の おくに かくし階段が……!" },
+    { warp: { map: "devroom", x: 5, y: 5, dir: "u" } },
+  ],
   lakeFishing: [
     { msg: "しずかな みなも。 さかなの かげが みえる。" },
     { fishing: { price: 80, table: "lake" } },

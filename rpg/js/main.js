@@ -7,7 +7,27 @@ class TitleScene {
     this.opaque = true;
     this.sel = 0;
     this.t = 0;
+    this.cmdBuf = []; // クリスタルコマンド (↑→↓←↑→↓←) の入力バッファ
     AudioSys.bgm("title");
+  }
+
+  // 裏技: 菱形 (クリスタル) を 2かい なぞると おんがくかんが ひらく
+  checkCrystalCmd() {
+    const SEQ = ["up", "right", "down", "left", "up", "right", "down", "left"];
+    for (const d of ["up", "right", "down", "left"]) {
+      if (Input.tap(d)) this.cmdBuf.push(d);
+    }
+    while (this.cmdBuf.length > 0 &&
+      !SEQ.slice(0, this.cmdBuf.length).every((v, i) => v === this.cmdBuf[i])) {
+      this.cmdBuf.shift();
+    }
+    if (this.cmdBuf.length === SEQ.length) {
+      this.cmdBuf = [];
+      AudioSys.sfx("levelup");
+      G.push(new MusicRoomScene());
+      return true;
+    }
+    return false;
   }
   options() {
     const opts = ["はじめから"];
@@ -33,6 +53,7 @@ class TitleScene {
     ));
   }
   update(dt) {
+    if (this.checkCrystalCmd()) return;
     this.t += dt;
     const opts = this.options();
     if (Input.tap("up") || Input.tap("down")) {
@@ -166,6 +187,55 @@ class TitleScene {
     Gfx.cursor(100, 187 + this.sel * 18);
 
     Gfx.text("Z:けってい X:キャンセル M:おと", 60, 268, 1, 10);
+  }
+}
+
+// おんがくかん (タイトルのクリスタルコマンドで開く隠しサウンドテスト)
+class MusicRoomScene {
+  constructor() {
+    this.opaque = true;
+    this.sel = 0;
+    this.tracks = [
+      ["title", "クリスタルのテーマ"], ["field", "みちくさの風"],
+      ["town", "まちのだんらん"], ["dungeon", "くらやみの通路"],
+      ["under", "地底のこどう"], ["battle", "たたかいのとき"],
+      ["boss", "強敵うちて"], ["shrine", "いのりのほこら"],
+      ["victory", "勝利のファンファーレ"], ["gameover", "ついとうの調べ"],
+      ["ending", "旅路の果てに"], ["sky", "そらをかけるシリウス号"],
+      ["sea", "海のゆりかご"], ["last", "星の塔"],
+      ["star", "星のせかいへ"], ["hall", "でんどうの間"],
+      ["spirit", "精霊のまい"],
+    ].filter(([k]) => AudioSys.songs && AudioSys.songs[k]);
+    this.scroll = 0;
+  }
+  update() {
+    const n = this.tracks.length, view = 10;
+    if (Input.tap("up")) { this.sel = (this.sel + n - 1) % n; AudioSys.sfx("cursor"); }
+    if (Input.tap("down")) { this.sel = (this.sel + 1) % n; AudioSys.sfx("cursor"); }
+    if (this.sel < this.scroll) this.scroll = this.sel;
+    if (this.sel >= this.scroll + view) this.scroll = this.sel - view + 1;
+    if (Input.tap("a")) { AudioSys.sfx("confirm"); AudioSys.bgm(this.tracks[this.sel][0]); }
+    if (Input.tap("b")) { AudioSys.sfx("cancel"); AudioSys.bgm("title"); G.pop(); }
+  }
+  draw() {
+    Gfx.clear(3);
+    const c = Gfx.ctx;
+    c.fillStyle = PAL[2];
+    for (let i = 0; i < 12; i++) {
+      const x = (i * 53 + 17) % SCREEN_W, y = (i * 37 + 11) % SCREEN_H;
+      c.fillRect(x, y, 2, 2);
+    }
+    Gfx.window(30, 14, 260, 260);
+    Gfx.text("おんがくかん", 44, 24);
+    Gfx.textR("ひみつの サウンドルーム", 280, 24, 1, 9);
+    const view = 10;
+    this.tracks.slice(this.scroll, this.scroll + view).forEach(([k, name], i) => {
+      const idx = this.scroll + i, y = 52 + i * 19;
+      Gfx.text(String(idx + 1).padStart(2, "0"), 48, y, 1, 10);
+      Gfx.text(name, 76, y, 3, 10);
+      if (idx === this.sel) Gfx.cursor(38, y + 3);
+    });
+    Gfx.text("A: さいせい  B: もどる", 92, 252, 1, 9);
   }
 }
 
