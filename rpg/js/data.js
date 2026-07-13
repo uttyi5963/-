@@ -2855,8 +2855,8 @@ DATA.maps.world7 = {
   legend: {
     "w": { tile: "water", solid: true },
     "m": { tile: "mountain", solid: true },
-    ".": { tile: "path" },
-    "f": { tile: "forest" },
+    ".": { tile: "nightgrass" },
+    "f": { tile: "deadtree" },
     "T": { tile: "icon_town" },
     "C": { tile: "icon_shrine" },
     "G": { tile: "icon_shrine" },
@@ -3146,7 +3146,7 @@ DATA.maps.world6 = {
   legend: {
     "w": { tile: "water", solid: true },
     "m": { tile: "mountain", solid: true },
-    ".": { tile: "path" },
+    ".": { tile: "scree" },
     "f": { tile: "forest" },
     "T": { tile: "icon_town" },
     "C": { tile: "icon_shrine" },
@@ -3712,8 +3712,8 @@ DATA.maps.world4 = {
   legend: {
     "w": { tile: "water", solid: true },
     "m": { tile: "mountain", solid: true },
-    ".": { tile: "path" },
-    "f": { tile: "forest" },
+    ".": { tile: "sand" },
+    "f": { tile: "palm" },
     "T": { tile: "icon_town" },
     "C": { tile: "icon_cave" },
     "G": { tile: "icon_shrine" },
@@ -4018,8 +4018,8 @@ DATA.maps.world3 = {
   legend: {
     "w": { tile: "water", solid: true },
     "m": { tile: "mountain", solid: true },
-    ".": { tile: "path" },
-    "f": { tile: "forest" },
+    ".": { tile: "snow" },
+    "f": { tile: "pine" },
     "T": { tile: "icon_town" },
     "C": { tile: "icon_cave" },
     "G": { tile: "icon_shrine" },
