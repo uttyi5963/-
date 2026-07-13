@@ -1212,6 +1212,7 @@ DATA.maps.castle = {
     { id: "castle1", x: 17, y: 1, gold: 500, hidden: true },
     // 序盤の裏技: 玉座のうらの へそくり (お金MAX) と 経験のしるし
     { id: "castle_g", x: 2, y: 1, gold: 999999, hidden: true },
+    { id: "castle_g2", x: 10, y: 1, gold: 999999, hidden: true },
     { id: "castle_e", x: 1, y: 10, item: "expcharm", hidden: true },
   ],
 };
@@ -5853,6 +5854,7 @@ DATA.maps.windtemple = {
 // ---------------- 海の底 ----------------
 DATA.maps.seafloor = {
   name: "海の底",
+  weather: "bubbles",
   outdoor: true,
   bgm: "sea",
   encounter: "sea",
@@ -5902,6 +5904,7 @@ DATA.maps.seafloor = {
 // ---------------- かいてい神殿 ----------------
 DATA.maps.seatemple = {
   name: "かいてい神殿",
+  weather: "bubbles",
   bgm: "sea",
   encounter: "sea",
   legend: {

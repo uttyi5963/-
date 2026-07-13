@@ -452,6 +452,17 @@ class FieldScene {
           c.fillRect(Math.round(x) + 2, Math.round((y + H) % H) + 1, 2, 1);
         }
       }
+    } else if (w === "bubbles") {
+      // 海の底: ゆらゆら たちのぼる 泡
+      for (let k = 0; k < 20; k++) {
+        const sp = 20 + hash(k) * 24;
+        const x = ((hash(k + 100) * W + Math.sin(now * 0.002 + k * 1.4) * 6) % W + W) % W;
+        const y = H - ((hash(k + 200) * H + now * 0.001 * sp) % H);
+        const r = 1 + (k % 3);
+        c.fillStyle = PAL[k % 4 === 0 ? 3 : 2];
+        c.beginPath(); c.arc(Math.round(x), Math.round(y), r, 0, Math.PI * 2);
+        c.fill();
+      }
     } else if (w === "petals") {
       // 緑の群島: ひらひら まう 花びら
       for (let k = 0; k < 24; k++) {
