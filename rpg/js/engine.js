@@ -993,6 +993,7 @@ function runScript(ops, onDone) {
         else if (op.cond.itemCount) pass = (G.state.items[op.cond.itemCount.id] || 0) >= op.cond.itemCount.n;
         else if (op.cond.kills) pass = G.killsOf(op.cond.kills.id) >= op.cond.kills.n;
         else if (op.cond.prof) pass = G.state.party.some((h) => (h.prof || 0) >= op.cond.prof);
+        else if (op.cond.bestiaryAll) pass = Object.keys(DATA.monsters).every((id) => G.killsOf(id) > 0);
         else if (op.cond.all) pass = op.cond.all.every((k) => G.flag(k));
         else pass = G.flag(op.cond.flag);
         const branch = pass ? (op.then || []) : (op.else || []);
