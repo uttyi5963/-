@@ -438,6 +438,30 @@ class FieldScene {
         c.fillStyle = PAL[k % 3 === 0 ? 3 : 2];
         c.fillRect(Math.round(x), Math.round((y + H) % H), 4, 1);
       }
+    } else if (w === "stars") {
+      // 夜の国: またたく星あかりの ほたるび
+      for (let k = 0; k < 26; k++) {
+        const tw = Math.sin(now * 0.002 + k * 2.3);
+        if (tw < -0.2) continue;
+        const x = (hash(k + 100) * W + now * 0.004 * (4 + hash(k) * 6)) % W;
+        const y = (hash(k + 200) * H + Math.sin(now * 0.0006 + k * 1.3) * 8) % H;
+        c.fillStyle = PAL[tw > 0.6 ? 3 : 2];
+        c.fillRect(Math.round(x), Math.round((y + H) % H), 2, 2);
+        if (tw > 0.75) {
+          c.fillRect(Math.round(x) - 2, Math.round((y + H) % H) + 1, 2, 1);
+          c.fillRect(Math.round(x) + 2, Math.round((y + H) % H) + 1, 2, 1);
+        }
+      }
+    } else if (w === "petals") {
+      // 緑の群島: ひらひら まう 花びら
+      for (let k = 0; k < 24; k++) {
+        const sp = 18 + hash(k) * 18;
+        const x = ((hash(k + 100) * W + Math.sin(now * 0.0016 + k) * 22) % W + W) % W;
+        const y = (hash(k + 200) * H + now * 0.001 * sp) % H;
+        c.fillStyle = PAL[k % 4 === 0 ? 3 : 2];
+        const ph = Math.floor(now / 260 + k) % 2;
+        c.fillRect(Math.round(x), Math.round(y), 2 - ph, 1 + ph);
+      }
     }
     c.restore();
   }

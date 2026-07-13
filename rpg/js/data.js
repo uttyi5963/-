@@ -2849,6 +2849,7 @@ DATA.maps.crater2 = {
 DATA.maps.world7 = {
   name: "夜の国",
   crisis: "nightBoss",
+  weather: "stars",
   outdoor: true,
   bgm: "star",
   encounter: "world7",
@@ -3423,6 +3424,7 @@ DATA.maps.stormshrine2 = {
 DATA.maps.world5 = {
   name: "緑の群島",
   crisis: "ruinsBoss",
+  weather: "petals",
   outdoor: true,
   bgm: "field",
   encounter: "world5",
