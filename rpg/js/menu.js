@@ -574,6 +574,26 @@ class BestiaryScene {
     Gfx.text("A:くわしく  B:もどる", 100, 272, 1, 9);
   }
 
+  // せいそく地: エンカウントテーブルから マップ名を 逆引き
+  habitatsOf(id) {
+    const regions = [];
+    for (const [tid, t] of Object.entries(DATA.encounters)) {
+      const groups = t.groups || [];
+      const inGroups = groups.some((g) => g.includes(id));
+      const inRare = t.rare && t.rare.id === id;
+      if (!inGroups && !inRare) continue;
+      let nm = null;
+      for (const mp of Object.values(DATA.maps)) {
+        if (mp.encounter === tid || (mp.zones || []).some((z) => z.table === tid)) {
+          nm = mp.name.replace(/\s*(B?\d+F|さいじょうかい|1F)$/, "");
+          break;
+        }
+      }
+      if (nm && !regions.includes(nm)) regions.push(nm);
+    }
+    return regions;
+  }
+
   drawDetail() {
     const id = this.ids[this.sel];
     const def = DATA.monsters[id];
@@ -607,7 +627,15 @@ class BestiaryScene {
       Gfx.text("じゃくてん: ??????", 196, 126, 1, 10);
       Gfx.text("(倒すと わかる)", 196, 146, 1, 9);
     }
-    Gfx.text("A/B: もどる", 130, 244, 1, 9);
+    // せいそく地 (1どでも 見かけたら ひょうじ)
+    if (e.seen > 0) {
+      const hab = this.habitatsOf(id);
+      const label = hab.length > 0
+        ? hab.slice(0, 2).join("、") + (hab.length > 2 ? " など" : "")
+        : (def.boss ? "(ボス)" : "?????");
+      Gfx.text("せいそく: " + label, 44, 226, 3, 9);
+    }
+    Gfx.text("A/B: もどる", 130, 246, 1, 9);
   }
 }
 
