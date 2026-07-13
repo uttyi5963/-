@@ -2769,8 +2769,8 @@ DATA.maps.crater1 = {
   bgm: "dungeon",
   encounter: "crater",
   legend: {
-    "#": { tile: "wall", solid: true },
-    ".": { tile: "floor" },
+    "#": { tile: "mountain", solid: true },
+    ".": { tile: "scree" },
     "s": { tile: "stairs" },
   },
   rows: [
@@ -2805,8 +2805,8 @@ DATA.maps.crater2 = {
   bgm: "dungeon",
   encounter: "crater",
   legend: {
-    "#": { tile: "wall", solid: true },
-    ".": { tile: "floor" },
+    "#": { tile: "mountain", solid: true },
+    ".": { tile: "scree" },
     "s": { tile: "stairs" },
   },
   rows: [
@@ -3090,7 +3090,7 @@ DATA.maps.cathedral2 = {
   encounter: "cathedral",
   legend: {
     "#": { tile: "wall", solid: true },
-    ".": { tile: "floor" },
+    ".": { tile: "carpet" },
     "s": { tile: "stairs" },
   },
   rows: [
@@ -5414,7 +5414,7 @@ DATA.maps.stargrave1 = {
   encounter: "stargrave",
   legend: {
     "#": { tile: "wall", solid: true },
-    ".": { tile: "floor" },
+    ".": { tile: "nightgrass" },
     "s": { tile: "stairs" },
   },
   rows: [
@@ -5451,7 +5451,7 @@ DATA.maps.stargrave2 = {
   encounter: "stargrave",
   legend: {
     "#": { tile: "wall", solid: true },
-    ".": { tile: "floor" },
+    ".": { tile: "nightgrass" },
     "s": { tile: "stairs" },
   },
   rows: [
@@ -5707,7 +5707,7 @@ DATA.maps.seatemple = {
   encounter: "sea",
   legend: {
     "D": { tile: "stairs" },
-    "#": { tile: "wall", solid: true },
+    "#": { tile: "water", solid: true },
     ".": { tile: "floor" },
   },
   rows: [
@@ -5751,8 +5751,8 @@ DATA.maps.startower1 = {
   bgm: "last",
   encounter: "startower",
   legend: {
-    "#": { tile: "wall", solid: true },
-    ".": { tile: "floor" },
+    "#": { tile: "pillar", solid: true },
+    ".": { tile: "snow" },
     "S": { tile: "stairs" },
     "d": { tile: "door" },
   },
@@ -5788,8 +5788,8 @@ DATA.maps.startower2 = {
   bgm: "last",
   encounter: "startower",
   legend: {
-    "#": { tile: "wall", solid: true },
-    ".": { tile: "floor" },
+    "#": { tile: "pillar", solid: true },
+    ".": { tile: "snow" },
     "S": { tile: "stairs" },
     "s": { tile: "stairs" },
   },
@@ -5870,7 +5870,7 @@ DATA.maps.startowertop = {
   name: "星のとう さいじょうかい",
   bgm: "last",
   legend: {
-    "#": { tile: "wall", solid: true },
+    "#": { tile: "pillar", solid: true },
     ".": { tile: "carpet" },
     "s": { tile: "stairs" },
   },
