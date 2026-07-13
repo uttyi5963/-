@@ -422,6 +422,7 @@ const G = {
       row: d.row || "front",
       poison: false, paladin: false,
       limit: 0, // 必殺ゲージ (0..100)
+      prof: 0, profAct: 0, // 熟練度と 行動カウント
     };
     this.applyStats(h);
     // レベルに 王子た しゅうとくずみ 呪文
@@ -454,6 +455,16 @@ const G = {
     // 果実による恒久ボーナス
     h.maxhp += h.bonusHp || 0;
     h.maxmp += h.bonusMp || 0;
+    // 熟練度ボーナス (戦闘で4回行動するごとに1あがる、最大99)
+    const pg = DATA.profGrowth && DATA.profGrowth[h.id];
+    if (pg && h.prof) {
+      if (pg.hp) h.maxhp += Math.floor(h.prof / pg.hp);
+      if (pg.mp) h.maxmp += Math.floor(h.prof / pg.mp);
+      if (pg.str) h.str += Math.floor(h.prof / pg.str);
+      if (pg.agi) h.agi += Math.floor(h.prof / pg.agi);
+      if (pg.vit) h.vit += Math.floor(h.prof / pg.vit);
+      if (pg.int) h.int += Math.floor(h.prof / pg.int);
+    }
   },
 
   expTotalFor(lv) {
@@ -714,6 +725,8 @@ const G = {
       const patchHero = (h) => {
         if (!h.row) h.row = (DATA.heroes[h.id] && DATA.heroes[h.id].row) || "front";
         if (h.limit == null) h.limit = 0;
+        if (h.prof == null) h.prof = 0;
+        if (h.profAct == null) h.profAct = 0;
         if (h.acc === undefined) h.acc = null;
         // はいばんした ぶきの ひっこし
         if (h.weapon === "w_boltstaff") h.weapon = "w_sagestaff";

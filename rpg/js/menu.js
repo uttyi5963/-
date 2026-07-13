@@ -445,12 +445,13 @@ class MenuScene {
       ["知性", G.intOf(h)],
       ["攻撃", G.atkOf(h)],
       ["防御", G.defOf(h)],
+      ["熟練度", `${h.prof || 0} / 99`],
       ["経験値", h.exp],
       ["つぎのレベルまで", Math.max(0, G.expTotalFor(h.lv + 1) - h.exp)],
     ];
     rows.forEach(([k, v], i) => {
-      Gfx.text(String(k), 44, 84 + i * 17, 3, 11);
-      Gfx.textR(String(v), 276, 84 + i * 17, 3, 11);
+      Gfx.text(String(k), 44, 84 + i * 16, 3, 11);
+      Gfx.textR(String(v), 276, 84 + i * 16, 3, 11);
     });
   }
 }

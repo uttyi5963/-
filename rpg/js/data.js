@@ -822,6 +822,15 @@ Object.assign(DATA.items, (() => {
 })());
 
 // ---------------- ショップ ----------------
+// 熟練度による成長 (値Nは「熟練度Nごとに +1」の意。hp/mpも同様)
+DATA.profGrowth = {
+  leon:  { hp: 1, str: 4, vit: 6, agi: 8 },
+  glen:  { hp: 1, str: 4, agi: 6, vit: 8 },
+  gou:   { hp: 1, str: 4, vit: 5, agi: 9 },
+  celia: { hp: 2, mp: 2, int: 4, vit: 6, agi: 8 },
+  rod:   { hp: 2, mp: 2, int: 4, agi: 6, vit: 8 },
+};
+
 DATA.shops = {
   nox: {
     name: "ノクスの みせ",

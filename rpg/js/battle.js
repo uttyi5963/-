@@ -617,6 +617,23 @@ class BattleScene {
     const h = p.h;
     p.atb = 0;
 
+    // 熟練度: にげる以外の行動を4回かさねるごとに +1 (最大99)
+    if (act.type !== "run") {
+      h.profAct = (h.profAct || 0) + 1;
+      if (h.profAct >= 4) {
+        h.profAct = 0;
+        if ((h.prof || 0) < 99) {
+          h.prof = (h.prof || 0) + 1;
+          G.applyStats(h);
+          const pi = this.party.indexOf(p);
+          if (pi >= 0) {
+            const pos = this.partyPos(pi);
+            this.pops.push({ txt: "熟練+1", x: pos.x - 8, y: pos.y - 4, pi: 0, t: 0 });
+          }
+        }
+      }
+    }
+
     // こうどうにあわせた たちえ
     const poseByAct = {
       fight: ["atk", 0.9], jump: ["skill", 0.7], charge: ["skill", 0.6], focus: ["skill", 0.6],
@@ -1504,10 +1521,15 @@ class BattleScene {
     }
     this.drawBg(c);
 
+    // とうじょう スライド (ブラインドあけに 敵は左から 味方は右から)
+    const introSlide = this.phase === "intro"
+      ? Math.max(0, 1 - Math.max(0, (this.introT - 0.15) / 0.4)) : 0;
+
     // てき (ゆっくり じょうげに ゆれて いきているかんじに)
     this.enemies.forEach((e, i) => {
       if (e.dead) return;
       const pos = this.enemyPos(i);
+      if (introSlide > 0) pos.x -= Math.round(introSlide * (70 + i * 14));
       const bob = Math.floor(performance.now() / 600 + i) % 2;
       const variant = e.flash > 0 ? "flash" : (e.def.pal || undefined);
       // あしもとの かげ
@@ -1525,6 +1547,7 @@ class BattleScene {
     // パーティ
     this.party.forEach((p, i) => {
       const pos = this.partyPos(i);
+      if (introSlide > 0) pos.x += Math.round(introSlide * (56 + i * 10));
       if (p.airborne) {
         // たいくうちゅうは かげだけ
         c.fillStyle = PAL[2];
