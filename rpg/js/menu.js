@@ -954,6 +954,39 @@ class HelpScene {
   }
 }
 
+// ものがたりのきろく (章のあらすじビューア)
+class StoryRecapScene {
+  constructor() {
+    this.opaque = false;
+    this.page = 0;
+    this.t = 0;
+    // すすんだ章までしか よめない
+    const ch = G.currentChapter();
+    const order = ["第一章", "第二章", "第三章", "第四章", "第五章", "第六章", "第七章", "全七章"];
+    const idx = order.findIndex((o) => ch.startsWith(o));
+    this.maxPage = ch === "全七章 クリア" ? DATA.storyRecap.length - 1 : Math.max(0, idx);
+  }
+  update(dt) {
+    this.t += dt;
+    if (Input.tap("left")) { this.page = Math.max(0, this.page - 1); AudioSys.sfx("cursor"); }
+    if (Input.tap("right") || Input.tap("a")) {
+      if (this.page < this.maxPage) { this.page++; AudioSys.sfx("cursor"); }
+      else { AudioSys.sfx("cancel"); G.pop(); }
+    }
+    if (Input.tap("b")) { AudioSys.sfx("cancel"); G.pop(); }
+  }
+  draw() {
+    const p = DATA.storyRecap[this.page];
+    Gfx.window(16, 30, 288, 228);
+    Gfx.text(p.title, 32, 40);
+    Gfx.textR(`${this.page + 1}/${this.maxPage + 1}`, 290, 40, 1, 10);
+    p.lines.forEach((l, i) => Gfx.text(l, 32, 70 + i * 20, 3, 10));
+    if (Math.floor(this.t * 2) % 2 === 0) {
+      Gfx.text(this.page < this.maxPage ? "▶ つぎの章へ (B: とじる)" : "A/B: とじる", 92, 240, 1, 9);
+    }
+  }
+}
+
 class ConfigScene {
   constructor() {
     this.opaque = false;

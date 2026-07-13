@@ -1060,6 +1060,15 @@ function runScript(ops, onDone) {
         ops = ops.slice(0, i).concat(branch, ops.slice(i));
         continue;
       }
+      if (op.rumor) {
+        const r = DATA.rumors[Math.floor(Math.random() * DATA.rumors.length)];
+        G.push(new MessageScene(r, next));
+        return;
+      }
+      if (op.recap) {
+        G.push(new StoryRecapScene());
+        return;
+      }
       if (op.slot) {
         G.push(new SlotScene());
         return;
