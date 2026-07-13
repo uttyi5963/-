@@ -472,7 +472,7 @@ class AchievementScene {
     const chests = Object.keys(G.state.flags || {}).filter((k) => k.indexOf("chest_") === 0).length;
     const genju = ["sylphidDown", "gnomosDown", "undinaDown"].filter(f).length;
     const lords = ["craterBoss", "mirrorBoss", "glacierBoss", "tombBoss", "ruinsBoss", "stormBoss"].filter(f).length;
-    const arena = f("arenaPlatinum") ? "プラチナ" : f("arenaGold") ? "ゴールド" : f("arenaSilver") ? "シルバー" : f("arenaBronze") ? "ブロンズ" : "みせいは";
+    const arena = f("arenaDiamond") ? "ダイヤモンド" : f("arenaPlatinum") ? "プラチナ" : f("arenaGold") ? "ゴールド" : f("arenaSilver") ? "シルバー" : f("arenaBronze") ? "ブロンズ" : "みせいは";
     return [
       ["魔王 ザルバを 倒した", f("clear")],
       ["しんのてき ヴォイドスを 倒した", f("trueClear")],
