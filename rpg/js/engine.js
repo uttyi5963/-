@@ -489,11 +489,16 @@ const G = {
     if (h.exp > capExp) h.exp = capExp;
     while (h.lv < this.MAX_LV && h.exp >= this.expTotalFor(h.lv + 1)) {
       h.lv++;
-      const beforeHp = h.maxhp, beforeMp = h.maxmp;
+      const bs = { hp: h.maxhp, mp: h.maxmp, str: h.str, agi: h.agi, vit: h.vit, int: h.int };
       this.applyStats(h);
-      h.hp = Math.min(h.maxhp, h.hp + (h.maxhp - beforeHp));
-      h.mp = Math.min(h.maxmp, h.mp + (h.maxmp - beforeMp));
-      msgs.push(`${h.name}は レベル${h.lv}に あがった!`);
+      h.hp = Math.min(h.maxhp, h.hp + (h.maxhp - bs.hp));
+      h.mp = Math.min(h.maxmp, h.mp + (h.maxmp - bs.mp));
+      // どの能力が いくつ あがったかを そえる
+      const gains = [["HP", h.maxhp - bs.hp], ["MP", h.maxmp - bs.mp],
+        ["力", h.str - bs.str], ["素早", h.agi - bs.agi],
+        ["体力", h.vit - bs.vit], ["知性", h.int - bs.int]]
+        .filter(([, v]) => v > 0).map(([k, v]) => `${k}+${v}`).join(" ");
+      msgs.push(`${h.name}は レベル${h.lv}に あがった!` + (gains ? `\n${gains}` : ""));
       const learn = DATA.heroes[h.id].learn[h.lv];
       if (learn && !h.spells.includes(learn)) {
         h.spells.push(learn);
