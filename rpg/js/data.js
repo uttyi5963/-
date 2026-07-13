@@ -1965,6 +1965,53 @@ DATA.maps.port = {
           ],
           else: [{ runScript: "arenaEntry" }] },
       ] },
+    { id: "shihan", x: 16, y: 7, spr: "elder", pal: "dark",
+      script: [
+        { cond: { flag: "profR25" },
+          then: [
+            { cond: { flag: "profR50" },
+              then: [
+                { cond: { flag: "profR99" },
+                  then: [{ msg: "師範「きわみに たっした者に\nおしえることは もう ない。\nよき 旅を、わが友よ」" }],
+                  else: [
+                    { cond: { prof: 99 },
+                      then: [
+                        { msg: "師範「……熟練度99。ついに きわみへ\nたどりついたか。おぬしの 歩みに\nけいいを ひょうする」" },
+                        { give: { gold: 50000 } },
+                        { give: { item: "elixir" } },
+                        { msg: "50000ギルと エリクサーを 手に入れた!" },
+                        { flag: ["profR99", 1] },
+                      ],
+                      else: [{ msg: "師範「つぎは 熟練度99…… きわみの\nさかいだ。あせらず 一戦一戦を\nつみかさねる ことだ」" }] },
+                  ] },
+              ],
+              else: [
+                { cond: { prof: 50 },
+                  then: [
+                    { msg: "師範「熟練度50…… なかなかの\nうでまえだ。からだづくりの 果実を\nさずけよう」" },
+                    { give: { item: "fruit_life" } },
+                    { give: { item: "fruit_mana" } },
+                    { msg: "生命の果実と 魔力の果実を 手に入れた!" },
+                    { flag: ["profR50", 1] },
+                  ],
+                  else: [{ msg: "師範「熟練度50に なったら また\nこえを かけてくれ。たゆまぬ 鍛錬こそ\nつよさの ちかみちだ」" }] },
+              ] },
+          ],
+          else: [
+            { cond: { prof: 25 },
+              then: [
+                { msg: "師範「ほう、熟練度25か。\nみどころが あるな。これは わしからの\nはげましだ」" },
+                { give: { gold: 10000 } },
+                { give: { item: "xpotion" } },
+                { msg: "10000ギルと エクスポーションを 手に入れた!" },
+                { flag: ["profR25", 1] },
+              ],
+              else: [
+                { msg: "師範「わしは 世界じゅうの 武芸者を\nみてきた 師範だ。戦いを かさねれば\n『熟練度』が あがっていく」" },
+                { msg: "「熟練度25、50、99の さかいに\nたっしたら わしに みせにくるといい。\nほうびを やろう」" },
+              ] },
+          ] },
+      ] },
     { id: "scholar", x: 18, y: 6, spr: "elder",
       script: [
         { cond: { flag: "glowReward" },
