@@ -1703,6 +1703,23 @@ class BattleScene {
         c.fillRect(30 + i * 64, 20 + ((i + ph) % 2) * 6, 2, 14);
         c.fillRect(46 + i * 64, 34 - ((i + ph) % 2) * 6, 2, 12);
       }
+      // ごつごつした 岩かげ
+      c.fillStyle = PAL[2];
+      [[8, 30, 22], [128, 26, 16], [268, 34, 26]].forEach(([x, w, h]) => {
+        c.beginPath();
+        c.moveTo(x, 156); c.lineTo(x + w * 0.3, 156 - h);
+        c.lineTo(x + w * 0.55, 156 - h * 0.5); c.lineTo(x + w * 0.8, 156 - h * 0.8);
+        c.lineTo(x + w, 156);
+        c.fill();
+      });
+      // たちのぼる 火の粉
+      c.fillStyle = PAL[0];
+      const fph = Math.floor(performance.now() / 260);
+      for (let i = 0; i < 8; i++) {
+        const x = 22 + i * 38 + ((i + fph) % 3) * 3;
+        const y = 150 - ((i * 37 + fph * 9) % 112);
+        c.fillRect(x, y, 2, 2);
+      }
     }
     else if (t === "tower") {
       // いしのはしら と ほしぞら
