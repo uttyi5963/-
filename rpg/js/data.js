@@ -2482,7 +2482,11 @@ DATA.maps.muspel = {
     { id: "smith_apprentice", x: 13, y: 10, spr: "villager", pal: "dark",
       script: [
         { cond: { flag: "forged" },
-          then: [{ msg: "鍛冶屋のでし「輝く石の つるぎは\nおやかたの さいこうけっさくだべ。\nだいじに つかってくれよな」" }],
+          then: [
+            { cond: { flag: "trueClear" },
+              then: [{ msg: "鍛冶屋のでし「おやかたの 剣が 世界を\nすくう たびに ついていったんだべ!\nおらも いつか そんな 剣を うつだ!」" }],
+              else: [{ msg: "鍛冶屋のでし「輝く石の つるぎは\nおやかたの さいこうけっさくだべ。\nだいじに つかってくれよな」" }] },
+          ],
           else: [
             { cond: { flag: "magmaBoss" },
               then: [{ msg: "鍛冶屋のでし「輝く石を もってるなら\nおやかたに みせてみるだ。\nすごいもんが できるかもだよ」" }],
@@ -2492,7 +2496,11 @@ DATA.maps.muspel = {
     { id: "dwarf1", x: 5, y: 10, spr: "villager", pal: "dark", wander: true,
       script: [
         { cond: { flag: "submarine" },
-          then: [{ msg: "ドワーフ「せんすいそうちの ちょうしは\nどうだべ? 海の底も\nひこうせんから いけるだよ」" }],
+          then: [
+            { cond: { flag: "trueClear" },
+              then: [{ msg: "ドワーフ「世界を すくった えいゆうが\nおらたちの せんすいそうちを つかって\nくれただか! ほこらしいだ!!」" }],
+              else: [{ msg: "ドワーフ「せんすいそうちの ちょうしは\nどうだべ? 海の底も\nひこうせんから いけるだよ」" }] },
+          ],
           else: [
             { cond: { flag: "windCrystal" },
               then: [
@@ -2508,7 +2516,11 @@ DATA.maps.muspel = {
     { id: "dwarf2", x: 14, y: 11, spr: "villager", pal: "dark", wander: true,
       script: [
         { cond: { flag: "airship" },
-          then: [{ msg: "ドワーフ「空のたびは どうだ?\nソレイユの 桟橋から のれるだよ」" }],
+          then: [
+            { cond: { flag: "trueClear" },
+              then: [{ msg: "ドワーフ「こんやは ひこうせんが 星まで\nとどきそうな よぞらだべ。\n……ありがとな、えいゆうさま」" }],
+              else: [{ msg: "ドワーフ「空のたびは どうだ?\nソレイユの 桟橋から のれるだよ」" }] },
+          ],
           else: [
             { cond: { flag: "earthCrystal" },
               then: [
@@ -2908,9 +2920,21 @@ DATA.maps.moonpalace = {
           ] },
       ] },
     { id: "selene_girl", x: 10, y: 6, spr: "villager", wander: true,
-      script: [{ msg: "つきびとの 子供「ここの 魔物は\nとーっても つよいの。でも けいけんに\nなるって 大人が いってた!」" }] },
+      script: [
+        { cond: { flag: "trueClear" },
+          then: [{ msg: "つきびとの 子供「星の塔の 光、みた?\nまちじゅう おまつりみたいに\nさわいでたんだよ!」" }],
+          else: [{ msg: "つきびとの 子供「ここの 魔物は\nとーっても つよいの。でも けいけんに\nなるって 大人が いってた!」" }] },
+      ] },
     { id: "selene_watcher", x: 13, y: 8, spr: "soldier",
-      script: [{ msg: "星の番人「クレーターの おくは\nぬしの すみか。かくごの ないものは\nちかづかぬことだ」" }] },
+      script: [
+        { cond: { flag: "trueClear" },
+          then: [{ msg: "星の番人「星の塔の 光は しずまり、\n世界は すくわれた。 あなたがたの 名は\n月のみやこに 語りつがれる」" }],
+          else: [
+            { cond: { flag: "towerOpen" },
+              then: [{ msg: "星の番人「星の塔が ひらいたか……。\nあの 光の 道を いけるのは\nあなたがた だけだ」" }],
+              else: [{ msg: "星の番人「クレーターの おくは\nぬしの すみか。かくごの ないものは\nちかづかぬことだ」" }] },
+          ] },
+      ] },
   ],
   chests: [
     { id: "mp1", x: 14, y: 1, item: "megapotion" },
