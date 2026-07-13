@@ -8,6 +8,20 @@ function itemList() {
 
 // フィールドでのアイテムこうか。つかえたら メッセージ、だめなら null
 function applyFieldItem(def, hero) {
+  if (def.statHp) {
+    if (hero.hp <= 0) return null;
+    hero.bonusHp = (hero.bonusHp || 0) + def.statHp;
+    G.applyStats(hero);
+    hero.hp = Math.min(hero.maxhp, hero.hp + def.statHp);
+    return `${hero.name}の 最大HPが ${def.statHp} あがった!`;
+  }
+  if (def.statMp) {
+    if (hero.hp <= 0) return null;
+    hero.bonusMp = (hero.bonusMp || 0) + def.statMp;
+    G.applyStats(hero);
+    hero.mp = Math.min(hero.maxmp, hero.mp + def.statMp);
+    return `${hero.name}の 最大MPが ${def.statMp} あがった!`;
+  }
   if (def.partyheal) {
     G.state.party.forEach((h) => {
       if (h.hp > 0) {
@@ -255,6 +269,8 @@ class MenuScene {
         G.removeItem(this.pendingItem.id);
         AudioSys.sfx("heal");
         G.push(new MessageScene(msg));
+        // 連続使用: ざいこが あるかぎり ターゲット選択に とどまる
+        if ((G.state.items[this.pendingItem.id] || 0) > 0) return;
         this.state = "item";
         this.sub = 0;
       } else {

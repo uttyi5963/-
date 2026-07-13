@@ -186,7 +186,43 @@ const Input = {
       const k = this.keyName(e);
       if (k) this.down[k] = false;
     });
-    // タッチそうさ
+    // 十字パッド: パッド全面をタッチ面にして、指の位置から方向を判定
+    // (中央のデッドゾーンなし / 押したまま スライドで方向転換できる)
+    const pad = document.querySelector(".dpad");
+    if (pad) {
+      const DIRS = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+      let padActive = false;
+      const clearDirs = () => {
+        DIRS.forEach((d) => { const k = this.keyName({ key: d }); if (k) this.down[k] = false; });
+      };
+      const setFromPoint = (e) => {
+        const r = pad.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height / 2);
+        const key = Math.abs(dx) > Math.abs(dy)
+          ? (dx < 0 ? "ArrowLeft" : "ArrowRight")
+          : (dy < 0 ? "ArrowUp" : "ArrowDown");
+        const k = this.keyName({ key });
+        DIRS.forEach((d) => {
+          const dk = this.keyName({ key: d });
+          if (dk && dk !== k) this.down[dk] = false;
+        });
+        if (k) { if (!this.down[k]) this.hit[k] = true; this.down[k] = true; }
+      };
+      pad.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        AudioSys.unlock();
+        padActive = true;
+        try { pad.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
+        setFromPoint(e);
+      });
+      pad.addEventListener("pointermove", (e) => { if (padActive) setFromPoint(e); });
+      const padOff = (e) => { e.preventDefault(); padActive = false; clearDirs(); };
+      pad.addEventListener("pointerup", padOff);
+      pad.addEventListener("pointercancel", padOff);
+    }
+
+    // タッチそうさ (A/B/STARTボタン)
     document.querySelectorAll("button[data-key]").forEach((btn) => {
       const key = btn.dataset.key;
       const fake = { key, preventDefault() {} };
@@ -415,6 +451,9 @@ const G = {
       h.maxmp = Math.round(h.maxmp * 1.15);
       h.str += 8; h.agi += 8; h.vit += 8; h.int += 8;
     }
+    // 果実による恒久ボーナス
+    h.maxhp += h.bonusHp || 0;
+    h.maxmp += h.bonusMp || 0;
   },
 
   expTotalFor(lv) {

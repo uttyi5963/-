@@ -809,6 +809,12 @@ Object.assign(DATA.items, (() => {
     acc_warband:   { name: "闘神の腕輪",   kind: "acc", price: 0, str: 14, vit: 6, abil: "critx2", tag: "会心2倍", who: ["gou"], desc: "力+14体力+6。会心が 2倍でやすい" },
     acc_stprayer:  { name: "大聖女の祈り", kind: "acc", price: 0, int: 12, vit: 8, abil: "prayup", tag: "祈り100%", who: ["celia"], desc: "知性+12体力+8。祈りが必ず成功" },
     acc_sageeye:   { name: "賢王の眼",     kind: "acc", price: 0, int: 14, agi: 6, abil: "castfast", tag: "詠唱4割短縮", who: ["rod"], desc: "知性+14素早+6。詠唱時間が4割縮む" },
+    // 能力アップアイテム (高価だが店で買える恒久強化)
+    fruit_life: { name: "生命の果実", kind: "use", price: 25000, statHp: 20, desc: "最大HPが 20 あがる (永続)" },
+    fruit_mana: { name: "魔力の果実", kind: "use", price: 30000, statMp: 10, desc: "最大MPが 10 あがる (永続)" },
+    // 超高額・超高性能アクセサリ
+    acc_herobangle: { name: "英雄の腕輪",     kind: "acc", price: 350000, str: 15, agi: 15, vit: 15, int: 15, tag: "全ステ+15", who: ALL, desc: "全ステータスが 15 あがる" },
+    acc_phoenixpin: { name: "不死鳥の羽飾り", kind: "acc", price: 500000, abil: "autolife", vit: 8, tag: "戦闘不能から自動復活", who: ALL, desc: "倒れても一度だけ HP半分で自動復活 (1戦闘1回)" },
     // フィールドアイテム
     wing_return: { name: "帰還の翼", kind: "use", price: 120, escape: true, desc: "まちや ダンジョンから そとへ ひとっとび" },
   };
@@ -851,7 +857,8 @@ DATA.shops = {
     stock: ["xpotion", "megapotion", "elixir", "hiether", "phoenix", "remedy",
             "w_comet", "w_starlance", "w_cosmoclaw", "w_nebularod", "w_moonwand",
             "a_comet", "a_moonrobe", "a_stargi",
-            "acc_galecloak", "acc_guardring", "acc_giantbelt", "acc_magepend", "acc_luckcoin"],
+            "acc_galecloak", "acc_guardring", "acc_giantbelt", "acc_magepend", "acc_luckcoin",
+            "fruit_life", "fruit_mana", "acc_herobangle", "acc_phoenixpin"],
   },
   royal: {
     name: "王宮ごようたし",
@@ -983,7 +990,7 @@ DATA.maps.world = {
     { x: 29, y: 28, type: "enter",
       cond: { flag: "paladin" },
       failScript: [{ msg: "じめんに おおきな あなが あいている。\nそこから ねっぷうが ふきあげてくる…\n(今は おりるべきでは なさそうだ)" }],
-      warp: { map: "magma", x: 1, y: 1, dir: "d" } },
+      scriptId: "bigholeDescend" },
     { x: 5, y: 24, type: "enter", warp: { map: "lostwoods", x: 5, y: 8, dir: "u" } },
   ],
   npcs: [],
@@ -2382,6 +2389,7 @@ DATA.maps.muspel = {
                 { msg: "ドワーフ「よし、くみこんでおいただ!\nおおうずしおの したの 海の底へ\nもぐれるように なっただよ」" },
                 { flag: ["submarine", 1] },
                 { msg: "ひこうせんが せんすいできるように なった!\n(いきさきに 海の底 が ふえました)" },
+                { chapter: "第四章  深海編" },
               ],
               else: [{ msg: "ドワーフ「ようこそ ムスペルへ!\nちじょうの ひとが くるのは\nひさしぶりだべ」" }] },
           ] },
@@ -2397,6 +2405,7 @@ DATA.maps.muspel = {
                 { msg: "ドワーフ「ソレイユの おきに ういてた\nふるい ひこうせんを なおして\nどうりょくを くみこんでおいただ!」" },
                 { flag: ["airship", 1] },
                 { msg: "ひこうせんが つかえるように なった!\n(ソレイユの 桟橋から とべます)" },
+                { chapter: "第三章  天空編" },
               ],
               else: [{ msg: "ドワーフ「みなみの 神殿に\n『ちのクリスタル』が ねむってるだ。\nだども 結界で はいれねえだ」" }] },
           ] },
@@ -2839,6 +2848,7 @@ DATA.maps.crater2 = {
 // ---------------- 夜の国 (だい8のちいき) ----------------
 DATA.maps.world7 = {
   name: "夜の国",
+  crisis: "nightBoss",
   outdoor: true,
   bgm: "star",
   encounter: "world7",
@@ -3115,6 +3125,7 @@ DATA.maps.cathedral2 = {
 // ---------------- 雷鳴の島 (だい7のちいき) ----------------
 DATA.maps.world6 = {
   name: "雷鳴の島",
+  crisis: "stormBoss",
   weather: "rain",
   outdoor: true,
   bgm: "field",
@@ -3385,6 +3396,7 @@ DATA.maps.stormshrine2 = {
 // ---------------- 緑の群島 (だい6のちいき) ----------------
 DATA.maps.world5 = {
   name: "緑の群島",
+  crisis: "ruinsBoss",
   outdoor: true,
   bgm: "field",
   encounter: "world5",
@@ -3653,6 +3665,7 @@ DATA.maps.ruins2 = {
 // ---------------- 砂の王国 (だい5のちいき) ----------------
 DATA.maps.world4 = {
   name: "砂の王国",
+  crisis: "tombBoss",
   weather: "sand",
   outdoor: true,
   bgm: "field",
@@ -3945,6 +3958,7 @@ DATA.maps.sandtomb2 = {
 // ---------------- 氷の列島 (だい4のちいき) ----------------
 DATA.maps.world3 = {
   name: "氷の列島",
+  crisis: "glacierBoss",
   weather: "snow",
   outdoor: true,
   bgm: "field",
@@ -4235,6 +4249,7 @@ DATA.maps.glaciercave2 = {
 // ---------------- 東の大陸 (だい3のちいき) ----------------
 DATA.maps.world2 = {
   name: "東の大陸",
+  crisis: "mirrorBoss",
   outdoor: true,
   bgm: "field",
   encounter: "world2",
@@ -6237,7 +6252,18 @@ DATA.scripts = {
         { msg: "洞窟の おくで なにかが\nひかっている……!" },
       ] },
   ],
+  bigholeDescend: [
+    { cond: { flag: "ch2" },
+      then: [{ warp: { map: "magma", x: 1, y: 1, dir: "d" } }],
+      else: [
+        { msg: "大穴の ふちに たつと、はるか そこから\nあつい 風と かすかな つちおとが\nきこえてくる……。" },
+        { chapter: "第二章  地底編" },
+        { flag: ["ch2", 1] },
+        { warp: { map: "magma", x: 1, y: 1, dir: "d" } },
+      ] },
+  ],
   intro: [
+    { chapter: "第一章  地上編" },
     { msg: "バロンおう「暗黒騎士 レオンよ。\nミストのむらの 長老がもつ\nクリスタルを うばってくるのだ」" },
     { msg: "レオン「……なぜ クリスタルを?\nミストのむらは 平和な むらです」" },
     { msg: "バロンおう「たみを 守るためだ。\nゆけ! これは めいれいだ!!」" },

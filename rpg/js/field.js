@@ -380,7 +380,9 @@ class FieldScene {
   // (じょうたいを もたず じつじかんから けっていてきに けいさん)
   drawWeather() {
     const m = this.map;
-    const w = m.weather;
+    let w = m.weather;
+    // 災いのもや: ぬしが しずまるまで 地域の空をおおう
+    if (m.crisis && !G.flag(m.crisis)) w = "mist";
     if (!w) return;
     const c = Gfx.ctx;
     const now = performance.now();
@@ -417,6 +419,16 @@ class FieldScene {
         c.fillRect(x + 1, y + 1, s, s);
         c.fillStyle = PAL[0];
         c.fillRect(x, y, s, s);
+      }
+    } else if (w === "mist") {
+      // 災いのもや: ゆっくり ただよう くらい かたまり
+      for (let k = 0; k < 22; k++) {
+        const sp = 8 + hash(k) * 10;
+        const x = (hash(k + 100) * W + now * 0.001 * sp) % W;
+        const y = (hash(k + 200) * H + Math.sin(now * 0.0008 + k * 1.7) * 10) % H;
+        c.fillStyle = PAL[k % 3 === 0 ? 3 : 2];
+        const s = 3 + (k * 7) % 4;
+        c.fillRect(Math.round((x + W) % W), Math.round((y + H) % H), s, 2);
       }
     } else if (w === "sand") {
       for (let k = 0; k < 40; k++) {

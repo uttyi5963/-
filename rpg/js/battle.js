@@ -343,7 +343,7 @@ class BattleScene {
     p.h.hp = Math.max(0, p.h.hp - d);
     const pos = this.partyPos(this.party.indexOf(p));
     this.pop(pos.x, pos.y, d, 2);
-    if (p.h.hp <= 0) {
+    if (p.h.hp <= 0 && !this.tryAutolife(p)) {
       p.atb = 0;
       p.casting = null;
       this.log = `${p.h.name}は 毒に 倒れた…`;
@@ -481,7 +481,7 @@ class BattleScene {
     }
 
     if (this.menu === "item") {
-      const items = itemList().filter((it) => it.def.kind === "use");
+      const items = itemList().filter((it) => it.def.kind === "use" && !it.def.statHp && !it.def.statMp && !it.def.escape);
       if (items.length === 0) {
         if (Input.tap("a") || Input.tap("b")) { AudioSys.sfx("cancel"); this.menu = "root"; }
         return;
@@ -560,6 +560,18 @@ class BattleScene {
   }
 
   // てきに あたえるダメージを イベントれつに つむ (dmg<0 は きゅうしゅう=回復)
+  // 不死鳥の羽飾り: 倒れたとき 一度だけ HP半分で よみがえる
+  tryAutolife(p) {
+    if (p.h.hp > 0) return false;
+    if (!G.accAbil(p.h, "autolife") || p.autolifeUsed) return false;
+    p.autolifeUsed = true;
+    p.h.hp = Math.max(1, Math.floor(p.h.maxhp * 0.5));
+    this.partyFx(p, "holy");
+    this.log = `${p.h.name}は 不死鳥の加護で よみがえった!!`;
+    AudioSys.sfx("heal");
+    return true;
+  }
+
   // 回復/守りの きらめきを 仲間のいちに
   partyFx(q, kind) {
     const pos = this.partyPos(this.party.indexOf(q));
@@ -1278,7 +1290,7 @@ class BattleScene {
         victim.h[inf.status] = true;
         this.log = `${victim.h.name}は ${DATA.statuses[inf.status].name}に かかった!`;
       }
-      if (victim.h.hp <= 0) {
+      if (victim.h.hp <= 0 && !this.tryAutolife(victim)) {
         victim.atb = 0; victim.casting = null;
         this.log = `${victim.h.name}は 倒れた!`;
         AudioSys.sfx("dead");
@@ -1342,7 +1354,7 @@ class BattleScene {
         this.pop(pos.x, pos.y, dmg, 2);
         this.fx.push({ x: pos.x + 16, y: pos.y + 16, kind: this.fxOf(sp), t: 0 });
         AudioSys.sfx("hit");
-        if (p.h.hp <= 0) {
+        if (p.h.hp <= 0 && !this.tryAutolife(p)) {
           p.atb = 0; p.casting = null;
           this.log = `${p.h.name}は 倒れた!`;
           AudioSys.sfx("dead");
@@ -1996,7 +2008,7 @@ class BattleScene {
       Gfx.cursor(12, 70 + (this.sel2 - Math.max(0, sc)) * 16);
     }
     else if (this.menu === "item") {
-      const items = itemList().filter((it) => it.def.kind === "use");
+      const items = itemList().filter((it) => it.def.kind === "use" && !it.def.statHp && !it.def.statMp && !it.def.escape);
       const view = 8;
       const sel = Math.min(this.sel2, Math.max(0, items.length - 1));
       const sc = Math.max(0, Math.min(sel - view + 1, items.length - view));

@@ -72,27 +72,28 @@
     }
     .dpad {
       position: relative;
-      width: 108px;
-      height: 108px;
+      width: 132px;
+      height: 132px;
       flex: none;
+      touch-action: none;
     }
     .dpad button {
       position: absolute;
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
       background: #2a2a30;
       border: none;
       border-radius: 6px;
       color: #888;
-      font-size: 14px;
+      font-size: 16px;
       touch-action: none;
+      pointer-events: none; /* タッチは .dpad 全面で受ける */
     }
-    .dpad button:active { background: #45454e; }
-    .dpad .up    { left: 36px; top: 0; }
-    .dpad .down  { left: 36px; top: 72px; }
-    .dpad .left  { left: 0; top: 36px; }
-    .dpad .right { left: 72px; top: 36px; }
-    .dpad .mid   { left: 36px; top: 36px; border-radius: 0; }
+    .dpad .up    { left: 44px; top: 0; }
+    .dpad .down  { left: 44px; top: 88px; }
+    .dpad .left  { left: 0; top: 44px; }
+    .dpad .right { left: 88px; top: 44px; }
+    .dpad .mid   { left: 44px; top: 44px; border-radius: 0; }
     .ab {
       display: flex;
       gap: 14px;
