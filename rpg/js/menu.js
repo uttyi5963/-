@@ -796,6 +796,7 @@ class QuestScene {
     Gfx.clear(0);
     Gfx.window(4, 4, 312, 30);
     Gfx.text("クエストちょう", 14, 12);
+    Gfx.textR(G.currentChapter(), 306, 12, 2, 10);
 
     Gfx.window(4, 38, 312, 72);
     Gfx.text("▼ つぎのもくてき", 14, 44, 2, 10);

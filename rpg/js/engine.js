@@ -544,6 +544,19 @@ const G = {
 
   // ---------- フラグ ----------
   flag(k) { return !!this.state.flags[k]; },
+
+  // げんざいの章 (フラグから逆算)
+  currentChapter() {
+    const f = this.state.flags;
+    if (f.trueClear) return "全七章 クリア";
+    if (f.towerOpen) return "第七章 星の塔編";
+    if (f.mirrorBoss && f.glacierBoss && f.tombBoss) return "第六章 常夜編";
+    if (f.allCrystals) return "第五章 新大陸編";
+    if (f.submarine) return "第四章 深海編";
+    if (f.airship) return "第三章 天空編";
+    if (f.ch2) return "第二章 地底編";
+    return "第一章 地上編";
+  },
   setFlag(k, v) { this.state.flags[k] = v; },
 
   // ---------- モンスター図鑑 ----------
