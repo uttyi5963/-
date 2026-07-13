@@ -925,6 +925,35 @@ class QuestScene {
 // つりぼり ミニゲーム
 // ============================================================
 // ---------------- コンフィグ ----------------
+// たびのこころえ (ページ式ヘルプ)
+class HelpScene {
+  constructor() {
+    this.opaque = false;
+    this.page = 0;
+    this.t = 0;
+  }
+  update(dt) {
+    this.t += dt;
+    const n = DATA.helpPages.length;
+    if (Input.tap("left")) { this.page = (this.page + n - 1) % n; AudioSys.sfx("cursor"); }
+    if (Input.tap("right") || Input.tap("a")) {
+      if (this.page < n - 1) { this.page++; AudioSys.sfx("cursor"); }
+      else { AudioSys.sfx("cancel"); G.pop(); }
+    }
+    if (Input.tap("b")) { AudioSys.sfx("cancel"); G.pop(); }
+  }
+  draw() {
+    const p = DATA.helpPages[this.page];
+    Gfx.window(16, 24, 288, 240);
+    Gfx.text(p.title, 32, 34);
+    Gfx.textR(`${this.page + 1}/${DATA.helpPages.length}`, 290, 34, 1, 10);
+    p.lines.forEach((l, i) => Gfx.text(l, 32, 62 + i * 20, 3, 10));
+    if (Math.floor(this.t * 2) % 2 === 0) {
+      Gfx.text(this.page < DATA.helpPages.length - 1 ? "▶ つぎへ (B: とじる)" : "A/B: とじる", 96, 246, 1, 9);
+    }
+  }
+}
+
 class ConfigScene {
   constructor() {
     this.opaque = false;
@@ -945,6 +974,7 @@ class ConfigScene {
       ["いどうそくど", c.wspeed === 2 ? "はやい" : "ふつう", "フィールドを きびきび あるく"],
       ["エンカウント", c.encOff ? "OFF" : "ON", "OFFにすると ざこ敵が でなくなる"],
       ["おと", AudioSys.muted ? "OFF" : "ON", "BGMと こうかおん (Mキーでも きりかえ)"],
+      ["たびのこころえ", "みる", "あそびかたの かんたんガイド"],
     ];
   }
 
@@ -956,6 +986,7 @@ class ConfigScene {
     else if (i === 3) c.wspeed = c.wspeed === 2 ? 1 : 2;
     else if (i === 4) c.encOff = !c.encOff;
     else if (i === 5) AudioSys.toggleMute();
+    else if (i === 6) { AudioSys.sfx("confirm"); G.push(new HelpScene()); return; }
     AudioSys.sfx("cursor");
   }
 
