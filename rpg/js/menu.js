@@ -709,6 +709,32 @@ class QuestScene {
   constructor() {
     this.opaque = true;
     this.scroll = 0;
+    this.mode = "quest"; // quest / stats (←→で きりかえ)
+  }
+
+  // ぼうけんのきろく (プレイ統計)
+  statsRows() {
+    const f = (k) => !!G.flag(k);
+    const kills = Object.values(G.state.bestiary || {}).reduce((a, e) => a + (e.killed || 0), 0);
+    const seen = Object.keys(G.state.bestiary || {}).length;
+    const chests = Object.keys(G.state.flags || {}).filter((k) => k.indexOf("chest_") === 0).length;
+    const quests = this.quests().filter(([, st]) =>
+      st.includes("かんりょう") || st.includes("討伐") || st.includes("つりあげた") || st.includes("さずかった")).length;
+    const maxProf = Math.max(0, ...G.state.party.map((h) => h.prof || 0));
+    const nushi = ["fishKing", "lakeKing", "nightKing"].filter(f).length;
+    const pmin = Math.floor((G.state.playtime || 0) / 60);
+    return [
+      ["現在の章", G.currentChapter()],
+      ["プレイ時間", `${Math.floor(pmin / 60)}じかん${pmin % 60}ふん`],
+      ["しょじきん", `${G.state.gold} ギル`],
+      ["討伐そうすう", `${kills} たい`],
+      ["図鑑とうろく", `${seen} / ${Object.keys(DATA.monsters).length} 種`],
+      ["宝箱はっけん", `${chests} こ`],
+      ["クエスト達成", `${quests} けん`],
+      ["さいこう熟練度", `${maxProf} / 99`],
+      ["ぬし釣り", `${nushi} / 3 たい`],
+      ["パーティ", `${G.state.party.length} にん`],
+    ];
   }
 
   // メインストーリーの「つぎのもくてき」(みたされていない さいしょのもの)
@@ -887,18 +913,39 @@ class QuestScene {
   }
 
   update() {
+    if (Input.tap("left") || Input.tap("right")) {
+      this.mode = this.mode === "quest" ? "stats" : "quest";
+      AudioSys.sfx("cursor");
+    }
     const qn = this.quests().length;
     const maxScroll = Math.max(0, qn - 6);
-    if (Input.tap("up")) { this.scroll = Math.max(0, this.scroll - 1); if (qn > 6) AudioSys.sfx("cursor"); }
-    if (Input.tap("down")) { this.scroll = Math.min(maxScroll, this.scroll + 1); if (qn > 6) AudioSys.sfx("cursor"); }
+    if (this.mode === "quest") {
+      if (Input.tap("up")) { this.scroll = Math.max(0, this.scroll - 1); if (qn > 6) AudioSys.sfx("cursor"); }
+      if (Input.tap("down")) { this.scroll = Math.min(maxScroll, this.scroll + 1); if (qn > 6) AudioSys.sfx("cursor"); }
+    }
     if (Input.tap("a") || Input.tap("b")) { AudioSys.sfx("cancel"); G.pop(); }
   }
 
+  drawStats() {
+    Gfx.clear(0);
+    Gfx.window(4, 4, 312, 30);
+    Gfx.text("ぼうけんのきろく", 14, 12);
+    Gfx.textR("◀▶ クエストちょう", 306, 12, 1, 9);
+    Gfx.window(4, 38, 312, 230);
+    this.statsRows().forEach(([k, v], i) => {
+      const y = 50 + i * 21;
+      Gfx.text(k, 20, y, 3, 10);
+      Gfx.textR(String(v), 300, y, 3, 10);
+    });
+    Gfx.text("B: もどる", 136, 274, 1, 9);
+  }
+
   draw() {
+    if (this.mode === "stats") { this.drawStats(); return; }
     Gfx.clear(0);
     Gfx.window(4, 4, 312, 30);
     Gfx.text("クエストちょう", 14, 12);
-    Gfx.textR(G.currentChapter(), 306, 12, 2, 10);
+    Gfx.textR(G.currentChapter() + " ◀▶", 306, 12, 2, 10);
 
     Gfx.window(4, 38, 312, 72);
     Gfx.text("▼ つぎのもくてき", 14, 44, 2, 10);
