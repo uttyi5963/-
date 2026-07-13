@@ -203,15 +203,45 @@ class ChapterTitleScene {
   draw() {
     Gfx.clear(3);
     const c = Gfx.ctx;
+    // ほしくずの ちらつき
+    c.fillStyle = PAL[2];
+    for (let i = 0; i < 14; i++) {
+      const x = (i * 53 + 17) % SCREEN_W, y = (i * 37 + 11) % SCREEN_H;
+      if ((i + Math.floor(this.t * 2)) % 5 !== 0) c.fillRect(x, y, 2, 2);
+    }
+    // すみの かざりわく
+    [[12, 12, 1, 1], [SCREEN_W - 12, 12, -1, 1],
+     [12, SCREEN_H - 12, 1, -1], [SCREEN_W - 12, SCREEN_H - 12, -1, -1]].forEach(([x, y, sx, sy]) => {
+      c.fillRect(x, y, 18 * sx, 2 * sy);
+      c.fillRect(x, y, 2 * sx, 18 * sy);
+    });
+    // 中央から ひろがる 2本のライン
+    const lw = Math.min(1, Math.max(0, (this.t - 0.3) / 0.5)) * 152;
+    if (lw > 2) {
+      c.fillStyle = PAL[2];
+      c.fillRect(SCREEN_W / 2 - lw / 2, 112, lw, 2);
+      c.fillRect(SCREEN_W / 2 - lw / 2, 150, lw, 2);
+    }
+    // クリスタルの きらめき
+    if (this.t > 0.45) {
+      const cx = SCREEN_W / 2, cy = 94, s = 8;
+      c.fillStyle = PAL[1];
+      c.beginPath();
+      c.moveTo(cx, cy - s); c.lineTo(cx + s * 0.7, cy); c.lineTo(cx, cy + s); c.lineTo(cx - s * 0.7, cy);
+      c.fill();
+      c.fillStyle = PAL[0];
+      c.fillRect(cx - 1, cy - 4, 2, 4);
+      if (Math.floor(this.t * 3) % 2 === 0) {
+        c.fillStyle = PAL[1];
+        c.fillRect(cx - s - 6, cy, 4, 1); c.fillRect(cx + s + 3, cy, 4, 1);
+        c.fillRect(cx, cy - s - 6, 1, 4); c.fillRect(cx, cy + s + 3, 1, 4);
+      }
+    }
+    // タイトル
     if (this.t > 0.25) {
       c.font = "bold 17px 'MS Gothic', monospace";
       c.fillStyle = PAL[this.t > 0.55 ? 0 : 1];
       c.fillText(this.title, (SCREEN_W - c.measureText(this.title).width) / 2, 138);
-    }
-    if (this.t > 0.5) {
-      c.fillStyle = PAL[2];
-      c.fillRect(SCREEN_W / 2 - 76, 150, 152, 2);
-      c.fillRect(SCREEN_W / 2 - 76, 112, 152, 2);
     }
   }
 }
