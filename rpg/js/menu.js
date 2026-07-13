@@ -644,9 +644,9 @@ class BestiaryScene {
 class MapScene {
   constructor() {
     this.t = 0;
-    // 屋外マップなら それを、屋内なら さいごに いた ワールドを うつす
+    // 屋外や ひろい ダンジョンは そのまま、せまい 屋内は さいごの ワールドを うつす
     const cur = DATA.maps[G.state.map];
-    if (cur.outdoor) {
+    if (cur.outdoor || cur.rows[0].length >= 14) {
       this.mapId = G.state.map;
       this.px = G.state.x; this.py = G.state.y;
     } else if (G.state.lastWorld) {
@@ -682,7 +682,9 @@ class MapScene {
           case "mountain": col = PAL[3]; break;
           case "forest": case "pine": case "palm": case "deadtree": col = PAL[1]; break;
           case "grass": case "sand": case "snow": case "path": case "scree":
-          case "nightgrass": case "flower": case "bridge": col = PAL[0]; break;
+          case "nightgrass": case "flower": case "bridge":
+          case "floor": case "carpet": col = PAL[0]; break;
+          case "wall": case "pillar": col = PAL[2]; break;
           default: col = PAL[3]; // まち/ほこら などの アイコンは こいマーカー
         }
         c.fillStyle = col;
