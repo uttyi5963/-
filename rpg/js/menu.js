@@ -1009,6 +1009,19 @@ class FishingScene {
       AudioSys.sfx("cancel");
       return "みずくさ だった……。";
     }
+    if (this.table === "night") {
+      // 夜の国の 星あかり釣り
+      if (r < 0.04) {
+        G.setFlag("nightKing", 1);
+        G.state.gold += 6000;
+        AudioSys.sfx("levelup");
+        return "よるのぬしだ!! 6000ギル!!";
+      }
+      if (r < 0.19) { G.state.gold += 1200; AudioSys.sfx("chest"); return "夜光ウナギ! 1200ギル!"; }
+      if (r < 0.58) { G.state.gold += 250; AudioSys.sfx("chest"); return "ほしくずクラゲを つった! 250ギル!"; }
+      AudioSys.sfx("cancel");
+      return "ぬけがら だった……。";
+    }
     if (r < 0.05) {
       G.setFlag("fishKing", 1);
       G.state.gold += 2000;

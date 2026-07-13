@@ -3062,6 +3062,7 @@ DATA.maps.world7 = {
     "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
   ],
   events: [
+    { x: 1, y: 13, type: "enter", scriptId: "nightFishing" },
     { x: 21, y: 5, type: "enter", scriptId: "airshipBoard" },
     { x: 9, y: 3, type: "enter", warp: { map: "nox", x: 9, y: 9, dir: "u" } },
     { x: 15, y: 8, type: "enter", warp: { map: "cathedral1", x: 2, y: 10, dir: "u" } },
@@ -5255,7 +5256,20 @@ DATA.maps.lakepier = {
         { cond: { all: ["fishKing", "lakeKing"] },
           then: [
             { cond: { flag: "anglerKing" },
-              then: [{ msg: "つりびとロロ「そらと 湖、ふたりのぬしを\nつりあげた 伝説の つりし……。\nいっしょに つれて こうえいだよ」" }],
+              then: [
+                { cond: { flag: "threeKingsReward" },
+                  then: [{ msg: "つりびとロロ「そら、湖、そして 夜……。\n3ぬしを せいはした つりしと ともに\nさおを たらせる しあわせよ」" }],
+                  else: [
+                    { cond: { flag: "nightKing" },
+                      then: [
+                        { msg: "つりびとロロ「よ、夜の国の ぬしまで!?\n3ぬし せいは…… 前人未到だ!!\nこれは わたしの たからものだが、きみに」" },
+                        { give: { gold: 10000 } },
+                        { msg: "10000ギルを 手に入れた!" },
+                        { flag: ["threeKingsReward", 1] },
+                      ],
+                      else: [{ msg: "つりびとロロ「そらと 湖、ふたりのぬしを\nつりあげた 伝説の つりし……。\nうわさでは 夜の国にも ぬしが いるらしいよ」" }] },
+                  ] },
+              ],
               else: [
                 { msg: "つりびとロロ「空のぬしも 湖のぬしも\nつりあげたのかい!? たまげた!!\nこいつは わたしの きもちだ、うけとってくれ」" },
                 { give: { gold: 5000 } },
@@ -6190,6 +6204,10 @@ DATA.scripts = {
   lakeFishing: [
     { msg: "しずかな みなも。 さかなの かげが みえる。" },
     { fishing: { price: 80, table: "lake" } },
+  ],
+  nightFishing: [
+    { msg: "星あかりが みなもに ゆれている。\n夜の さかなの けはいが する……。" },
+    { fishing: { price: 120, table: "night" } },
   ],
   towerView: [
     { msg: "とおめがねを のぞいてみた……。" },
