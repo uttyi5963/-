@@ -691,6 +691,10 @@ class QuestScene {
       list.push(["女王の かなしみ",
         f("nightReward") ? "かんりょう" : f("nightBoss") ? "ノクスのまちのおさに ほうこく" : "闇の大聖堂の おくへ"]);
     }
+    if (f("shardQuest")) {
+      list.push(["星のかけら あつめ",
+        f("shardDone") ? "かんりょう" : `かけらを さがす (${G.state.items.star_shard || 0}/3)`]);
+    }
     if (f("duskQuest")) {
       list.push(["たそがれオオカミ たいじ",
         f("duskReward") ? "かんりょう" : `オオカミを 倒す (${Math.min(4, G.killsOf("duskwolf"))}/4)`]);

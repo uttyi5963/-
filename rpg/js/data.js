@@ -249,6 +249,7 @@ DATA.items = {
   crystal:   { name: "クリスタル",     kind: "key", price: 0, desc: "せいなる 光を やどす" },
   heroproof: { name: "英雄のあかし", kind: "key", price: 0, desc: "すべてを なしとげた しょうこ" },
   expcharm:  { name: "経験のしるし", kind: "key", price: 0, desc: "もっているだけで 経験値 2ばい" },
+  star_shard: { name: "星のかけら", kind: "key", price: 0, desc: "星の塔に ふりつもる ひかりの結晶" },
   glowstone: { name: "輝く石",   kind: "key", price: 0, desc: "おおあなのそこで ひろった いし" },
   earthcrystal: { name: "ちのクリスタル", kind: "key", price: 0, desc: "大地の力を やどす けっしょう" },
   windcrystal: { name: "風のクリスタル", kind: "key", price: 0, desc: "嵐の力を やどす けっしょう" },
@@ -2749,6 +2750,36 @@ DATA.maps.moonpalace = {
             { give: { item: "elixir" } },
             { msg: "うたの おれいにと エリクサーを くれた!" },
             { flag: ["bardGift", 1] },
+          ] },
+      ] },
+    { id: "astronomer", x: 12, y: 4, spr: "elder", showFlag: "towerOpen",
+      script: [
+        { cond: { flag: "shardDone" },
+          then: [{ msg: "天文学者「かけらの ひかりは この 観測室を\nいまも てらしている。ありがとう、\n星の ともだちよ」" }],
+          else: [
+            { cond: { flag: "shardQuest" },
+              then: [
+                { cond: { itemCount: { id: "star_shard", n: 3 } },
+                  then: [
+                    { msg: "天文学者「おお…… 3つの かけらが\nそろったか! なんと うつくしい\nひかりだ……!」" },
+                    { take: { item: "star_shard" } },
+                    { take: { item: "star_shard" } },
+                    { take: { item: "star_shard" } },
+                    { msg: "天文学者「やくそくの おれいだ。\nながねんの 研究の たまものを\nうけとってくれ」" },
+                    { give: { gold: 20000 } },
+                    { give: { item: "fruit_life" } },
+                    { give: { item: "elixir" } },
+                    { msg: "20000ギルと 生命の果実、エリクサーを\n手に入れた!" },
+                    { flag: ["shardDone", 1] },
+                  ],
+                  else: [{ msg: "天文学者「かけらは 星の塔の 1〜3階に\nふりつもる。ゆかや かべぎわを\nよく しらべてみるといい」" }] },
+              ],
+              else: [
+                { msg: "天文学者「星の塔が ひらいたのだな!\nわしは ながねん あの塔の ひかりを\n観測してきた」" },
+                { msg: "「たのみが ある。塔に ふりつもる\n『星のかけら』を 3つ あつめて\nきてくれないか。おれいは はずむぞ」" },
+                { flag: ["shardQuest", 1] },
+                { msg: "クエスト『星のかけら あつめ』を\nうけおった!" },
+              ] },
           ] },
       ] },
     { id: "selene_girl", x: 10, y: 6, spr: "villager", wander: true,
@@ -5782,6 +5813,7 @@ DATA.maps.startower1 = {
     { id: "sw1a", x: 1, y: 1, item: "w_gigalance" },
     { id: "sw1b", x: 14, y: 8, item: "a_cosmos" },
     { id: "sw1c", x: 8, y: 4, item: "elixir", hidden: true },
+    { id: "shard1", x: 1, y: 9, item: "star_shard", hidden: true },
   ],
 };
 
@@ -5817,6 +5849,7 @@ DATA.maps.startower2 = {
   chests: [
     { id: "sw2a", x: 14, y: 4, item: "a_star" },
     { id: "sw2b", x: 1, y: 8, gold: 5000 },
+    { id: "shard2", x: 14, y: 9, item: "star_shard", hidden: true },
   ],
 };
 
@@ -5865,6 +5898,7 @@ DATA.maps.startower3 = {
   chests: [
     { id: "sw3a", x: 4, y: 6, item: "elixir" },
     { id: "sw3b", x: 14, y: 3, gold: 20000, hidden: true },
+    { id: "shard3", x: 1, y: 8, item: "star_shard", hidden: true },
   ],
 };
 
