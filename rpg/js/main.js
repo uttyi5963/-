@@ -180,6 +180,7 @@ class TitleScene {
     const tw = c.measureText(title).width;
     c.fillText(title, (SCREEN_W - tw) / 2, 120);
     Gfx.text("〜 暗黒騎士の 物語 〜", 74, 152, 1, 12);
+    Gfx.textR("かんぜんばん", 310, 166, 1, 9);
 
     const opts = this.options();
     Gfx.window(88, 176, 144, opts.length * 18 + 14);
@@ -214,7 +215,11 @@ class MusicRoomScene {
     if (Input.tap("down")) { this.sel = (this.sel + 1) % n; AudioSys.sfx("cursor"); }
     if (this.sel < this.scroll) this.scroll = this.sel;
     if (this.sel >= this.scroll + view) this.scroll = this.sel - view + 1;
-    if (Input.tap("a")) { AudioSys.sfx("confirm"); AudioSys.bgm(this.tracks[this.sel][0]); }
+    if (Input.tap("a")) {
+      AudioSys.sfx("confirm");
+      this.playing = this.tracks[this.sel][0];
+      AudioSys.bgm(this.playing);
+    }
     if (Input.tap("b")) { AudioSys.sfx("cancel"); AudioSys.bgm("title"); G.pop(); }
   }
   draw() {
@@ -233,6 +238,7 @@ class MusicRoomScene {
       const idx = this.scroll + i, y = 52 + i * 19;
       Gfx.text(String(idx + 1).padStart(2, "0"), 48, y, 1, 10);
       Gfx.text(name, 76, y, 3, 10);
+      if (this.playing === k) Gfx.text("♪", 268, y, 2, 10);
       if (idx === this.sel) Gfx.cursor(38, y + 3);
     });
     Gfx.text("A: さいせい  B: もどる", 92, 252, 1, 9);

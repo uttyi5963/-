@@ -1112,6 +1112,11 @@ class SlotScene {
   update(dt) {
     this.t += dt;
     if (this.state === "ask") {
+      // ←→で かけ金を きりかえ (500Gは 配当5倍)
+      if (Input.tap("left") || Input.tap("right")) {
+        this.bet = this.bet === 100 ? 500 : 100;
+        AudioSys.sfx("cursor");
+      }
       if (Input.tap("a")) {
         if (G.state.gold < this.bet) {
           this.msg = "お金が たりない!";
@@ -1143,9 +1148,11 @@ class SlotScene {
         }
       }
       if (done) {
-        const [win, msg] = this.payout(this.reels[0], this.reels[1], this.reels[2]);
+        let [win, msg] = this.payout(this.reels[0], this.reels[1], this.reels[2]);
+        win *= this.bet / 100; // 500Gがけは 配当5倍
         if (win > 0) { G.gainGold(win); AudioSys.sfx(win >= 1000 ? "levelup" : "chest"); }
         else AudioSys.sfx("cancel");
+        this.jackpotT = win >= 5000 ? 2.2 : 0; // 777の キラキラ
         this.msg = msg + (win > 0 ? `\n${win}ギル かくとく!` : "");
         this.state = "result"; this.t = 0;
       }
@@ -1159,6 +1166,18 @@ class SlotScene {
   draw() {
     Gfx.window(60, 60, 200, 168);
     Gfx.text("クリスタルスロット", 88, 70);
+    // 777の 大当たりキラキラ
+    if (this.jackpotT > 0) {
+      this.jackpotT -= 1 / 60;
+      const c = Gfx.ctx;
+      c.fillStyle = PAL[0];
+      for (let k = 0; k < 12; k++) {
+        const a = k * 0.52 + this.jackpotT * 3;
+        const r = 30 + ((k * 17 + this.jackpotT * 90) % 60);
+        const x = 160 + Math.cos(a) * r, y = 144 + Math.sin(a) * r * 0.6;
+        c.fillRect(Math.round(x), Math.round(y), 3, 3);
+      }
+    }
     // リールまど
     for (let i = 0; i < 3; i++) {
       const x = 84 + i * 54;
@@ -1166,11 +1185,11 @@ class SlotScene {
       const sym = this.symbols[this.reels[i]];
       Gfx.text(sym, x + 15, 110, this.state === "spin" && this.spin[i] > 0 ? 1 : 3, 13);
     }
-    Gfx.text(`かけ金 ${this.bet}G`, 92, 152, 3, 10);
+    Gfx.text(`かけ金 ◀${this.bet}G▶`, 84, 152, 3, 10);
     Gfx.textR(`しょじ ${G.state.gold}G`, 246, 152, 3, 10);
     if (this.state === "ask") {
       Gfx.text("A: まわす  B: やめる", 92, 176, 1, 10);
-      Gfx.text("777で 5000ギル!", 100, 196, 2, 10);
+      Gfx.text(this.bet === 500 ? "777で 25000ギル!!" : "777で 5000ギル!", 96, 196, 2, 10);
     } else if (this.state === "result") {
       this.msg.split("\n").forEach((l, i) => Gfx.text(l, 84, 176 + i * 18, 3, 10));
     } else {
