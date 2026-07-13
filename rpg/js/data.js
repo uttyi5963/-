@@ -2982,6 +2982,7 @@ DATA.maps.world7 = {
 // ---------------- 夜のまち ノクス ----------------
 DATA.maps.nox = {
   name: "夜のまち ノクス",
+  weather: "stars",
   bgm: "star",
   exit: { map: "world7", x: 9, y: 4, dir: "d" },
   legend: {
@@ -3557,6 +3558,7 @@ DATA.maps.world5 = {
 // ---------------- 木陰のむら リーフェ ----------------
 DATA.maps.liefe = {
   name: "木陰のむら リーフェ",
+  weather: "petals",
   bgm: "town",
   exit: { map: "world5", x: 9, y: 4, dir: "d" },
   legend: {

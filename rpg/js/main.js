@@ -110,6 +110,15 @@ class TitleScene {
       const y = (i * 37 + 11) % 160;
       if ((i + Math.floor(this.t)) % 5 !== 0) c.fillRect(x, y, 2, 2);
     }
+    // ながれ星 (ときどき よこぎる)
+    const sph = this.t % 9;
+    if (sph < 1.1) {
+      c.fillStyle = PAL[1];
+      const sx = 40 + sph * 220, sy = 20 + sph * 60;
+      for (let k = 0; k < 5; k++) c.fillRect(sx - k * 6, sy - k * 2, 4, 2);
+      c.fillStyle = PAL[0];
+      c.fillRect(sx, sy, 3, 2);
+    }
     // ながれる くも
     c.fillStyle = PAL[2];
     for (let i = 0; i < 3; i++) {
