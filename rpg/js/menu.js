@@ -229,6 +229,14 @@ class MenuScene {
     if (items.length > 0) {
       if (Input.tap("up")) { this.sub = (this.sub + items.length - 1) % items.length; AudioSys.sfx("cursor"); }
       if (Input.tap("down")) { this.sub = (this.sub + 1) % items.length; AudioSys.sfx("cursor"); }
+      // ←→で 整理 (種類順に ならべなおす)
+      if (Input.tap("left") || Input.tap("right")) {
+        G.sortItems();
+        this.sub = 0; this.scroll = 0;
+        AudioSys.sfx("confirm");
+        G.push(new MessageScene("どうぐを 整理した!"));
+        return;
+      }
     }
     if (Input.tap("b")) { AudioSys.sfx("cancel"); this.state = "main"; return; }
     if (Input.tap("a") && items.length > 0) {
@@ -372,6 +380,7 @@ class MenuScene {
     const items = itemList();
     Gfx.window(20, 40, 280, 200);
     Gfx.text("道具", 32, 48);
+    Gfx.textR("◀▶: せいり", 288, 48, 1, 9);
     if (items.length === 0) Gfx.text("なにも もっていない", 40, 76);
     const view = 8;
     if (this.sub < this.scroll) this.scroll = this.sub;

@@ -230,7 +230,7 @@ class BattleScene {
         }
       }
       for (const e of this.aliveEnemies()) {
-        if (!e.casting) e.atb = Math.min(100, e.atb + (25 + e.def.agi * 3) * dt);
+        if (!e.casting) e.atb = Math.min(100, e.atb + (25 + e.def.agi * 3) * BattleScene.ENEMY_ATB * dt);
       }
 
       // 詠唱進行 → 完了で発動
@@ -619,6 +619,8 @@ class BattleScene {
   }
 
   // ---------------- プレイヤーのこうどう ----------------
+  static ENEMY_ATB = 1.15; // 敵のATB倍率 (詠唱短縮ぶん 行動を すこし はやく)
+
   doPlayerAction(act) {
     const p = this.ready;
     const h = p.h;
@@ -660,7 +662,7 @@ class BattleScene {
       }
       if ((sp.cast || 0) > 0) {
         h.mp -= this.mpCost(h, sp);
-        p.casting = { act, t: 0, dur: sp.cast * (G.accAbil(h, "castfast") ? 0.6 : 1) };
+        p.casting = { act, t: 0, dur: sp.cast * 0.65 * (G.accAbil(h, "castfast") ? 0.6 : 1) };
         this.log = `${h.name}は ${sp.name}の 詠唱を はじめた`;
         AudioSys.sfx("cursor");
         this.ready = null;
@@ -1266,7 +1268,7 @@ class BattleScene {
 
     if (spell) {
       if ((spell.cast || 0) > 0) {
-        e.casting = { spell, t: 0, dur: spell.cast };
+        e.casting = { spell, t: 0, dur: spell.cast * 0.7 };
         this.log = `${e.name}は 呪文を 詠唱している……!`;
         return;
       }

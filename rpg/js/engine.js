@@ -508,6 +508,19 @@ const G = {
     return msgs;
   },
 
+  // どうぐ整理: つかう→ぶき→よろい→アクセ→たいせつなもの の順に ならべなおす
+  sortItems() {
+    const kindOrder = { use: 0, weapon: 1, armor: 2, acc: 3, key: 4 };
+    const defIdx = Object.keys(DATA.items);
+    const sorted = Object.entries(this.state.items).sort(([a], [b]) => {
+      const ka = kindOrder[(DATA.items[a] || {}).kind] ?? 9;
+      const kb = kindOrder[(DATA.items[b] || {}).kind] ?? 9;
+      if (ka !== kb) return ka - kb;
+      return defIdx.indexOf(a) - defIdx.indexOf(b);
+    });
+    this.state.items = Object.fromEntries(sorted);
+  },
+
   accOf(h) { return (h.acc && DATA.items[h.acc]) || {}; },
   strOf(h) { return h.str + (this.accOf(h).str || 0); },
   agiOf(h) { return h.agi + (this.accOf(h).agi || 0); },
