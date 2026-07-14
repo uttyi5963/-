@@ -192,8 +192,21 @@
     // PWA: Service Worker登録 (file:// 直開きでは スキップ)
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
       addEventListener("load", () => {
-        navigator.serviceWorker.register("sw.js").catch(() => {});
+        navigator.serviceWorker.register("sw.js").then((reg) => {
+          // 毎回 更新を チェック
+          reg.update && reg.update();
+        }).catch(() => {});
       });
+      // すでに SW が動いている端末では、新版が有効化されたら1度だけリロードして反映
+      // (初回インストール時は controller が無いのでリロードしない)
+      if (navigator.serviceWorker.controller) {
+        let reloaded = false;
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (reloaded) return;
+          reloaded = true;
+          location.reload();
+        });
+      }
     }
   </script>
 </body>
