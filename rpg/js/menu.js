@@ -750,8 +750,8 @@ class QuestScene {
   objective() {
     const steps = [
       ["intro", "王様の めいれいを きこう"],
-      ["caveBoss", "にしの洞窟を ぬけて\nミストのむらへ むかおう"],
-      ["crystal", "ミストのむらの 長老に あおう"],
+      ["caveBoss", "にしの洞窟を ぬけて\nネブラのむらへ むかおう"],
+      ["crystal", "ネブラのむらの 長老に あおう"],
       ["paladin", "きたのほこらで 試練を うけよう\n(クリスタルが 鍵)"],
       ["clear", "まてんろうで 魔王ザルバを たおそう"],
       ["magmaBoss", "みなみの おおあなの そこを しらべよう"],
@@ -911,11 +911,11 @@ class QuestScene {
     if (f("superBoss")) list.push(["深淵竜 ヴァハ", "討伐! 伝説の 勇者"]);
     // 仲間の こじんイベント
     if (f("paladin")) list.push(["グレンと いもうと",
-      f("glenEvent") ? "かんりょう" : "バロン城に だれか きている"]);
+      f("glenEvent") ? "かんりょう" : "ヴェルダ城に だれか きている"]);
     if (f("earthCrystal")) list.push(["ゴウの 修行",
       f("gouEvent") ? "かんりょう" : "ソレイユに みおぼえのある かげ"]);
     if (f("windCrystal")) list.push(["セリアの おもいで",
-      f("celiaEvent") ? "かんりょう" : "ミストのむらに シスターが"]);
+      f("celiaEvent") ? "かんりょう" : "ネブラのむらに シスターが"]);
     if (f("underOpen")) list.push(["ロッドの おんし",
       f("rodEvent") ? "かんりょう" : "ムスペルのやどに けんきゅうかが"]);
     return list;
