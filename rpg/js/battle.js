@@ -465,7 +465,8 @@ class BattleScene {
       return;
     }
     if (this.menu === "spell") {
-      const spells = this.ready.h.spells.map((id) => ({ id, def: DATA.spells[id] }));
+      // def の ない (廃止/改名された) 呪文は のぞく (フリーズ防止)
+      const spells = this.ready.h.spells.map((id) => ({ id, def: DATA.spells[id] })).filter((s) => s.def);
       if (Input.tap("up")) { this.sel2 = (this.sel2 + spells.length - 1) % spells.length; AudioSys.sfx("cursor"); }
       if (Input.tap("down")) { this.sel2 = (this.sel2 + 1) % spells.length; AudioSys.sfx("cursor"); }
       if (Input.tap("b")) { AudioSys.sfx("cancel"); this.menu = "root"; return; }
@@ -2118,7 +2119,7 @@ class BattleScene {
     }
     else if (this.menu === "spell") {
       // 8こずつの スクロールひょうじ (呪文が おおくても がめんに おさまる)
-      const spells = this.ready.h.spells.map((id) => ({ id, def: DATA.spells[id] }));
+      const spells = this.ready.h.spells.map((id) => ({ id, def: DATA.spells[id] })).filter((s) => s.def);
       const view = 8;
       const sc = Math.max(0, Math.min(this.sel2 - view + 1, spells.length - view));
       const shown = spells.slice(Math.max(0, sc), Math.max(0, sc) + view);

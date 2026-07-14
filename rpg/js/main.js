@@ -541,30 +541,63 @@ function bootGame() {
   G.push(new TitleScene());
 
   let last = performance.now();
+  let errFrames = 0;
   function loop(now) {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
 
-    AudioSys.tick();
+    // 1フレームの例外で ゲーム全体が とまらないように try でつつむ (フリーズ防止)
+    try {
+      AudioSys.tick();
 
-    const fading = G.updateFade(dt);
-    const top = G.top();
-    if (top && !fading && !CodeOverlay.open) top.update(dt);
+      const fading = G.updateFade(dt);
+      const top = G.top();
+      if (top && !fading && !CodeOverlay.open) top.update(dt);
 
-    // いちばんうえの opaque シーンから じゅんに えがく
-    let start = 0;
-    for (let i = G.scenes.length - 1; i >= 0; i--) {
-      if (G.scenes[i].opaque) { start = i; break; }
+      // いちばんうえの opaque シーンから じゅんに えがく
+      let start = 0;
+      for (let i = G.scenes.length - 1; i >= 0; i--) {
+        if (G.scenes[i].opaque) { start = i; break; }
+      }
+      for (let i = start; i < G.scenes.length; i++) {
+        if (G.scenes[i].draw) G.scenes[i].draw();
+      }
+      G.drawFade();
+
+      Input.endFrame();
+      errFrames = 0;
+    } catch (e) {
+      errFrames++;
+      if (errFrames <= 3) console.error("[クリスタルナイツ] フレームエラー:", e);
+      // さいしょの エラーは あとで しらべられるよう のこす
+      if (!G.__lastError) G.__lastError = String((e && (e.stack || e.message)) || e);
+      try { Input.endFrame(); } catch (_) {}
+      // 戦闘ちゅうに エラーが つづいたら 安全に フィールドへ もどして フリーズを かいひ
+      if (errFrames === 20) {
+        try { recoverFromError(); errFrames = 0; } catch (_) {}
+      }
     }
-    for (let i = start; i < G.scenes.length; i++) {
-      if (G.scenes[i].draw) G.scenes[i].draw();
-    }
-    G.drawFade();
 
-    Input.endFrame();
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
+}
+
+// 連続エラー時の きんきゅう復帰 (戦闘から フィールドへ にがす)
+function recoverFromError() {
+  const nameOf = (s) => (s && s.constructor && s.constructor.name) || "";
+  const inBattle = G.scenes.some((s) => nameOf(s) === "BattleScene");
+  if (!inBattle) return;
+  // 戦闘/メッセージ/子シーンを 取りのぞき、フィールドだけ のこす
+  G.scenes = G.scenes.filter((s) => nameOf(s) === "FieldScene");
+  if (G.scenes.length === 0) { G.push(new FieldScene()); }
+  const f = G.scenes.find((s) => nameOf(s) === "FieldScene");
+  if (f && f.loadMap) f.loadMap();
+  // 全滅しないよう HP0の 仲間を 1に
+  if (G.state && G.state.party) G.state.party.forEach((h) => { if (h.hp <= 0) h.hp = 1; });
+  const m = DATA.maps[G.state.map];
+  if (m && m.bgm) AudioSys.bgm(m.bgm); else AudioSys.stopBgm();
+  G.push(new MessageScene("なにかの ちからで 戦いから\nにげだした……。\n(エラーから 復帰しました)"));
 }
 
 // じどうテストよう フック
