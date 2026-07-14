@@ -14,6 +14,8 @@ python3 -m http.server 8000
 
 `index.html` をダブルクリックで直接開いても動作します(セーブはlocalStorage)。
 
+**🌐 Web版 (インストール不要)**: https://uttyi5963.github.io/-/
+
 **iPhone/iPad**: SafariでURLを開き 共有→「ホーム画面に追加」で全画面アプリとして遊べます(PWA対応・オフライン可)。App Store配信の手順は [`ios/README-ios.md`](ios/README-ios.md) を参照。
 
 ## そうさ
