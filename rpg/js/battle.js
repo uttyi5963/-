@@ -1420,8 +1420,7 @@ class BattleScene {
     }
 
     if (this.fleeing) {
-      this.restoreBgm();
-      G.pop();
+      this.finishBattle();
       return;
     }
 
@@ -1439,11 +1438,7 @@ class BattleScene {
         "レオンは けっして けんを ぬかず\n闇を うけとめつづけた……。",
         "『……それでよい。闇を みとめ\nうけいれたとき ひとは 光を しる』",
         "かげは しずかに きえていった。",
-      ], () => {
-        this.restoreBgm();
-        G.pop();
-        if (this.opts.onWin) this.opts.onWin();
-      }));
+      ], () => this.finishBattle()));
       this.phase = "waitend";
       return;
     }
@@ -1469,6 +1464,17 @@ class BattleScene {
     }
 
     this.checkEnd();
+  }
+
+  // 戦闘を かならず スタックから とりのぞいて フィールドへ もどす。
+  // BGM復帰や onWin(スクリプト継続) の途中で 例外が でても、
+  // 戦闘画面に とりのこされない ように する (勝利後フリーズ対策)。
+  finishBattle() {
+    const i = G.scenes.indexOf(this);
+    if (i >= 0) G.scenes.splice(i, 1);
+    try { this.restoreBgm(); } catch (e) { try { AudioSys.stopBgm(); } catch (_) {} }
+    try { if (this.opts.onWin) this.opts.onWin(); }
+    catch (e) { console.error("[クリスタルナイツ] 勝利処理エラー:", e); }
   }
 
   checkEnd() {
@@ -1513,11 +1519,7 @@ class BattleScene {
         ups.forEach((m) => msgs.push(m));
       }
     }
-    G.push(new MessageScene(msgs, () => {
-      this.restoreBgm();
-      G.pop();
-      if (this.opts.onWin) this.opts.onWin();
-    }));
+    G.push(new MessageScene(msgs, () => this.finishBattle()));
     this.phase = "waitend";
   }
 
