@@ -1,0 +1,12 @@
+{
+  "appId": "com.example.crystalknights",
+  "appName": "クリスタルナイツ",
+  "webDir": "rpg",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#0f380f"
+  },
+  "server": {
+    "iosScheme": "capacitor"
+  }
+}

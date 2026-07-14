@@ -10,14 +10,15 @@ Apple Developer Program 登録済みの Mac での作業手順です。
 
 ## 1. Capacitor プロジェクトを作る (初回のみ)
 
+リポジトリ直下に `package.json` と `capacitor.config.json` を用意済みです。
+まず `capacitor.config.json` の `appId` を自分のものに書き換えてください
+(例: `com.yamada.crystalknights`)。あとは:
+
 ```bash
 cd <このリポジトリ>
-npm init -y
-npm install @capacitor/core @capacitor/cli @capacitor/ios
-npx cap init "クリスタルナイツ" "com.<あなたのID>.crystalknights" --web-dir rpg
-npx cap add ios
-npx cap sync ios
-npx cap open ios   # Xcode が開く
+npm install
+npm run ios:setup   # ios/ ネイティブプロジェクト生成
+npm run ios:open    # Xcode が開く
 ```
 
 ## 2. Xcode での設定
@@ -26,8 +27,8 @@ npx cap open ios   # Xcode が開く
    - Bundle Identifier: `com.<あなたのID>.crystalknights`
 2. **General**
    - Display Name: クリスタルナイツ
-   - App Icons: `rpg/icon-512.png` を Assets の AppIcon にドラッグ
-     (1024x1024 が必要なら icon-512.png を拡大して用意)
+   - App Icons: `rpg/icon-1024.png` (App Store用) と `rpg/icon-512.png` を
+     Assets の AppIcon にドラッグ
    - Deployment Info: iPhone / Portrait のみにチェック
 3. Info.plist に追記 (画面回転固定・全画面):
    - `UIRequiresFullScreen` = YES
