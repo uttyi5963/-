@@ -2,7 +2,7 @@ name: Deploy game to GitHub Pages
 
 on:
   push:
-    branches: [claude/gameboy-ff4-style-game-2jjfja, main]
+    branches: [claude/quirky-hypatia-NE5c7, claude/gameboy-ff4-style-game-2jjfja, main]
     paths: ["rpg/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
