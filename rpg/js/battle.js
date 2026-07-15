@@ -1494,32 +1494,38 @@ class BattleScene {
   }
 
   win() {
-    // にげた 敵は 経験値に ならない
-    const beaten = this.enemies.filter((e) => !e.fled);
-    const exp = beaten.reduce((s, e) => s + (DATA.monsters[e.id].exp || 0), 0);
-    const gold = beaten.reduce((s, e) => s + (DATA.monsters[e.id].gold || 0), 0);
-    // 生きのこりボーナス: 倒れた 仲間1人につき 経験値+50%
-    // (5人パーティで 1人のこりなら 3ばい。倒れた 仲間には はいらない)
-    const fallen = this.party.length - this.aliveParty().length;
-    const mult = 1 + fallen * 0.5;
-    // 経験のしるし: もっているだけで 経験値 2ばい
-    const charm = (G.state.items.expcharm || 0) > 0 ? 2 : 1;
-    const gain = Math.round(exp * mult * charm);
     AudioSys.bgm("victory");
     // 勝利の きらめき+ホップ (メッセージちゅうも うごくよう じつじかんで)
     this.screenFlash = 0.25;
     this.winFxAt = performance.now();
+    // 報酬計算は 万一 例外が でても 戦闘を おえられるよう try で つつむ。
+    // (どんな理由でも 勝利メッセージ→フィールド復帰は かならず 実行する)
     const msgs = ["魔物たちを やっつけた!"];
-    if (exp > 0 || gold > 0) {
-      msgs.push(`経験値 ${gain} かくとく!` + (charm > 1 ? " (しるしで2ばい)" : "") + (mult > 1 ? `\n(生きのこりボーナス ${mult}ばい!)` : "") + `\n${gold}ギルを 手に入れた!`);
-    }
-    if (this.party.some((q) => q.h.hp > 0 && G.accAbil(q.h, "gilup"))) gold = Math.round(gold * 1.5);
-    G.gainGold(gold);
-    for (const p of this.party) {
-      if (p.h.hp > 0 && gain > 0) {
-        const ups = G.addExp(p.h, gain);
-        ups.forEach((m) => msgs.push(m));
+    try {
+      // にげた 敵は 経験値に ならない
+      const beaten = this.enemies.filter((e) => !e.fled);
+      const exp = beaten.reduce((s, e) => s + (DATA.monsters[e.id].exp || 0), 0);
+      let gold = beaten.reduce((s, e) => s + (DATA.monsters[e.id].gold || 0), 0);
+      // 生きのこりボーナス: 倒れた 仲間1人につき 経験値+50%
+      const fallen = this.party.length - this.aliveParty().length;
+      const mult = 1 + fallen * 0.5;
+      // 経験のしるし: もっているだけで 経験値 2ばい
+      const charm = (G.state.items.expcharm || 0) > 0 ? 2 : 1;
+      const gain = Math.round(exp * mult * charm);
+      // 獲得ギル1.5倍アクセ(gilup)は 表示前に 反映する
+      if (this.party.some((q) => q.h.hp > 0 && G.accAbil(q.h, "gilup"))) gold = Math.round(gold * 1.5);
+      if (exp > 0 || gold > 0) {
+        msgs.push(`経験値 ${gain} かくとく!` + (charm > 1 ? " (しるしで2ばい)" : "") + (mult > 1 ? `\n(生きのこりボーナス ${mult}ばい!)` : "") + `\n${gold}ギルを 手に入れた!`);
       }
+      G.gainGold(gold);
+      for (const p of this.party) {
+        if (p.h.hp > 0 && gain > 0) {
+          const ups = G.addExp(p.h, gain);
+          ups.forEach((m) => msgs.push(m));
+        }
+      }
+    } catch (e) {
+      console.error("[クリスタルナイツ] 勝利報酬の計算でエラー:", e);
     }
     G.push(new MessageScene(msgs, () => this.finishBattle()));
     this.phase = "waitend";
