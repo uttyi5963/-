@@ -2,6 +2,10 @@
 // クリスタルナイツ - きどう / タイトル / エンディング
 // ============================================================
 
+// ビルド版。タイトル画面に 小さく 表示し、端末が 最新コードに
+// 更新できているか 一目で わかるようにする (キャッシュ確認用)。
+const BUILD_VERSION = "v2026.07.15b";
+
 class TitleScene {
   constructor() {
     this.opaque = true;
@@ -188,6 +192,7 @@ class TitleScene {
     Gfx.cursor(100, 187 + this.sel * 18);
 
     Gfx.text("Z:けってい X:キャンセル M:おと", 60, 268, 1, 10);
+    Gfx.text(BUILD_VERSION, 4, 280, 1, 9);
   }
 }
 
@@ -554,6 +559,9 @@ function bootGame() {
       const top = G.top();
       if (top && !fading && !CodeOverlay.open) top.update(dt);
 
+      // 戦闘フリーズの保険 (勝利後に フィールドへ 戻らない/戦闘が おわらない 対策)
+      battleWatchdog(dt);
+
       // いちばんうえの opaque シーンから じゅんに えがく
       let start = 0;
       for (let i = G.scenes.length - 1; i >= 0; i--) {
@@ -581,6 +589,51 @@ function bootGame() {
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
+}
+
+// 戦闘フリーズの保険。メインループから 毎フレーム よばれる。
+//  (1) 勝利メッセージが 何らかの りゆうで 20秒 すすまない → 強制的に 勝利処理してフィールドへ
+//  (2) 戦闘中に キャンセル(X/Esc)を 約2秒 長押し → 手動で フィールドへ 脱出
+let _winWatchT = 0, _escHoldT = 0;
+function battleWatchdog(dt) {
+  const nameOf = (s) => (s && s.constructor && s.constructor.name) || "";
+  const bs = G.scenes.find((s) => nameOf(s) === "BattleScene");
+  if (!bs) { _winWatchT = 0; _escHoldT = 0; return; }
+
+  // (1) 勝利が 宣言済み(win済み)なのに 戦闘が スタックに のこりつづける ケースの 自動復帰。
+  //     win() 専用の 目印 __victoryPushed で 判定するので、2形態ボスや 試練の
+  //     とちゅう演出を あやまって うちきる ことは ない。
+  if (bs.__victoryPushed && !bs.__finished) {
+    _winWatchT += dt;
+    if (_winWatchT > 20) {
+      while (G.scenes.length && G.top() !== bs) G.pop(); // うえの メッセージ等を どける
+      try { bs.finishBattle(); } catch (_) { forceFieldFromBattle(bs); }
+      _winWatchT = 0;
+    }
+  } else {
+    _winWatchT = 0;
+  }
+
+  // (2) 手動脱出: X(キャンセル)を 約2秒 押しっぱなしで フィールドへ にげる (報酬なし・保険)
+  if (Input.down && Input.down.b) {
+    _escHoldT += dt;
+    if (_escHoldT > 2) { forceFieldFromBattle(bs); _escHoldT = 0; }
+  } else {
+    _escHoldT = 0;
+  }
+}
+
+// 戦闘を 強制終了して フィールドだけを のこす (にげる相当・ストーリー継続は しない)
+function forceFieldFromBattle(bs) {
+  const nameOf = (s) => (s && s.constructor && s.constructor.name) || "";
+  try { if (bs && bs.restoreBgm) bs.restoreBgm(); } catch (_) { try { AudioSys.stopBgm(); } catch (__) {} }
+  G.scenes = G.scenes.filter((s) => nameOf(s) === "FieldScene");
+  if (!G.scenes.length) G.push(new FieldScene());
+  const f = G.scenes.find((s) => nameOf(s) === "FieldScene");
+  if (f && f.loadMap) f.loadMap();
+  if (G.state && G.state.party) G.state.party.forEach((h) => { if (h.hp <= 0) h.hp = 1; });
+  const m = DATA.maps[G.state.map];
+  if (m && m.bgm) AudioSys.bgm(m.bgm); else AudioSys.stopBgm();
 }
 
 // 連続エラー時の きんきゅう復帰 (戦闘から フィールドへ にがす)

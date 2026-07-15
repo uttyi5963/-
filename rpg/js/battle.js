@@ -1470,6 +1470,8 @@ class BattleScene {
   // BGM復帰や onWin(スクリプト継続) の途中で 例外が でても、
   // 戦闘画面に とりのこされない ように する (勝利後フリーズ対策)。
   finishBattle() {
+    if (this.__finished) return; // 二重実行ガード (監視保険と 通常終了の 競合ふせぎ)
+    this.__finished = true;
     const i = G.scenes.indexOf(this);
     if (i >= 0) G.scenes.splice(i, 1);
     try { this.restoreBgm(); } catch (e) { try { AudioSys.stopBgm(); } catch (_) {} }
@@ -1521,6 +1523,9 @@ class BattleScene {
     }
     G.push(new MessageScene(msgs, () => this.finishBattle()));
     this.phase = "waitend";
+    // 勝利メッセージ表示中を マーク (万一 進まなくても メインループの
+    // 監視が 一定時間後に フィールドへ 戻すための 目印)
+    this.__victoryPushed = performance.now();
   }
 
   // ---------------- びょうが ----------------
