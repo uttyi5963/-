@@ -922,6 +922,11 @@ class QuestScene {
       list.push(["あれる大樹",
         f("treemazeReward") ? "かんりょう" : f("treemazeBoss") ? "リーフェのおやかたに ほうこく" : "みなみの大樹洞の 樹心へ"]);
     }
+    if (f("guardLoreQuest") || f("guardLoreDone")) {
+      const gs = ["lakebedBoss", "icemazeBoss", "treemazeBoss", "sandmazeBoss", "stormmazeBoss", "nightmazeBoss"].filter(f).length;
+      list.push(["六つの守護伝承",
+        f("guardLoreDone") ? "かんりょう" : `六柱のぬしを しずめる (${gs}/6)`]);
+    }
     if (f("sandmazeQuest") || f("sandmazeBoss")) {
       list.push(["のまれるキャラバン",
         f("sandmazeReward") ? "かんりょう" : f("sandmazeBoss") ? "ザハラの砂の巫女に ほうこく" : "流砂の大回廊の さいしんぶへ"]);

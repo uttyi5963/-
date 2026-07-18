@@ -8182,3 +8182,40 @@ DATA.maps.nox.npcs.push({ id: "nox_gravekeeper", x: 15, y: 6, spr: "elder",
           ] },
       ] },
   ] });
+
+
+// ============================================================
+// ストーリー拡張: 「六つの守護伝承」
+//  6地方の迷宮ボス (ぬし=守護者) を すべて しずめると 完結する
+//  横断サブプロット。宮廷学者が 伝承を あつめている。
+// ============================================================
+Object.assign(DATA.items, {
+  acc_guardseal: { name: "六守の紋章", kind: "acc", price: 0, vit: 6, int: 6,
+    guard: ["poison", "blind"], tag: "体+6/知+6/毒・暗闇防止",
+    who: ["leon", "glen", "gou", "rod", "celia"],
+    desc: "六柱の守護者の 力が やどる 紋章" },
+});
+// 6迷宮ボスの 撃破フラグ
+const GUARD_FLAGS = ["lakebedBoss", "icemazeBoss", "treemazeBoss", "sandmazeBoss", "stormmazeBoss", "nightmazeBoss"];
+DATA.maps.castle.npcs.push({ id: "castle_scholar", x: 14, y: 3, spr: "elder",
+  script: [
+    { cond: { flag: "guardLoreDone" },
+      then: [{ msg: "宮廷学者リグル「六柱の伝承は 書に まとめた。\nあなたがたの 名も いっしょにな。\n後の世まで かたりつがれるだろう」" }],
+      else: [
+        { cond: { all: GUARD_FLAGS },
+          then: [
+            { msg: "宮廷学者リグル「……信じられん。六柱の\n守護者 すべてと あいまみえ、しずめたと\nいうのか」" },
+            { msg: "「湖底の主、氷牙王、樹霊王、砂海の主、\n雷角獣、常夜卿…… かれらは 太古、\n世界を ささえた 六柱の 守護者だった」" },
+            { msg: "「星の異変で ねむりを みだされ、\nあばれていたのだ。 あなたがたは 世界の\nいしずえを すくったことになる」" },
+            { msg: "「これは 六柱の 力を うつした 紋章。\n伝承を かんせいさせた あなたがたにこそ\nふさわしい」" },
+            { give: { item: "acc_guardseal" } },
+            { msg: "六守の紋章を 手に入れた!\n(体力+6/知性+6・毒と暗闇を 防ぐ)" },
+            { flag: ["guardLoreDone", 1] },
+          ],
+          else: [
+            { msg: "宮廷学者リグル「わしは 各地の『ぬし』の\n伝承を しらべておる。 六柱の 守護者……\n湖、氷、樹、砂、雷、夜の ぬしたちだ」" },
+            { msg: "「各地の 迷宮の 石碑に 手がかりが ある。\nぬしを しずめ、伝承を あつめてきて\nくれんか。 六柱 すべてをな」" },
+            { flag: ["guardLoreQuest", 1] },
+          ] },
+      ] },
+  ] });
