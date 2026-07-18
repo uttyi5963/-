@@ -909,6 +909,22 @@ class QuestScene {
         : f("castleFund") ? "しえんずみ (王宮に みせ)"
         : "ぶかんちょうが しきんを さがしている"]);
     if (f("superBoss")) list.push(["深淵竜 ヴァハ", "討伐! 伝説の 勇者"]);
+    // 伝説の武器さがし: 最強武器の 入手プロセスを 見える化
+    if (f("airship")) {
+      const legend = [
+        ["王の剣", f("phantomBoss"), "6ぬし討伐→北西の幻のしろ"],
+        ["竜王の爪", f("superBoss"), "真エンド後 氷の洞窟のおく"],
+        ["覇王の爪", f("haouGiven"), "プラチナせいは→かたりべ"],
+        ["空の槍", f("anglerGift"), "ぬしを つる→つりずき"],
+        ["英雄のおび", f("herobandGiven"), "英雄のあかし→きろくがかり"],
+      ];
+      const got = legend.filter(([, ok]) => ok).length;
+      list.push(["伝説の武器さがし",
+        got >= legend.length ? "すべて あつめた!!" : `かたりべに うわさが (${got}/${legend.length})`]);
+      for (const [name, ok, hint] of legend) {
+        list.push([`  ${name}`, ok ? "かんりょう" : hint]);
+      }
+    }
     // 仲間の こじんイベント
     if (f("paladin")) list.push(["グレンと いもうと",
       f("glenEvent") ? "かんりょう" : "ヴェルダ城に だれか きている"]);

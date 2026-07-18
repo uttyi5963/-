@@ -384,7 +384,7 @@ class BattleScene {
     if (h.ascended && h.id === "leon") cmds.push({ id: "barrier", name: "結界" });
     if (h.ascended && h.id === "celia") cmds.push({ id: "spirit", name: "守護霊" });
     if (h.ascended && h.id === "rod") {
-      cmds.push({ id: "onmyo", name: p.onmyoLast === "yin" ? "陽の式" : "陰の式" });
+      cmds.push({ id: "onmyo", name: "むそうの式" });
     }
     if (h.spells.length > 0) cmds.push({ id: "spell", name: "呪文" });
     cmds.push({ id: "guard", name: "防御" });
@@ -439,9 +439,8 @@ class BattleScene {
           this.doPlayerAction({ type: "spirit" });
         }
         else if (cmd.id === "onmyo") {
-          if (h.mp < 22) { AudioSys.sfx("buzz"); return; }
-          if (p.onmyoLast !== "yin") { this.menu = "targetE"; this.targetSel = 0; this.targetAll = false; this.pendingAct = { type: "onmyo" }; }
-          else this.doPlayerAction({ type: "onmyo" });
+          if (h.mp < 40) { AudioSys.sfx("buzz"); this.log = "MPが たりない! (むそうの式: MP40)"; return; }
+          this.menu = "targetE"; this.targetSel = 0; this.targetAll = false; this.pendingAct = { type: "onmyo" };
         }
         else if (cmd.id === "guard") this.doPlayerAction({ type: "guard" });
         else if (cmd.id === "item") { this.menu = "item"; this.sel2 = 0; }
@@ -824,7 +823,8 @@ class BattleScene {
           p.charge = 0;
         }
         let dmg = this.physDmg(G.atkOf(h), t.def.def);
-        dmg = Math.max(1, Math.round(dmg * this.weaponMod(h, t.def) * (crit ? 2 : 1) * rowMul * chargeMul * chainMul));
+        const braveMul = p.brave ? 1.5 : 1; // ブレイブ: 攻撃1.5倍
+        dmg = Math.max(1, Math.round(dmg * this.weaponMod(h, t.def) * (crit ? 2 : 1) * rowMul * chargeMul * chainMul * braveMul));
         if (gokui) {
           if (crit) {
             p.chain = (p.chain || 0) + 1;
@@ -887,42 +887,25 @@ class BattleScene {
       dur = 1.0;
     }
     else if (act.type === "onmyo") {
-      // いんようの2式: しゅうそくの「いん」と かくさんの「よう」をかわるがわる。
-      // いん→よう と つなげると ごうせい「無双の式」が はつどう
-      h.mp -= 22;
-      this.setPose(p, "cast", 1.2);
-      const yin = p.onmyoLast !== "yin";
-      if (yin) {
-        p.onmyoLast = "yin";
-        let t = act.target;
-        if (!t || t.dead) t = this.aliveEnemies()[0];
-        events.push({ t: 0, fn: () => { this.log = `${h.name}の 陰の式!\nしゅうそくの 力が つらぬく!`; AudioSys.sfx("magic"); } });
-        if (t) {
-          const dmg = Math.round(300 * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
-          this.queueHitEnemy(events, t, dmg, "magic", "flare");
-        }
-        dur = 1.1;
-      } else {
-        p.onmyoLast = "yang";
-        events.push({ t: 0, fn: () => { this.log = `${h.name}の 陽の式!\nかくさんの 力が ふきあれる!`; AudioSys.sfx("magic"); } });
-        this.aliveEnemies().forEach((e) => {
-          const dmg = Math.round(150 * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
-          this.queueHitEnemy(events, e, dmg, "magic", "fire");
-        });
-        // ごうせい: いん→よう で 無双の式
-        events.push({ t: 0.9, fn: () => {
-          const es = this.aliveEnemies();
-          if (es.length === 0) return;
-          const t2 = es.reduce((a, b) => (a.hp > b.hp ? a : b));
-          this.log = "いんと ようが かさなり…… 無双の式!!";
-          this.screenFlash = 0.35;
-          const dmg = Math.round(440 * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
-          const ev2 = [];
-          this.queueHitEnemy(ev2, t2, dmg, "magic", "thunder");
-          ev2.forEach((e2) => { e2.t = 0; e2.fn(); });
-        } });
-        dur = 1.6;
+      // むそうの式: しゅうそくの「いん」と かくさんの「よう」を かさねた 大技。
+      // (かわるがわる方式は わかりづらかったので 1つの技に 統合)
+      h.mp -= 40;
+      this.setPose(p, "cast", 1.4);
+      let t = act.target;
+      if (!t || t.dead) t = this.aliveEnemies()[0];
+      events.push({ t: 0, fn: () => { this.log = `${h.name}の むそうの式!\nいんと ようが かさなっていく……`; AudioSys.sfx("magic"); } });
+      events.push({ t: 0.7, fn: () => {
+        this.log = "むらさきの ひかりが ほとばしる!!";
+        this.screenFlash = 0.35;
+        AudioSys.sfx("magic");
+      } });
+      if (t) {
+        const dmg = Math.round(460 * (1 + G.intOf(h) / 16) * rnd(0.9, 1.1));
+        const ev2 = [];
+        this.queueHitEnemy(ev2, t, dmg, "magic", "flare");
+        events.push({ t: 0.8, fn: () => { ev2.forEach((e2) => { e2.t = 0; e2.fn(); }); } });
       }
+      dur = 1.6;
     }
     else if (act.type === "focus") {
       p.focus = Math.min(3, p.focus + 1);
@@ -1084,6 +1067,13 @@ class BattleScene {
           this.partyFx(t, "holy");
           this.log = `${t.h.name}は 生き返った!`;
           AudioSys.sfx("heal");
+        } else if (def.atkup) {
+          if (t.h.hp <= 0) { this.log = "しかし きかなかった!"; return; }
+          G.removeItem(it.id);
+          t.brave = true;
+          this.partyFx(t, "shield");
+          this.log = `${t.h.name}の 攻撃力が あがった! (1.5倍)`;
+          AudioSys.sfx("heal");
         } else if (def.cure) {
           if (!t.h[def.cure]) { this.log = "しかし きかなかった!"; return; }
           G.removeItem(it.id);
@@ -1129,7 +1119,7 @@ class BattleScene {
     const hits = triple ? 3 : double ? 2 : 1;
     const per = (triple ? 1.6 : double ? 1.8 : 2.2) * (G.accAbil(h, "jumpup") ? 1.25 : 1);
     for (let i = 0; i < hits; i++) {
-      const dmg = Math.max(1, Math.round(this.physDmg(Math.round(G.atkOf(h) * per), target.def.def)));
+      const dmg = Math.max(1, Math.round(this.physDmg(Math.round(G.atkOf(h) * per), target.def.def) * (p.brave ? 1.5 : 1)));
       this.queueHitEnemy(events, target, dmg, "crit");
       // 2げきめいこうは すこしずつ おくらせる
       if (i >= 1) events[events.length - 1].t = 0.45 + i * 0.3;
@@ -1225,12 +1215,17 @@ class BattleScene {
           const bs = (sp.all || act.allOverrideP ? this.aliveParty() : [t]).filter((q) => q && q.h.hp > 0);
           if (bs.length === 0) { this.log = "しかし きかなかった!"; return; }
           const isHaste = sp.buff === "haste";
+          const isBrave = sp.buff === "brave";
           bs.forEach((q) => {
-            if (isHaste) q.haste = true; else q.protect = true;
+            if (isHaste) q.haste = true;
+            else if (isBrave) q.brave = true;
+            else q.protect = true;
             this.partyFx(q, isHaste ? "heal" : "shield");
           });
           const who = (sp.all || act.allOverrideP) ? "仲間ぜんいんの" : `${t.h.name}の`;
-          this.log = isHaste ? `${who} うごきが はやくなった!` : `${who} 防御が あがった!`;
+          this.log = isHaste ? `${who} うごきが はやくなった!`
+            : isBrave ? `${who} 攻撃力が あがった! (1.5倍)`
+            : `${who} 防御が あがった!`;
         }
       } });
     }
@@ -2086,6 +2081,7 @@ class BattleScene {
       if (p.focus > 0) Gfx.text(`か${p.focus}`, 172, y, 2, 8);
       if (p.protect && !dead) Gfx.text("プ", 184, y, 2, 8);
       if (p.haste && !dead) Gfx.text("ヘ", 194, y, 2, 8);
+      if (p.brave && !dead) Gfx.text("ブ", 174, y, 2, 8);
       if (p.boost > 0 && !dead) Gfx.text(`かい${p.boost}`, 204, y, 2, 8);
       if (p.fatigue > 0 && !dead) Gfx.text("つかれ", 204, y, 2, 8);
       if (p.barrier > 0 && !dead) Gfx.text(`けか${p.barrier}`, 147, y, 2, 8);
