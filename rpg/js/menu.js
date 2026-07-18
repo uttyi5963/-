@@ -922,6 +922,18 @@ class QuestScene {
       list.push(["あれる大樹",
         f("treemazeReward") ? "かんりょう" : f("treemazeBoss") ? "リーフェのおやかたに ほうこく" : "みなみの大樹洞の 樹心へ"]);
     }
+    if (f("sandmazeQuest") || f("sandmazeBoss")) {
+      list.push(["のまれるキャラバン",
+        f("sandmazeReward") ? "かんりょう" : f("sandmazeBoss") ? "ザハラの砂の巫女に ほうこく" : "流砂の大回廊の さいしんぶへ"]);
+    }
+    if (f("stormmazeQuest") || f("stormmazeBoss")) {
+      list.push(["くるう雷",
+        f("stormmazeReward") ? "かんりょう" : f("stormmazeBoss") ? "ボルテの天気よみに ほうこく" : "雷雲の大洞窟の ねぐらへ"]);
+    }
+    if (f("nightmazeQuest") || f("nightmazeBoss")) {
+      list.push(["ねむれぬ墓所",
+        f("nightmazeReward") ? "かんりょう" : f("nightmazeBoss") ? "ノクスの墓守に ほうこく" : "常夜の地下墓所の ぎょくざへ"]);
+    }
     // 虚空の裂け目 (クリア後の3ランク)
     if (f("superBoss")) {
       const rifts = (f("riftBoss1") ? 1 : 0) + (f("riftBoss2") ? 1 : 0) + (f("riftBoss3") ? 1 : 0);
