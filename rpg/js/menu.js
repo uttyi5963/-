@@ -909,6 +909,25 @@ class QuestScene {
         : f("castleFund") ? "しえんずみ (王宮に みせ)"
         : "ぶかんちょうが しきんを さがしている"]);
     if (f("superBoss")) list.push(["深淵竜 ヴァハ", "討伐! 伝説の 勇者"]);
+    // 新迷宮クエスト (第2次拡張)
+    if (f("lakebedQuest") || f("lakebedBoss")) {
+      list.push(["にごる湖の なぞ",
+        f("lakebedReward") ? "かんりょう" : f("lakebedBoss") ? "トワインの老漁師に ほうこく" : "みなみの湖底のどうくつの さいしんぶへ"]);
+    }
+    if (f("icemazeQuest") || f("icemazeBoss")) {
+      list.push(["氷牙王の でんせつ",
+        f("icemazeReward") ? "かんりょう" : f("icemazeBoss") ? "フリムの老かりうどに ほうこく" : "ひがしの大氷穴の 玉座へ"]);
+    }
+    if (f("treemazeQuest") || f("treemazeBoss")) {
+      list.push(["あれる大樹",
+        f("treemazeReward") ? "かんりょう" : f("treemazeBoss") ? "リーフェのおやかたに ほうこく" : "みなみの大樹洞の 樹心へ"]);
+    }
+    // 虚空の裂け目 (クリア後の3ランク)
+    if (f("superBoss")) {
+      const rifts = (f("riftBoss1") ? 1 : 0) + (f("riftBoss2") ? 1 : 0) + (f("riftBoss3") ? 1 : 0);
+      list.push(["虚空の裂け目",
+        rifts >= 3 ? "3人の王を すべて 制覇!!" : `星の世界に 裂け目が (${rifts}/3 制覇)`]);
+    }
     // 伝説の武器さがし: 最強武器の 入手プロセスを 見える化
     if (f("airship")) {
       const legend = [

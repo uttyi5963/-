@@ -5608,11 +5608,11 @@ DATA.maps.halloffame = {
     { id: "zukan_prof", x: 2, y: 7, spr: "elder",
       script: [
         { cond: { flag: "zukanDone" },
-          then: [{ msg: "図鑑はかせ「全150種 討伐の きろくは\nえいえんに かたりつがれるじゃろう。\nきみこそ 真の ハンターじゃ」" }],
+          then: [{ msg: "図鑑はかせ「全160種 討伐の きろくは\nえいえんに かたりつがれるじゃろう。\nきみこそ 真の ハンターじゃ」" }],
           else: [
             { cond: { bestiaryAll: true },
               then: [
-                { msg: "図鑑はかせ「な、なんと…… 図鑑の 150種\nすべてに 討伐の しるしが!!\nこれは 前人未到の いぎょうじゃ!!」" },
+                { msg: "図鑑はかせ「な、なんと…… 図鑑の 160種\nすべてに 討伐の しるしが!!\nこれは 前人未到の いぎょうじゃ!!」" },
                 { msg: "「わしの けんきゅう 30ねんぶんの\nたくわえを きみに たくそう。\nうけとってくれい!」" },
                 { give: { gold: 77777 } },
                 { give: { item: "elixir" } },
@@ -5622,7 +5622,7 @@ DATA.maps.halloffame = {
               ],
               else: [
                 { cond: { flag: "zukan100" },
-                  then: [{ msg: "図鑑はかせ「100種は こえたな。\nのこりの 魔物は てごわいぞ。\n全150種、まっておるぞ!」" }],
+                  then: [{ msg: "図鑑はかせ「100種は こえたな。\nのこりの 魔物は てごわいぞ。\n全160種、まっておるぞ!」" }],
                   else: [
                     { cond: { bestiaryKilled: 100 },
                       then: [
@@ -7064,3 +7064,700 @@ DATA.newGame = {
   party: ["leon"],
   runScript: "intro",
 };
+
+
+// ============================================================
+// 第2次コンテンツ拡張: 迷路ダンジョン3つ + クリア後の超ボス3段階
+//  - 中盤の1画面ダンジョン問題への回答: 各地方に 3フロアの迷宮を新設
+//  - クリア後: ヴァハをこえる 3ランクの強敵「虚空の裂け目」
+// ============================================================
+
+// ---------------- 新モンスター ----------------
+Object.assign(DATA.monsters, {
+  // 迷宮ボス (中盤)
+  lagos: { name: "湖底の主 ラグオス", spr: "kraken", pal: "light", boss: true, scale: 4,
+    hp: 5200, atk: 46, def: 20, agi: 14, exp: 3800, gold: 6000,
+    absorb: ["ice"], weak: ["thunder"],
+    acts: [{ spell: "e_bigwave", rate: 0.25 }, { spell: "e_wave", rate: 0.2 }] },
+  glacion: { name: "氷牙王 グレイシオン", spr: "dragon", pal: "light", boss: true, scale: 4,
+    hp: 5800, atk: 50, def: 22, agi: 16, exp: 4200, gold: 6500,
+    race: "dragon", absorb: ["ice"], weak: ["fire"],
+    acts: [{ spell: "e_breath", rate: 0.3 }, { spell: "e_ice", rate: 0.2 }] },
+  gajumos: { name: "樹霊王 ガジュモス", spr: "treant", boss: true, scale: 4,
+    hp: 6200, atk: 52, def: 24, agi: 12, exp: 4600, gold: 7000,
+    weak: ["fire"],
+    acts: [{ spell: "e_quake", rate: 0.25 }, { spell: "e_gale", rate: 0.25 }] },
+  // 虚空の裂け目の雑魚 (クリア後・高経験値)
+  voidmoth: { name: "うつろまとい", spr: "wisp", pal: "dark",
+    hp: 850, atk: 52, def: 22, agi: 26, exp: 1400, gold: 900,
+    acts: [{ spell: "e_meteo", rate: 0.15 }] },
+  nullknight: { name: "ヌルナイト", spr: "golem", pal: "dark",
+    hp: 1300, atk: 58, def: 30, agi: 16, exp: 1800, gold: 1300,
+    absorb: ["thunder"] },
+  chaosjelly: { name: "カオスゼリー", spr: "slime", pal: "dark",
+    hp: 1000, atk: 50, def: 26, agi: 18, exp: 1600, gold: 1100,
+    absorb: ["fire", "ice", "thunder"], weak: ["holy"] },
+  starleech: { name: "星喰いこうもり", spr: "bat", pal: "dark",
+    hp: 780, atk: 54, def: 20, agi: 30, exp: 1300, gold: 850,
+    acts: [{ spell: "e_gale", rate: 0.2 }] },
+  // 裂け目の3大ボス (深淵竜ヴァハ HP9000 をこえる 3ランク)
+  velgaron: { name: "裂鬼将 ヴェルガロン", spr: "demon", pal: "dark", boss: true, scale: 4,
+    hp: 16000, atk: 66, def: 28, agi: 22, exp: 12000, gold: 20000,
+    race: "demon", absorb: ["fire"], weak: ["holy"],
+    acts: [{ spell: "e_meteo", rate: 0.25 }, { spell: "e_eruption", rate: 0.2 }, { spell: "e_gale", rate: 0.15 }] },
+  gyaolve: { name: "混沌竜 ギャオルヴ", spr: "dragon", pal: "dark", boss: true, scale: 4,
+    hp: 24000, atk: 74, def: 30, agi: 24, exp: 20000, gold: 30000,
+    race: "dragon", absorb: ["fire", "ice", "thunder"],
+    acts: [{ spell: "e_starfall", rate: 0.25 }, { spell: "e_breath", rate: 0.2 }, { spell: "e_bigwave", rate: 0.2 }] },
+  nullorigin: { name: "終焉のオリジン", spr: "voidos", pal: "dark", boss: true, scale: 4,
+    hp: 36000, atk: 82, def: 34, agi: 26, exp: 40000, gold: 50000,
+    race: "demon", absorb: ["fire", "ice", "thunder"], weak: ["holy"],
+    acts: [{ spell: "e_starfall", rate: 0.3 }, { spell: "e_meteo", rate: 0.25 }, { spell: "e_tornado", rate: 0.15 }] },
+});
+
+// ---------------- 新アイテム (報酬) ----------------
+Object.assign(DATA.items, {
+  acc_lakecharm: { name: "湖のまもり", kind: "acc", price: 0, resist: { ice: 0 }, tag: "氷無効", who: ["leon", "glen", "gou", "rod", "celia"], desc: "湖底の祠に ねむっていた おまもり。氷を 無効化" },
+  w_frostbrand:  { name: "氷華の剣", kind: "weapon", price: 0, atk: 58, elem: "ice", who: ["leon"] },
+  a_barkplate:   { name: "大樹の鎧", kind: "armor", price: 0, def: 34, who: ["leon", "glen", "gou"] },
+  acc_riftring:  { name: "裂け目の指輪", kind: "acc", price: 0, str: 8, agi: 8, vit: 8, int: 8, tag: "全ステ+8", who: ["leon", "glen", "gou", "rod", "celia"], desc: "裂け目の力が やどる。全ステータス+8" },
+  a_voidplate:   { name: "虚空の鎧", kind: "armor", price: 0, def: 40, int: 8, who: ["leon", "glen", "gou", "rod", "celia"] },
+  acc_endcrest:  { name: "終焉の紋章", kind: "acc", price: 0, str: 12, agi: 12, vit: 12, int: 12, abil: "limitx2", tag: "全ステ+12/必殺2倍", who: ["leon", "glen", "gou", "rod", "celia"], desc: "終焉をこえた 証。全ステ+12、必殺ゲージ2倍" },
+});
+
+// ---------------- 新エンカウント ----------------
+Object.assign(DATA.encounters, {
+  lakebed: { rate: 1 / 13, groups: [["lakeserpent", "sludge"], ["sludge", "sludge"], ["waterelem"], ["lakeserpent", "lakeserpent"], ["waterelem", "sludge"]],
+    rare: ["mithrilbaby", "mithrilbaby"], rareRate: 0.06 },
+  icemaze: { rate: 1 / 13, groups: [["frostwiz", "icebat"], ["frostgar"], ["frostmantis", "icebat"], ["snowwolf", "snowwolf"], ["frostwiz", "frostwiz"]],
+    rare: ["mithrilbaby", "mithrilbaby"], rareRate: 0.06 },
+  treemaze: { rate: 1 / 13, groups: [["woodgoblin", "madflower"], ["junglecat", "junglecat"], ["willowisp", "madflower"], ["woodgoblin", "woodgoblin", "madflower"], ["treant"]],
+    rare: ["mithrilbaby", "mithrilbaby"], rareRate: 0.06 },
+  rift: { rate: 1 / 11, groups: [["voidmoth", "starleech"], ["nullknight"], ["chaosjelly", "voidmoth"], ["starleech", "starleech", "voidmoth"], ["nullknight", "chaosjelly"], ["chaosjelly", "chaosjelly"]],
+    rare: ["mithrildragon"], rareRate: 0.07 },
+});
+
+
+// ---------------- 湖底のどうくつ (東の大陸の新迷宮・3フロア) ----------------
+// 迷路は 自動生成 (完全連結を BFS検証ずみ)。宝箱と石碑は 行き止まりに 配置。
+DATA.maps.lakebed1 = {
+  name: "湖底のどうくつ",
+  bgm: "dungeon",
+  encounter: "lakebed",
+  legend: {
+    "#": { tile: "pillar", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "####################",
+    "#...#.......#.....##",
+    "###.#.#.###.#.###.##",
+    "#...#.#...#.#.#...##",
+    "#.#######.#.###..###",
+    "#.........#...#...##",
+    "#.###.#######.###.##",
+    "#.#...#.#...#.#...##",
+    "#.#.###.#.#.#.#.#.##",
+    "#...#...#.#.#...#.##",
+    "#####..##.#.#.#.#.##",
+    "#s........#.......s#",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 11, type: "enter", warp: { map: "world2", x: 8, y: 15, dir: "u" } },
+    { x: 18, y: 11, type: "enter", warp: { map: "lakebed2", x: 2, y: 1, dir: "r" } },
+  ],
+  npcs: [
+    { id: "lakebed_tablet", x: 1, y: 1, spr: "crystal",
+      script: [{ msg: "石碑『みずは すべてを のみこみ\nすべてを たくわえる。\nしずんだ祠に ぬしは ねむる』" }] },
+  ],
+  chests: [
+    { id: "lb1a", x: 7, y: 7, gold: 4000 },
+    { id: "lb1b", x: 13, y: 3, item: "xpotion" },
+  ],
+};
+DATA.maps.lakebed2 = {
+  name: "湖底の水路",
+  bgm: "dungeon",
+  encounter: "lakebed",
+  legend: {
+    "#": { tile: "pillar", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "####################",
+    "#s....#...........##",
+    "#####.###########.##",
+    "#.....#.........#.##",
+    "#.#####.#######.#.##",
+    "#.#...........#...##",
+    "#.###.#####.#.###.##",
+    "#...#.#.....#...#.##",
+    "###.#.#.#######...##",
+    "#.#.#...#...#...#.##",
+    "#...#####.#.#.###..#",
+    "#.........#...#...s#",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 1, type: "enter", warp: { map: "lakebed1", x: 17, y: 11, dir: "l" } },
+    { x: 18, y: 11, type: "enter", warp: { map: "lakebed3", x: 8, y: 11, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "lb2a", x: 15, y: 11, item: "elixir" },
+    { id: "lb2b", x: 7, y: 1, gold: 6000 },
+    { id: "lb2c", x: 3, y: 5, item: "megapotion", hidden: true },
+  ],
+};
+DATA.maps.lakebed3 = {
+  name: "沈んだ祠",
+  bgm: "shrine",
+  legend: {
+    "#": { tile: "pillar", solid: true },
+    "w": { tile: "water", solid: true },
+    ".": { tile: "carpet" },
+    "s": { tile: "stairs" },
+    "T": { tile: "torch", solid: true },
+  },
+  rows: [
+    "####################",
+    "#wwww..........wwww#",
+    "#ww..............ww#",
+    "#w..T..........T..w#",
+    "#..................#",
+    "#..................#",
+    "#w................w#",
+    "#ww..............ww#",
+    "#www............www#",
+    "#wwww..........wwww#",
+    "#wwwww........wwwww#",
+    "#wwwww.s......wwwww#",
+    "####################",
+  ],
+  events: [
+    { x: 7, y: 11, type: "enter", warp: { map: "lakebed2", x: 18, y: 10, dir: "d" } },
+    { x: 9, y: 4, type: "enter", scriptId: "lagosFight" },
+    { x: 10, y: 4, type: "enter", scriptId: "lagosFight" },
+    { x: 9, y: 5, type: "enter", scriptId: "lagosFight" },
+    { x: 10, y: 5, type: "enter", scriptId: "lagosFight" },
+  ],
+  npcs: [],
+  chests: [],
+};
+
+// ---------------- 大氷穴 (氷の列島の新迷宮・3フロア) ----------------
+DATA.maps.icemaze1 = {
+  name: "大氷穴",
+  bgm: "dungeon",
+  encounter: "icemaze",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "snow" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "####################",
+    "#s................##",
+    "#.#.#.###########.##",
+    "#.#.#.....#.....#.##",
+    "#.###.###.#.###.#.##",
+    "#...#...#.#...#...##",
+    "###.###.#.###.######",
+    "#.#.....#...#...#.##",
+    "#.###.#####.###.#.##",
+    "#...#.#...#.....#.##",
+    "#.#.#.#.#.#.#.###.##",
+    "#.#.....#...#.....s#",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 1, type: "enter", warp: { map: "world3", x: 20, y: 11, dir: "d" } },
+    { x: 18, y: 11, type: "enter", warp: { map: "icemaze2", x: 2, y: 11, dir: "r" } },
+  ],
+  npcs: [
+    { id: "icemaze_tablet", x: 3, y: 3, spr: "crystal",
+      script: [{ msg: "石碑『こおりの おくふかく、\nいちどだけ とけた こおりが ある。\nそれが 王の なみだ という』" }] },
+  ],
+  chests: [
+    { id: "im1a", x: 17, y: 7, gold: 5000 },
+    { id: "im1b", x: 1, y: 11, item: "hiether" },
+  ],
+};
+DATA.maps.icemaze2 = {
+  name: "氷の回廊",
+  bgm: "dungeon",
+  encounter: "icemaze",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "snow" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "####################",
+    "#.#.#.......#.....s#",
+    "#.#.#.#.###.#.###.##",
+    "#.....#...#.......##",
+    "#.###.###.##########",
+    "#...#...#.#.......##",
+    "###.###.#.#.#####.##",
+    "#...#...#.......#.##",
+    "#.###############.##",
+    "#.#.....#.........##",
+    "#.#.###.#.#######.##",
+    "#s..#.....#.......##",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 11, type: "enter", warp: { map: "icemaze1", x: 17, y: 11, dir: "l" } },
+    { x: 18, y: 1, type: "enter", warp: { map: "icemaze3", x: 3, y: 11, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "im2a", x: 15, y: 7, item: "elixir" },
+    { id: "im2b", x: 3, y: 1, gold: 7000 },
+    { id: "im2c", x: 5, y: 11, item: "remedy", hidden: true },
+  ],
+};
+DATA.maps.icemaze3 = {
+  name: "氷牙の玉座",
+  bgm: "shrine",
+  legend: {
+    "#": { tile: "wall", solid: true },
+    ".": { tile: "snow" },
+    "s": { tile: "stairs" },
+    "T": { tile: "pillar", solid: true },
+  },
+  rows: [
+    "####################",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..s...............#",
+    "####################",
+  ],
+  events: [
+    { x: 3, y: 11, type: "enter", warp: { map: "icemaze2", x: 17, y: 1, dir: "d" } },
+    { x: 9, y: 3, type: "enter", scriptId: "glacionFight" },
+    { x: 10, y: 3, type: "enter", scriptId: "glacionFight" },
+    { x: 9, y: 4, type: "enter", scriptId: "glacionFight" },
+    { x: 10, y: 4, type: "enter", scriptId: "glacionFight" },
+  ],
+  npcs: [],
+  chests: [],
+};
+
+// ---------------- 大樹洞 (緑の群島の新迷宮・3フロア) ----------------
+DATA.maps.treemaze1 = {
+  name: "大樹のうろ",
+  bgm: "dungeon",
+  encounter: "treemaze",
+  legend: {
+    "#": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "####################",
+    "#...#.......#.....s#",
+    "###.###.###.###.#.##",
+    "#.#.........#.....##",
+    "#.#######.###.###.##",
+    "#.......#.#.....#.##",
+    "#.#####.#.#####.#.##",
+    "#.....#.#.#.....#.##",
+    "#####.#.#...#####.##",
+    "#.#...#...#...#.#.##",
+    "#.#.########..#.#.##",
+    "#s............#...##",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 11, type: "enter", warp: { map: "world6", x: 20, y: 12, dir: "d" } },
+    { x: 18, y: 1, type: "enter", warp: { map: "treemaze2", x: 2, y: 1, dir: "r" } },
+  ],
+  npcs: [
+    { id: "treemaze_tablet", x: 1, y: 3, spr: "crystal",
+      script: [{ msg: "石碑『大樹は しまの こころぞう。\nねっこの 迷路の その おくで\n樹霊の 王が 世界を きいている』" }] },
+  ],
+  chests: [
+    { id: "tm1a", x: 5, y: 1, gold: 5500 },
+    { id: "tm1b", x: 13, y: 1, item: "xpotion" },
+  ],
+};
+DATA.maps.treemaze2 = {
+  name: "根の迷路",
+  bgm: "dungeon",
+  encounter: "treemaze",
+  legend: {
+    "#": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "####################",
+    "#s....#.......#...##",
+    "#.#.#.#.###.#.#.#.##",
+    "#.#.#.....#.#...#.##",
+    "#.#########.#####.##",
+    "#.#.......#.#.....##",
+    "#.#.#####.#.#.######",
+    "#.#.#...#.#.#.....##",
+    "#.#...#.#...#####.##",
+    "#...#.#...#.#.....##",
+    "#####.#####.#.#.####",
+    "#...........#.....s#",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 1, type: "enter", warp: { map: "treemaze1", x: 17, y: 1, dir: "l" } },
+    { x: 18, y: 11, type: "enter", warp: { map: "treemaze3", x: 3, y: 11, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "tm2x", x: 1, y: 11, item: "elixir" },
+    { id: "tm2y", x: 9, y: 3, gold: 8000, hidden: true },
+    { id: "tm2z", x: 3, y: 3, item: "remedy" },
+  ],
+};
+DATA.maps.treemaze3 = {
+  name: "樹心のま",
+  bgm: "shrine",
+  legend: {
+    "#": { tile: "forest", solid: true },
+    ".": { tile: "flower" },
+    "s": { tile: "stairs" },
+    "T": { tile: "deadtree", solid: true },
+  },
+  rows: [
+    "####################",
+    "#.T..............T.#",
+    "#..................#",
+    "#..................#",
+    "#..................#",
+    "#.T..............T.#",
+    "#..................#",
+    "#..................#",
+    "#..................#",
+    "#.T..............T.#",
+    "#..................#",
+    "#..s...............#",
+    "####################",
+  ],
+  events: [
+    { x: 3, y: 11, type: "enter", warp: { map: "treemaze2", x: 17, y: 11, dir: "d" } },
+    { x: 9, y: 3, type: "enter", scriptId: "gajumosFight" },
+    { x: 10, y: 3, type: "enter", scriptId: "gajumosFight" },
+    { x: 9, y: 4, type: "enter", scriptId: "gajumosFight" },
+    { x: 10, y: 4, type: "enter", scriptId: "gajumosFight" },
+  ],
+  npcs: [],
+  chests: [],
+};
+
+// ---------------- 虚空の裂け目 (クリア後・超ボス3段階) ----------------
+DATA.maps.rift1 = {
+  name: "虚空の裂け目",
+  bgm: "last",
+  encounter: "rift",
+  legend: {
+    "#": { tile: "pillar", solid: true },
+    ".": { tile: "nightgrass" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "####################",
+    "#s..#.#...........##",
+    "###.#.#.#...#####.##",
+    "#...#.#.#.#.#...#.##",
+    "#.###.#.#.###.#.#.##",
+    "#.#.....#.....#.#.##",
+    "#.#.###########.#.##",
+    "#.#...#.....#...#.##",
+    "#.###.#.#.###.###.##",
+    "#...#...#.#...#.#.##",
+    "###.#.#####.###.#.##",
+    "#...........#.....s#",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 1, type: "enter", warp: { map: "starworld", x: 18, y: 6, dir: "d" } },
+    { x: 18, y: 11, type: "enter", scriptId: "riftFight1" },
+  ],
+  npcs: [
+    { id: "rift_tablet1", x: 9, y: 9, spr: "crystal",
+      script: [{ msg: "『……ようこそ、終焉のふちへ。\nここは 世界の そとがわ。\n3人の 王が なんじを ためす』" }] },
+  ],
+  chests: [
+    { id: "rf1a", x: 5, y: 1, item: "elixir" },
+    { id: "rf1b", x: 13, y: 11, gold: 15000 },
+  ],
+};
+DATA.maps.rift2 = {
+  name: "混沌の深層",
+  bgm: "last",
+  encounter: "rift",
+  legend: {
+    "#": { tile: "pillar", solid: true },
+    ".": { tile: "nightgrass" },
+    "s": { tile: "stairs" },
+  },
+  rows: [
+    "####################",
+    "#...#.#...........s#",
+    "###...#.#########.##",
+    "#.#.#...#.....#...##",
+    "#.#.#.###.#####.#.##",
+    "#...#.....#.....#.##",
+    "#.#########.#####.##",
+    "#.#...#...#.#...#.##",
+    "#.#.#.#.#.#.###.#.##",
+    "#.#.#.#.#.#...#...##",
+    "#.#.#.#.#.###.#.####",
+    "#s..#...#.....#...##",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 11, type: "enter", warp: { map: "rift1", x: 17, y: 11, dir: "l" } },
+    { x: 18, y: 1, type: "enter", scriptId: "riftFight2" },
+  ],
+  npcs: [],
+  chests: [
+    { id: "rf2a", x: 5, y: 1, item: "worldtear" },
+    { id: "rf2b", x: 13, y: 7, gold: 20000, hidden: true },
+  ],
+};
+DATA.maps.rift3 = {
+  name: "終焉のふち",
+  bgm: "last",
+  legend: {
+    "#": { tile: "pillar", solid: true },
+    ".": { tile: "nightgrass" },
+    "s": { tile: "stairs" },
+    "T": { tile: "statue", solid: true },
+  },
+  rows: [
+    "####################",
+    "#T................T#",
+    "#..................#",
+    "#..................#",
+    "#T................T#",
+    "#..................#",
+    "#..................#",
+    "#T................T#",
+    "#..................#",
+    "#..................#",
+    "#T................T#",
+    "#..s...............#",
+    "####################",
+  ],
+  events: [
+    { x: 3, y: 11, type: "enter", warp: { map: "rift2", x: 17, y: 1, dir: "d" } },
+    { x: 9, y: 3, type: "enter", scriptId: "riftFight3" },
+    { x: 10, y: 3, type: "enter", scriptId: "riftFight3" },
+    { x: 9, y: 4, type: "enter", scriptId: "riftFight3" },
+    { x: 10, y: 4, type: "enter", scriptId: "riftFight3" },
+  ],
+  npcs: [
+    { id: "rift_healcrystal", x: 16, y: 11, spr: "crystal",
+      script: [
+        { msg: "終焉のふちに クリスタルが ひとつ、\nしずかに 光っている……。" },
+        { menu: { x: 150, y: 150, options: [
+          { label: "祈る", ops: [
+            { healParty: 1 },
+            { msg: "光が 体をつつみ、\n仲間全員が 完全に 回復した!" },
+          ] },
+          { label: "立ち去る", ops: [] },
+        ] } },
+      ] },
+  ],
+  chests: [],
+};
+
+// ---------------- ボス戦スクリプトと 入口の配線 ----------------
+Object.assign(DATA.scripts, {
+  lagosFight: [
+    { cond: { flag: "lakebedBoss" },
+      then: [{ msg: "祠は しずまりかえっている。\n湖の水が やさしく ゆれていた。" }],
+      else: [
+        { msg: "祠の 水面が さかまき、\nきょだいな かげが うきあがる……!" },
+        { msg: "湖底の主 ラグオス\n『……ねむりを やぶるは たれか』" },
+        { battle: { group: ["lagos"], boss: true, music: "boss" } },
+        { flag: ["lakebedBoss", 1] },
+        { msg: "しずかに なった 祠のおくで\n古い おまもりが 光っている。" },
+        { give: { item: "acc_lakecharm" } },
+        { msg: "湖のまもりを 手に入れた!\n(氷を 無効化する アクセサリ)" },
+      ] },
+  ],
+  glacionFight: [
+    { cond: { flag: "icemazeBoss" },
+      then: [{ msg: "玉座の 氷は とけて、\nあたたかな 光が さしこんでいる。" }],
+      else: [
+        { msg: "玉座の 氷が くだけちる!\n氷牙王 グレイシオン\n『わが ねむりを さます 愚か者め!』" },
+        { battle: { group: ["glacion"], boss: true, music: "boss" } },
+        { flag: ["icemazeBoss", 1] },
+        { msg: "とけた 氷の中から\nうつくしい 剣が あらわれた。" },
+        { give: { item: "w_frostbrand" } },
+        { msg: "氷華の剣を 手に入れた!\n(攻撃58・氷ぞくせい)" },
+      ] },
+  ],
+  gajumosFight: [
+    { cond: { flag: "treemazeBoss" },
+      then: [{ msg: "樹心は おだやかに 脈うっている。\n花の かおりが ただよう。" }],
+      else: [
+        { msg: "大樹が みぶるいし、\n樹霊王 ガジュモスが めをさます!\n『……森を あらすもの か?』" },
+        { battle: { group: ["gajumos"], boss: true, music: "boss" } },
+        { flag: ["treemazeBoss", 1] },
+        { msg: "『……つよき 心、みとめよう。\n大樹の まもりを さずける』" },
+        { give: { item: "a_barkplate" } },
+        { msg: "大樹の鎧を 手に入れた!\n(防御34の かたい 樹皮の鎧)" },
+      ] },
+  ],
+  // 虚空の裂け目: 3ランクの超ボス (それぞれ 撃破後は 次の層へ すすめる)
+  riftFight1: [
+    { cond: { flag: "riftBoss1" },
+      then: [{ warp: { map: "rift2", x: 2, y: 11, dir: "u" } }],
+      else: [
+        { msg: "裂け目の 番人が たちふさがる!\n裂鬼将 ヴェルガロン\n『第一の 試練、はじめよう』" },
+        { battle: { group: ["velgaron"], boss: true, music: "boss" } },
+        { flag: ["riftBoss1", 1] },
+        { give: { item: "acc_riftring" } },
+        { msg: "裂け目の指輪を 手に入れた!\n(全ステータス+8)" },
+        { msg: "奥へと つづく 道が ひらいた……。" },
+      ] },
+  ],
+  riftFight2: [
+    { cond: { flag: "riftBoss2" },
+      then: [{ warp: { map: "rift3", x: 4, y: 11, dir: "u" } }],
+      else: [
+        { cond: { flag: "riftBoss1" },
+          then: [
+            { msg: "深層の 闇が うずまき、\n2つの あぎとが ひらく!\n混沌竜 ギャオルヴ『グオオオオ!!』" },
+            { battle: { group: ["gyaolve"], boss: true, music: "boss" } },
+            { flag: ["riftBoss2", 1] },
+            { give: { item: "a_voidplate" } },
+            { msg: "虚空の鎧を 手に入れた!\n(防御40・知性+8)" },
+            { msg: "さらに 奥へと つづく 道が ひらいた……。" },
+          ],
+          else: [{ msg: "みえない かべに はばまれた。\n(第一の 番人を たおしていない)" }] },
+      ] },
+  ],
+  riftFight3: [
+    { cond: { flag: "riftBoss3" },
+      then: [{ msg: "終焉のふちは しずかだ。\n世界は もう おびやかされない。" }],
+      else: [
+        { cond: { flag: "riftBoss2" },
+          then: [
+            { msg: "ふちの そこから、はじまりにして\nおわりの 影が たちのぼる……。" },
+            { msg: "終焉のオリジン\n『……なんじら、ここまで きたか。\nでは しんの 終焉を みせよう』" },
+            { battle: { group: ["nullorigin"], boss: true, music: "spirit" } },
+            { flag: ["riftBoss3", 1] },
+            { give: { item: "acc_endcrest" } },
+            { msg: "終焉の紋章を 手に入れた!!\n(全ステ+12・必殺ゲージ2倍)" },
+            { msg: "『……みごと。 世界の そとがわで\nこれほどの 光を みるとはな。\nなんじらは 終焉すら こえた』" },
+            { msg: "影は ほどけ、裂け目に\nしずかな 星あかりが みちていく……。\n(3つの 試練、すべて 制覇!)" },
+          ],
+          else: [{ msg: "みえない かべに はばまれた。\n(第二の 番人を たおしていない)" }] },
+      ] },
+  ],
+});
+
+// ---- 各地方マップに 迷宮の入口アイコンを 配置 ----
+const _putIcon = (mid, x, y, ch, tile) => {
+  const m = DATA.maps[mid];
+  m.legend[ch] = { tile };
+  m.rows[y] = m.rows[y].slice(0, x) + ch + m.rows[y].slice(x + 1);
+};
+// 東の大陸: 湖底のどうくつ (南の草原)
+_putIcon("world2", 8, 16, "L", "icon_cave");
+DATA.maps.world2.events.push({ x: 8, y: 16, type: "enter", warp: { map: "lakebed1", x: 2, y: 11, dir: "u" } });
+// 氷の列島: 大氷穴 (東の雪原)
+_putIcon("world3", 20, 10, "D", "icon_cave");
+DATA.maps.world3.events.push({ x: 20, y: 10, type: "enter", warp: { map: "icemaze1", x: 2, y: 1, dir: "u" } });
+// 緑の群島: 大樹洞 (南の荒れ地)
+_putIcon("world6", 20, 13, "D", "icon_cave");
+DATA.maps.world6.events.push({ x: 20, y: 13, type: "enter", warp: { map: "treemaze1", x: 2, y: 11, dir: "u" } });
+// 星の世界: 虚空の裂け目 (ヴァハ撃破後に ひらく)
+_putIcon("starworld", 18, 5, "R", "icon_cave");
+DATA.maps.starworld.events.push({ x: 18, y: 5, type: "enter",
+  cond: { flag: "superBoss" },
+  failScript: [{ msg: "そらに ほそい 裂け目が ゆらいでいる。\nいまは まだ とざされている……。\n(深淵竜を たおすと ひらくらしい)" }],
+  warp: { map: "rift1", x: 2, y: 1, dir: "d" } });
+
+// ---- 町のクエストNPC (ものがたりの 導入と ほうこく報酬) ----
+DATA.maps.twine.npcs.push({ id: "twine_fisher", x: 15, y: 6, spr: "villager",
+  script: [
+    { cond: { flag: "lakebedReward" },
+      then: [{ msg: "老漁師「湖の あじが かわった。\nあんたたちの おかげだよ。\nいい つりびよりだ」" }],
+      else: [
+        { cond: { flag: "lakebedBoss" },
+          then: [
+            { msg: "老漁師「祠の ぬしを しずめたのか!\nどうりで 湖が すきとおった わけだ。\nこれは れいだ、うけとってくれ」" },
+            { give: { gold: 8000 } },
+            { msg: "8000ギルを 手に入れた!" },
+            { flag: ["lakebedReward", 1] },
+          ],
+          else: [
+            { msg: "老漁師「ちかごろ 湖の水が にごって\nさかなが よりつかん。 みなみに\nふるい 洞窟が あるんだが……」" },
+            { msg: "「湖の 底に しずんだ祠が あって、\nぬしが あばれてるんだと おもう。\nたのむ、みてきて くれんか」" },
+            { flag: ["lakebedQuest", 1] },
+          ] },
+      ] },
+  ] });
+DATA.maps.frim.npcs.push({ id: "frim_oldhunter", x: 14, y: 7, spr: "elder",
+  script: [
+    { cond: { flag: "icemazeReward" },
+      then: [{ msg: "老かりうど「大氷穴も いまは しずかだ。\nわかいころの わしより いい うでだよ、\nあんたたちは」" }],
+      else: [
+        { cond: { flag: "icemazeBoss" },
+          then: [
+            { msg: "老かりうど「氷牙王を たおしたか……!\n50ねん まえ、わしが にげだした\nあの ぬしを……。 うけとってくれ」" },
+            { give: { gold: 9000 } },
+            { msg: "9000ギルを 手に入れた!" },
+            { flag: ["icemazeReward", 1] },
+          ],
+          else: [
+            { msg: "老かりうど「ひがしの 大氷穴を しってるか。\n奥は 迷路の ような 氷の回廊で、\nいちばん おくに『氷牙王』が いる」" },
+            { msg: "「50ねん まえ、わしは あと いっぽで\nにげだした。 だれか あいつを\nしずめて くれんかのう……」" },
+            { flag: ["icemazeQuest", 1] },
+          ] },
+      ] },
+  ] });
+DATA.maps.liefe.npcs.push({ id: "liefe_woodboss", x: 15, y: 6, spr: "villager",
+  script: [
+    { cond: { flag: "treemazeReward" },
+      then: [{ msg: "きこりのおやかた「大樹の みきが\nつやを とりもどした。 森と ともに\nいきる。それが しまの ならわしさ」" }],
+      else: [
+        { cond: { flag: "treemazeBoss" },
+          then: [
+            { msg: "きこりのおやかた「樹霊王と はなしを\nつけたのか! 森の あれが やんだよ。\nこれは しまからの れいだ」" },
+            { give: { gold: 10000 } },
+            { msg: "10000ギルを 手に入れた!" },
+            { flag: ["treemazeReward", 1] },
+          ],
+          else: [
+            { msg: "きこりのおやかた「みなみの 大樹に\nおおきな うろが あいてな、中は\nねっこの 迷路に なってるんだ」" },
+            { msg: "「おくで 樹霊王さまが おこってる。\n森が あれて こまってるんだ。\nどうか しずめて きてくれ」" },
+            { flag: ["treemazeQuest", 1] },
+          ] },
+      ] },
+  ] });
+DATA.maps.moonpalace.npcs.push({ id: "moon_sage", x: 10, y: 4, spr: "elder",
+  script: [
+    { cond: { flag: "riftBoss3" },
+      then: [{ msg: "月の賢者「裂け目の 3人の 王を\nすべて こえたのですね……。\nあなたがたは 終焉の むこうを みた」" }],
+      else: [
+        { cond: { flag: "superBoss" },
+          then: [{ msg: "月の賢者「深淵竜が たおれたとき、\n星の世界の そらに『裂け目』が\nひらきました。 3人の 王が まつ、と」" }],
+          else: [{ msg: "月の賢者「星のはかの さらに 奥、\n氷の洞窟に ふるき 竜が ねむると\nいいます。 そのさきは……まだ」" }] },
+      ] },
+  ] });
