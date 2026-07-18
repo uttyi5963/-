@@ -32,6 +32,7 @@ DATA.spells = {
   quake:   { name: "クエイク", fx: "quake",   mp: 34, type: "dmg", pow: 120, cast: 3.0, elem: "none",  target: "enemy", all: true },
   protect2: { name: "プロテガ",  mp: 24, type: "buff", cast: 2.0, target: "ally", all: true },
   haste:    { name: "ヘイスト",  mp: 18, type: "buff", buff: "haste", cast: 1.2, target: "ally" },
+  brave:    { name: "ブレイブ",  mp: 12, type: "buff", buff: "brave", cast: 1.2, target: "ally" },
   // てきせんよう
   e_fire:  { name: "ファイア",   mp: 0, type: "dmg", pow: 16, cast: 1.2, elem: "fire",    target: "enemy" },
   e_ice_all:{ name: "つめたいいき", mp: 0, type: "dmg", pow: 15, elem: "ice",  target: "enemy", all: true },
@@ -103,6 +104,7 @@ DATA.items = {
   kiss:     { name: "乙女のキッス", kind: "use", price: 60,  cure: "toad", desc: "カエルを もとにもどす" },
   elixir:   { name: "エリクサー",     kind: "use", price: 2000, elixir: true, desc: "HPとMPが 完全回復" },
   megapotion: { name: "メガポーション", kind: "use", price: 500, heal: 600, desc: "HPを 600 回復" },
+  powerdrink: { name: "ちからのくすり", kind: "use", price: 400, atkup: true, desc: "戦闘中 攻撃力が 1.5倍に あがる" },
   worldtear: { name: "世界のしずく", kind: "use", price: 0, partyheal: true, desc: "仲間ぜんいんが 完全回復" },
   xpotion:  { name: "エクスポーション", kind: "use", price: 1500, heal: 2000, desc: "HPを 2000 回復" },
   hiether:  { name: "ハイエーテル",   kind: "use", price: 800, mp: 150, desc: "MPを 150 回復" },
@@ -293,7 +295,7 @@ DATA.heroes = {
     weapon: "w_staff", armor: "a_cloth",
     command: "pray", // いのる: MP0。50%で ぜんいん さいだいHPの30%回復
     spells: ["cure1"],
-    learn: { 4: "poisona", 6: "protect", 9: "cure2", 10: "esuna", 12: "raise", 16: "cure3", 18: "haste", 20: "rain", 22: "protect2", 26: "saint" },
+    learn: { 4: "poisona", 6: "protect", 9: "cure2", 10: "esuna", 12: "raise", 14: "brave", 16: "cure3", 18: "haste", 20: "rain", 22: "protect2", 26: "saint" },
   },
   rod: {
     name: "ロッド", cls: "黒魔道士", spr: "rod", row: "back",
@@ -854,17 +856,17 @@ DATA.shops = {
   },
   frim: {
     name: "フリムの みせ",
-    stock: ["hipotion", "megapotion", "xpotion", "ether", "hiether", "phoenix", "remedy",
+    stock: ["hipotion", "megapotion", "powerdrink", "xpotion", "ether", "hiether", "phoenix", "remedy",
             "w_icefang", "a_frostmail", "wing_return", "acc_icecape"],
   },
   twine: {
     name: "トワインの みせ",
-    stock: ["hipotion", "megapotion", "ether", "phoenix", "remedy", "xpotion",
+    stock: ["hipotion", "megapotion", "powerdrink", "ether", "phoenix", "remedy", "xpotion",
             "w_twin", "a_lake"],
   },
   selene: {
     name: "月のみやこの みせ",
-    stock: ["xpotion", "megapotion", "elixir", "hiether", "phoenix", "remedy",
+    stock: ["xpotion", "megapotion", "powerdrink", "elixir", "hiether", "phoenix", "remedy",
             "w_comet", "w_starlance", "w_cosmoclaw", "w_nebularod", "w_moonwand",
             "a_comet", "a_moonrobe", "a_stargi",
             "acc_galecloak", "acc_guardring", "acc_giantbelt", "acc_magepend", "acc_luckcoin",
@@ -936,7 +938,7 @@ DATA.maps.world = {
     "wwmmmmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwww",
     "wwm..........Qmwwwwwwwwwww.....wwwwwwwww",
     "wwm.....M.....mwwwwwwwwwww..X..wwwwwwwww",
-    "wwmmmmmm.mmmmmmwwwwwwwwwww.....wwwwwwwww",
+    "wwmmmmmm.mmm.mmwwwwwwwwwww.....wwwwwwwww",
     "wwffffff.ffffffmmmmffffffwwwwbwwwwwwwwww",
     "wwffffff.ffffffmmmmffIfffwwwwbwwwwwwwwww",
     "wwffffff.ffffffmmmmffffffwwwwbwwwwwwwwww",
@@ -1211,9 +1213,10 @@ DATA.maps.castle = {
   chests: [
     { id: "castle1", x: 17, y: 1, gold: 500, hidden: true },
     // 序盤の裏技: 玉座のうらの へそくり (お金MAX) と 経験のしるし
-    { id: "castle_g", x: 2, y: 1, gold: 999999, hidden: true },
-    { id: "castle_g2", x: 10, y: 1, gold: 999999, hidden: true },
-    { id: "castle_e", x: 1, y: 10, item: "expcharm", hidden: true },
+    // (secret: 見える化の対象外。ずっと 透明のままの ごほうび)
+    { id: "castle_g", x: 2, y: 1, gold: 999999, hidden: true, secret: true },
+    { id: "castle_g2", x: 10, y: 1, gold: 999999, hidden: true, secret: true },
+    { id: "castle_e", x: 1, y: 10, item: "expcharm", hidden: true, secret: true },
   ],
 };
 
@@ -1907,6 +1910,7 @@ DATA.maps.port = {
     "D": { tile: "door" },
     "w": { tile: "water", solid: true },
     "b": { tile: "bridge" },
+    "A": { tile: "icon_shrine" },
   },
   rows: [
     "ffffffffff..ffffffffff",
@@ -1919,7 +1923,7 @@ DATA.maps.port = {
     "f....................f",
     "wwwwwwwwwwbwwwwwwwwwww",
     "wwwwwwwwwwbwwwwwwwwwww",
-    "wwwwwwwwwwbwwwwwwwwwww",
+    "wwwwwwwwwwAwwwwwwwwwww",
     "wwwwwwwwwwbwwwwwwwwwww",
     "wwwwwwwwwwwwwwwwwwwwww",
   ],
@@ -2237,7 +2241,7 @@ DATA.maps.magma = {
     "#..................#",
     "#..##############..#",
     "#..................#",
-    "#..................#",
+    "#.................D#",
     "####################",
   ],
   events: [
@@ -2742,7 +2746,7 @@ DATA.maps.skyisland = {
     "wwww.......mm.....wwwwww",
     "wwww...............wwwww",
     "www......D.........wwwww",
-    "www................wwwww",
+    "wwwG...............wwwww",
     "wwww......mm......wwwwww",
     "wwwww.....mm.....wwwwwww",
     "wwwwww..........wwwwwwww",
@@ -3060,6 +3064,7 @@ DATA.maps.world7 = {
     "T": { tile: "icon_town" },
     "C": { tile: "icon_shrine" },
     "G": { tile: "icon_shrine" },
+    "b": { tile: "bridge" },
   },
   rows: [
     "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
@@ -3075,7 +3080,7 @@ DATA.maps.world7 = {
     "w.....ff...................w",
     "ww....ff...........mm.....ww",
     "ww.................mm.....ww",
-    "w..........................w",
+    "wb.........................w",
     "ww........................ww",
     "wwwwwwwwwwwwwwwwwwwwwwwwwwww",
   ],
@@ -3085,9 +3090,17 @@ DATA.maps.world7 = {
     { x: 9, y: 3, type: "enter", warp: { map: "nox", x: 9, y: 9, dir: "u" } },
     { x: 15, y: 8, type: "enter", warp: { map: "cathedral1", x: 2, y: 10, dir: "u" } },
   ],
-  npcs: [],
+  npcs: [
+    // 夜釣りスポットの めじるし (西の桟橋)
+    { id: "night_angler", x: 3, y: 13, spr: "villager",
+      script: [
+        { cond: { flag: "nightKing" },
+          then: [{ msg: "つりびと「『よるのぬし』を つりあげるとは…\nあんた ほんものだ。 月あかりの晩は\nいまでも おおものが かかるぜ」" }],
+          else: [{ msg: "つりびと「この 西の桟橋はな、夜釣りの\nめいしょなんだ。 うわさじゃ『よるのぬし』が\nひそんでる…… となりで つってみな」" }] },
+      ] },
+  ],
   chests: [
-    { id: "w7a", x: 1, y: 13, gold: 12000, hidden: true },
+    { id: "w7a", x: 2, y: 12, gold: 12000, hidden: true },
     { id: "w7b", x: 24, y: 2, item: "worldtear", hidden: true },
   ],
 };
@@ -4546,7 +4559,7 @@ DATA.maps.world2 = {
     "w...m.m....T....ff........ww",
     "w...mmm..................www",
     "w.........................ww",
-    "ww....ff.........mmmm.....ww",
+    "ww....ff.........m.mm.....ww",
     "ww....ff....G....m..m.....ww",
     "w................m.Xm......w",
     "w................mmmm......w",
@@ -5957,6 +5970,7 @@ DATA.maps.seafloor = {
     "w": { tile: "water", solid: true },
     ".": { tile: "path" },
     "D": { tile: "icon_shrine" },
+    "A": { tile: "icon_shrine" },
   },
   rows: [
     "mmmmmmmmmmmmmmmmmmmmmmmm",
@@ -5970,7 +5984,7 @@ DATA.maps.seafloor = {
     "m......................m",
     "m...ww.........ww......m",
     "m......................m",
-    "m......................m",
+    "m..A...................m",
     "m......................m",
     "mmmmmmmmmmmmmmmmmmmmmmmm",
   ],
@@ -6135,7 +6149,7 @@ DATA.maps.startower3 = {
     "#..#....#......#",
     "#..#....#####..#",
     "#..#........#..#",
-    "#..##########..#",
+    "#..#######.##..#",
     "#..............#",
     "#....T....T....#",
     "#............s.#",

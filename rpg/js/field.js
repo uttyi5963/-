@@ -332,10 +332,11 @@ class FieldScene {
       }
     }
 
-    // たからばこ (かくしは みつけるまで えがかない)
+    // たからばこ。かくし宝箱も 見えるように えがく (あたり判定は 通り抜け可のまま)。
+    // secret つき (城のへそくり等の 裏技) だけは あけるまで 透明。
     for (const c of (m.chests || [])) {
       const opened = G.flag("chest_" + c.id);
-      if (c.hidden && !opened) continue;
+      if (c.secret && !opened) continue;
       Gfx.draw(opened ? "chest_open" : "chest", c.x * TILE - camx, c.y * TILE - camy);
     }
 

@@ -754,6 +754,13 @@ const G = {
           h.command = h.paladin ? DATA.paladin.command
             : (DATA.heroes[h.id] && DATA.heroes[h.id].command) || null;
         }
+        // あたらしく 追加された 習得呪文を 旧セーブに 補完 (レベル到達ぶんのみ)
+        const learn = (DATA.heroes[h.id] && DATA.heroes[h.id].learn) || {};
+        if (Array.isArray(h.spells)) {
+          for (const [lv, sid] of Object.entries(learn)) {
+            if (h.lv >= +lv && DATA.spells[sid] && !h.spells.includes(sid)) h.spells.push(sid);
+          }
+        }
       };
       // 7章化: 星の塔の開放フラグを旧セーブに補完
       if ((s.flags.trueClear || s.flags.nightBoss || s.flags.clear2) && !s.flags.towerOpen) {

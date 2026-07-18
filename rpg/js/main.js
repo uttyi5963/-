@@ -4,7 +4,7 @@
 
 // ビルド版。タイトル画面に 小さく 表示し、端末が 最新コードに
 // 更新できているか 一目で わかるようにする (キャッシュ確認用)。
-const BUILD_VERSION = "v2026.07.15c";
+const BUILD_VERSION = "v2026.07.16a";
 
 class TitleScene {
   constructor() {
