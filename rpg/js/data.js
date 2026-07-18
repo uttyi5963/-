@@ -7382,7 +7382,7 @@ DATA.maps.treemaze1 = {
     "####################",
   ],
   events: [
-    { x: 1, y: 11, type: "enter", warp: { map: "world6", x: 20, y: 12, dir: "d" } },
+    { x: 1, y: 11, type: "enter", warp: { map: "world5", x: 20, y: 12, dir: "d" } },
     { x: 18, y: 1, type: "enter", warp: { map: "treemaze2", x: 2, y: 1, dir: "r" } },
   ],
   npcs: [
@@ -7683,9 +7683,9 @@ DATA.maps.world2.events.push({ x: 8, y: 16, type: "enter", warp: { map: "lakebed
 // 氷の列島: 大氷穴 (東の雪原)
 _putIcon("world3", 20, 10, "D", "icon_cave");
 DATA.maps.world3.events.push({ x: 20, y: 10, type: "enter", warp: { map: "icemaze1", x: 2, y: 1, dir: "u" } });
-// 緑の群島: 大樹洞 (南の荒れ地)
-_putIcon("world6", 20, 13, "D", "icon_cave");
-DATA.maps.world6.events.push({ x: 20, y: 13, type: "enter", warp: { map: "treemaze1", x: 2, y: 11, dir: "u" } });
+// 緑の群島: 大樹洞 (南の草原) ※リーフェと同じ島 (world5)
+_putIcon("world5", 20, 13, "D", "icon_cave");
+DATA.maps.world5.events.push({ x: 20, y: 13, type: "enter", warp: { map: "treemaze1", x: 2, y: 11, dir: "u" } });
 // 星の世界: 虚空の裂け目 (ヴァハ撃破後に ひらく)
 _putIcon("starworld", 18, 5, "R", "icon_cave");
 DATA.maps.starworld.events.push({ x: 18, y: 5, type: "enter",
@@ -7759,5 +7759,426 @@ DATA.maps.moonpalace.npcs.push({ id: "moon_sage", x: 10, y: 4, spr: "elder",
         { cond: { flag: "superBoss" },
           then: [{ msg: "月の賢者「深淵竜が たおれたとき、\n星の世界の そらに『裂け目』が\nひらきました。 3人の 王が まつ、と」" }],
           else: [{ msg: "月の賢者「星のはかの さらに 奥、\n氷の洞窟に ふるき 竜が ねむると\nいいます。 そのさきは……まだ」" }] },
+      ] },
+  ] });
+
+
+// ============================================================
+// 第3次コンテンツ拡張: 残り3地方の迷宮 (砂の王国/雷鳴の島/夜の国)
+// ============================================================
+Object.assign(DATA.monsters, {
+  garedos: { name: "砂海の主 ガレオス", spr: "worm", boss: true, scale: 4,
+    hp: 5600, atk: 49, def: 22, agi: 14, exp: 4000, gold: 6200,
+    absorb: ["fire"], weak: ["ice"],
+    acts: [{ spell: "e_quake", rate: 0.25 }, { spell: "e_gale", rate: 0.2 }] },
+  raizel: { name: "雷角獣 ライゼル", spr: "cat", pal: "light", boss: true, scale: 4,
+    hp: 6000, atk: 51, def: 22, agi: 20, exp: 4400, gold: 6800,
+    absorb: ["thunder"],
+    acts: [{ spell: "e_bolt", rate: 0.3 }, { spell: "e_tornado", rate: 0.2 }] },
+  reivos: { name: "常夜卿 レイヴォス", spr: "demon", pal: "dark", boss: true, scale: 4,
+    hp: 6600, atk: 53, def: 24, agi: 18, exp: 4800, gold: 7400,
+    race: "demon", weak: ["holy"], absorb: ["ice"],
+    acts: [{ spell: "e_meteo", rate: 0.25 }, { spell: "e_gale", rate: 0.2 }] },
+});
+Object.assign(DATA.items, {
+  w_sandclaw:   { name: "砂海の爪", kind: "weapon", price: 0, atk: 56, who: ["gou"] },
+  acc_boltfist: { name: "雷神の小手", kind: "acc", price: 0, str: 6, resist: { thunder: 0 }, tag: "力+6/雷無効", who: ["leon", "glen", "gou", "rod", "celia"], desc: "力+6。雷を 無効化する 小手" },
+  a_nightrobe:  { name: "よるのローブ", kind: "armor", price: 0, def: 36, int: 6, who: ["rod", "celia"] },
+});
+Object.assign(DATA.encounters, {
+  sandmaze: { rate: 1 / 13, groups: [["dunestalker", "dunebird"], ["sandworm2"], ["dunestalker", "dunestalker"], ["dunebird", "dunebird", "dunestalker"], ["sandworm2", "dunebird"]],
+    rare: ["mithrilbaby", "mithrilbaby"], rareRate: 0.06 },
+  stormmaze: { rate: 1 / 13, groups: [["boltwisp", "thunderhawk"], ["thunderhawk", "thunderhawk"], ["boltwisp", "boltwisp", "boltwisp"], ["thunderhawk", "boltwisp", "boltwisp"]],
+    rare: ["mithrilbaby", "mithrilbaby"], rareRate: 0.06 },
+  nightmaze: { rate: 1 / 13, groups: [["duskwolf", "vampbat"], ["darkpriest", "nightwisp"], ["shadowbeast", "vampbat"], ["duskwolf", "duskwolf"], ["darkpriest", "shadowbeast"]],
+    rare: ["mithrildragon"], rareRate: 0.06 },
+});
+
+// ---- 流砂の大回廊 (砂の王国) ----
+DATA.maps.sandmaze1 = {
+  name: "流砂の大回廊",
+  bgm: "dungeon",
+  encounter: "sandmaze",
+  legend: { "#": { tile: "wall", solid: true }, ".": { tile: "sand" }, "s": { tile: "stairs" } },
+  rows: [
+    "####################",
+    "#.....#...........s#",
+    "#####.#.#.#######.##",
+    "#...#.#.#...#...#.##",
+    "#.###.###.#.#.###.##",
+    "#...#...#...#.....##",
+    "#.#.###.#.###.######",
+    "#.#.....#...#.....##",
+    "#.###.###.#.#####.##",
+    "#...#.....#.#...#.##",
+    "###.###.#.#.#.###.##",
+    "#s......#...#.....##",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 11, type: "enter", warp: { map: "world4", x: 20, y: 11, dir: "d" } },
+    { x: 18, y: 1, type: "enter", warp: { map: "sandmaze2", x: 2, y: 1, dir: "r" } },
+  ],
+  npcs: [
+    { id: "sandmaze_tablet", x: 15, y: 9, spr: "crystal",
+      script: [{ msg: "石碑『すなは ながれ、みちは まよう。\nだが 大地の そこには\nうごかぬ ぬしが すわっている』" }] },
+  ],
+  chests: [
+    { id: "sm1a", x: 1, y: 1, gold: 6000 },
+    { id: "sm1b", x: 15, y: 3, item: "xpotion" },
+  ],
+};
+DATA.maps.sandmaze2 = {
+  name: "流砂の深部",
+  bgm: "dungeon",
+  encounter: "sandmaze",
+  legend: { "#": { tile: "wall", solid: true }, ".": { tile: "sand" }, "s": { tile: "stairs" } },
+  rows: [
+    "####################",
+    "#s..#...........#.##",
+    "###.###.#######.#.##",
+    "#.#.....#.......#.##",
+    "#.#######.#.#.###.##",
+    "#.#.......#.#.....##",
+    "#.#.#.#####.#####.##",
+    "#...#.#.....#...#.##",
+    "#.###.#####.#.#.#.##",
+    "#.#...#...#.....#.##",
+    "#.#.###...#######.##",
+    "#.#.....#.........s#",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 1, type: "enter", warp: { map: "sandmaze1", x: 17, y: 1, dir: "l" } },
+    { x: 18, y: 11, type: "enter", warp: { map: "sandmaze3", x: 3, y: 11, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "sm2a", x: 1, y: 11, item: "elixir" },
+    { id: "sm2b", x: 1, y: 3, gold: 8000 },
+    { id: "sm2c", x: 5, y: 1, item: "remedy", hidden: true },
+  ],
+};
+DATA.maps.sandmaze3 = {
+  name: "砂海のそこ",
+  bgm: "shrine",
+  legend: { "#": { tile: "wall", solid: true }, ".": { tile: "sand" }, "s": { tile: "stairs" }, "T": { tile: "pillar", solid: true } },
+  rows: [
+    "####################",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..s...............#",
+    "####################",
+  ],
+  events: [
+    { x: 3, y: 11, type: "enter", warp: { map: "sandmaze2", x: 17, y: 11, dir: "d" } },
+    { x: 9, y: 3, type: "enter", scriptId: "garedosFight" },
+    { x: 10, y: 3, type: "enter", scriptId: "garedosFight" },
+    { x: 9, y: 4, type: "enter", scriptId: "garedosFight" },
+    { x: 10, y: 4, type: "enter", scriptId: "garedosFight" },
+  ],
+  npcs: [],
+  chests: [],
+};
+
+// ---- 雷雲の大洞窟 (雷鳴の島) ----
+DATA.maps.stormmaze1 = {
+  name: "雷雲の大洞窟",
+  bgm: "dungeon",
+  encounter: "stormmaze",
+  legend: { "#": { tile: "mountain", solid: true }, ".": { tile: "scree" }, "s": { tile: "stairs" } },
+  rows: [
+    "####################",
+    "#.#...............s#",
+    "#.###.###########.##",
+    "#...#.....#...#...##",
+    "###.#####.###.#.#.##",
+    "#.#.#.........#.#.##",
+    "#.#.###.#######.####",
+    "#.#...#.......#...##",
+    "#.###.#.#####.###.##",
+    "#...#.#.....#.....##",
+    "#.###.###.#.#####.##",
+    "#s........#.......##",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 11, type: "enter", warp: { map: "world6", x: 20, y: 12, dir: "d" } },
+    { x: 18, y: 1, type: "enter", warp: { map: "stormmaze2", x: 2, y: 1, dir: "r" } },
+  ],
+  npcs: [
+    { id: "stormmaze_tablet", x: 3, y: 1, spr: "crystal",
+      script: [{ msg: "石碑『いかずちは やまの おくで\nけものの すがたを かりた。\nつのに ふれるもの、みな しびれる』" }] },
+  ],
+  chests: [
+    { id: "st1a", x: 11, y: 3, gold: 6500 },
+    { id: "st1b", x: 5, y: 5, item: "hiether" },
+  ],
+};
+DATA.maps.stormmaze2 = {
+  name: "雷鳴の回廊",
+  bgm: "dungeon",
+  encounter: "stormmaze",
+  legend: { "#": { tile: "mountain", solid: true }, ".": { tile: "scree" }, "s": { tile: "stairs" } },
+  rows: [
+    "####################",
+    "#s............#...##",
+    "#.#.###########.#.##",
+    "#.#.......#.....#.##",
+    "#.#######.#.#####.##",
+    "#.......#.#.#.....##",
+    "#######.#.#.#.###.##",
+    "#.....#.#...#.#.#.##",
+    "#.#####.#####.#.#.##",
+    "#.#...#.......#.#.##",
+    "#.#.#.#########.#.##",
+    "#...#.............s#",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 1, type: "enter", warp: { map: "stormmaze1", x: 17, y: 1, dir: "l" } },
+    { x: 18, y: 11, type: "enter", warp: { map: "stormmaze3", x: 3, y: 11, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "st2a", x: 15, y: 7, item: "elixir" },
+    { id: "st2b", x: 13, y: 1, gold: 8500 },
+    { id: "st2c", x: 5, y: 7, item: "remedy", hidden: true },
+  ],
+};
+DATA.maps.stormmaze3 = {
+  name: "雷角のねぐら",
+  bgm: "shrine",
+  legend: { "#": { tile: "mountain", solid: true }, ".": { tile: "scree" }, "s": { tile: "stairs" }, "T": { tile: "pillar", solid: true } },
+  rows: [
+    "####################",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..s...............#",
+    "####################",
+  ],
+  events: [
+    { x: 3, y: 11, type: "enter", warp: { map: "stormmaze2", x: 17, y: 11, dir: "d" } },
+    { x: 9, y: 3, type: "enter", scriptId: "raizelFight" },
+    { x: 10, y: 3, type: "enter", scriptId: "raizelFight" },
+    { x: 9, y: 4, type: "enter", scriptId: "raizelFight" },
+    { x: 10, y: 4, type: "enter", scriptId: "raizelFight" },
+  ],
+  npcs: [],
+  chests: [],
+};
+
+// ---- 常夜の地下墓所 (夜の国) ----
+DATA.maps.nightmaze1 = {
+  name: "常夜の地下墓所",
+  bgm: "dungeon",
+  encounter: "nightmaze",
+  legend: { "#": { tile: "wall", solid: true }, ".": { tile: "floor" }, "s": { tile: "stairs" } },
+  rows: [
+    "####################",
+    "#.#...............s#",
+    "#.#####.#######.#.##",
+    "#.......#.........##",
+    "#######.#.#######.##",
+    "#.#...#...#.....#.##",
+    "#.#.#.#####.###.#.##",
+    "#...#.....#...#.#.##",
+    "#.#####.#####...#.##",
+    "#.....#...#...#...##",
+    "#####.###...########",
+    "#s......#.........##",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 11, type: "enter", warp: { map: "world7", x: 22, y: 11, dir: "d" } },
+    { x: 18, y: 1, type: "enter", warp: { map: "nightmaze2", x: 2, y: 1, dir: "r" } },
+  ],
+  npcs: [
+    { id: "nightmaze_tablet", x: 7, y: 11, spr: "crystal",
+      script: [{ msg: "石碑『ここは よるの たみの ねむるところ。\nやすらぎを みだす かげが\nおくの ぎょくざに すわった』" }] },
+  ],
+  chests: [
+    { id: "nm1a", x: 1, y: 1, gold: 7000 },
+    { id: "nm1b", x: 1, y: 5, item: "xpotion" },
+  ],
+};
+DATA.maps.nightmaze2 = {
+  name: "墓所のふかみ",
+  bgm: "dungeon",
+  encounter: "nightmaze",
+  legend: { "#": { tile: "wall", solid: true }, ".": { tile: "floor" }, "s": { tile: "stairs" } },
+  rows: [
+    "####################",
+    "#s......#.........##",
+    "#######.#####.###.##",
+    "#.......#.....#...##",
+    "###.#.###.#####.####",
+    "#...#.....#...#.#.##",
+    "#.####.####.#.#.#.##",
+    "#.#.......#.#...#.##",
+    "#.#.#####.#.#####.##",
+    "#.#.....#...#.....##",
+    "#.#####.#####.###.##",
+    "#.............#...s#",
+    "####################",
+  ],
+  events: [
+    { x: 1, y: 1, type: "enter", warp: { map: "nightmaze1", x: 17, y: 1, dir: "l" } },
+    { x: 18, y: 11, type: "enter", warp: { map: "nightmaze3", x: 3, y: 11, dir: "u" } },
+  ],
+  npcs: [],
+  chests: [
+    { id: "nm2a", x: 15, y: 11, item: "elixir" },
+    { id: "nm2b", x: 17, y: 5, gold: 9000 },
+    { id: "nm2c", x: 1, y: 3, item: "kiss", hidden: true },
+  ],
+};
+DATA.maps.nightmaze3 = {
+  name: "常夜のぎょくざ",
+  bgm: "shrine",
+  legend: { "#": { tile: "wall", solid: true }, ".": { tile: "carpet" }, "s": { tile: "stairs" }, "T": { tile: "statue", solid: true } },
+  rows: [
+    "####################",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..................#",
+    "#..................#",
+    "#..T............T..#",
+    "#..s...............#",
+    "####################",
+  ],
+  events: [
+    { x: 3, y: 11, type: "enter", warp: { map: "nightmaze2", x: 17, y: 11, dir: "d" } },
+    { x: 9, y: 3, type: "enter", scriptId: "reivosFight" },
+    { x: 10, y: 3, type: "enter", scriptId: "reivosFight" },
+    { x: 9, y: 4, type: "enter", scriptId: "reivosFight" },
+    { x: 10, y: 4, type: "enter", scriptId: "reivosFight" },
+  ],
+  npcs: [],
+  chests: [],
+};
+
+// ---- ボス戦スクリプト ----
+Object.assign(DATA.scripts, {
+  garedosFight: [
+    { cond: { flag: "sandmazeBoss" },
+      then: [{ msg: "砂海は しずかに ないでいる。\nながれる すなの おとだけが きこえる。" }],
+      else: [
+        { msg: "すなが うずをまき、じめんが もりあがる!\n砂海の主 ガレオス\n『……わしの すなうみを あらすな』" },
+        { battle: { group: ["garedos"], boss: true, music: "boss" } },
+        { flag: ["sandmazeBoss", 1] },
+        { msg: "しずまった すなの中から\nするどい 爪が あらわれた。" },
+        { give: { item: "w_sandclaw" } },
+        { msg: "砂海の爪を 手に入れた!\n(攻撃56・ゴウの 強力な爪)" },
+      ] },
+  ],
+  raizelFight: [
+    { cond: { flag: "stormmazeBoss" },
+      then: [{ msg: "ねぐらは しずかだ。\nとおくで 雷鳴が やさしく なっている。" }],
+      else: [
+        { msg: "らいこうが ほとばしり、けものの かげが!\n雷角獣 ライゼル\n『ガアアアッ!!』" },
+        { battle: { group: ["raizel"], boss: true, music: "boss" } },
+        { flag: ["stormmazeBoss", 1] },
+        { msg: "くだけた 角の あとに\nいかずちを まとう 小手が のこされた。" },
+        { give: { item: "acc_boltfist" } },
+        { msg: "雷神の小手を 手に入れた!\n(力+6・雷無効)" },
+      ] },
+  ],
+  reivosFight: [
+    { cond: { flag: "nightmazeBoss" },
+      then: [{ msg: "ぎょくざは からっぽだ。\n墓所に やすらぎが もどっている。" }],
+      else: [
+        { msg: "ぎょくざの かげが たちあがる……。\n常夜卿 レイヴォス\n『しずかな よるを みだすは たれか』" },
+        { battle: { group: ["reivos"], boss: true, music: "boss" } },
+        { flag: ["nightmazeBoss", 1] },
+        { msg: "かげは ほどけ、やわらかな\nローブだけが のこった。" },
+        { give: { item: "a_nightrobe" } },
+        { msg: "よるのローブを 手に入れた!\n(防御36・知性+6)" },
+      ] },
+  ],
+});
+
+// ---- 入口アイコンの配置 ----
+_putIcon("world4", 20, 10, "K", "icon_cave");
+DATA.maps.world4.events.push({ x: 20, y: 10, type: "enter", warp: { map: "sandmaze1", x: 2, y: 11, dir: "u" } });
+_putIcon("world6", 20, 13, "K", "icon_cave");
+DATA.maps.world6.events.push({ x: 20, y: 13, type: "enter", warp: { map: "stormmaze1", x: 2, y: 11, dir: "u" } });
+_putIcon("world7", 22, 12, "K", "icon_cave");
+DATA.maps.world7.events.push({ x: 22, y: 12, type: "enter", warp: { map: "nightmaze1", x: 2, y: 11, dir: "u" } });
+
+// ---- 町のクエストNPC ----
+DATA.maps.zahra.npcs.push({ id: "zahra_priestess", x: 15, y: 6, spr: "villager",
+  script: [
+    { cond: { flag: "sandmazeReward" },
+      then: [{ msg: "砂の巫女「砂海が しずまり、キャラバンも\nまた とおれるように なりました。\n砂漠に めぐみを」" }],
+      else: [
+        { cond: { flag: "sandmazeBoss" },
+          then: [
+            { msg: "砂の巫女「砂海の ぬしを しずめたのですね。\nりゅうさの うずが きえました。\nどうか おうけとり ください」" },
+            { give: { gold: 9000 } },
+            { msg: "9000ギルを 手に入れた!" },
+            { flag: ["sandmazeReward", 1] },
+          ],
+          else: [
+            { msg: "砂の巫女「ひがしの 流砂の大回廊で\nキャラバンが つぎつぎ のまれています。\n砂のそこに なにかが いる……」" },
+            { flag: ["sandmazeQuest", 1] },
+          ] },
+      ] },
+  ] });
+DATA.maps.volte.npcs.push({ id: "volte_weatherman", x: 15, y: 6, spr: "elder",
+  script: [
+    { cond: { flag: "stormmazeReward" },
+      then: [{ msg: "天気よみ「あれからは カラッと\nいい 雷びよりだ。 うちの 島は\n雷が めぐみだからな!」" }],
+      else: [
+        { cond: { flag: "stormmazeBoss" },
+          then: [
+            { msg: "天気よみ「雷角獣を しずめたか!\nこれで 落雷が よめるように なった。\nれいを うけとってくれ」" },
+            { give: { gold: 10000 } },
+            { msg: "10000ギルを 手に入れた!" },
+            { flag: ["stormmazeReward", 1] },
+          ],
+          else: [
+            { msg: "天気よみ「ちかごろ 雷の おちかたが\nおかしい。 ひがしの 大洞窟に けものが\nすみついたせいだ。 たのめるか?」" },
+            { flag: ["stormmazeQuest", 1] },
+          ] },
+      ] },
+  ] });
+DATA.maps.nox.npcs.push({ id: "nox_gravekeeper", x: 15, y: 6, spr: "elder",
+  script: [
+    { cond: { flag: "nightmazeReward" },
+      then: [{ msg: "墓守「ごせんぞさまも これで ゆっくり\nおやすみに なれる。 よるの まちに\nしずけさを ありがとう」" }],
+      else: [
+        { cond: { flag: "nightmazeBoss" },
+          then: [
+            { msg: "墓守「墓所の かげを はらって くれたか……。\nこれは まちの みなからの きもちだ。\nうけとって ほしい」" },
+            { give: { gold: 11000 } },
+            { msg: "11000ギルを 手に入れた!" },
+            { flag: ["nightmazeReward", 1] },
+          ],
+          else: [
+            { msg: "墓守「ひがしの 地下墓所から よなよな\nうめきごえが きこえる。 ごせんぞさまが\nやすめずに いるんだ……」" },
+            { flag: ["nightmazeQuest", 1] },
+          ] },
       ] },
   ] });
