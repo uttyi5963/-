@@ -1115,6 +1115,7 @@ class ConfigScene {
       ["いどうそくど", c.wspeed === 2 ? "はやい" : "ふつう", "フィールドを きびきび あるく"],
       ["エンカウント", c.encOff ? "OFF" : "ON", "OFFにすると ざこ敵が でなくなる"],
       ["おと", AudioSys.muted ? "OFF" : "ON", "BGMと こうかおん (Mキーでも きりかえ)"],
+      ["がめんカラー", c.gbc ? "GBカラー" : "クラシック", "GBC風の いろどりに きりかえ"],
       ["たびのこころえ", "みる", "あそびかたの かんたんガイド"],
     ];
   }
@@ -1127,7 +1128,8 @@ class ConfigScene {
     else if (i === 3) c.wspeed = c.wspeed === 2 ? 1 : 2;
     else if (i === 4) c.encOff = !c.encOff;
     else if (i === 5) AudioSys.toggleMute();
-    else if (i === 6) { AudioSys.sfx("confirm"); G.push(new HelpScene()); return; }
+    else if (i === 6) c.gbc = !c.gbc;
+    else if (i === 7) { AudioSys.sfx("confirm"); G.push(new HelpScene()); return; }
     AudioSys.sfx("cursor");
   }
 
