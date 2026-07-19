@@ -828,6 +828,13 @@ class QuestScene {
       list.push(["星のかけら あつめ",
         f("shardDone") ? "かんりょう" : `かけらを さがす (${G.state.items.star_shard || 0}/3)`]);
     }
+    if (f("endlessIntro")) {
+      const got = [10, 20, 30, 40, 50, 60, 70, 80, 90, 99]
+        .filter((n) => f("endlessReward" + n)).length;
+      list.push(["無限回廊",
+        f("endlessClear") ? `完全せいは! ほうび ${got}/10`
+          : `さいこう ${G.state.flags.endlessBest || 0}かい / ほうび ${got}/10`]);
+    }
     if (f("duskQuest")) {
       list.push(["たそがれオオカミ たいじ",
         f("duskReward") ? "かんりょう" : `オオカミを 倒す (${Math.min(4, G.killsOf("duskwolf"))}/4)`]);

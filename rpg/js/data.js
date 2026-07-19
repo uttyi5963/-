@@ -5608,11 +5608,11 @@ DATA.maps.halloffame = {
     { id: "zukan_prof", x: 2, y: 7, spr: "elder",
       script: [
         { cond: { flag: "zukanDone" },
-          then: [{ msg: "図鑑はかせ「全160種 討伐の きろくは\nえいえんに かたりつがれるじゃろう。\nきみこそ 真の ハンターじゃ」" }],
+          then: [{ msg: "図鑑はかせ「全165種 討伐の きろくは\nえいえんに かたりつがれるじゃろう。\nきみこそ 真の ハンターじゃ」" }],
           else: [
             { cond: { bestiaryAll: true },
               then: [
-                { msg: "図鑑はかせ「な、なんと…… 図鑑の 160種\nすべてに 討伐の しるしが!!\nこれは 前人未到の いぎょうじゃ!!」" },
+                { msg: "図鑑はかせ「な、なんと…… 図鑑の 165種\nすべてに 討伐の しるしが!!\nこれは 前人未到の いぎょうじゃ!!」" },
                 { msg: "「わしの けんきゅう 30ねんぶんの\nたくわえを きみに たくそう。\nうけとってくれい!」" },
                 { give: { gold: 77777 } },
                 { give: { item: "elixir" } },
@@ -5622,7 +5622,7 @@ DATA.maps.halloffame = {
               ],
               else: [
                 { cond: { flag: "zukan100" },
-                  then: [{ msg: "図鑑はかせ「100種は こえたな。\nのこりの 魔物は てごわいぞ。\n全160種、まっておるぞ!」" }],
+                  then: [{ msg: "図鑑はかせ「100種は こえたな。\nのこりの 魔物は てごわいぞ。\n全165種、まっておるぞ!」" }],
                   else: [
                     { cond: { bestiaryKilled: 100 },
                       then: [
@@ -8219,3 +8219,309 @@ DATA.maps.castle.npcs.push({ id: "castle_scholar", x: 14, y: 3, spr: "elder",
           ] },
       ] },
   ] });
+
+// ============================================================
+// 無限回廊 (むげんかいろう): 99階の 自動生成ダンジョン
+// 入るたびに 迷路が かわり、10階ごとの 番人が チートきゅうの
+// アクセサリーを まもる。ふかいほど 敵は 強く、報酬も ふえる。
+// ============================================================
+
+// ---------------- 回廊の魔物 ----------------
+Object.assign(DATA.monsters, {
+  mazewarden: { name: "かいろうのばんにん", spr: "golem", pal: "dark", boss: true, scale: 3,
+    hp: 1400, atk: 30, def: 16, agi: 14, int: 14, exp: 700, gold: 900,
+    race: "demon",
+    acts: [{ spell: "e_gale", rate: 0.2 }, { spell: "e_quake", rate: 0.1 }] },
+  mazelord: { name: "らせんおう ヴォルグレン", spr: "eye", pal: "dark", boss: true, scale: 4, noScale: true,
+    hp: 45000, atk: 95, def: 36, agi: 28, int: 32, exp: 60000, gold: 77777,
+    race: "demon", absorb: ["ice", "thunder"], weak: ["holy"],
+    acts: [{ spell: "e_starfall", rate: 0.3 }, { spell: "e_meteo", rate: 0.2 }, { spell: "e_gale", rate: 0.15 }] },
+});
+
+// ---------------- 回廊の報酬 (チートきゅうアクセ・10階ごと) ----------------
+Object.assign(DATA.items, {
+  acc_steelcharm:  { name: "こうてつのおまもり", kind: "acc", price: 0, abil: "guard30", vit: 4, tag: "被ダメ30%減", who: ["leon", "glen", "gou", "rod", "celia"], desc: "回廊10階の 番人の たから。うけるダメージが 30%へる" },
+  acc_windboots:   { name: "しっぷうのブーツ", kind: "acc", price: 0, abil: "haste", agi: 6, tag: "ATB 1.6倍", who: ["leon", "glen", "gou", "rod", "celia"], desc: "こうどうゲージが 1.6倍の はやさで たまる" },
+  acc_sagesoul:    { name: "けんじゃのたましい", kind: "acc", price: 0, abil: "mpzero", int: 6, tag: "MP消費0", who: ["leon", "glen", "gou", "rod", "celia"], desc: "じゅもんの MPしょうひが 0になる" },
+  acc_vampfang:    { name: "きゅうけつのきば", kind: "acc", price: 0, abil: "drain", str: 4, tag: "物理25%吸収", who: ["leon", "glen", "gou", "rod", "celia"], desc: "ぶつり攻撃で あたえた ダメージの 25%ぶん HPが かいふくする" },
+  acc_critfan:     { name: "かいしんのおうぎ", kind: "acc", price: 0, abil: "critall", str: 4, tag: "つねに会心", who: ["leon", "glen", "gou", "rod", "celia"], desc: "こうげきが かならず かいしんの一撃になる" },
+  acc_phoenixsoul: { name: "ふしちょうのたましい", kind: "acc", price: 0, abil: "autolife2", vit: 8, tag: "何度でも復活", who: ["leon", "glen", "gou", "rod", "celia"], desc: "たおれても 何度でも HP半分で 自動復活する" },
+  acc_timeorb:     { name: "ときのすいしょう", kind: "acc", price: 0, abil: "instacast", int: 8, tag: "詠唱ゼロ", who: ["leon", "glen", "gou", "rod", "celia"], desc: "じゅもんの 詠唱時間が ほぼ 0になる" },
+  acc_titanband:   { name: "ごうけつのうでわ", kind: "acc", price: 0, abil: "atk2x", str: 8, tag: "物理2倍", who: ["leon", "glen", "gou", "rod", "celia"], desc: "ぶつり攻撃の ダメージが 2倍になる" },
+  acc_limitcore:   { name: "ひっさつのきわみ", kind: "acc", price: 0, abil: "limitfree", tag: "必殺いつでも", who: ["leon", "glen", "gou", "rod", "celia"], desc: "必殺ゲージが つねに まんタンになる" },
+  acc_mugen:       { name: "むげんのしるし", kind: "acc", price: 0, str: 20, agi: 20, vit: 20, int: 20, abil: "guard50", tag: "全ステ+20/被ダメ半減", who: ["leon", "glen", "gou", "rod", "celia"], desc: "回廊を きわめた あかし。全ステ+20、うけるダメージ半減" },
+});
+
+// ---------------- 回廊エンカウント (中身は 階ごとに いれかえ) ----------------
+DATA.encounters.endless = { rate: 1 / 13, groups: [["woodgoblin"]] };
+
+// ---------------- 回廊マップ (rows/events は 階ごとに 生成) ----------------
+DATA.maps.endless = {
+  name: "無限回廊",
+  bgm: "dungeon",
+  encounter: "endless",
+  legend: {
+    "#": { tile: "pillar", solid: true },
+    ".": { tile: "floor" },
+    "s": { tile: "stairs" },
+    "P": { tile: "fountain" },
+  },
+  rows: ["###", "#P#", "###"],
+  events: [],
+  npcs: [],
+  chests: [],
+};
+
+// ---------------- 回廊システム ----------------
+const Endless = {
+  // 10階ごとの 帯で 敵プールを きりかえ (すべて既存の魔物・階数で強化)
+  pools: [
+    ["woodgoblin", "sewerbat", "greenslime", "madflower"],
+    ["stormimp", "boltjelly", "thunderhawk", "galeserpent"],
+    ["junglecat", "vineflower", "mossgolem", "shadowmonkey"],
+    ["sandworm2", "mummy", "desertghost", "vulture"],
+    ["snowwolf", "glacierworm", "frostogre", "blizzardhawk"],
+    ["nightbat", "duskwolf", "shadeknight", "nighteye"],
+    ["darkknight", "deathknight", "shadowbeast", "meteogolem"],
+    ["starimp", "lunabat", "stargolem", "moondragon"],
+    ["voidmoth", "nullknight", "chaosjelly", "starleech"],
+    ["arcdemon", "chaosknight", "nebulabird", "voidgolem"],
+  ],
+  rewards: {
+    10: "acc_steelcharm", 20: "acc_windboots", 30: "acc_sagesoul",
+    40: "acc_vampfang", 50: "acc_critfan", 60: "acc_phoenixsoul",
+    70: "acc_timeorb", 80: "acc_titanband", 90: "acc_limitcore",
+    99: "acc_mugen",
+  },
+
+  // シードつき乱数 (おなじ階は おなじ迷路に 復元できる → セーブ対応)
+  rng(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a |= 0; a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  },
+
+  // 階を くみたてて DATA.maps.endless に はんえいする
+  build(seed, floor) {
+    const m = DATA.maps.endless;
+    const isBoss = floor % 10 === 0 || floor === 99;
+    m.name = `無限回廊 ${floor}F`;
+    m.npcs = [];
+    m.chests = [];
+    if (isBoss) {
+      // 番人のアリーナ (こてい): 階段は 番人のタイルを とおらないと いけない
+      const last = floor >= 99;
+      m.rows = [
+        "#############",
+        last ? "#############" : "######s######",
+        "#...........#",
+        "#...........#",
+        "#...........#",
+        "#...........#",
+        "#P..........#",
+        "#############",
+      ];
+      m.encounter = null;
+      m.events = [
+        { x: 6, y: 2, type: "enter", script: [{ endless: "boss" }] },
+        { x: 1, y: 6, type: "enter", script: [{ endless: "leave" }] },
+      ];
+      if (!last) m.events.push({ x: 6, y: 1, type: "enter", script: [{ endless: "down" }] });
+      this.landing = { x: 6, y: 6, dir: "u" };
+    } else {
+      // 迷路フロア: あなほり法で 完全連結の 迷路を 生成
+      const rand = this.rng(seed * 1013 + floor * 7919);
+      const CW = 13, CH = 8, W = CW * 2 + 1, H = CH * 2 + 1;
+      const grid = Array.from({ length: H }, () => Array(W).fill("#"));
+      const seen = Array.from({ length: CH }, () => Array(CW).fill(false));
+      const start = [0, CH - 1];
+      const stack = [start];
+      seen[start[1]][start[0]] = true;
+      grid[start[1] * 2 + 1][start[0] * 2 + 1] = ".";
+      while (stack.length) {
+        const [cx, cy] = stack[stack.length - 1];
+        const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+          .map((d) => [d, rand()]).sort((a, b) => a[1] - b[1]).map(([d]) => d);
+        let moved = false;
+        for (const [dx, dy] of dirs) {
+          const nx = cx + dx, ny = cy + dy;
+          if (nx < 0 || ny < 0 || nx >= CW || ny >= CH || seen[ny][nx]) continue;
+          seen[ny][nx] = true;
+          grid[cy * 2 + 1 + dy][cx * 2 + 1 + dx] = ".";
+          grid[ny * 2 + 1][nx * 2 + 1] = ".";
+          stack.push([nx, ny]);
+          moved = true;
+          break;
+        }
+        if (!moved) stack.pop();
+      }
+      // ところどころ 壁を ぬいて ぬけ道を つくる (単調さの かいしょう)
+      for (let k = 0; k < 6; k++) {
+        const wx = 2 + Math.floor(rand() * (W - 4));
+        const wy = 2 + Math.floor(rand() * (H - 4));
+        if (grid[wy][wx] === "#" && ((grid[wy][wx - 1] === "." && grid[wy][wx + 1] === ".")
+          || (grid[wy - 1][wx] === "." && grid[wy + 1][wx] === "."))) grid[wy][wx] = ".";
+      }
+      // 入口(左下)から いちばん 遠いマスに おり階段
+      const lx = 1, ly = H - 2;
+      const dist = Array.from({ length: H }, () => Array(W).fill(-1));
+      dist[ly][lx] = 0;
+      const q = [[lx, ly]];
+      let far = [lx, ly];
+      while (q.length) {
+        const [x, y] = q.shift();
+        if (dist[y][x] > dist[far[1]][far[0]]) far = [x, y];
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const nx = x + dx, ny = y + dy;
+          if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+          if (grid[ny][nx] === "#" || dist[ny][nx] >= 0) continue;
+          dist[ny][nx] = dist[y][x] + 1;
+          q.push([nx, ny]);
+        }
+      }
+      grid[ly][lx] = "P";
+      grid[far[1]][far[0]] = "s";
+      m.rows = grid.map((r) => r.join(""));
+      m.encounter = "endless";
+      m.events = [
+        { x: far[0], y: far[1], type: "enter", script: [{ endless: "down" }] },
+        { x: lx, y: ly, type: "enter", script: [{ endless: "leave" }] },
+      ];
+      this.landing = { x: lx, y: ly, dir: "u" };
+      // この帯の 敵グループを セット
+      const pool = this.pools[Math.min(this.pools.length - 1, Math.floor(floor / 10))];
+      const [a, b, c, d] = pool;
+      DATA.encounters.endless.groups = [[a, b], [b, c], [c], [a, a], [c, d], [a, b, c], [d, d]];
+    }
+    // とうたつ記録
+    const best = G.state.flags.endlessBest || 0;
+    if (floor > best) G.setFlag("endlessBest", floor);
+  },
+
+  // 階の敵を 強化した コピーを かえす (戦闘開始時に よばれる)
+  scaleMon(def, floor) {
+    if (def.noScale) return def;
+    const f = Math.max(1, floor);
+    const isWarden = def === DATA.monsters.mazewarden;
+    const hpMul = (1 + 0.06 * (f - 1)) * (isWarden ? 1 + f * 0.03 : 1);
+    const atkMul = 1 + 0.02 * (f - 1);
+    const rewMul = 1 + 0.09 * (f - 1);
+    return { ...def,
+      hp: Math.round(def.hp * hpMul),
+      atk: Math.round(def.atk * atkMul),
+      def: Math.round((def.def || 0) * atkMul),
+      agi: Math.round((def.agi || 10) * (1 + 0.01 * (f - 1))),
+      int: Math.round((def.int || 8) * atkMul),
+      exp: Math.round((def.exp || 0) * rewMul),
+      gold: Math.round((def.gold || 0) * rewMul),
+    };
+  },
+
+  warp(x, y, dir) {
+    G.fade(() => {
+      G.state.map = "endless"; G.state.x = x; G.state.y = y; G.state.dir = dir || "u";
+      const fs = G.scenes.find((s) => s instanceof FieldScene);
+      if (fs) fs.loadMap();
+    });
+  },
+
+  goto(floor) {
+    const st = G.state.endless;
+    st.floor = floor;
+    this.build(st.seed, floor);
+    this.warp(this.landing.x, this.landing.y, this.landing.dir);
+  },
+
+  // スクリプト op { endless: "enter" | "down" | "leave" | "boss" }
+  scriptOp(kind, next) {
+    if (kind === "enter") {
+      const begin = () => {
+        const ckpt = G.state.flags.endlessCkpt || 0;
+        const opts = ["1かいから いどむ"];
+        if (ckpt >= 11) opts.push(`${ckpt}かいから いどむ`);
+        opts.push("やめておく");
+        G.push(new ChoiceScene(opts, (sel) => {
+          if (sel < 0 || sel === opts.length - 1) return next();
+          G.state.endless = { seed: Math.floor(Math.random() * 1e9), floor: 0, beaten: {} };
+          this.goto(sel === 0 ? 1 : ckpt);
+          next();
+        }, { x: 150, y: 110 }));
+      };
+      if (!G.flag("endlessIntro")) {
+        G.setFlag("endlessIntro", 1);
+        G.push(new MessageScene([
+          "ふるびた 石の とびらに こう きざまれている……",
+          "『ここは 無限回廊。ちに もぐるほど\n魔は たけく たからは かがやく。\n10のふしめに 番人 まちうけん』",
+          "『いずみを ふめば ちじょうへ もどれる。\n99の そこにて らせんの王 ねむる』",
+        ], begin));
+        return;
+      }
+      begin();
+      return;
+    }
+    const st = G.state.endless;
+    if (!st) return next();
+    if (kind === "down") {
+      this.goto(Math.min(99, st.floor + 1));
+      next();
+      return;
+    }
+    if (kind === "leave") {
+      G.push(new ChoiceScene(["ちじょうへ もどる", "やめる"], (sel) => {
+        if (sel !== 0) return next();
+        G.fade(() => {
+          G.state.endless = null;
+          G.state.map = "world"; G.state.x = 5; G.state.y = 22; G.state.dir = "d";
+          const fs = G.scenes.find((s) => s instanceof FieldScene);
+          if (fs) fs.loadMap();
+        });
+        next();
+      }, { x: 150, y: 120 }));
+      return;
+    }
+    if (kind === "boss") {
+      const f = st.floor;
+      st.beaten = st.beaten || {};
+      if (st.beaten[f]) return next();
+      const last = f >= 99;
+      G.push(new MessageScene(last
+        ? "回廊の そこで きょだいな ひとみが\nゆっくりと ひらいた……!!"
+        : "番人が たからを まもっている!", () => {
+        G.push(new BattleScene([last ? "mazelord" : "mazewarden"], {
+          boss: true, music: last ? "spirit" : "boss",
+          onWin: () => {
+            st.beaten[f] = 1;
+            G.setFlag("endlessCkpt", Math.max(G.state.flags.endlessCkpt || 0, Math.min(99, f + 1)));
+            const rid = this.rewards[f];
+            const ops = [];
+            if (rid && !G.flag("endlessReward" + f)) {
+              ops.push({ give: { item: rid } });
+              ops.push({ msg: `番人の たからばこが ひらいた!\n${DATA.items[rid].name}を 手に入れた!\n(${DATA.items[rid].tag})` });
+              ops.push({ flag: ["endlessReward" + f, 1] });
+            } else {
+              const g = f * 300;
+              ops.push({ give: { gold: g } });
+              ops.push({ msg: `番人は ${g}ギルを のこして きえた。` });
+            }
+            if (last) {
+              ops.push({ msg: "らせんおう ヴォルグレンは ほろび、\n回廊の そこに しずけさが もどった……" });
+              ops.push({ msg: "無限回廊 99かい 完全せいは!!\nきみこそ 回廊の王だ!!" });
+              ops.push({ flag: ["endlessClear", 1] });
+            }
+            runScript(ops, next);
+          },
+        }));
+      }));
+      return;
+    }
+    next();
+  },
+};
+
+// ---------------- 世界に 入口を おく ----------------
+_putIcon("world", 5, 21, "E", "icon_cave");
+DATA.maps.world.events.push({ x: 5, y: 21, type: "enter", script: [{ endless: "enter" }] });

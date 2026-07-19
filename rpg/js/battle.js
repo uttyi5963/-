@@ -22,7 +22,11 @@ class BattleScene {
     groupIds.forEach((id) => { counts[id] = (counts[id] || 0) + 1; });
     const seen = {};
     this.enemies = groupIds.map((id) => {
-      const def = DATA.monsters[id];
+      let def = DATA.monsters[id];
+      // 無限回廊: 階数に 応じて 敵を 強化した コピーと さしかえる
+      if (G.state.map === "endless" && G.state.endless) {
+        def = Endless.scaleMon(def, G.state.endless.floor);
+      }
       let name = def.name;
       if (counts[id] > 1) {
         seen[id] = (seen[id] || 0);
@@ -82,7 +86,7 @@ class BattleScene {
     if (/^(world6|stormshrine)/.test(m)) return "storm";
     if (/^(world7|cathedral)/.test(m)) return "night";
     if (/^magma/.test(m)) return "fire";
-    if (/^(cave|waterway|underworld)/.test(m)) return "cave";
+    if (/^(cave|waterway|underworld|endless)/.test(m)) return "cave";
     if (/^(tower|startower|skyisland)/.test(m)) return "tower";
     if (/^(temple|shrine|windtemple|seatemple)/.test(m)) return "temple";
     if (/^seafloor/.test(m)) return "sea";
@@ -121,6 +125,11 @@ class BattleScene {
     return Math.max(1, Math.round(atk * 2 * rnd(0.9, 1.1)) - def);
   }
 
+  // まもり系アクセ: うけるダメージの 倍率 (guard50=半減 / guard30=30%減)
+  guardMul(h) {
+    return G.accAbil(h, "guard50") ? 0.5 : G.accAbil(h, "guard30") ? 0.7 : 1;
+  }
+
   pop(x, y, txt, pi = 3) {
     this.pops.push({ x, y, txt: String(txt), t: 0, pi });
   }
@@ -144,6 +153,7 @@ class BattleScene {
 
   // アクセサリ「マナの指輪」で MPしょうひ半減
   mpCost(h, sp) {
+    if (G.accAbil(h, "mpzero")) return 0; // けんじゃのたましい
     return G.accAbil(h, "mphalf") ? Math.ceil((sp.mp || 0) / 2) : (sp.mp || 0);
   }
 
@@ -217,9 +227,12 @@ class BattleScene {
     if (!waitPause) {
       // ATBゲージ (詠唱/ジャンプちゅうは たまらない)
       for (const p of this.aliveParty()) {
+        // ひっさつのきわみ: 必殺ゲージが つねに まんタン
+        if (G.accAbil(p.h, "limitfree")) p.h.limit = 100;
         if (p.casting || p.airborne) continue;
         const was = p.atb;
-        const spd = (p.haste ? 1.5 : 1) * (p.boost > 0 ? 1.4 : 1) * (p.fatigue > 0 ? 0.5 : 1);
+        const spd = (p.haste ? 1.5 : 1) * (G.accAbil(p.h, "haste") ? 1.6 : 1)
+          * (p.boost > 0 ? 1.4 : 1) * (p.fatigue > 0 ? 0.5 : 1);
         p.atb = Math.min(100, p.atb + (25 + G.agiOf(p.h) * 3) * spd * dt);
         // 命の珠: ターンが まわってくるたび HP回復
         if (was < 100 && p.atb >= 100 && G.accAbil(p.h, "regen") && p.h.hp < p.h.maxhp) {
@@ -570,7 +583,9 @@ class BattleScene {
   // 不死鳥の羽飾り: 倒れたとき 一度だけ HP半分で よみがえる
   tryAutolife(p) {
     if (p.h.hp > 0) return false;
-    if (!G.accAbil(p.h, "autolife") || p.autolifeUsed) return false;
+    // ふしちょうのたましい(autolife2)は 回数むせいげん
+    const endless = G.accAbil(p.h, "autolife2");
+    if (!endless && (!G.accAbil(p.h, "autolife") || p.autolifeUsed)) return false;
     p.autolifeUsed = true;
     p.h.hp = Math.max(1, Math.floor(p.h.maxhp * 0.5));
     this.partyFx(p, "holy");
@@ -662,7 +677,8 @@ class BattleScene {
       }
       if ((sp.cast || 0) > 0) {
         h.mp -= this.mpCost(h, sp);
-        p.casting = { act, t: 0, dur: sp.cast * 0.65 * (G.accAbil(h, "castfast") ? 0.6 : 1) };
+        p.casting = { act, t: 0, dur: sp.cast * 0.65 * (G.accAbil(h, "castfast") ? 0.6 : 1)
+          * (G.accAbil(h, "instacast") ? 0.05 : 1) }; // ときのすいしょう: 詠唱ほぼ0
         this.log = `${h.name}は ${sp.name}の 詠唱を はじめた`;
         AudioSys.sfx("cursor");
         this.ready = null;
@@ -812,7 +828,8 @@ class BattleScene {
         events.push({ t: 0.2, fn: () => { this.log = `${h.name}の カエルパンチ…`; } });
         this.queueHitEnemy(events, t, dmg, "hit");
       } else {
-        const crit = Math.random() < (G.accAbil(h, "critx2") ? 2 : 1) / 16;
+        // かいしんのおうぎ(critall): かならず 会心
+        const crit = G.accAbil(h, "critall") || Math.random() < (G.accAbil(h, "critx2") ? 2 : 1) / 16;
         // 極意 (拳聖): クリティカルが つづくほど いりょくが のびる
         const gokui = h.ascended && h.id === "gou";
         const chainMul = gokui && crit ? 1 + 0.25 * (p.chain || 0) : 1;
@@ -824,7 +841,8 @@ class BattleScene {
         }
         let dmg = this.physDmg(G.atkOf(h), t.def.def);
         const braveMul = p.brave ? 1.5 : 1; // ブレイブ: 攻撃1.5倍
-        dmg = Math.max(1, Math.round(dmg * this.weaponMod(h, t.def) * (crit ? 2 : 1) * rowMul * chargeMul * chainMul * braveMul));
+        const titanMul = G.accAbil(h, "atk2x") ? 2 : 1; // ごうけつのうでわ
+        dmg = Math.max(1, Math.round(dmg * this.weaponMod(h, t.def) * (crit ? 2 : 1) * rowMul * chargeMul * chainMul * braveMul * titanMul));
         if (gokui) {
           if (crit) {
             p.chain = (p.chain || 0) + 1;
@@ -833,6 +851,16 @@ class BattleScene {
         }
         if (crit) events.push({ t: 0.35, fn: () => { this.log = "かいしんの いちげき!!"; } });
         this.queueHitEnemy(events, t, dmg, crit || chargeMul > 1 ? "crit" : "hit");
+        // きゅうけつのきば: あたえたダメージの 25%ぶん HP回復
+        if (G.accAbil(h, "drain") && dmg > 0) {
+          const heal = Math.max(1, Math.round(dmg * 0.25));
+          events.push({ t: 0.75, fn: () => {
+            if (h.hp <= 0 || h.hp >= h.maxhp) return;
+            h.hp = Math.min(h.maxhp, h.hp + heal);
+            const pos = this.partyPos(this.party.indexOf(p));
+            this.pop(pos.x, pos.y, "+" + heal, 3);
+          } });
+        }
       }
     }
     else if (act.type === "jump") {
@@ -1296,6 +1324,7 @@ class BattleScene {
         if (victim.h.row === "back") dmg = Math.round(dmg * 0.5);
         if (victim.defending) dmg = Math.round(dmg * 0.5);
         if (victim.protect) dmg = Math.round(dmg * 0.6);
+        dmg = Math.round(dmg * this.guardMul(victim.h)); // まもり系アクセ
         dmg = Math.max(1, dmg);
       }
       victim.h.hp = Math.max(0, victim.h.hp - dmg);
@@ -1368,6 +1397,7 @@ class BattleScene {
         dmg = Math.round(dmg * res);
         if (p.defending) dmg = Math.round(dmg * 0.5);
         if (p.protect) dmg = Math.round(dmg * 0.7);
+        dmg = Math.round(dmg * this.guardMul(p.h)); // まもり系アクセ
         dmg = res === 0 ? 0 : Math.max(1, dmg);
         p.h.hp = Math.max(0, p.h.hp - dmg);
         p.flash = 0.25;
@@ -1499,8 +1529,9 @@ class BattleScene {
     try {
       // にげた 敵は 経験値に ならない
       const beaten = this.enemies.filter((e) => !e.fled);
-      const exp = beaten.reduce((s, e) => s + (DATA.monsters[e.id].exp || 0), 0);
-      let gold = beaten.reduce((s, e) => s + (DATA.monsters[e.id].gold || 0), 0);
+      // e.def は 回廊では 強化コピー (経験値/ギルも 階数ぶん ふえる)
+      const exp = beaten.reduce((s, e) => s + (e.def.exp || 0), 0);
+      let gold = beaten.reduce((s, e) => s + (e.def.gold || 0), 0);
       // 生きのこりボーナス: 倒れた 仲間1人につき 経験値+50%
       const fallen = this.party.length - this.aliveParty().length;
       const mult = 1 + fallen * 0.5;
