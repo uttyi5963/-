@@ -6,6 +6,53 @@ const SCREEN_W = 320, SCREEN_H = 288, TILE = 16;
 // ゲームボーイ 4かいちょう パレット (あかるい -> くらい)
 const PAL = ["#9bbc0f", "#8bac0f", "#306230", "#0f380f"];
 
+// ---------------- GBカラーモード ----------------
+// ゲームボーイカラーの ながれを くむ 4色パレット群。
+// 1スプライトは 4色のまま、種類ごとに パレットを わりあてる (GBC方式)。
+// コンフィグ「がめんカラー」で ON/OFF (OFF = クラシックな GB緑)。
+const GBC_PALS = {
+  terra:   ["#d8f8a8", "#78c850", "#287828", "#0c3008"], // 草原・森
+  water:   ["#c8e8f8", "#58a8f0", "#2060c0", "#102858"], // 水・氷晶
+  earth:   ["#f0d8a8", "#c89858", "#785028", "#301808"], // 山・岩・道
+  stone:   ["#e8e8f0", "#a8a8c0", "#585878", "#181828"], // 石造り・床壁
+  sand:    ["#f8f0c0", "#e0c070", "#a07830", "#403008"], // 砂漠
+  snow:    ["#f8f8ff", "#b8d8f0", "#6890c0", "#203058"], // 雪原
+  night:   ["#d0c0f0", "#8868c8", "#483080", "#100828"], // 夜・魔
+  fire:    ["#f8d0a0", "#f08838", "#c03818", "#400808"], // 炎・赤系
+  wood:    ["#e8c890", "#b08850", "#684828", "#201008"], // 木製・土のNPC
+  gold:    ["#f8f0c8", "#f0c848", "#b07818", "#402808"], // 宝・王・町アイコン
+  holy:    ["#f8f0e8", "#f0b0c8", "#a05880", "#381028"], // 聖・セリア
+  knight:  ["#e8e0f0", "#9080c0", "#504088", "#181030"], // 暗黒騎士レオン
+  paladin: ["#f8f8f0", "#88c0e8", "#3868b0", "#102048"], // パラディン
+};
+const GBC_TILE = {
+  grass: "terra", forest: "terra", flower: "terra", pine: "terra", palm: "terra",
+  water: "water", water2: "water", fountain: "water", bridge: "wood",
+  mountain: "earth", path: "earth", scree: "earth", deadtree: "wood",
+  floor: "stone", wall: "stone", pillar: "stone", stairs: "stone", statue: "stone",
+  door: "wood", table: "wood", bed: "wood", counter: "wood", shelf: "wood",
+  carpet: "fire", banner: "fire", torch: "fire",
+  chest: "gold", chest_open: "gold", sand: "sand", snow: "snow", nightgrass: "night",
+  icon_castle: "gold", icon_town: "gold", icon_cave: "earth", icon_tower: "stone", icon_shrine: "water",
+};
+const GBC_CHAR = {
+  hero: "knight", pal: "paladin", glen: "terra", gou: "fire", celia: "holy", rod: "night",
+  king: "gold", soldier: "stone", elder: "wood", villager: "wood", crystal: "water",
+};
+const GBC_MON = {
+  goblin: "terra", bat: "night", toad: "terra", skeleton: "stone", wizard: "night",
+  golem: "earth", gargoyle: "stone", demon: "fire", treant: "terra", voidos: "night",
+  bird: "water", worm: "sand", kraken: "water", dragon: "fire", zarba: "night",
+  slime: "water", eye: "night", mantis: "terra", cat: "fire", wisp: "holy", crab: "fire",
+};
+function gbcPalFor(realName) {
+  let k = null;
+  if (SPR.tiles && SPR.tiles[realName]) k = GBC_TILE[realName];
+  else if (SPR.chars && SPR.chars[realName]) k = GBC_CHAR[String(realName).split("_")[0]];
+  else if (SPR.mons && SPR.mons[realName]) k = GBC_MON[realName];
+  return GBC_PALS[k] || GBC_PALS.stone;
+}
+
 // ---------------- ストレージ ----------------
 // localStorage がつかえない環境 (プライベートブラウズ/サンドボックス等) では
 // メモリに保存してゲームを続行できるようにする。パスワード機能で永続化を補う。
@@ -47,7 +94,8 @@ const Gfx = {
 
   // スプライト名 -> オフスクリーンキャンバス (パレット変換つき)
   sprite(name, variant) {
-    const key = name + "/" + (variant || "");
+    const gbc = typeof G !== "undefined" && G.state && G.state.config && G.state.config.gbc;
+    const key = name + "/" + (variant || "") + (gbc ? "/c" : "");
     if (this.cache.has(key)) return this.cache.get(key);
     let rows = null, scale = 1;
     const realName = (SPR.alias && SPR.alias[name]) || name;
@@ -69,7 +117,7 @@ const Gfx = {
         if (variant === "dark") pi = pi === 0 ? 2 : 3;
         else if (variant === "flash") pi = 3 - pi;
         else if (variant === "light") pi = Math.max(0, pi - 1); // こおり系リカラー
-        c.fillStyle = PAL[pi];
+        c.fillStyle = (gbc ? gbcPalFor(realName) : PAL)[pi];
         c.fillRect(x * scale, y * scale, scale, scale);
       }
     }
