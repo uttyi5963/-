@@ -1,7 +1,7 @@
 // クリスタルナイツ Service Worker
 // 方針: ネットワーク優先 (online なら つねに 最新を配信) + オフライン時は キャッシュに フォールバック。
 // キャッシュ名を バージョンで きりかえ、更新のたび 古いキャッシュを 破棄する。
-const CACHE = "ck-v11";
+const CACHE = "ck-v12";
 const ASSETS = [
   "./", "./index.html", "./manifest.json",
   "./icon-180.png", "./icon-512.png",

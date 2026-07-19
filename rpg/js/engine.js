@@ -817,6 +817,11 @@ const G = {
       s.party.forEach(patchHero);
       if (s.ngHeroes) Object.values(s.ngHeroes).forEach(patchHero);
       this.state = s;
+      // 無限回廊の 中で セーブしていたら 同じ階を 復元する
+      if (s.map === "endless") {
+        if (s.endless && s.endless.seed != null) Endless.build(s.endless.seed, s.endless.floor);
+        else { s.map = "world"; s.x = 5; s.y = 22; s.endless = null; }
+      }
       return true;
     } catch (e) { return false; }
   },
@@ -1210,6 +1215,11 @@ function runScript(ops, onDone) {
           music: op.battle.music,
           onWin: next,
         }));
+        return;
+      }
+      if (op.endless) {
+        // 無限回廊の しんこう (enter/down/leave/boss) は Endless に いにん
+        Endless.scriptOp(op.endless, next);
         return;
       }
       if (op.warp) {
