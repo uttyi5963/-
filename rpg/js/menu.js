@@ -22,6 +22,19 @@ function applyFieldItem(def, hero) {
     hero.mp = Math.min(hero.maxmp, hero.mp + def.statMp);
     return `${hero.name}の 最大MPが ${def.statMp} あがった!`;
   }
+  // 力/体力/素早さ/知性の 果実 (永続アップ)
+  if (def.statStr || def.statVit || def.statAgi || def.statInt) {
+    if (hero.hp <= 0) return null;
+    const kinds = [["statStr", "bonusStr", "ちから"], ["statVit", "bonusVit", "たいりょく"],
+      ["statAgi", "bonusAgi", "すばやさ"], ["statInt", "bonusInt", "かしこさ"]];
+    for (const [k, b, label] of kinds) {
+      if (def[k]) {
+        hero[b] = (hero[b] || 0) + def[k];
+        G.applyStats(hero);
+        return `${hero.name}の ${label}が ${def[k]} あがった!`;
+      }
+    }
+  }
   if (def.partyheal) {
     G.state.party.forEach((h) => {
       if (h.hp > 0) {
@@ -1437,6 +1450,11 @@ class ShopScene {
     this.notice = "いらっしゃい! なにをお のぞみだい?";
   }
 
+  // かくれ商人など: flatPrice が あれば 全品 その値段
+  priceOf(id) {
+    return this.shop.flatPrice != null ? this.shop.flatPrice : DATA.items[id].price;
+  }
+
   update() {
     if (this.state === "root") {
       const opts = 3;
@@ -1457,11 +1475,12 @@ class ShopScene {
       if (Input.tap("a")) {
         const id = stock[this.sub];
         const def = DATA.items[id];
-        if (G.state.gold < def.price) {
+        const price = this.priceOf(id);
+        if (G.state.gold < price) {
           AudioSys.sfx("buzz");
           this.notice = "お金が たりないよ!";
         } else {
-          G.state.gold -= def.price;
+          G.state.gold -= price;
           G.addItem(id);
           AudioSys.sfx("chest");
           this.notice = `${def.name}を おかいあげ! まいど!`;
@@ -1516,7 +1535,7 @@ class ShopScene {
         const def = DATA.items[id];
         const y = 58 + i * 19;
         Gfx.text(def.name, 32, y);
-        Gfx.textR(def.price + "G", 250, y);
+        Gfx.textR(this.priceOf(id) + "G", 250, y);
         Gfx.textR("x" + (G.state.items[id] || 0), 300, y, 3, 10);
         if (this.scroll + i === this.sub) Gfx.cursor(18, y + 3);
       });

@@ -870,7 +870,8 @@ DATA.shops = {
             "w_comet", "w_starlance", "w_cosmoclaw", "w_nebularod", "w_moonwand",
             "a_comet", "a_moonrobe", "a_stargi",
             "acc_galecloak", "acc_guardring", "acc_giantbelt", "acc_magepend", "acc_luckcoin",
-            "fruit_life", "fruit_mana", "acc_herobangle", "acc_phoenixpin"],
+            "fruit_life", "fruit_mana", "fruit_power", "fruit_guard", "fruit_speed", "fruit_mind",
+            "acc_herobangle", "acc_phoenixpin"],
   },
   royal: {
     name: "王宮ごようたし",
@@ -8525,3 +8526,51 @@ const Endless = {
 // ---------------- 世界に 入口を おく ----------------
 _putIcon("world", 5, 21, "E", "icon_cave");
 DATA.maps.world.events.push({ x: 5, y: 21, type: "enter", script: [{ endless: "enter" }] });
+
+// ============================================================
+// 裏技: 玉座のかくれ商人 (全品10ギル) と ステータスの果実
+// レベル99の 上限を こえて HP/MP/ステータスを のばすための
+// クリア後の おたのしみ要素。玉座の うしろに かくれている。
+// ============================================================
+
+// ---------------- ステータスの果実 (永続アップ・果実シリーズ拡充) ----------------
+Object.assign(DATA.items, {
+  fruit_power: { name: "剛力の果実", kind: "use", price: 25000, statStr: 3, desc: "ちからが 3 あがる (永続)" },
+  fruit_guard: { name: "大地の果実", kind: "use", price: 25000, statVit: 3, desc: "たいりょくが 3 あがる (永続)" },
+  fruit_speed: { name: "疾風の果実", kind: "use", price: 25000, statAgi: 3, desc: "すばやさが 3 あがる (永続)" },
+  fruit_mind:  { name: "叡智の果実", kind: "use", price: 25000, statInt: 3, desc: "かしこさが 3 あがる (永続)" },
+});
+
+// ---------------- かくれ商人のみせ (全品 10ギル) ----------------
+// だいじなもの(キーアイテム)いがいの ぜんアイテムを 10ギルで うる。
+// 果実 → 消耗品 → 武器 → 防具 → アクセの じゅんに ならべる。
+DATA.shops.secret10 = {
+  name: "かくれ商人 (ぜんぴん10ギル)",
+  flatPrice: 10,
+  stock: (() => {
+    const order = { use: 0, weapon: 1, armor: 2, acc: 3 };
+    return Object.entries(DATA.items)
+      .filter(([, d]) => d.kind !== "key")
+      .sort(([aid, a], [bid, b]) => {
+        const ka = order[a.kind] ?? 9, kb = order[b.kind] ?? 9;
+        if (ka !== kb) return ka - kb;
+        const fa = aid.startsWith("fruit_") ? 0 : 1, fb = bid.startsWith("fruit_") ? 0 : 1;
+        return fa - fb;
+      })
+      .map(([id]) => id);
+  })(),
+};
+
+// ---------------- 玉座の うしろの かくれ商人 (踏むと 登場) ----------------
+for (const sx of [9, 10]) {
+  DATA.maps.castle.events.push({ x: sx, y: 0, type: "enter", script: [
+    { cond: { flag: "secretMerchant" },
+      then: [{ msg: "かくれ商人「よう、また きたな。\nみせの ものは ぜんぶ 10ギルだ。\nもってけ もってけ!」" }],
+      else: [
+        { msg: "……玉座の うしろに だれか いる!?" },
+        { msg: "かくれ商人「シーッ! 王様には ないしょだぜ。\nおれの みせは ぜんぴん 10ギルぽっきり。\nとっておきの 果実も あるぜ」" },
+        { flag: ["secretMerchant", 1] },
+      ] },
+    { shop: "secret10" },
+  ] });
+}
