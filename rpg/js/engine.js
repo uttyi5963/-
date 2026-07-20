@@ -503,6 +503,10 @@ const G = {
     // 果実による恒久ボーナス
     h.maxhp += h.bonusHp || 0;
     h.maxmp += h.bonusMp || 0;
+    h.str += h.bonusStr || 0;
+    h.vit += h.bonusVit || 0;
+    h.agi += h.bonusAgi || 0;
+    h.int += h.bonusInt || 0;
     // 熟練度ボーナス (戦闘で4回行動するごとに1あがる、最大99)
     const pg = DATA.profGrowth && DATA.profGrowth[h.id];
     if (pg && h.prof) {
