@@ -413,12 +413,18 @@ class MenuScene {
     Gfx.window(20, 40, 280, 180);
     Gfx.text(`${this.picked.name}の 呪文`, 32, 48);
     if (spells.length === 0) Gfx.text("フィールドで つかえる 呪文が ない", 40, 76, 3, 10);
-    spells.forEach((s, i) => {
+    // 6こずつの スクロールひょうじ (呪文が おおくても わくに おさまる)
+    const view = 6;
+    const sel = Math.min(this.sel2 || 0, Math.max(0, spells.length - 1));
+    const sc = Math.max(0, Math.min(sel - view + 1, spells.length - view));
+    spells.slice(sc, sc + view).forEach((s, i) => {
       const y = 72 + i * 19;
       Gfx.text(s.def.name, 48, y);
       Gfx.textR(`MP ${s.def.mp}`, 280, y);
-      if (i === (this.sel2 || 0)) Gfx.cursor(34, y + 3);
+      if (sc + i === sel) Gfx.cursor(34, y + 3);
     });
+    if (sc > 0) Gfx.text("▲", 286, 62, 2, 8);
+    if (sc + view < spells.length) Gfx.text("▼", 286, 180, 2, 8);
     Gfx.text(`MP ${this.picked.mp}/${this.picked.maxmp}`, 32, 198, 3, 10);
   }
 

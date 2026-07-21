@@ -883,13 +883,23 @@ class ChoiceScene {
     this.onPick = onPick;
     this.sel = 0;
     this.opaque = false;
-    this.x = opts.x ?? 210;
-    this.y = opts.y ?? 150;
     this.cancelable = opts.cancelable !== false;
+    // 画面に おさまるように 自動調整: 幅は いちばん長い せんたくし、
+    // たかさは 最大13行 (こえたら スクロール)、はみ出す いちは 内がわへ
+    const maxChars = Math.max(1, ...options.map((o) => String(o).length));
+    this.w = Math.max(100, Math.min(300, maxChars * 12 + 36));
+    this.view = Math.min(options.length, 13);
+    this.scroll = 0;
+    const h = this.view * 17 + 16;
+    this.x = Math.max(4, Math.min(opts.x ?? 210, 316 - this.w));
+    this.y = Math.max(4, Math.min(opts.y ?? 150, 284 - h));
   }
   update() {
     if (Input.tap("up")) { this.sel = (this.sel + this.options.length - 1) % this.options.length; AudioSys.sfx("cursor"); }
     if (Input.tap("down")) { this.sel = (this.sel + 1) % this.options.length; AudioSys.sfx("cursor"); }
+    // カーソルが 見えるいちに スクロールを ついずい
+    if (this.sel < this.scroll) this.scroll = this.sel;
+    if (this.sel >= this.scroll + this.view) this.scroll = this.sel - this.view + 1;
     if (Input.tap("a")) {
       AudioSys.sfx("confirm");
       const sel = this.sel;
@@ -902,12 +912,14 @@ class ChoiceScene {
     }
   }
   draw() {
-    const w = 100, h = this.options.length * 17 + 16;
+    const w = this.w, h = this.view * 17 + 16;
     Gfx.window(this.x, this.y, w, h);
-    this.options.forEach((op, i) => {
+    this.options.slice(this.scroll, this.scroll + this.view).forEach((op, i) => {
       Gfx.text(op, this.x + 22, this.y + 10 + i * 17);
     });
-    Gfx.cursor(this.x + 10, this.y + 13 + this.sel * 17);
+    if (this.scroll > 0) Gfx.text("▲", this.x + w - 16, this.y + 6, 2, 8);
+    if (this.scroll + this.view < this.options.length) Gfx.text("▼", this.x + w - 16, this.y + h - 12, 2, 8);
+    Gfx.cursor(this.x + 10, this.y + 13 + (this.sel - this.scroll) * 17);
   }
 }
 
