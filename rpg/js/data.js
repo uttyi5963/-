@@ -8332,6 +8332,21 @@ const Endless = {
         { x: 1, y: 6, type: "enter", script: [{ endless: "leave" }] },
       ];
       if (!last) m.events.push({ x: 6, y: 1, type: "enter", script: [{ endless: "down" }] });
+      // ふしめの階には 回復クリスタル (番人戦の 前後に 全回復できる)
+      m.npcs.push({ id: "endless_heal_" + floor, x: 10, y: 5, spr: "crystal",
+        script: [
+          { msg: "回廊の クリスタルが しずかに\n光っている……。" },
+          { menu: { x: 150, y: 150, options: [
+            { label: "祈る", ops: [
+              { healParty: 1 },
+              { msg: "光が 体をつつみ、\n仲間全員が 完全に 回復した!" },
+            ] },
+            { label: "立ち去る", ops: [] },
+          ] } },
+        ] });
+      // ふしめの階に ついた時点で チェックポイントを 記録
+      // (帰還しても 次回 この階から 再開できる)
+      if (floor > (G.state.flags.endlessCkpt || 0)) G.setFlag("endlessCkpt", floor);
       this.landing = { x: 6, y: 6, dir: "u" };
     } else {
       // 迷路フロア: あなほり法で 完全連結の 迷路を 生成
@@ -8386,6 +8401,33 @@ const Endless = {
       }
       grid[ly][lx] = "P";
       grid[far[1]][far[0]] = "s";
+      // 行き止まりに 宝箱を 2つまで (回復アイテム or ギル・階が深いほど 豪華)
+      // 中身は シード固定なので セーブ復元でも おなじ。とった記録は
+      // 階の くみたてごとに リセットされる (回廊は 毎回 べつの迷路のため)
+      for (const k of Object.keys(G.state.flags)) {
+        if (/^chest_ec\d/.test(k)) delete G.state.flags[k];
+      }
+      const deadEnds = [];
+      for (let cy = 0; cy < CH; cy++) for (let cx = 0; cx < CW; cx++) {
+        const tx = cx * 2 + 1, ty = cy * 2 + 1;
+        if (grid[ty][tx] !== ".") continue; // P/s/かべ は のぞく
+        let open = 0;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          if (grid[ty + dy] && grid[ty + dy][tx + dx] !== "#") open++;
+        }
+        if (open === 1) deadEnds.push([tx, ty]);
+      }
+      const lootFor = () => {
+        const roll = rand();
+        if (floor < 20) return roll < 0.3 ? { gold: 500 } : { item: ["potion", "hipotion", "ether"][Math.floor(rand() * 3)] };
+        if (floor < 50) return roll < 0.3 ? { gold: 2500 } : { item: ["hipotion", "megapotion", "ether", "phoenix"][Math.floor(rand() * 4)] };
+        if (floor < 80) return roll < 0.3 ? { gold: 8000 } : { item: ["xpotion", "megapotion", "hiether", "elixir"][Math.floor(rand() * 4)] };
+        return roll < 0.3 ? { gold: 20000 } : { item: ["elixir", "xpotion", "hiether"][Math.floor(rand() * 3)] };
+      };
+      for (let i = 0; i < 2 && deadEnds.length > 0; i++) {
+        const [cx2, cy2] = deadEnds.splice(Math.floor(rand() * deadEnds.length), 1)[0];
+        m.chests.push({ id: `ec${floor}_${i}`, x: cx2, y: cy2, ...lootFor() });
+      }
       m.rows = grid.map((r) => r.join(""));
       m.encounter = "endless";
       m.events = [
@@ -8441,23 +8483,26 @@ const Endless = {
   scriptOp(kind, next) {
     if (kind === "enter") {
       const begin = () => {
+        // とうたつずみの ふしめ (10,20,…,90,99) は どこからでも 再開できる
         const ckpt = G.state.flags.endlessCkpt || 0;
-        const opts = ["1かいから いどむ"];
-        if (ckpt >= 11) opts.push(`${ckpt}かいから いどむ`);
+        const floors = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99]
+          .filter((f) => f === 1 || ckpt >= f);
+        const opts = floors.map((f) => `${f}かいから いどむ`);
         opts.push("やめておく");
         G.push(new ChoiceScene(opts, (sel) => {
-          if (sel < 0 || sel === opts.length - 1) return next();
+          if (sel < 0 || sel >= floors.length) return next();
           G.state.endless = { seed: Math.floor(Math.random() * 1e9), floor: 0, beaten: {} };
-          this.goto(sel === 0 ? 1 : ckpt);
+          this.goto(floors[sel]);
           next();
-        }, { x: 150, y: 110 }));
+        }, { x: 140, y: 60 }));
       };
       if (!G.flag("endlessIntro")) {
         G.setFlag("endlessIntro", 1);
         G.push(new MessageScene([
           "ふるびた 石の とびらに こう きざまれている……",
           "『ここは 無限回廊。ちに もぐるほど\n魔は たけく たからは かがやく。\n10のふしめに 番人 まちうけん』",
-          "『いずみを ふめば ちじょうへ もどれる。\n99の そこにて らせんの王 ねむる』",
+          "『いずみを ふめば ちじょうへ もどれる。\nふしめに いたった者は いつでも\nその階から 再開 できよう』",
+          "『ふしめには 回復の クリスタルと 番人が\nまちうける。99の そこにて\nらせんの王 ねむる』",
         ], begin));
         return;
       }
@@ -8472,16 +8517,22 @@ const Endless = {
       return;
     }
     if (kind === "leave") {
-      G.push(new ChoiceScene(["ちじょうへ もどる", "やめる"], (sel) => {
-        if (sel !== 0) return next();
-        G.fade(() => {
-          G.state.endless = null;
-          G.state.map = "world"; G.state.x = 5; G.state.y = 22; G.state.dir = "d";
-          const fs = G.scenes.find((s) => s instanceof FieldScene);
-          if (fs) fs.loadMap();
-        });
-        next();
-      }, { x: 150, y: 120 }));
+      const isBossFloor = st.floor % 10 === 0 || st.floor === 99;
+      const note = isBossFloor
+        ? "いずみが ささやく……\n『ふしめの きろくは のこる。つぎは\nこの階から すぐに いどめるだろう』"
+        : "いずみが ささやく……\n『つぎに くるときは 1かい、または\nとうたつずみの ふしめの階から となる』";
+      G.push(new MessageScene(note, () => {
+        G.push(new ChoiceScene(["ちじょうへ もどる", "やめる"], (sel) => {
+          if (sel !== 0) return next();
+          G.fade(() => {
+            G.state.endless = null;
+            G.state.map = "world"; G.state.x = 5; G.state.y = 22; G.state.dir = "d";
+            const fs = G.scenes.find((s) => s instanceof FieldScene);
+            if (fs) fs.loadMap();
+          });
+          next();
+        }, { x: 150, y: 120 }));
+      }));
       return;
     }
     if (kind === "boss") {
@@ -8496,7 +8547,6 @@ const Endless = {
           boss: true, music: last ? "spirit" : "boss",
           onWin: () => {
             st.beaten[f] = 1;
-            G.setFlag("endlessCkpt", Math.max(G.state.flags.endlessCkpt || 0, Math.min(99, f + 1)));
             const rid = this.rewards[f];
             const ops = [];
             if (rid && !G.flag("endlessReward" + f)) {
