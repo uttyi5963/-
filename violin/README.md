@@ -44,7 +44,7 @@ SWのキャッシュバージョンは `build.mjs` 先頭の `SW_CACHE_VERSION` 
 
 ## 主な機能
 
-- **課題ソース4種**: 内蔵曲(クロイツェル9番) / MusicXML・MXLファイル / 音階プリセット13種 / 自由入力
+- **課題ソース4種**: 内蔵曲(クロイツェル9番・12番) / MusicXML・MXLファイル / 音階プリセット13種 / 自由入力
 - **進み方2モード**: 合ったら次へ(ホールド判定) / メトロノーム(音価から時間枠を計算して自動進行)
 - **練習モード2種**:
   - 通し
@@ -60,10 +60,15 @@ SWのキャッシュバージョンは `build.mjs` 先頭の `SW_CACHE_VERSION` 
 ```
 IMSLPのきれいな版PDF(1曲分)
   → iOSアプリ「楽譜スキャナー」でスキャン → MusicXML書き出し
-  → このアプリの「ファイル」タブで読み込んで動作確認
-  → 検証(音域G3–E7内 / 主声部 / 音数 / fifths)
-  → data/pieces.data.js のコンパクト形式に変換して追加 → node build.mjs
+  → node tools/xml2compact.mjs <file.musicxml>   # 検証レポート(音域/fifths/疑義箇所)
+  → node tools/xml2compact.mjs <file.musicxml> --json   # コンパクト形式を出力
+  → data/pieces.data.js に {id, label, composer, fifths, notesCompact} で追加
+  → node build.mjs && node test/check.mjs
 ```
+
+`tools/xml2compact.mjs` はアプリ本体のMusicXMLパーサと同じ規則
+(休符/装飾音/和音/タイ後続の除外、主声部選択)で変換し、
+連桁グループ内の隣接同音などスキャンミスの疑いも報告する。
 
 - コンパクト形式: `[step, octave, alter, dur, flags]`。
   flags: `1=小節頭, 2=スラー開始, 4=スラー終了, 8=付点, 16/32/64=連桁begin/continue/end`
@@ -73,7 +78,8 @@ IMSLPのきれいな版PDF(1曲分)
 
 ## 未実装・次の候補
 
-- [ ] クロイツェル10番・12番ほかの内蔵化(分割PDF→楽譜スキャナー経由のXML待ち)
+- [ ] クロイツェル10番ほかの内蔵化(分割PDF→楽譜スキャナー経由のXML待ち)
+- [ ] 12番の疑義箇所の照合(小節7の音番号87-88、小節23のB#表記×3。詳細はPR #18参照)
 - [ ] 9番のスラー手動補完(原本PDF参照。表示機構は実装済み)
 - [ ] スラー通りに弾けたかの判定(音の切れ目検出が必要、難度高)
 - [ ] 練習カレンダー・連続日数、保護者用設定ロック、文字サイズ大モード
