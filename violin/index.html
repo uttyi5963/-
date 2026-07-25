@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7c3aed">
+<title>バイオリンれんしゅう — こどものきそツール</title>
+<meta name="description" content="子どものためのヴァイオリン基礎練習ツール。開放弦・チューナー・メトロノーム・音符クイズ・耳トレ・練習記録がブラウザだけで動作。">
+<style>
+  :root{
+    --bg:#fdf6ec; --card:#ffffff; --ink:#3b2f4a; --sub:#8a7f99;
+    --violet:#7c3aed; --violet-soft:#ede9fe;
+    --g:#f97316; --d:#10b981; --a:#3b82f6; --e:#ec4899;
+    --gold:#f59e0b; --ok:#22c55e; --ng:#ef4444;
+    --radius:20px; --shadow:0 4px 14px rgba(59,47,74,.10);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; padding:0}
+  body{
+    font-family:"Hiragino Maru Gothic ProN","BIZ UDGothic","Rounded Mplus 1c","Yu Gothic",system-ui,sans-serif;
+    background:var(--bg); color:var(--ink);
+    min-height:100dvh; display:flex; flex-direction:column;
+    user-select:none;
+  }
+  header.top{
+    padding:14px 16px 8px; text-align:center;
+  }
+  header.top h1{margin:0; font-size:1.25rem; letter-spacing:.04em}
+  header.top .sub{font-size:.75rem; color:var(--sub); margin-top:2px}
+  main{flex:1; width:100%; max-width:560px; margin:0 auto; padding:8px 14px 90px}
+  .view{display:none; animation:pop .25s ease}
+  .view.active{display:block}
+  @keyframes pop{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+  .card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin-bottom:14px}
+  .card h2{margin:0 0 8px; font-size:1.05rem}
+  .hint{font-size:.8rem; color:var(--sub); line-height:1.6}
+
+  /* bottom tab bar */
+  nav.tabs{
+    position:fixed; left:0; right:0; bottom:0; z-index:10;
+    display:flex; justify-content:space-around;
+    background:#fff; border-top:1px solid #eee4d5;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+  nav.tabs button{
+    flex:1; border:0; background:none; font-family:inherit; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    font-size:.62rem; color:var(--sub); padding:4px 0; border-radius:12px;
+  }
+  nav.tabs button .ico{font-size:1.35rem; line-height:1}
+  nav.tabs button.active{color:var(--violet); background:var(--violet-soft)}
+
+  /* open strings */
+  .strings{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .string-btn{
+    border:0; border-radius:var(--radius); padding:22px 8px; cursor:pointer;
+    font-family:inherit; color:#fff; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    transition:transform .1s ease;
+  }
+  .string-btn:active{transform:scale(.94)}
+  .string-btn .big{font-size:2.2rem; font-weight:700; line-height:1}
+  .string-btn .name{font-size:.85rem; opacity:.95}
+  .string-btn.playing{outline:4px solid rgba(255,255,255,.7); outline-offset:-6px}
+  .sG{background:var(--g)} .sD{background:var(--d)} .sA{background:var(--a)} .sE{background:var(--e)}
+
+  /* tuner */
+  .tuner-face{text-align:center; padding:8px 0}
+  .tuner-note{font-size:3.2rem; font-weight:700; line-height:1.1; min-height:1.2em}
+  .tuner-doremi{font-size:1rem; color:var(--sub); min-height:1.4em}
+  .meter{position:relative; height:64px; margin:10px 8px 2px}
+  .meter .scale{position:absolute; inset:0; border-radius:14px;
+    background:linear-gradient(90deg,#fecaca 0%,#fde68a 30%,#bbf7d0 45%,#86efac 50%,#bbf7d0 55%,#fde68a 70%,#fecaca 100%)}
+  .meter .center-line{position:absolute; top:6px; bottom:6px; left:50%; width:2px; background:rgba(59,47,74,.5); transform:translateX(-1px)}
+  .meter .needle{position:absolute; top:-4px; bottom:-4px; left:50%; width:6px; border-radius:3px;
+    background:var(--ink); transform:translateX(-3px); transition:left .12s linear}
+  .cents{font-size:.85rem; color:var(--sub); min-height:1.4em; margin-top:6px}
+  .bigbtn{
+    display:block; width:100%; border:0; border-radius:var(--radius); padding:14px;
+    font-family:inherit; font-size:1rem; font-weight:700; cursor:pointer;
+    background:var(--violet); color:#fff; box-shadow:var(--shadow);
+  }
+  .bigbtn.stop{background:var(--ng)}
+  .bigbtn:disabled{opacity:.5}
+
+  /* metronome */
+  .tempo-display{text-align:center; font-size:2.6rem; font-weight:700}
+  .tempo-display small{font-size:.9rem; font-weight:400; color:var(--sub)}
+  input[type=range]{width:100%; accent-color:var(--violet); height:36px}
+  .beat-dots{display:flex; justify-content:center; gap:14px; margin:12px 0}
+  .beat-dots .dot{width:26px; height:26px; border-radius:50%; background:#e9e2f7; transition:transform .08s, background .08s}
+  .beat-dots .dot.on{background:var(--violet); transform:scale(1.35)}
+  .beat-dots .dot.on.accent{background:var(--gold)}
+  .seg{display:flex; gap:8px; justify-content:center; margin-bottom:6px}
+  .seg button{
+    border:2px solid var(--violet-soft); background:#fff; color:var(--ink); border-radius:999px;
+    padding:8px 18px; font-family:inherit; font-size:.9rem; cursor:pointer;
+  }
+  .seg button.active{background:var(--violet); border-color:var(--violet); color:#fff}
+  .tempo-words{text-align:center; font-size:.8rem; color:var(--sub); margin-top:2px; min-height:1.2em}
+
+  /* quiz shared */
+  .quiz-q{display:flex; justify-content:center; margin:6px 0 12px}
+  .choices{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .choice{
+    border:0; border-radius:16px; padding:16px 8px; font-family:inherit; font-size:1.15rem; font-weight:700;
+    background:var(--violet-soft); color:var(--ink); cursor:pointer; box-shadow:var(--shadow);
+    transition:transform .1s;
+  }
+  .choice:active{transform:scale(.95)}
+  .choice.correct{background:var(--ok); color:#fff}
+  .choice.wrong{background:var(--ng); color:#fff}
+  .quiz-status{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:.9rem}
+  .quiz-fb{text-align:center; font-size:1.3rem; min-height:1.5em; margin:8px 0 2px; font-weight:700}
+  .quiz-fb.ok{color:var(--ok)} .quiz-fb.ng{color:var(--ng)}
+  .stars{color:var(--gold); letter-spacing:2px}
+
+  /* practice log */
+  .streak-banner{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    background:linear-gradient(135deg,#fef3c7,#fde68a); border-radius:var(--radius);
+    padding:14px; margin-bottom:14px; box-shadow:var(--shadow);
+  }
+  .streak-banner .num{font-size:2rem; font-weight:700}
+  .cal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px}
+  .cal-head button{border:0; background:var(--violet-soft); border-radius:10px; width:34px; height:34px; font-size:1rem; cursor:pointer; font-family:inherit}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center}
+  .cal-grid .wd{font-size:.7rem; color:var(--sub); padding:4px 0}
+  .cal-grid .day{
+    aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    border-radius:12px; font-size:.85rem; background:#faf6ff; position:relative;
+  }
+  .cal-grid .day.empty{background:none}
+  .cal-grid .day.stamped{background:var(--violet-soft)}
+  .cal-grid .day.stamped::after{content:"🌟"; position:absolute; font-size:1.05rem}
+  .cal-grid .day.stamped span{opacity:0}
+  .cal-grid .day.today{outline:2px solid var(--violet)}
+  .stamp-btn{margin-top:12px}
+  .stamp-btn.done{background:var(--ok)}
+
+  .celebrate{
+    position:fixed; inset:0; pointer-events:none; z-index:50; overflow:hidden; display:none;
+  }
+  .celebrate span{position:absolute; top:-8%; font-size:1.6rem; animation:fall 1.6s ease-in forwards}
+  @keyframes fall{to{transform:translateY(115vh) rotate(360deg); opacity:.8}}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>🎻 バイオリンれんしゅう</h1>
+  <div class="sub">まいにちすこしずつ、たのしくじょうずに！</div>
+</header>
+
+<main>
+  <!-- ===== 開放弦 ===== -->
+  <section class="view active" id="view-strings">
+    <div class="card">
+      <h2>🎵 かいほうげんのおと</h2>
+      <p class="hint">ボタンをおすと、げんのおとがなるよ。おとをよくきいて、じぶんのバイオリンとくらべてみよう。</p>
+      <div class="strings">
+        <button class="string-btn sE" data-str="E"><span class="big">E</span><span class="name">ミのげん（いちばんほそい）</span></button>
+        <button class="string-btn sA" data-str="A"><span class="big">A</span><span class="name">ラのげん</span></button>
+        <button class="string-btn sD" data-str="D"><span class="big">D</span><span class="name">レのげん</span></button>
+        <button class="string-btn sG" data-str="G"><span class="big">G</span><span class="name">ソのげん（いちばんふとい）</span></button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>💡 おぼえかた</h2>
+      <p class="hint">ふとい ほうから <b>ソ（G）→ レ（D）→ ラ（A）→ ミ（E）</b>。<br>「<b>ソレラミ</b>」で おぼえよう！ちょうせいするときは、この おとに あわせてね。</p>
+    </div>
+    <div class="card">
+      <h2>⚙️ きじゅんピッチ A =</h2>
+      <div class="seg" id="a4Seg">
+        <button data-a4="440">440</button>
+        <button data-a4="441">441</button>
+        <button data-a4="442" class="active">442</button>
+        <button data-a4="443">443</button>
+      </div>
+      <p class="hint">おとのたかさのきじゅん。せんせいにきいて、おなじすうじにしてね（ふつうは442）。</p>
+    </div>
+  </section>
+
+  <!-- ===== チューナー ===== -->
+  <section class="view" id="view-tuner">
+    <div class="card">
+      <h2>🎯 チューナー</h2>
+      <p class="hint">マイクをつかって、おとのたかさをはかるよ。げんを1本ずつひいてみよう。はりが まんなかの みどりにくれば バッチリ！</p>
+      <div class="tuner-face">
+        <div class="tuner-note" id="tunerNote">--</div>
+        <div class="tuner-doremi" id="tunerDoremi">マイクをオンにしてね</div>
+        <div class="meter">
+          <div class="scale"></div>
+          <div class="center-line"></div>
+          <div class="needle" id="tunerNeedle"></div>
+        </div>
+        <div class="cents" id="tunerCents">&nbsp;</div>
+      </div>
+      <button class="bigbtn" id="tunerToggle">🎤 マイクをオンにする</button>
+    </div>
+    <div class="card">
+      <h2>🎼 もっとれんしゅうしたいときは</h2>
+      <p class="hint">がくふをみながら 1おんずつ おんていをチェックできる「<b>音程チェッカー</b>」もつかってみよう。</p>
+      <a href="./pitch-checker.html" class="bigbtn" style="text-align:center; text-decoration:none; margin-top:10px">🎻 音程チェッカーをひらく</a>
+    </div>
+  </section>
+
+  <!-- ===== メトロノーム ===== -->
+  <section class="view" id="view-metro">
+    <div class="card">
+      <h2>🥁 メトロノーム</h2>
+      <div class="tempo-display"><span id="bpmVal">80</span> <small>BPM</small></div>
+      <div class="tempo-words" id="tempoWord">ゆっくり</div>
+      <input type="range" id="bpmSlider" min="40" max="180" value="80" step="1" aria-label="テンポ">
+      <div class="seg" id="beatSeg">
+        <button data-beats="2">2びょうし</button>
+        <button data-beats="3">3びょうし</button>
+        <button data-beats="4" class="active">4びょうし</button>
+      </div>
+      <div class="beat-dots" id="beatDots"></div>
+      <button class="bigbtn" id="metroToggle">▶ スタート</button>
+      <p class="hint" style="margin-top:10px">さいしょは ゆっくり（60〜80）から。まちがえずに ひけたら、すこしずつ はやくしよう。</p>
+    </div>
+  </section>
+
+  <!-- ===== 音符クイズ ===== -->
+  <section class="view" id="view-note">
+    <div class="card">
+      <h2>🎼 おんぷクイズ</h2>
+      <div class="quiz-status">
+        <span>もんだい <span id="noteQNum">1</span>/10</span>
+        <span class="stars" id="noteStars"></span>
+      </div>
+      <p class="hint">ごせんふの おんぷは なんの おと？</p>
+      <div class="quiz-q"><svg id="staffSvg" width="300" height="150" viewBox="0 0 300 150" role="img" aria-label="五線譜"></svg></div>
+      <div class="quiz-fb" id="noteFb">&nbsp;</div>
+      <div class="choices" id="noteChoices"></div>
+    </div>
+  </section>
+
+  <!-- ===== 耳トレ ===== -->
+  <section class="view" id="view-ear">
+    <div class="card">
+      <h2>👂 みみトレ</h2>
+      <div class="quiz-status">
+        <span>もんだい <span id="earQNum">1</span>/10</span>
+        <span class="stars" id="earStars"></span>
+      </div>
+      <p class="hint">なったおとは どのげん？ よくきいて あててみよう。</p>
+      <button class="bigbtn" id="earPlay" style="margin:6px 0 12px">🔊 おとをきく</button>
+      <div class="quiz-fb" id="earFb">&nbsp;</div>
+      <div class="choices" id="earChoices">
+        <button class="choice" data-str="G" style="background:#ffedd5">G（ソ）</button>
+        <button class="choice" data-str="D" style="background:#d1fae5">D（レ）</button>
+        <button class="choice" data-str="A" style="background:#dbeafe">A（ラ）</button>
+        <button class="choice" data-str="E" style="background:#fce7f3">E（ミ）</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 練習記録 ===== -->
+  <section class="view" id="view-log">
+    <div class="streak-banner">
+      <span style="font-size:1.8rem">🔥</span>
+      <div><div class="num"><span id="streakNum">0</span>日</div><div style="font-size:.75rem">れんぞくれんしゅう</div></div>
+      <span style="font-size:1.8rem">🎻</span>
+    </div>
+    <div class="card">
+      <div class="cal-head">
+        <button id="calPrev" aria-label="前の月">◀</button>
+        <h2 id="calTitle" style="margin:0"></h2>
+        <button id="calNext" aria-label="次の月">▶</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <button class="bigbtn stamp-btn" id="stampBtn">⭐ きょうのれんしゅう おわり！</button>
+      <p class="hint" style="margin-top:10px">れんしゅうがおわったら ボタンをおして スタンプをためよう。ぜんぶで <b id="totalStamps">0</b>こ たまったよ！</p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs" id="tabs">
+  <button data-view="strings" class="active"><span class="ico">🎵</span>げん</button>
+  <button data-view="tuner"><span class="ico">🎯</span>チューナー</button>
+  <button data-view="metro"><span class="ico">🥁</span>テンポ</button>
+  <button data-view="note"><span class="ico">🎼</span>おんぷ</button>
+  <button data-view="ear"><span class="ico">👂</span>みみ</button>
+  <button data-view="log"><span class="ico">⭐</span>きろく</button>
+</nav>
+
+<div class="celebrate" id="celebrate"></div>
+
+<script>
+'use strict';
+
+/* ================= 共通 ================= */
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+
+/* 基準ピッチ（音程チェッカーと同じく442がデフォルト） */
+const A4_KEY = 'violin-a4-v1';
+let a4 = Number(localStorage.getItem(A4_KEY)) || 442;
+
+/* semi: A4からの半音数 */
+const STRINGS = {
+  G: { semi: -14, doremi: 'ソ', color: '#f97316' },
+  D: { semi: -7,  doremi: 'レ', color: '#10b981' },
+  A: { semi: 0,   doremi: 'ラ', color: '#3b82f6' },
+  E: { semi: 7,   doremi: 'ミ', color: '#ec4899' },
+};
+const semiFreq = semi => a4 * Math.pow(2, semi / 12);
+const strFreq = key => semiFreq(STRINGS[key].semi);
+
+$$('#a4Seg button').forEach(b => b.classList.toggle('active', Number(b.dataset.a4) === a4));
+$('#a4Seg').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-a4]');
+  if (!btn) return;
+  a4 = Number(btn.dataset.a4);
+  localStorage.setItem(A4_KEY, a4);
+  $$('#a4Seg button').forEach(b => b.classList.toggle('active', b === btn));
+});
+
+let audioCtx = null;
+function ctx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+/* バイオリンっぽい音（のこぎり波 + ビブラート + ローパス） */
+function playTone(freq, dur = 1.6) {
+  const ac = ctx();
+  const t0 = ac.currentTime;
+  const osc = ac.createOscillator();
+  osc.type = 'sawtooth';
+  osc.frequency.value = freq;
+
+  const vib = ac.createOscillator();
+  vib.frequency.value = 5.5;
+  const vibGain = ac.createGain();
+  vibGain.gain.value = freq * 0.006;
+  vib.connect(vibGain).connect(osc.frequency);
+
+  const filter = ac.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = Math.min(freq * 6, 5000);
+  filter.Q.value = 1;
+
+  const gain = ac.createGain();
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(0.28, t0 + 0.08);
+  gain.gain.setValueAtTime(0.28, t0 + dur - 0.4);
+  gain.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+
+  osc.connect(filter).connect(gain).connect(ac.destination);
+  osc.start(t0); vib.start(t0);
+  osc.stop(t0 + dur); vib.stop(t0 + dur);
+  return dur;
+}
+
+function playClick(accent) {
+  const ac = ctx();
+  const t0 = ac.currentTime;
+  const osc = ac.createOscillator();
+  osc.type = 'square';
+  osc.frequency.value = accent ? 1600 : 1000;
+  const gain = ac.createGain();
+  gain.gain.setValueAtTime(accent ? 0.3 : 0.18, t0);
+  gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.08);
+  osc.connect(gain).connect(ac.destination);
+  osc.start(t0); osc.stop(t0 + 0.09);
+}
+
+/* タブ切り替え */
+$('#tabs').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-view]');
+  if (!btn) return;
+  $$('#tabs button').forEach(b => b.classList.toggle('active', b === btn));
+  $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + btn.dataset.view));
+  if (btn.dataset.view !== 'tuner') stopTuner();
+  if (btn.dataset.view !== 'metro') stopMetro();
+});
+
+/* お祝いアニメ */
+function celebrate() {
+  const box = $('#celebrate');
+  box.style.display = 'block';
+  box.innerHTML = '';
+  const emo = ['🌟','🎉','🎻','✨','💮','🎵'];
+  for (let i = 0; i < 24; i++) {
+    const s = document.createElement('span');
+    s.textContent = emo[i % emo.length];
+    s.style.left = Math.random() * 100 + '%';
+    s.style.animationDelay = (Math.random() * 0.5) + 's';
+    box.appendChild(s);
+  }
+  setTimeout(() => { box.style.display = 'none'; }, 2200);
+}
+
+/* ================= 開放弦 ================= */
+$$('.string-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const dur = playTone(strFreq(btn.dataset.str));
+    btn.classList.add('playing');
+    setTimeout(() => btn.classList.remove('playing'), dur * 1000);
+  });
+});
+
+/* ================= チューナー ================= */
+let tunerStream = null, tunerRAF = 0, analyser = null, tunerBuf = null;
+
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const DOREMI = ['ド','ド#','レ','レ#','ミ','ファ','ファ#','ソ','ソ#','ラ','ラ#','シ'];
+
+function freqToNote(freq) {
+  const midi = 69 + 12 * Math.log2(freq / a4);
+  const rounded = Math.round(midi);
+  return { name: NOTE_NAMES[(rounded % 12 + 12) % 12], doremi: DOREMI[(rounded % 12 + 12) % 12], cents: Math.round((midi - rounded) * 100) };
+}
+
+/* 自己相関によるピッチ検出 */
+function detectPitch(buf, sampleRate) {
+  const n = buf.length;
+  let rms = 0;
+  for (let i = 0; i < n; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / n);
+  if (rms < 0.01) return -1;
+
+  const maxLag = Math.floor(sampleRate / 80);   // 80Hz まで
+  const minLag = Math.floor(sampleRate / 1200); // 1200Hz まで
+  let bestLag = -1, bestCorr = 0;
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    let corr = 0;
+    for (let i = 0; i < n - lag; i++) corr += buf[i] * buf[i + lag];
+    corr /= (n - lag);
+    if (corr > bestCorr) { bestCorr = corr; bestLag = lag; }
+  }
+  if (bestLag < 0 || bestCorr < rms * rms * 0.3) return -1;
+  return sampleRate / bestLag;
+}
+
+function tunerLoop() {
+  analyser.getFloatTimeDomainData(tunerBuf);
+  const freq = detectPitch(tunerBuf, audioCtx.sampleRate);
+  if (freq > 0) {
+    const { name, doremi, cents } = freqToNote(freq);
+    $('#tunerNote').textContent = name;
+    $('#tunerDoremi').textContent = doremi + '（' + freq.toFixed(1) + ' Hz）';
+    const clamped = Math.max(-50, Math.min(50, cents));
+    $('#tunerNeedle').style.left = (50 + clamped) + '%';
+    if (Math.abs(cents) <= 5) {
+      $('#tunerCents').textContent = '✨ バッチリ！';
+      $('#tunerNote').style.color = 'var(--ok)';
+    } else {
+      $('#tunerCents').textContent = cents > 0 ? 'すこし たかいよ（−' + Math.abs(cents) + '）' : 'すこし ひくいよ（＋' + Math.abs(cents) + '）';
+      $('#tunerNote').style.color = 'var(--ink)';
+    }
+  } else {
+    $('#tunerCents').textContent = 'おとをきかせてね…';
+  }
+  tunerRAF = requestAnimationFrame(tunerLoop);
+}
+
+async function startTuner() {
+  try {
+    tunerStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+  } catch (err) {
+    $('#tunerDoremi').textContent = 'マイクがつかえなかったよ。おうちのひとにきいてみてね。';
+    return;
+  }
+  const ac = ctx();
+  const src = ac.createMediaStreamSource(tunerStream);
+  analyser = ac.createAnalyser();
+  analyser.fftSize = 2048;
+  tunerBuf = new Float32Array(analyser.fftSize);
+  src.connect(analyser);
+  $('#tunerToggle').textContent = '⏹ マイクをとめる';
+  $('#tunerToggle').classList.add('stop');
+  $('#tunerDoremi').textContent = 'げんを ひいてみよう！';
+  tunerLoop();
+}
+
+function stopTuner() {
+  if (tunerRAF) cancelAnimationFrame(tunerRAF);
+  tunerRAF = 0;
+  if (tunerStream) { tunerStream.getTracks().forEach(t => t.stop()); tunerStream = null; }
+  $('#tunerToggle').textContent = '🎤 マイクをオンにする';
+  $('#tunerToggle').classList.remove('stop');
+}
+
+$('#tunerToggle').addEventListener('click', () => tunerStream ? stopTuner() : startTuner());
+
+/* ================= メトロノーム ================= */
+let metroTimer = 0, metroBeat = 0, metroBeats = 4;
+
+const TEMPO_WORDS = [ [60,'とてもゆっくり'], [90,'ゆっくり'], [120,'ふつう'], [150,'はやい'], [181,'とてもはやい'] ];
+function tempoWord(bpm){ for (const [lim, w] of TEMPO_WORDS) if (bpm < lim) return w; return 'とてもはやい'; }
+
+function renderDots() {
+  const box = $('#beatDots');
+  box.innerHTML = '';
+  for (let i = 0; i < metroBeats; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    box.appendChild(d);
+  }
+}
+renderDots();
+
+function metroTick() {
+  const accent = metroBeat === 0;
+  playClick(accent);
+  $$('#beatDots .dot').forEach((d, i) => {
+    d.classList.toggle('on', i === metroBeat);
+    d.classList.toggle('accent', i === metroBeat && accent);
+  });
+  metroBeat = (metroBeat + 1) % metroBeats;
+}
+
+function startMetro() {
+  ctx();
+  metroBeat = 0;
+  metroTick();
+  metroTimer = setInterval(metroTick, 60000 / Number($('#bpmSlider').value));
+  $('#metroToggle').textContent = '⏹ ストップ';
+  $('#metroToggle').classList.add('stop');
+}
+
+function stopMetro() {
+  if (!metroTimer) return;
+  clearInterval(metroTimer);
+  metroTimer = 0;
+  $$('#beatDots .dot').forEach(d => d.classList.remove('on','accent'));
+  $('#metroToggle').textContent = '▶ スタート';
+  $('#metroToggle').classList.remove('stop');
+}
+
+$('#metroToggle').addEventListener('click', () => metroTimer ? stopMetro() : startMetro());
+
+$('#bpmSlider').addEventListener('input', () => {
+  const bpm = Number($('#bpmSlider').value);
+  $('#bpmVal').textContent = bpm;
+  $('#tempoWord').textContent = tempoWord(bpm);
+  if (metroTimer) { clearInterval(metroTimer); metroTimer = setInterval(metroTick, 60000 / bpm); }
+});
+
+$('#beatSeg').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-beats]');
+  if (!btn) return;
+  $$('#beatSeg button').forEach(b => b.classList.toggle('active', b === btn));
+  metroBeats = Number(btn.dataset.beats);
+  metroBeat = 0;
+  renderDots();
+});
+
+/* ================= 音符クイズ ================= */
+/* ファーストポジションでよく使う音（ト音記号） */
+const QUIZ_NOTES = [
+  { name: 'ソ', en: 'G', pos: -2,  semi: -14 },  // G3 下第2線
+  { name: 'ラ', en: 'A', pos: -1.5,semi: -12 },
+  { name: 'シ', en: 'B', pos: -1,  semi: -10 },
+  { name: 'ド', en: 'C', pos: -0.5,semi: -9 },   // 中央ド 下第1線
+  { name: 'レ', en: 'D', pos: 0,   semi: -7 },   // 第1線の下
+  { name: 'ミ', en: 'E', pos: 0.5, semi: -5 },   // 第1線
+  { name: 'ファ', en: 'F', pos: 1, semi: -4 },
+  { name: 'ソ', en: 'G', pos: 1.5, semi: -2 },   // 第2線
+  { name: 'ラ', en: 'A', pos: 2,   semi: 0 },
+  { name: 'シ', en: 'B', pos: 2.5, semi: 2 },    // 第3線
+  { name: 'ド', en: 'C', pos: 3,   semi: 3 },
+  { name: 'レ', en: 'D', pos: 3.5, semi: 5 },    // 第4線
+  { name: 'ミ', en: 'E', pos: 4,   semi: 7 },
+];
+
+const noteQuiz = { qNum: 1, correct: 0, current: null, locked: false };
+
+/* pos: 0 = 第1線のすぐ下(D4)。0.5きざみで半スペースずつ上へ */
+function drawStaff(note) {
+  const svg = $('#staffSvg');
+  const W = 300, lineGap = 14;
+  const bottomLineY = 104; // 第1線(E4=pos0.5)のy
+  const yFor = pos => bottomLineY + lineGap/2 - pos * lineGap;
+  let html = '';
+  for (let i = 0; i < 5; i++) {
+    const y = bottomLineY - i * lineGap;
+    html += `<line x1="20" y1="${y}" x2="${W-20}" y2="${y}" stroke="#3b2f4a" stroke-width="1.6"/>`;
+  }
+  html += `<text x="30" y="${bottomLineY + 8}" font-size="64" fill="#3b2f4a" font-family="serif">&#x1D11E;</text>`;
+  const cx = 190, cy = yFor(note.pos);
+  // 加線
+  for (let p = -0.5; p >= note.pos; p -= 1) {
+    html += `<line x1="${cx-16}" y1="${yFor(p)}" x2="${cx+16}" y2="${yFor(p)}" stroke="#3b2f4a" stroke-width="1.6"/>`;
+  }
+  html += `<ellipse cx="${cx}" cy="${cy}" rx="10" ry="7.5" fill="#3b2f4a" transform="rotate(-18 ${cx} ${cy})"/>`;
+  const stemUp = note.pos < 2;
+  html += stemUp
+    ? `<line x1="${cx+9}" y1="${cy-2}" x2="${cx+9}" y2="${cy-42}" stroke="#3b2f4a" stroke-width="2"/>`
+    : `<line x1="${cx-9}" y1="${cy+2}" x2="${cx-9}" y2="${cy+42}" stroke="#3b2f4a" stroke-width="2"/>`;
+  svg.innerHTML = html;
+}
+
+function nextNoteQ() {
+  noteQuiz.locked = false;
+  $('#noteFb').textContent = ' ';
+  $('#noteFb').className = 'quiz-fb';
+  const note = QUIZ_NOTES[Math.floor(Math.random() * QUIZ_NOTES.length)];
+  noteQuiz.current = note;
+  drawStaff(note);
+  const names = ['ド','レ','ミ','ファ','ソ','ラ','シ'];
+  const opts = new Set([note.name]);
+  while (opts.size < 4) opts.add(names[Math.floor(Math.random() * names.length)]);
+  const shuffled = [...opts].sort(() => Math.random() - 0.5);
+  $('#noteChoices').innerHTML = shuffled.map(n => `<button class="choice" data-name="${n}">${n}</button>`).join('');
+  $('#noteQNum').textContent = noteQuiz.qNum;
+}
+
+$('#noteChoices').addEventListener('click', (e) => {
+  const btn = e.target.closest('.choice');
+  if (!btn || noteQuiz.locked) return;
+  noteQuiz.locked = true;
+  const ok = btn.dataset.name === noteQuiz.current.name;
+  btn.classList.add(ok ? 'correct' : 'wrong');
+  if (!ok) $$('#noteChoices .choice').find(b => b.dataset.name === noteQuiz.current.name)?.classList.add('correct');
+  playTone(semiFreq(noteQuiz.current.semi), 1.0);
+  const fb = $('#noteFb');
+  fb.textContent = ok ? '⭕ せいかい！' : '❌ ざんねん… こたえは「' + noteQuiz.current.name + '」';
+  fb.className = 'quiz-fb ' + (ok ? 'ok' : 'ng');
+  if (ok) { noteQuiz.correct++; $('#noteStars').textContent += '★'; }
+  setTimeout(() => {
+    if (noteQuiz.qNum >= 10) {
+      fb.textContent = '🎊 おしまい！ ' + noteQuiz.correct + '/10 もん せいかい！';
+      fb.className = 'quiz-fb ok';
+      if (noteQuiz.correct >= 8) celebrate();
+      noteQuiz.qNum = 1; noteQuiz.correct = 0;
+      setTimeout(() => { $('#noteStars').textContent = ''; nextNoteQ(); }, 2200);
+    } else {
+      noteQuiz.qNum++;
+      nextNoteQ();
+    }
+  }, 1600);
+});
+
+nextNoteQ();
+
+/* ================= 耳トレ ================= */
+const earQuiz = { qNum: 1, correct: 0, current: null, locked: false, played: false };
+
+function nextEarQ() {
+  earQuiz.locked = false;
+  earQuiz.played = false;
+  $('#earFb').textContent = ' ';
+  $('#earFb').className = 'quiz-fb';
+  const keys = Object.keys(STRINGS);
+  earQuiz.current = keys[Math.floor(Math.random() * keys.length)];
+  $('#earQNum').textContent = earQuiz.qNum;
+}
+
+$('#earPlay').addEventListener('click', () => {
+  if (!earQuiz.current) return;
+  playTone(strFreq(earQuiz.current), 1.4);
+  earQuiz.played = true;
+});
+
+$('#earChoices').addEventListener('click', (e) => {
+  const btn = e.target.closest('.choice');
+  if (!btn || earQuiz.locked) return;
+  if (!earQuiz.played) { $('#earFb').textContent = 'さきに「おとをきく」をおしてね'; return; }
+  earQuiz.locked = true;
+  const ok = btn.dataset.str === earQuiz.current;
+  btn.classList.add(ok ? 'correct' : 'wrong');
+  const fb = $('#earFb');
+  fb.textContent = ok ? '⭕ せいかい！' : '❌ こたえは ' + earQuiz.current + '（' + STRINGS[earQuiz.current].doremi + '）のげん';
+  fb.className = 'quiz-fb ' + (ok ? 'ok' : 'ng');
+  if (ok) { earQuiz.correct++; $('#earStars').textContent += '★'; }
+  setTimeout(() => {
+    $$('#earChoices .choice').forEach(b => b.classList.remove('correct','wrong'));
+    if (earQuiz.qNum >= 10) {
+      fb.textContent = '🎊 おしまい！ ' + earQuiz.correct + '/10 もん せいかい！';
+      fb.className = 'quiz-fb ok';
+      if (earQuiz.correct >= 8) celebrate();
+      earQuiz.qNum = 1; earQuiz.correct = 0;
+      setTimeout(() => { $('#earStars').textContent = ''; nextEarQ(); }, 2200);
+    } else {
+      earQuiz.qNum++;
+      nextEarQ();
+    }
+  }, 1600);
+});
+
+nextEarQ();
+
+/* ================= 練習記録 ================= */
+const LOG_KEY = 'violin-practice-log-v1';
+
+function loadLog() {
+  try { return JSON.parse(localStorage.getItem(LOG_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveLog(log) { localStorage.setItem(LOG_KEY, JSON.stringify(log)); }
+function dateKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+let calCursor = new Date();
+
+function calcStreak(log) {
+  let streak = 0;
+  const d = new Date();
+  if (!log[dateKey(d)]) d.setDate(d.getDate() - 1); // 今日未実施なら昨日から数える
+  while (log[dateKey(d)]) { streak++; d.setDate(d.getDate() - 1); }
+  return streak;
+}
+
+function renderCal() {
+  const log = loadLog();
+  const y = calCursor.getFullYear(), m = calCursor.getMonth();
+  $('#calTitle').textContent = y + 'ねん ' + (m+1) + 'がつ';
+  const grid = $('#calGrid');
+  const wd = ['にち','げつ','か','すい','もく','きん','ど'];
+  let html = wd.map(w => `<div class="wd">${w}</div>`).join('');
+  const first = new Date(y, m, 1).getDay();
+  const days = new Date(y, m+1, 0).getDate();
+  for (let i = 0; i < first; i++) html += '<div class="day empty"></div>';
+  const todayKey = dateKey(new Date());
+  for (let d = 1; d <= days; d++) {
+    const key = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const cls = ['day'];
+    if (log[key]) cls.push('stamped');
+    if (key === todayKey) cls.push('today');
+    html += `<div class="${cls.join(' ')}"><span>${d}</span></div>`;
+  }
+  grid.innerHTML = html;
+
+  $('#streakNum').textContent = calcStreak(log);
+  $('#totalStamps').textContent = Object.keys(log).length;
+
+  const stamped = !!log[todayKey];
+  const btn = $('#stampBtn');
+  btn.classList.toggle('done', stamped);
+  btn.textContent = stamped ? '✅ きょうはスタンプずみ！' : '⭐ きょうのれんしゅう おわり！';
+  btn.disabled = stamped;
+}
+
+$('#stampBtn').addEventListener('click', () => {
+  const log = loadLog();
+  log[dateKey(new Date())] = true;
+  saveLog(log);
+  calCursor = new Date();
+  renderCal();
+  celebrate();
+});
+
+$('#calPrev').addEventListener('click', () => { calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1); renderCal(); });
+$('#calNext').addEventListener('click', () => { calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+1, 1); renderCal(); });
+
+renderCal();
+</script>
+</body>
+</html>
