@@ -844,7 +844,7 @@ function frame(){
     if(S.mode==='tuner'){
       const cents=(midiFloat-nearest)*100;
       centsForTrace=cents;needleCents=cents;
-      centsBigTxt=(cents>=0?'+':'')+cents.toFixed(0);
+      centsBigTxt=(cents>=0?'▲':'▼')+Math.abs(cents).toFixed(0);
       $('jpName').textContent=nName.jp;
       $('enName').textContent=nName.en;
       colorCents(cents,strict);
@@ -853,7 +853,7 @@ function frame(){
       const cents=1200*Math.log2(freq/tgt.target);
       centsForTrace=Math.max(-70,Math.min(70,cents));
       needleCents=cents;
-      centsBigTxt=(cents>=0?'+':'')+cents.toFixed(0);
+      centsBigTxt=(cents>=0?'▲':'▼')+Math.abs(cents).toFixed(0);
       colorCents(cents,strict);
 
       if(S.advMode==='metro'){
@@ -969,7 +969,8 @@ function updateGameBar(){
 function flashGrade(g,cents,earned,mult){
   const sym={good:'○',ok:'△',bad:'✕'}[g];
   const f=$('miniFlash');
-  let txt=sym+' '+(cents>=0?'+':'')+cents.toFixed(0)+'¢';
+  let txt=sym+' '+(cents>=0?'▲':'▼')+Math.abs(cents).toFixed(0)+'¢';
+  if(g!=='good')txt+=cents>=0?' 高め':' 低め';
   if(earned>0){
     txt+='  +'+earned+'点'+(mult>1?'(x'+mult+')':'');
   }
@@ -1134,6 +1135,18 @@ function renderScore(){
       }
       if(ring){ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);
         ctx.strokeStyle='#b3792a';ctx.lineWidth=1.6;ctx.stroke();}
+      // 高い/低いの矢印(△✕だった音だけ。符幹と反対側に、ズレの向きを▲▼で表示)
+      if(i<S.idx&&S.results[i]&&(S.results[i].grade==='ok'||S.results[i].grade==='bad')){
+        const r=S.results[i];
+        const sharp=r.cents>0;
+        const ay=(off<4)?y+16:y-16;
+        ctx.beginPath();
+        if(sharp){ctx.moveTo(x-5,ay+4);ctx.lineTo(x+5,ay+4);ctx.lineTo(x,ay-5);}
+        else{ctx.moveTo(x-5,ay-4);ctx.lineTo(x+5,ay-4);ctx.lineTo(x,ay+5);}
+        ctx.closePath();
+        ctx.fillStyle=r.grade==='bad'?'#c04a35':'#b3872a';
+        ctx.fill();
+      }
     });
     // ---- 符幹・連桁・旗 ----
     // 連桁グループを組み立てる(行内で完結させる)
@@ -1363,7 +1376,7 @@ function finish(){
     }
     div.innerHTML='<div class="nm">'+r.jp+'<small>'+r.en+'</small></div>'+
       '<div class="barwrap"><div class="zero"></div>'+barHtml+'</div>'+
-      '<div class="ct">'+(r.grade==='skip'?'—':(r.cents>=0?'+':'')+r.cents.toFixed(0)+'¢')+'</div>'+
+      '<div class="ct">'+(r.grade==='skip'?'—':(r.cents>=0?'▲':'▼')+Math.abs(r.cents).toFixed(0)+'¢')+'</div>'+
       '<div class="sym '+cls+'">'+sym+'</div>';
     rows.appendChild(div);
   });
