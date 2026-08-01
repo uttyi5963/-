@@ -171,6 +171,11 @@ canvas#score{width:100%;height:170px;display:block;background:#f5eedd;
   pointer-events:none;letter-spacing:.05em}
 .meter .mlab.l{left:6px}
 .meter .mlab.h{right:6px}
+.microw{display:flex;align-items:center;gap:6px;margin-top:5px}
+.miclab{font-size:10px;color:var(--dim);flex-shrink:0;letter-spacing:.05em}
+.micbar{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.micbar div{height:100%;width:0;background:var(--bad);border-radius:3px;transition:width .1s linear}
+.micbar div.ok{background:var(--good)}
 .readout{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px}
 .cents{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
 .detected{font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
@@ -467,6 +472,7 @@ canvas#score{width:100%;height:170px;display:block;background:#f5eedd;
               <span class="cents" id="centsBig">—</span>
               <span class="detected" id="detected">音を待っています…</span>
             </div>
+            <div class="microw"><span class="miclab">マイク</span><div class="micbar"><div id="micLevel"></div></div></div>
           </div>
         </div>
 

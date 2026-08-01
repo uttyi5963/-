@@ -664,12 +664,14 @@ $('score').addEventListener('click', e=>{
   showTapLabel(e.clientX,e.clientY,n.jp);
 });
 
+let lastRms=0;   // マイクレベル表示用
 function detectPitch(buf,sr){
   const SIZE=buf.length;
   let rms=0;
   for(let i=0;i<SIZE;i++)rms+=buf[i]*buf[i];
   rms=Math.sqrt(rms/SIZE);
-  if(rms<0.008)return -1;
+  lastRms=rms;
+  if(rms<0.004)return -1;   // 感度: 0.008から引き上げ(小さい音・距離のあるマイクでも拾う)
 
   const minLag=Math.max(8,Math.floor(sr/3000));   // ~F7まで(ヘ長調3oct音階の最高音F7≈2807Hz@A442に対応)
   const maxLag=Math.min(SIZE-2,Math.floor(sr/150)); // G3より下に少し余裕
@@ -848,7 +850,15 @@ function frame(){
   }
 
   const strict=STRICT[S.strict];
-  let centsForTrace=null, detTxt='音を待っています…', centsBigTxt='—', needleCents=null;
+  let centsForTrace=null, centsBigTxt='—', needleCents=null;
+  let detTxt=lastRms>=0.004?'音は聞こえています。高さを判定中…':'音を待っています…';
+
+  // マイクレベルバー(マイクが音を拾えているかの診断表示)
+  const lvl=$('micLevel');
+  if(lvl){
+    lvl.style.width=Math.min(100,Math.round(lastRms*900))+'%';
+    lvl.classList.toggle('ok',lastRms>=0.004);
+  }
 
   if(freq>0){
     const midiFloat=69+12*Math.log2(freq/S.a4);
@@ -1017,10 +1027,14 @@ function renderTarget(){
     },260);
   }else if(S.autoPlayNext&&S.advMode==='metro'&&metroOn){
     // メトロノームモードでもお手本音を鳴らす(音の時間枠に収まる長さで)。
-    // スピーカー再生だとお手本の音もマイクが拾い判定が甘くなるため、イヤホン推奨。
+    // 速い音符では鳴らさない: スピーカー使用時、連続する再生音をiOSの
+    // エコーキャンセルが打ち消す際に同じ音程のバイオリンの音まで抑制され、
+    // 「マイクが音を拾わない」状態になるため。
     const winSec=durBeats(n)*metroBeatMs/1000;
-    playReferenceTone(n.target,Math.max(0.22,Math.min(1.2,winSec*0.85)));
-    flashPreview(S.idx);
+    if(winSec>=0.35){
+      playReferenceTone(n.target,Math.max(0.25,Math.min(1.2,winSec*0.8)));
+      flashPreview(S.idx);
+    }
   }
 }
 /* ---- 五線譜表示 ---- */
