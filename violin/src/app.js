@@ -414,16 +414,74 @@ async function initAudio(){
     return false;
   }
   audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-  const src=audioCtx.createMediaStreamSource(mediaStream);
+  // iOSでは再生用(toneCtx)とマイク用(audioCtx)のサンプルレートが食い違うと
+  // どちらかが無音になる既知の不具合がある。食い違っていたら再生用を作り直す
+  if(toneCtx&&toneCtx.sampleRate!==audioCtx.sampleRate){
+    try{toneCtx.close();}catch(e){}
+    toneCtx=null;toneMaster=null;droneNodes=null;
+    violinBuffers={};violinLoadPromise=null;
+    ensureToneCtx();
+  }
+  micSrc=audioCtx.createMediaStreamSource(mediaStream);
   analyser=audioCtx.createAnalyser();
   analyser.fftSize=2048;
-  src.connect(analyser);
+  micSrc.connect(analyser);
   timeBuf=new Float32Array(analyser.fftSize);
   byteBuf=new Uint8Array(analyser.fftSize);
   await audioCtx.resume();
+  watchMicTrack();
   try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}
   return true;
 }
+
+/* ---- マイクの自己修復 ----
+   iOSはバックグラウンド復帰や割り込みでマイクを黙ってミュートすることがある。
+   完全な無音が続いたら状態を確認し、必要ならマイクを取り直す。 */
+let micSrc=null, silentSince=0, micReacquiring=false;
+function setMicState(txt){const el=$('micState');if(el)el.textContent=txt;}
+function watchMicTrack(){
+  const tr=mediaStream&&mediaStream.getAudioTracks()[0];
+  if(!tr)return;
+  tr.onmute=()=>setMicState('⚠️ マイクが一時停止されました。再接続します…');
+  tr.onunmute=()=>setMicState('');
+  tr.onended=()=>setMicState('⚠️ マイクが切断されました。再接続します…');
+}
+async function reacquireMic(){
+  try{
+    if(audioCtx&&audioCtx.state!=='running'){await audioCtx.resume();}
+    const tr=mediaStream&&mediaStream.getAudioTracks()[0];
+    if(tr&&tr.readyState==='live'&&!tr.muted&&audioCtx.state==='running'){
+      return;   // 系統は生きている(本当に無音なだけ)。取り直さない
+    }
+    setMicState('マイクを再接続しています…');
+    if(mediaStream)mediaStream.getTracks().forEach(t=>t.stop());
+    mediaStream=await navigator.mediaDevices.getUserMedia({audio:{
+      echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    if(micSrc)try{micSrc.disconnect();}catch(e){}
+    micSrc=audioCtx.createMediaStreamSource(mediaStream);
+    micSrc.connect(analyser);
+    watchMicTrack();
+    setMicState('マイクを再接続しました');
+    setTimeout(()=>setMicState(''),2500);
+  }catch(e){
+    setMicState('⚠️ マイクに接続できません。アプリを再起動してください');
+  }
+}
+function micWatchdog(now){
+  if(lastRms>0.0005){silentSince=0;return;}   // 部屋の環境音でもこの値は超える
+  if(!silentSince){silentSince=now;return;}
+  if(now-silentSince>3000&&!micReacquiring){
+    micReacquiring=true;
+    silentSince=now;   // 連続発火を防ぐ
+    reacquireMic().finally(()=>{micReacquiring=false;});
+  }
+}
+/* PWAがフォアグラウンドに戻ったら音声系を起こし直す */
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)return;
+  if(audioCtx&&S.running)audioCtx.resume();
+  if(toneCtx&&toneCtx.state==='suspended')toneCtx.resume();
+});
 function readTimeData(){
   if(analyser.getFloatTimeDomainData){analyser.getFloatTimeDomainData(timeBuf);}
   else{
@@ -859,6 +917,7 @@ function frame(){
     lvl.style.width=Math.min(100,Math.round(lastRms*900))+'%';
     lvl.classList.toggle('ok',lastRms>=0.004);
   }
+  micWatchdog(now);
 
   if(freq>0){
     const midiFloat=69+12*Math.log2(freq/S.a4);
