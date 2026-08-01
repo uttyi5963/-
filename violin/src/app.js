@@ -656,7 +656,7 @@ function detectPitch(buf,sr){
   rms=Math.sqrt(rms/SIZE);
   if(rms<0.008)return -1;
 
-  const minLag=Math.max(8,Math.floor(sr/2800));   // ~E7まで
+  const minLag=Math.max(8,Math.floor(sr/3000));   // ~F7まで(ヘ長調3oct音階の最高音F7≈2807Hz@A442に対応)
   const maxLag=Math.min(SIZE-2,Math.floor(sr/150)); // G3より下に少し余裕
   const c=new Float32Array(maxLag+2);
   for(let lag=0;lag<=maxLag+1;lag++){
@@ -680,7 +680,7 @@ function detectPitch(buf,sr){
   let T=maxpos;
   if(a!==0)T=maxpos-b/(2*a);
   const f=sr/T;
-  if(f<150||f>2800)return -1;
+  if(f<150||f>3000)return -1;
   return f;
 }
 function median(arr){const s=[...arr].sort((a,b)=>a-b);const m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;}

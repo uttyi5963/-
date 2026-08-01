@@ -57,13 +57,13 @@ try {
     if (!p.id || !p.label || !Array.isArray(p.notesCompact)) { ng(`内蔵曲の形式不正: ${p.id || '(idなし)'}`); continue; }
     const badNote = p.notesCompact.find(t => !/^[A-G]$/.test(t[0]) || t[1] < 0 || t[1] > 8);
     if (badNote) { ng(`${p.id}: 不正な音符 ${JSON.stringify(badNote)}`); continue; }
-    // バイオリン音域(G3=55〜E7=100)チェック
+    // バイオリン音域(G3=55〜F7=101)チェック。3oct音階(ヘ長調)がF7まで使う
     const BASE = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
     const outOfRange = p.notesCompact.filter(t => {
       const midi = BASE[t[0]] + (t[2] || 0) + (t[1] + 1) * 12;
-      return midi < 55 || midi > 100;
+      return midi < 55 || midi > 101;
     }).length;
-    if (outOfRange) ng(`${p.id}: 音域外(G3〜E7)の音が${outOfRange}個`);
+    if (outOfRange) ng(`${p.id}: 音域外(G3〜F7)の音が${outOfRange}個`);
     else ok(`内蔵曲 ${p.id} (${p.notesCompact.length}音) 音域OK`);
   }
 } catch (e) {

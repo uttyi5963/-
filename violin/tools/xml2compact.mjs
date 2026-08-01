@@ -87,7 +87,8 @@ const NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const nm = m => NAMES[((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1);
 const midis = notes.map(midi);
 const lo = Math.min(...midis), hi = Math.max(...midis);
-const below = midis.filter(m => m < 55).length, above = midis.filter(m => m > 100).length;
+// 上限はF7(101): 3オクターブ音階(ヘ長調)が実際にF7まで使う
+const below = midis.filter(m => m < 55).length, above = midis.filter(m => m > 101).length;
 const durDist = {};
 notes.forEach(n => { const k = ['全', '2分', '4分', '8分', '16分', '32分'][n.dur]; durDist[k] = (durDist[k] || 0) + 1; });
 
@@ -95,7 +96,7 @@ console.log(`ファイル: ${file}`);
 console.log(`小節数: ${measures.length} / 採用音数: ${notes.length}${dropped ? ` (副声部${dropped}音を除外)` : ''}`);
 console.log(`除外: 休符${skipped.rest} 装飾音${skipped.grace} 和音${skipped.chord} タイ後続${skipped.tieStop}`);
 console.log(`調号 fifths: ${fifths}${allFifths.every(f => f === fifths) ? '' : ` ⚠️ 途中で変化: ${[...new Set(allFifths)].join(',')}`}`);
-console.log(`音域: ${nm(lo)}〜${nm(hi)} ${below || above ? `⚠️ バイオリン音域(G3〜E7)外が ${below + above}音` : '(G3〜E7内 ✓)'}`);
+console.log(`音域: ${nm(lo)}〜${nm(hi)} ${below || above ? `⚠️ バイオリン音域(G3〜F7)外が ${below + above}音` : '(G3〜F7内 ✓)'}`);
 console.log(`音価: ${Object.entries(durDist).map(([k, v]) => k + '=' + v).join(' ')}`);
 console.log(`スラー: 開始${notes.filter(n => n.flags & 2).length} 終了${notes.filter(n => n.flags & 4).length}`);
 
