@@ -19,7 +19,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-const SW_CACHE_VERSION = 'ontei-checker-v19';
+const SW_CACHE_VERSION = 'ontei-checker-v20';
 
 const read = p => readFileSync(join(ROOT, p), 'utf8');
 

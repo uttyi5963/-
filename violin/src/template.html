@@ -335,7 +335,7 @@ canvas#score{width:100%;height:170px;display:block;background:#f5eedd;
               <input type="number" class="numin" id="bpmInput" min="30" max="160" value="60" inputmode="numeric">
             </div>
           </div>
-          <p class="hint hidden" id="metroHint" style="margin-top:8px">4拍のカウントのあと、拍に合わせて自動で次の音へ進みます。各音の時間内で拾えた音程を採点します(弾けなかった音は「−」)。ゆっくりのテンポがおすすめです。</p>
+          <p class="hint hidden" id="metroHint" style="margin-top:8px">4拍のカウントのあと、拍に合わせて自動で次の音へ進みます。各音の時間内で拾えた音程を採点します(弾けなかった音は「−」)。ゆっくりのテンポがおすすめです。「次の音を自動再生」がオンだとお手本の音も拍に合わせて鳴ります。スピーカーだとお手本の音を自分の音と区別できず判定が甘くなることがあるので、正確に判定したいときはイヤホンを使うか自動再生をオフに。</p>
           <div class="row2" style="margin-top:12px">
             <div>
               <div class="sec-label" style="margin-top:0">練習モード</div>
@@ -431,6 +431,7 @@ canvas#score{width:100%;height:170px;display:block;background:#f5eedd;
       <button class="iconbtn" id="exitBtn">終了</button>
       <div class="name" id="exName"></div>
       <div class="prog" id="prog"></div>
+      <button class="iconbtn" id="zoomBtn" title="音符の大きさを切り替え(小さくすると1画面に多く表示)">🔍標準</button>
       <button class="infobtn" id="infoBtnPractice">?</button>
     </div>
 

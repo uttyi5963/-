@@ -442,6 +442,20 @@ function ensureToneCtx(){
   if(toneCtx.state==='suspended')toneCtx.resume();
   return toneCtx;
 }
+/* 再生音の共通出口: ブースト(約+7.5dB)+コンプレッサーで、音割れさせずに大きく鳴らす。
+   iPadのスピーカーでは素の音量が小さすぎるという要望への対応。 */
+let toneMaster=null;
+function toneOut(ctx){
+  if(!toneMaster||toneMaster.ctx!==ctx){
+    const comp=ctx.createDynamicsCompressor();
+    comp.threshold.value=-12;comp.knee.value=8;comp.ratio.value=12;
+    comp.attack.value=0.002;comp.release.value=0.15;
+    const g=ctx.createGain();g.gain.value=2.4;
+    g.connect(comp);comp.connect(ctx.destination);
+    toneMaster={ctx,input:g};
+  }
+  return toneMaster.input;
+}
 
 /* ---- 実録音サンプル(バイオリン、FluidR3_GMサウンドフォント由来)によるマルチサンプル再生 ---- */
 const VIOLIN_NOTE_LIST=Object.keys(typeof VIOLIN_SAMPLE_B64!=='undefined'?VIOLIN_SAMPLE_B64:{});
@@ -483,7 +497,7 @@ function playSampledTone(ctx,buffer,sampleMidi,targetFreq,dur){
   const src=ctx.createBufferSource();
   src.buffer=buffer;src.playbackRate.value=rate;
   const g=ctx.createGain();g.gain.value=0;
-  src.connect(g);g.connect(ctx.destination);
+  src.connect(g);g.connect(toneOut(ctx));
   const peak=0.62,sustain=0.48;
   g.gain.setValueAtTime(0,t0);
   g.gain.linearRampToValueAtTime(peak,t0+0.05);
@@ -508,7 +522,7 @@ function playSynthTone(ctx,freq,dur){
   const t0=ctx.currentTime+0.02;
   const master=ctx.createGain();
   master.gain.value=0;
-  master.connect(ctx.destination);
+  master.connect(toneOut(ctx));
   const body1=ctx.createBiquadFilter();
   body1.type='peaking';body1.frequency.value=300;body1.Q.value=1.1;body1.gain.value=7;
   const body2=ctx.createBiquadFilter();
@@ -550,7 +564,7 @@ function playSuccessChime(tier){
   freqs.forEach((f,i)=>{
     const o=ctx.createOscillator();o.type='sine';o.frequency.value=f;
     const g=ctx.createGain();g.gain.value=0;
-    o.connect(g);g.connect(ctx.destination);
+    o.connect(g);g.connect(toneOut(ctx));
     const start=t0+i*0.045;
     g.gain.setValueAtTime(0,start);
     g.gain.linearRampToValueAtTime(tier==='good'?0.16:0.10,start+0.012);
@@ -571,9 +585,9 @@ function playClickAt(when,isCountIn){
   const o=toneCtx.createOscillator();
   o.type='sine';o.frequency.value=isCountIn?1560:1040;
   const g=toneCtx.createGain();g.gain.value=0;
-  o.connect(g);g.connect(toneCtx.destination);
+  o.connect(g);g.connect(toneOut(toneCtx));
   g.gain.setValueAtTime(0,when);
-  g.gain.linearRampToValueAtTime(isCountIn?0.20:0.15,when+0.003);
+  g.gain.linearRampToValueAtTime(isCountIn?0.34:0.26,when+0.003);
   g.gain.exponentialRampToValueAtTime(0.0001,when+0.05);
   o.start(when);o.stop(when+0.06);
 }
@@ -636,7 +650,8 @@ function showTapLabel(cx,cy,text){
 $('score').addEventListener('click', e=>{
   if(S.mode!=='practice'||!noteHit.length)return;
   const rect=e.currentTarget.getBoundingClientRect();
-  const x=e.clientX-rect.left, y=e.clientY-rect.top;
+  const Z=zoomFactor();
+  const x=(e.clientX-rect.left)/Z, y=(e.clientY-rect.top)/Z;
   let best=null,bd=32;
   for(const hpt of noteHit){
     const d=Math.hypot(hpt.x-x,hpt.y-y);
@@ -790,7 +805,7 @@ function startDrone(midi){
   const g=ctx.createGain();g.gain.value=0;
   const lpf=ctx.createBiquadFilter();
   lpf.type='lowpass';lpf.frequency.value=Math.min(freq*8,4200);lpf.Q.value=0.4;
-  lpf.connect(g);g.connect(ctx.destination);
+  lpf.connect(g);g.connect(toneOut(ctx));
   const oscs=[[0,0.6],[4,0.22],[-4,0.22]].map(([det,amp])=>{
     const o=ctx.createOscillator();
     o.type='sawtooth';o.frequency.value=freq;o.detune.value=det;
@@ -1000,9 +1015,27 @@ function renderTarget(){
       playReferenceTone(n.target,1.1);
       flashPreview(idxAtSchedule);
     },260);
+  }else if(S.autoPlayNext&&S.advMode==='metro'&&metroOn){
+    // メトロノームモードでもお手本音を鳴らす(音の時間枠に収まる長さで)。
+    // スピーカー再生だとお手本の音もマイクが拾い判定が甘くなるため、イヤホン推奨。
+    const winSec=durBeats(n)*metroBeatMs/1000;
+    playReferenceTone(n.target,Math.max(0.22,Math.min(1.2,winSec*0.85)));
+    flashPreview(S.idx);
   }
 }
 /* ---- 五線譜表示 ---- */
+/* 音符サイズ(表示密度): 小にすると1画面に約1.5倍の音符が入る。描画全体をスケールする */
+const ZOOMS=[['標準',1],['小',0.78],['大',1.25]];
+let zoomIdx=(()=>{try{const v=parseInt(localStorage.getItem('onteiZoom'),10);return isNaN(v)?0:Math.max(0,Math.min(ZOOMS.length-1,v));}catch(e){return 0;}})();
+function zoomFactor(){return ZOOMS[zoomIdx][1];}
+function updateZoomBtn(){$('zoomBtn').textContent='🔍'+ZOOMS[zoomIdx][0];}
+$('zoomBtn').onclick=()=>{
+  zoomIdx=(zoomIdx+1)%ZOOMS.length;
+  try{localStorage.setItem('onteiZoom',String(zoomIdx));}catch(e){}
+  updateZoomBtn();
+  renderScore();
+};
+updateZoomBtn();
 let scoreCtx=null;
 function sizeScore(){
   const cv=$('score');if(!cv||cv.classList.contains('hidden'))return;
@@ -1021,7 +1054,9 @@ function renderScore(){
   if(S.mode==='tuner'||!S.notes.length)return;
   if(!scoreCtx)sizeScore();
   if(!scoreCtx)return;
-  const cv=$('score'),w=cv.clientWidth,h=cv.clientHeight,ctx=scoreCtx;
+  const Z=zoomFactor(),dpr=window.devicePixelRatio||1;
+  const cv=$('score'),w=cv.clientWidth/Z,h=cv.clientHeight/Z,ctx=scoreCtx;
+  ctx.setTransform(dpr*Z,0,0,dpr*Z,0,0);   // 論理座標系ごと拡大縮小(noteHitは論理座標のまま)
   ctx.clearRect(0,0,w,h);
   noteHit=[];
   const gap=7;
@@ -1415,7 +1450,7 @@ async function begin(mode){
   $('skipBtn').classList.toggle('hidden',isMetro);   // メトロノーム時は自動進行なのでスキップ不要
   $('score').classList.toggle('hidden',mode==='tuner');
   $('trace').classList.toggle('hidden',mode!=='tuner');
-  $('playTargetBtn').classList.toggle('hidden',mode==='tuner'||isMetro);
+  $('playTargetBtn').classList.toggle('hidden',mode==='tuner');
   $('practice').classList.toggle('tunermode',mode==='tuner');
   show('practice');
   if(mode==='tuner')sizeCanvas();
@@ -1488,7 +1523,7 @@ $('weakBtn').onclick=async()=>{
   $('skipBtn').classList.toggle('hidden',isMetro);
   $('score').classList.remove('hidden');
   $('trace').classList.add('hidden');
-  $('playTargetBtn').classList.toggle('hidden',isMetro);
+  $('playTargetBtn').classList.remove('hidden');
   $('practice').classList.remove('tunermode');
   show('practice');
   scoreCtx=null;sizeScore();setupMeterZones();renderTarget();startLoop();
