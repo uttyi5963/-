@@ -1,0 +1,1619 @@
+<title>看取り勉強会｜決めていないのではない、聞かれていないだけ</title>
+
+<style>
+/* ============================================================
+   看取り勉強会 スライド
+   Palette: 藍 #2F62B0 / 朱 #C2452A / 青緑 #12866F
+   (validated: lightness band, chroma floor, CVD separation,
+    normal-vision floor, contrast — all PASS in light & dark)
+   ============================================================ */
+
+:root{
+  --paper:#F2F2EE;
+  --surface:#FFFFFF;
+  --surface-2:#E9E9E3;
+  --ink:#151C1F;
+  --ink-2:#4C585C;
+  --ink-3:#7D8A8E;
+  --rule:#DADAD3;
+  --rule-2:#BCBFB7;
+
+  --ai:#2F62B0;        /* 藍 — 構造・章・病院 */
+  --ai-rgb:47,98,176;
+  --shu:#C2452A;       /* 朱 — 核心・崩壊点・自宅 */
+  --shu-rgb:194,69,42;
+  --seiji:#12866F;     /* 青緑 — 資源・施設・前進 */
+  --seiji-rgb:18,134,111;
+  --neutral-mark:#A9AFAB;
+
+  --on-mark:#FFFFFF;
+
+  --serif:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho","YuMincho","Noto Serif JP","Source Han Serif JP","MS PMincho",serif;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","YuGothic","Noto Sans JP","Source Han Sans JP","Meiryo",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","SFMono-Regular",Menlo,"Roboto Mono","DejaVu Sans Mono",monospace;
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#101619;
+    --surface:#182024;
+    --surface-2:#202A2F;
+    --ink:#E6E9E6;
+    --ink-2:#9EABAF;
+    --ink-3:#6E7C80;
+    --rule:#2A353A;
+    --rule-2:#3B4950;
+    --ai:#5A8FD6;  --ai-rgb:90,143,214;
+    --shu:#DD6242; --shu-rgb:221,98,66;
+    --seiji:#0F9E7C; --seiji-rgb:15,158,124;
+    --neutral-mark:#5C6669;
+    --on-mark:#0B1013;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#101619;
+  --surface:#182024;
+  --surface-2:#202A2F;
+  --ink:#E6E9E6;
+  --ink-2:#9EABAF;
+  --ink-3:#6E7C80;
+  --rule:#2A353A;
+  --rule-2:#3B4950;
+  --ai:#5A8FD6;  --ai-rgb:90,143,214;
+  --shu:#DD6242; --shu-rgb:221,98,66;
+  --seiji:#0F9E7C; --seiji-rgb:15,158,124;
+  --neutral-mark:#5C6669;
+  --on-mark:#0B1013;
+}
+:root[data-theme="light"]{
+  --paper:#F2F2EE;
+  --surface:#FFFFFF;
+  --surface-2:#E9E9E3;
+  --ink:#151C1F;
+  --ink-2:#4C585C;
+  --ink-3:#7D8A8E;
+  --rule:#DADAD3;
+  --rule-2:#BCBFB7;
+  --ai:#2F62B0;  --ai-rgb:47,98,176;
+  --shu:#C2452A; --shu-rgb:194,69,42;
+  --seiji:#12866F; --seiji-rgb:18,134,111;
+  --neutral-mark:#A9AFAB;
+  --on-mark:#FFFFFF;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- stage & scaling ---------- */
+#stage{
+  position:fixed; inset:0;
+  display:grid; place-items:center;
+}
+#deck{
+  width:1280px; height:720px;
+  position:relative;
+  transform-origin:center center;
+  flex:none;
+}
+
+/* ---------- slide shell ---------- */
+.slide{
+  position:absolute; inset:0;
+  background:var(--paper);
+  padding:52px 76px 58px;
+  display:none;
+  flex-direction:column;
+}
+.slide.active{display:flex;}
+
+.slide::after{ /* progress hairline */
+  content:"";
+  position:absolute; left:0; bottom:0; height:3px;
+  width:var(--progress,0%);
+  background:var(--ai);
+}
+
+.chrome{
+  display:flex; align-items:baseline; justify-content:space-between;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--rule);
+  flex:none;
+}
+.chapter-mark{
+  font-size:12px; letter-spacing:.16em; font-weight:700;
+  color:var(--ai);
+  display:flex; align-items:center; gap:10px;
+}
+.chapter-mark .num{
+  font-family:var(--mono); font-size:11px;
+  border:1px solid currentColor; border-radius:2px;
+  padding:1px 5px; letter-spacing:.04em;
+}
+.deck-mark{font-size:11px; letter-spacing:.14em; color:var(--ink-3);}
+.pageno{
+  position:absolute; right:76px; bottom:26px;
+  font-family:var(--mono); font-size:12px; color:var(--ink-3);
+  font-variant-numeric:tabular-nums;
+}
+
+.body{flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; padding:26px 0 6px;}
+.slide.top .body{justify-content:flex-start; padding-top:30px;}
+
+@media (prefers-reduced-motion: no-preference){
+  .slide.active .body,
+  .slide.active .headline,
+  .slide.active .lede{animation:rise .34s cubic-bezier(.2,.7,.3,1) both;}
+  .slide.active .lede{animation-delay:.05s;}
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+/* ---------- type ---------- */
+.eyebrow{
+  font-size:12px; letter-spacing:.18em; font-weight:700;
+  color:var(--ink-3); margin:0 0 16px;
+}
+.eyebrow.sig{color:var(--shu);}
+.headline{
+  font-family:var(--serif);
+  font-size:44px; line-height:1.32; letter-spacing:.01em;
+  font-weight:600; margin:0 0 8px; text-wrap:balance;
+}
+.headline.sm{font-size:36px;}
+.lede{
+  font-size:19px; line-height:1.75; color:var(--ink-2);
+  max-width:64ch; margin:10px 0 0;
+}
+.lede strong{color:var(--ink); font-weight:700;}
+em.mk{
+  font-style:normal; font-weight:700;
+  color:var(--shu);
+}
+em.mk-ai{font-style:normal;font-weight:700;color:var(--ai);}
+em.mk-sj{font-style:normal;font-weight:700;color:var(--seiji);}
+
+.src{
+  font-size:11.5px; color:var(--ink-3); line-height:1.6;
+  margin:16px 0 0; max-width:78ch;
+}
+
+/* ---------- title slide ---------- */
+.s-title{padding:0;}
+.s-title .body{padding:0 76px; justify-content:center;}
+.t-kicker{
+  font-family:var(--mono); font-size:12px; letter-spacing:.2em;
+  color:var(--ink-3); margin:0 0 34px;
+}
+.t-main{
+  font-family:var(--serif); font-weight:600;
+  font-size:62px; line-height:1.28; letter-spacing:.01em;
+  margin:0; text-wrap:balance;
+}
+.t-main .accent{color:var(--shu);}
+.t-rule{width:132px;height:3px;background:var(--ai);margin:34px 0 30px;}
+.t-sub{font-size:21px; line-height:1.7; color:var(--ink-2); margin:0; max-width:56ch;}
+.t-meta{
+  position:absolute; left:76px; bottom:56px; right:76px;
+  display:flex; justify-content:space-between; align-items:flex-end;
+  font-size:13px; color:var(--ink-3); letter-spacing:.04em;
+}
+
+/* ---------- chapter divider ---------- */
+.s-chapter{background:var(--ai);}
+.s-chapter .chrome{border-bottom-color:rgba(255,255,255,.24);}
+.s-chapter .chapter-mark,.s-chapter .deck-mark,.s-chapter .pageno{color:rgba(255,255,255,.72);}
+.s-chapter .chapter-mark .num{color:rgba(255,255,255,.72);}
+.c-num{
+  font-family:var(--mono); font-size:13px; letter-spacing:.24em;
+  color:rgba(255,255,255,.72); margin:0 0 20px;
+}
+.c-title{
+  font-family:var(--serif); font-weight:600;
+  font-size:56px; line-height:1.3; color:#fff; margin:0; text-wrap:balance;
+}
+.c-sub{font-size:18px; line-height:1.8; color:rgba(255,255,255,.86); margin:24px 0 0; max-width:52ch;}
+.s-chapter::after{background:rgba(255,255,255,.5);}
+
+/* ---------- hero statement ---------- */
+.s-quote .body{justify-content:center;}
+.q-text{
+  font-family:var(--serif); font-weight:600;
+  font-size:46px; line-height:1.5; margin:0; text-wrap:balance;
+}
+.q-text .em{color:var(--shu);}
+.q-attr{font-size:15px; color:var(--ink-3); margin:30px 0 0;}
+
+/* ---------- hero number ---------- */
+.hero-num{
+  font-family:var(--mono); font-weight:700;
+  font-size:clamp(72px,9vw,116px); line-height:.95;
+  letter-spacing:-.03em; font-variant-numeric:tabular-nums;
+  color:var(--shu); margin:0;
+}
+.hero-num .u{font-size:.36em; letter-spacing:0; margin-left:.12em; font-weight:700;}
+.hero-cap{font-size:17px; color:var(--ink-2); margin:14px 0 0; line-height:1.65;}
+
+.duo{display:grid; grid-template-columns:1fr auto 1fr; align-items:start; gap:34px; margin:8px 0 0;}
+.duo .vs{
+  align-self:center;
+  font-family:var(--mono); font-size:15px; letter-spacing:.1em;
+  color:var(--ink-3); border-left:1px solid var(--rule); border-right:1px solid var(--rule);
+  padding:26px 26px;
+}
+.duo-cell .n{
+  font-family:var(--mono); font-weight:700; font-size:88px; line-height:1;
+  letter-spacing:-.03em; font-variant-numeric:tabular-nums; margin:0;
+}
+.duo-cell .n .u{font-size:.34em;margin-left:.1em;}
+.duo-cell.hot .n{color:var(--shu);}
+.duo-cell.cool .n{color:var(--ink-3);}
+.duo-cell .lbl{font-size:16px; line-height:1.6; color:var(--ink-2); margin:14px 0 0;}
+.duo-cell .lbl b{color:var(--ink);}
+
+/* ---------- stat tiles ---------- */
+.tiles{display:grid; gap:14px; margin:4px 0 0;}
+.tiles.c3{grid-template-columns:repeat(3,1fr);}
+.tiles.c4{grid-template-columns:repeat(4,1fr);}
+.tile{
+  background:var(--surface); border:1px solid var(--rule);
+  border-radius:3px; padding:22px 22px 20px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.tile .t-lab{font-size:13px; color:var(--ink-3); letter-spacing:.04em; line-height:1.5;}
+.tile .t-val{
+  font-family:var(--mono); font-weight:700; font-size:42px; line-height:1.05;
+  letter-spacing:-.02em; font-variant-numeric:tabular-nums; color:var(--ink);
+}
+.tile .t-val .u{font-size:.44em; margin-left:.1em;}
+.tile .t-note{font-size:13px; color:var(--ink-2); line-height:1.6;}
+.tile.hot{border-color:rgba(var(--shu-rgb),.42); background:rgba(var(--shu-rgb),.06);}
+.tile.hot .t-val{color:var(--shu);}
+.tile.good{border-color:rgba(var(--seiji-rgb),.42); background:rgba(var(--seiji-rgb),.06);}
+.tile.good .t-val{color:var(--seiji);}
+.tile.blue .t-val{color:var(--ai);}
+
+/* ---------- bars (single series) ---------- */
+.barchart{display:flex; flex-direction:column; gap:13px; margin:6px 0 0;}
+.bar-row{display:grid; grid-template-columns:284px 1fr 76px; align-items:center; gap:16px;}
+.bar-row .b-lab{font-size:15px; color:var(--ink-2); line-height:1.45; text-align:right;}
+.bar-row.on .b-lab{color:var(--ink); font-weight:700;}
+.bar-track{display:block; height:22px; background:var(--surface-2); border-radius:2px; overflow:hidden;}
+.bar-fill{
+  display:block; height:100%; background:var(--ai);
+  border-radius:0 4px 4px 0;
+  transition:width .5s cubic-bezier(.2,.7,.3,1);
+}
+.bar-row.on .bar-fill{background:var(--shu);}
+.bar-row.mute .bar-fill{background:var(--neutral-mark);}
+.bar-row.good .bar-fill{background:var(--seiji);}
+.bar-row .b-val{
+  font-family:var(--mono); font-size:17px; font-weight:700;
+  font-variant-numeric:tabular-nums; color:var(--ink);
+}
+.bar-row.on .b-val{color:var(--shu);}
+@media (prefers-reduced-motion: reduce){.bar-fill{transition:none;}}
+
+/* ---------- stacked bars ---------- */
+.stack{display:flex; flex-direction:column; gap:16px; margin:4px 0 0;}
+.stack-row{display:grid; grid-template-columns:78px 1fr; align-items:center; gap:18px;}
+.stack-row .y{
+  font-family:var(--mono); font-size:15px; color:var(--ink-2);
+  font-variant-numeric:tabular-nums; text-align:right;
+}
+.stack-bar{display:flex; gap:2px; height:44px;}
+.seg{
+  position:relative;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:14px; font-weight:700;
+  color:var(--on-mark); font-variant-numeric:tabular-nums;
+  min-width:0; overflow:hidden;
+}
+.seg:first-child{border-radius:4px 0 0 4px;}
+.seg:last-child{border-radius:0 4px 4px 0;}
+.seg.s-hosp{background:var(--ai);}
+.seg.s-home{background:var(--shu);}
+.seg.s-fac{background:var(--seiji);}
+.seg.s-oth{background:var(--neutral-mark);}
+.seg[data-tip]:hover::after{
+  content:attr(data-tip);
+  position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%);
+  background:var(--ink); color:var(--paper); font-family:var(--sans);
+  font-size:12px; font-weight:400; white-space:nowrap;
+  padding:6px 9px; border-radius:3px; z-index:5; pointer-events:none;
+}
+.legend{display:flex; gap:24px; flex-wrap:wrap; margin:20px 0 0; padding-left:96px;}
+.legend .item{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink-2);}
+.legend .sw{width:13px; height:13px; border-radius:2px; flex:none;}
+.sw.s-hosp{background:var(--ai);}
+.sw.s-home{background:var(--shu);}
+.sw.s-fac{background:var(--seiji);}
+.sw.s-oth{background:var(--neutral-mark);}
+
+/* ---------- tables ---------- */
+.tblwrap{overflow-x:auto; margin:4px 0 0;}
+table.tbl{border-collapse:collapse; width:100%; font-size:15.5px;}
+table.tbl th, table.tbl td{
+  text-align:left; padding:10px 14px;
+  border-bottom:1px solid var(--rule); line-height:1.55;
+}
+table.tbl thead th{
+  font-size:12px; letter-spacing:.1em; color:var(--ink-3);
+  font-weight:700; border-bottom:1px solid var(--rule-2);
+  white-space:nowrap;
+}
+table.tbl td.n, table.tbl th.n{
+  text-align:right; font-family:var(--mono);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+table.tbl tr.hot td{background:rgba(var(--shu-rgb),.07);}
+table.tbl tr.hot td.n{color:var(--shu); font-weight:700;}
+table.tbl tr.hot td:first-child{font-weight:700;}
+table.tbl td.jp{color:var(--ink-2);}
+table.tbl tr:last-child td{border-bottom:none;}
+
+/* ---------- two-column split ---------- */
+.split{display:grid; grid-template-columns:1fr 1fr; gap:38px; align-items:start;}
+.split.wide-l{grid-template-columns:1.25fr 1fr;}
+.split.wide-r{grid-template-columns:1fr 1.35fr;}
+.panel{
+  background:var(--surface); border:1px solid var(--rule);
+  border-radius:3px; padding:24px 26px;
+}
+.panel h4{
+  font-size:12px; letter-spacing:.14em; margin:0 0 14px;
+  color:var(--ink-3); font-weight:700;
+}
+.panel.x{border-color:rgba(var(--rule),1);}
+.panel.x h4{color:var(--ink-3);}
+.panel.o{border-color:rgba(var(--shu-rgb),.42); background:rgba(var(--shu-rgb),.06);}
+.panel.o h4{color:var(--shu);}
+.panel p{margin:0; font-size:17px; line-height:1.75; color:var(--ink-2);}
+.panel p + p{margin-top:12px;}
+.panel .big-line{font-family:var(--serif); font-size:24px; line-height:1.55; color:var(--ink); font-weight:600;}
+
+/* ---------- lists ---------- */
+ul.pts{margin:6px 0 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:15px;}
+ul.pts li{
+  position:relative; padding-left:26px;
+  font-size:18px; line-height:1.72; color:var(--ink-2);
+}
+ul.pts li::before{
+  content:""; position:absolute; left:0; top:.62em;
+  width:9px; height:9px; border-radius:50%;
+  background:var(--ai);
+}
+ul.pts li b{color:var(--ink);}
+ul.pts.tight li{font-size:16.5px;}
+
+ol.steps{margin:6px 0 0; padding:0; list-style:none; counter-reset:s; display:flex; flex-direction:column; gap:14px;}
+ol.steps li{
+  counter-increment:s; position:relative; padding-left:52px;
+  font-size:18px; line-height:1.7; color:var(--ink-2);
+}
+ol.steps li::before{
+  content:counter(s); position:absolute; left:0; top:0;
+  width:34px; height:34px; border-radius:50%;
+  background:var(--ai); color:#fff;
+  font-family:var(--mono); font-size:15px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+}
+ol.steps li b{color:var(--ink); display:block; font-size:19px; margin-bottom:3px;}
+
+/* ---------- gate rail (直列回路) ---------- */
+.gates{
+  display:grid; grid-template-columns:repeat(5,1fr);
+  position:relative; margin:16px 0 0; padding-top:8px;
+}
+.gates::before{
+  content:""; position:absolute; left:10%; right:10%; top:31px;
+  height:2px; background:var(--rule-2);
+}
+.gate{display:flex; flex-direction:column; align-items:center; gap:12px; position:relative; z-index:1;}
+.gate .node{
+  width:46px; height:46px; border-radius:50%;
+  background:var(--paper); border:2px solid var(--rule-2);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:14px; font-weight:700; color:var(--ink-3);
+}
+.gate .g-name{font-size:15px; color:var(--ink-3); letter-spacing:.04em;}
+.gate .g-sub{font-size:12px; color:var(--ink-3); line-height:1.5; text-align:center; max-width:16ch;}
+.gate.on .node{border-color:var(--shu); color:var(--shu); box-shadow:0 0 0 5px rgba(var(--shu-rgb),.14);}
+.gate.on .g-name{color:var(--shu); font-weight:700;}
+.gate.done .node{border-color:var(--ai); color:var(--ai);}
+.gate.done .g-name{color:var(--ink-2);}
+.gates.mini{margin:0; padding-top:0;}
+.gates.mini::before{top:19px;}
+.gates.mini .node{width:34px;height:34px;font-size:12px;}
+.gates.mini .g-name{font-size:12.5px;}
+
+/* ---------- callout ---------- */
+.callout{
+  border-left:4px solid var(--shu);
+  background:rgba(var(--shu-rgb),.07);
+  padding:20px 24px; border-radius:0 3px 3px 0;
+  margin:4px 0 0;
+}
+.callout p{margin:0; font-size:19px; line-height:1.72; color:var(--ink);}
+.callout p + p{margin-top:10px;}
+.callout.ai{border-left-color:var(--ai); background:rgba(var(--ai-rgb),.07);}
+.callout.sj{border-left-color:var(--seiji); background:rgba(var(--seiji-rgb),.07);}
+.callout .k{font-family:var(--serif); font-size:25px; font-weight:600; line-height:1.5; display:block;}
+
+/* ---------- paper mock (予告シート / カルテ1行) ---------- */
+.mock{
+  background:var(--surface); border:1px solid var(--rule-2);
+  border-radius:3px; padding:22px 26px;
+  font-family:var(--mono); font-size:14px; line-height:1.85;
+  color:var(--ink-2); white-space:pre-wrap;
+  box-shadow:0 1px 0 var(--rule);
+}
+.mock .hl{color:var(--shu); font-weight:700;}
+.mock .hd{color:var(--ink); font-weight:700;}
+
+/* ---------- contents overlay ---------- */
+#toc{
+  position:fixed; inset:0; z-index:60;
+  background:var(--paper); display:none;
+  padding:46px 60px; overflow-y:auto;
+}
+#toc.open{display:block;}
+#toc h2{
+  font-family:var(--serif); font-size:26px; margin:0 0 6px; font-weight:600;
+}
+#toc .hint{font-size:12.5px; color:var(--ink-3); margin:0 0 24px; letter-spacing:.04em;}
+#toc ol{
+  margin:0; padding:0; list-style:none;
+  columns:3; column-gap:38px;
+}
+#toc li{break-inside:avoid; margin-bottom:2px;}
+#toc button{
+  display:flex; gap:11px; width:100%; text-align:left;
+  background:none; border:0; cursor:pointer; padding:5px 8px;
+  font-family:var(--sans); font-size:13.5px; color:var(--ink-2);
+  border-radius:3px; line-height:1.5;
+}
+#toc button:hover,#toc button:focus-visible{background:var(--surface-2); color:var(--ink); outline:none;}
+#toc button.cur{color:var(--shu); font-weight:700;}
+#toc button.ch{color:var(--ai); font-weight:700;}
+#toc .i{font-family:var(--mono); font-size:12px; color:var(--ink-3); flex:none; width:22px; text-align:right; font-variant-numeric:tabular-nums;}
+
+/* ---------- speaker notes ---------- */
+#notes{
+  position:fixed; left:0; right:0; bottom:0; z-index:50;
+  background:var(--ink); color:var(--paper);
+  padding:14px 22px; font-size:14px; line-height:1.65;
+  display:none; border-top:3px solid var(--shu);
+}
+#notes.on{display:block;}
+#notes .tag{
+  font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+  color:var(--shu); display:block; margin-bottom:4px;
+}
+
+/* ---------- help bar ---------- */
+#help{
+  position:fixed; left:16px; bottom:14px; z-index:40;
+  font-family:var(--mono); font-size:11px; color:var(--ink-2);
+  letter-spacing:.06em; opacity:.85;
+  background:var(--paper); padding:5px 10px; border-radius:3px;
+  border:1px solid var(--rule);
+  transition:opacity .5s ease;
+}
+#help.idle{opacity:0; pointer-events:none;}
+@media (prefers-reduced-motion: reduce){#help{transition:none;}}
+#help kbd{
+  font-family:var(--mono); border:1px solid var(--rule-2);
+  border-radius:3px; padding:1px 4px; margin:0 1px;
+}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--shu); outline-offset:2px;}
+
+/* ---------- print / PDF ---------- */
+@media print{
+  @page{size:1280px 720px; margin:0;}
+  html,body{overflow:visible; background:#fff;}
+  #stage{position:static; display:block;}
+  #deck{transform:none !important; width:1280px; height:auto;}
+  .slide{
+    position:relative; display:flex !important; inset:auto;
+    width:1280px; height:720px; break-after:page; page-break-after:always;
+    animation:none !important;
+  }
+  .slide *{animation:none !important;}
+  #toc,#notes,#help{display:none !important;}
+}
+</style>
+
+<div id="stage">
+<div id="deck">
+
+<!-- ================= 01 タイトル ================= -->
+<section class="slide s-title" data-title="タイトル" data-note="自己紹介は短く。1枚目で「今日は説教の会ではなく、数字と型を渡す会だ」と宣言する。">
+  <div class="body">
+    <p class="t-kicker">看取り勉強会 ／ ケアマネジャーの皆さまへ</p>
+    <h1 class="t-main">決めていないのではない。<br><span class="accent">聞かれていない</span>だけ。</h1>
+    <div class="t-rule"></div>
+    <p class="t-sub">看取りが「特殊業務」から「通常業務」に変わる25年を、<br>どう迎えるか ── データと、明日から使える型。</p>
+  </div>
+  <div class="t-meta">
+    <span>60分</span>
+    <span>医療法人社団貞栄会</span>
+  </div>
+</section>
+
+<!-- ================= 02 今日の問い ================= -->
+<section class="slide s-quote" data-title="今日の問い" data-note="ここで情緒に振らない。「自宅で看取れないのは悲しい」ではなく「我々の職能が痩せる」という職業的な危機として出す。">
+  <div class="chrome"><span class="chapter-mark">今日の問い</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="q-text">我々の担当する利用者は、<br>これから確実に亡くなっていく。<br>それなのに、我々の看取り経験は増えない。<br><br><span class="em">なぜ我々は、最期の前に手を離しているのか。</span></p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 03 今日の流れ ================= -->
+<section class="slide top" data-title="今日の流れ" data-note="4章構成。第2章が今日のハイライトであることを予告しておくと、集中が持続する。">
+  <div class="chrome"><span class="chapter-mark">目次</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <h2 class="headline sm">今日の60分</h2>
+    <ol class="steps" style="margin-top:22px;">
+      <li><b>いま何が起きているか</b>多死社会・病院・支え手・資源 ── 「決めなければならない時代」の正体</li>
+      <li><b>決まっていない。しかし、避けているのではない</b>今日いちばん持ち帰っていただきたい数字が、ここにあります</li>
+      <li><b>型を渡す</b>切り出し方・聞くことを4つに絞る・家族の呼び方</li>
+      <li><b>場所と、夜</b>希望は揺れる／崩壊点は夜の119番／評価するのは遺族</li>
+    </ol>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 04 章扉1 ================= -->
+<section class="slide s-chapter" data-chapter="1" data-title="第1章 いま何が起きているか" data-note="ここは速く回す。データで殴らず、5枚で「だから決めなければならない」まで持っていく。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">01</span></span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="c-num">CHAPTER 01</p>
+    <h2 class="c-title">いま何が起きているか</h2>
+    <p class="c-sub">看取りは、特殊業務から通常業務に変わります。<br>それは一過性のピークではなく、四半世紀続く定常状態です。</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 05 多死社会 ================= -->
+<section class="slide" data-chapter="1" data-title="多死社会は25年続く" data-note="「ピークで終わりではない」が要点。160万人が25年続く＝一人のケアマネが担当する死亡者数が構造的に増える。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">01</span>いま何が起きているか</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">多死社会は、ピークではなく定常状態</p>
+    <h2 class="headline">2040年からの25年間、<br>毎年160万人が亡くなり続けます。</h2>
+    <div class="tiles c3" style="margin-top:26px;">
+      <div class="tile"><span class="t-lab">2024年の死亡数（過去最多）</span><span class="t-val">160.5<span class="u">万人</span></span><span class="t-note">前年を上回り、過去最多を更新</span></div>
+      <div class="tile hot"><span class="t-lab">死亡数のピーク見込み（2040年頃）</span><span class="t-val">168<span class="u">万人</span></span><span class="t-note">ここで終わりではない</span></div>
+      <div class="tile"><span class="t-lab">160万人前後が続く期間</span><span class="t-val">約25<span class="u">年</span></span><span class="t-note">2025年から四半世紀の定常状態</span></div>
+    </div>
+    <p class="src">出典：厚生労働省「人口動態統計」／国立社会保障・人口問題研究所「日本の将来推計人口（令和5年推計）」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 06 死ぬ場所の地殻変動 ================= -->
+<section class="slide" data-chapter="1" data-title="死ぬ場所の地殻変動" data-note="1951→2000で自宅と病院が完全に入れ替わり、2000年以降は逆流している。「戻り始めている」ことを必ず言う。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">01</span>いま何が起きているか</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">死亡場所の構成比 ── 70年で二度、入れ替わった</p>
+    <h2 class="headline sm">自宅死は、消えて、戻り始めている。</h2>
+    <div class="stack" style="margin-top:24px;">
+      <div class="stack-row">
+        <span class="y">1951年</span>
+        <div class="stack-bar" role="img" aria-label="1951年 病院・診療所17.0%、自宅82.5%、その他0.5%">
+          <span class="seg s-hosp" style="flex:17" data-tip="病院・診療所 17.0%">17.0</span>
+          <span class="seg s-home" style="flex:82.5" data-tip="自宅 82.5%">82.5</span>
+          <span class="seg s-oth" style="flex:.5" data-tip="その他 0.5%"></span>
+        </div>
+      </div>
+      <div class="stack-row">
+        <span class="y">2000年</span>
+        <div class="stack-bar" role="img" aria-label="2000年 病院・診療所81.0%、自宅13.9%、老人ホーム等2.4%、その他2.7%">
+          <span class="seg s-hosp" style="flex:81" data-tip="病院・診療所 81.0%">81.0</span>
+          <span class="seg s-home" style="flex:13.9" data-tip="自宅 13.9%">13.9</span>
+          <span class="seg s-fac" style="flex:2.4" data-tip="老人ホーム・介護医療院・老健 2.4%"></span>
+          <span class="seg s-oth" style="flex:2.7" data-tip="その他 2.7%"></span>
+        </div>
+      </div>
+      <div class="stack-row">
+        <span class="y">2023年</span>
+        <div class="stack-bar" role="img" aria-label="2023年 病院・診療所65.7%、自宅17.0%、老人ホーム等15.5%、その他1.8%">
+          <span class="seg s-hosp" style="flex:65.7" data-tip="病院・診療所 65.7%（約104万人）">65.7</span>
+          <span class="seg s-home" style="flex:17" data-tip="自宅 17.0%（約27万人）">17.0</span>
+          <span class="seg s-fac" style="flex:15.5" data-tip="老人ホーム等 15.5%（約25万人）">15.5</span>
+          <span class="seg s-oth" style="flex:1.8" data-tip="その他 1.8%"></span>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span class="item"><span class="sw s-hosp"></span>病院・診療所</span>
+      <span class="item"><span class="sw s-home"></span>自宅</span>
+      <span class="item"><span class="sw s-fac"></span>老人ホーム・介護医療院・老健</span>
+      <span class="item"><span class="sw s-oth"></span>その他</span>
+    </div>
+    <p class="src">出典：厚生労働省「人口動態統計」各年。2023年の実数は病院死 約104万人／在宅死 約27万人／施設死 約25万人。</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 07 施設という第三の場 ================= -->
+<section class="slide" data-chapter="1" data-title="施設という第三の場" data-note="ここでケアマネの実務に直結させる：施設が第三の場になった＝担当が移管される場面が構造的に増えている。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">01</span>いま何が起きているか</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">在宅死の増加より、施設死の伸びのほうが急</p>
+    <h2 class="headline sm">「自宅か、病院か」で語る時代は終わりました。</h2>
+    <div class="split wide-l" style="margin-top:24px;">
+      <div>
+        <div class="duo">
+          <div class="duo-cell cool"><p class="n">2.4<span class="u">%</span></p><p class="lbl">2000年<br><b>老人ホーム・介護医療院・老健</b></p></div>
+          <span class="vs">→</span>
+          <div class="duo-cell hot"><p class="n">15.5<span class="u">%</span></p><p class="lbl">2023年<br><b>約6.5倍</b>／実数 約25万人</p></div>
+        </div>
+      </div>
+      <div class="callout sj">
+        <p><span class="k">施設は、第三の看取りの場になった。</span></p>
+        <p style="font-size:17px;">そして施設に移った時点で、居宅のケアマネは担当を降ります。<br>亡くなる人は増えるのに、<em class="mk">我々の看取り経験は増えない</em>。下手をすると減ります。</p>
+      </div>
+    </div>
+    <p class="src">出典：厚生労働省「人口動態統計」。※在宅死の内訳には看取り死と孤独死の双方が含まれるが、東京都データの分解では2013〜2021年の在宅死増加の89.3%が在宅看取り死の増加による。</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 08 病院はもう受け皿ではない ================= -->
+<section class="slide" data-chapter="1" data-title="病院はもう受け皿ではない" data-note="「病院が追い出しているのではなく、病院に看取りの機能が残されていない」。この言い方は必ず使う。病院批判にすると場が濁る。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">01</span>いま何が起きているか</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">受け皿の縮小</p>
+    <h2 class="headline sm">病院が追い出しているのではありません。<br>病院に、看取りの機能が残されていないのです。</h2>
+    <div class="tiles c3" style="margin-top:24px;">
+      <div class="tile blue"><span class="t-lab">病院の平均在院日数</span><span class="t-val">29.3<span class="u">日</span></span><span class="t-note">1990年 47.4日 → 2017年 30.6日 → 2023年</span></div>
+      <div class="tile blue"><span class="t-lab">急性期一般入院料1の施設基準</span><span class="t-val">16<span class="u">日以内</span></span><span class="t-note">2024年度改定で18日以内から短縮</span></div>
+      <div class="tile blue"><span class="t-lab">全国の総病床数</span><span class="t-val">119.3<span class="u">万床</span></span><span class="t-note">2015年 125.1万床から減少。慢性期も減っている</span></div>
+    </div>
+    <p class="lede" style="margin-top:22px;">死亡4か月前から死亡月にかけて、<strong>医療機関から施設・自宅への移動が増加</strong>することが示されています。終末期ケアの場は、すでに病院から地域へ分散しています。</p>
+    <p class="src">出典：厚生労働省「患者調査」「病床機能報告」／石崎達郎「死亡前1年間における療養場所移行の実態把握」2016</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 09 支える側の激変 ================= -->
+<section class="slide" data-chapter="1" data-title="支える側が消える" data-note="「うちの地域は独居が多くて」という反論への先回り。独居は例外ではなく標準になる、と先に言っておく。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">01</span>いま何が起きているか</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">誰が看取るのか</p>
+    <h2 class="headline sm">「キーパーソンは子ども」という前提が、<br>制度ごと崩れます。</h2>
+    <div class="split wide-r" style="margin-top:26px;">
+      <div>
+        <div class="duo" style="grid-template-columns:1fr auto 1fr;">
+          <div class="duo-cell cool"><p class="n">1.4<span class="u">%</span></p><p class="lbl">2020年</p></div>
+          <span class="vs">→</span>
+          <div class="duo-cell hot"><p class="n">19.5<span class="u">%</span></p><p class="lbl">2050年<br><b>約14倍</b></p></div>
+        </div>
+        <p class="lede" style="font-size:17px;margin-top:14px;"><strong>85歳以上で、子がいない人の割合。</strong><br>死亡者の半数超を占める層です。</p>
+      </div>
+      <div>
+        <div class="tblwrap">
+          <table class="tbl">
+            <thead><tr><th>世帯の変化</th><th class="n">2020年</th><th class="n">2050年</th></tr></thead>
+            <tbody>
+              <tr><td>65歳以上の単独世帯</td><td class="n">738万</td><td class="n">1,084万</td></tr>
+              <tr><td>75歳以上の単独世帯</td><td class="n">417万</td><td class="n">704万</td></tr>
+              <tr><td>単身世帯が全世帯に占める割合</td><td class="n">38.0%</td><td class="n">44.3%</td></tr>
+              <tr class="hot"><td>85歳以上で子がいない割合</td><td class="n">1.4%</td><td class="n">19.5%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="src">出典：国立社会保障・人口問題研究所「日本の世帯数の将来推計（全国推計）令和6年推計」</p>
+      </div>
+    </div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 10 資源は増えている ================= -->
+<section class="slide" data-chapter="1" data-title="資源は倍近く増えた" data-note="ここが第1章の転回点。悲観データを並べた後に「資源は増えている」を出すことで、次章の『足りないのは段取り』が効く。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">01</span>いま何が起きているか</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow sig">ここが今日の出発点</p>
+    <h2 class="headline sm">在宅を支える資源は、10年で倍近くに増えました。</h2>
+    <div class="split" style="margin-top:24px;">
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead><tr><th>資源</th><th class="n">2016年</th><th class="n">直近</th></tr></thead>
+          <tbody>
+            <tr class="hot"><td>訪問看護ステーション</td><td class="n">9,070</td><td class="n">17,329</td></tr>
+            <tr><td>機能強化型 在宅療養支援診療所</td><td class="n">2,914</td><td class="n">4,120</td></tr>
+            <tr><td>機能強化型 在宅療養支援病院</td><td class="n">472</td><td class="n">782</td></tr>
+            <tr><td>訪問介護事業所</td><td class="n">33,262</td><td class="n">35,468</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="tblwrap">
+          <table class="tbl">
+            <thead><tr><th>施設のターミナルケア対応</th><th class="n">提供可能</th></tr></thead>
+            <tbody>
+              <tr><td>介護医療院</td><td class="n">95.7%</td></tr>
+              <tr><td>介護老人福祉施設（特養）</td><td class="n">78.4%</td></tr>
+              <tr><td>介護老人保健施設（老健）</td><td class="n">77.8%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout" style="margin-top:18px;">
+          <p style="font-size:18px;">それでも自宅で看取れないなら、足りないのはインフラではなく、<em class="mk">段取りと意思決定支援</em>です。</p>
+        </div>
+      </div>
+    </div>
+    <p class="src">出典：全国訪問看護事業協会調査／厚生労働省「医療施設調査」「令和6年度 高齢者施設等と医療機関の連携体制等にかかる調査研究事業」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 11 第1章まとめ ================= -->
+<section class="slide s-quote" data-chapter="1" data-title="第1章まとめ｜決めなければならない時代" data-note="ここで一呼吸置く。第1章の結論を1文で言い切ってから第2章へ。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">01</span>いま何が起きているか</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="q-text">支え手は消え、病院は受け皿でなくなり、<br>それでも資源は増えている。<br><br>だから今は、<span class="em">決めなければならない時代</span>です。</p>
+    <p class="q-attr">そして、段取りと意思決定支援は、研修と仕組みで変えられます。</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 12 章扉2 ================= -->
+<section class="slide s-chapter" data-chapter="2" data-title="第2章 決まっていない、しかし避けているのではない" data-note="今日のハイライト。ここに時間を厚く配分する（15分程度）。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span></span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="c-num">CHAPTER 02</p>
+    <h2 class="c-title">決まっていない。<br>しかし、避けているのではない。</h2>
+    <p class="c-sub">今日いちばん持ち帰っていただきたい数字は、この章にあります。</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 13 ACP認知度 ================= -->
+<section class="slide" data-chapter="2" data-title="ACPは国民に届いていない" data-note="平成29年度3.3%からほぼ横ばい。「30年啓発して、ほぼ動いていない」と言い切ってよい。ケアマネの47.5%は労いのポイント。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span>決まっていない</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">ACP（人生会議）を「よく知っている」</p>
+    <h2 class="headline sm">30年啓発して、国民側はほぼ動いていません。</h2>
+    <div class="barchart" style="margin-top:26px;">
+      <div class="bar-row on"><span class="b-lab">一般国民</span><span class="bar-track"><span class="bar-fill" style="width:11.8%"></span></span><span class="b-val">5.9%</span></div>
+      <div class="bar-row"><span class="b-lab">医師</span><span class="bar-track"><span class="bar-fill" style="width:91.8%"></span></span><span class="b-val">45.9%</span></div>
+      <div class="bar-row"><span class="b-lab">看護師</span><span class="bar-track"><span class="bar-fill" style="width:91.6%"></span></span><span class="b-val">45.8%</span></div>
+      <div class="bar-row"><span class="b-lab">介護支援専門員</span><span class="bar-track"><span class="bar-fill" style="width:95%"></span></span><span class="b-val">47.5%</span></div>
+    </div>
+    <p class="lede" style="margin-top:22px;">一般国民の <strong>72.1%が「知らない」</strong>。平成29年度調査（3.3%）からほぼ横ばいです。<br>一方、<em class="mk-ai">この調査から介護支援専門員が正式な調査対象になりました</em>。皆さんは、いま数えられる側にいます。</p>
+    <p class="src">出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」（一般国民 n=3,000／医師 n=1,462／看護師 n=2,347／介護支援専門員 n=1,752）。※横軸は0〜50%。</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 14 話し合っていない ================= -->
+<section class="slide" data-chapter="2" data-title="話し合ったことがない 68.6%" data-note="次のスライドの前フリ。ここでは数字だけ出して、理由は次で開く。「なぜだと思いますか」と会場に振ると効く。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span>決まっていない</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">家族等と、人生の最終段階について話し合っているか（一般国民）</p>
+    <h2 class="headline sm">7割が、一度も話し合っていません。</h2>
+    <div class="barchart" style="margin-top:28px;">
+      <div class="bar-row on"><span class="b-lab">話し合ったことはない</span><span class="bar-track"><span class="bar-fill" style="width:68.6%"></span></span><span class="b-val">68.6%</span></div>
+      <div class="bar-row"><span class="b-lab">一応話し合っている</span><span class="bar-track"><span class="bar-fill" style="width:28.4%"></span></span><span class="b-val">28.4%</span></div>
+      <div class="bar-row mute"><span class="b-lab">詳しく話し合っている</span><span class="bar-track"><span class="bar-fill" style="width:1.5%"></span></span><span class="b-val">1.5%</span></div>
+    </div>
+    <p class="lede" style="margin-top:26px;">では ── <strong>なぜ、話し合っていないのでしょうか。</strong></p>
+    <p class="src">出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 15 ★核心 ================= -->
+<section class="slide" data-chapter="2" data-title="★核心｜62.8% vs 2.1%" data-note="今日の中核。ゆっくり、間を取って出す。ここで会場の空気が変わる。『日本人は死の話を避ける』という通説は、データ上は成立しにくい。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span>決まっていない</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow sig">話し合ったことがない理由（一般国民 n=2,057・複数回答）</p>
+    <div class="duo" style="margin-top:10px;">
+      <div class="duo-cell hot">
+        <p class="n">62.8<span class="u">%</span></p>
+        <p class="lbl"><b>話し合うきっかけが<br>なかったから</b></p>
+      </div>
+      <span class="vs">に対して</span>
+      <div class="duo-cell cool">
+        <p class="n">2.1<span class="u">%</span></p>
+        <p class="lbl"><b>話し合いたくないから</b></p>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:34px;">
+      <p><span class="k">避けているのではありません。聞かれていないだけです。</span></p>
+      <p style="font-size:17px;">問題は<strong>文化</strong>ではなく、<em class="mk">きっかけと型の欠如</em>。<br>そして、きっかけと型を提供できるのは、生活に最も近い皆さんです。</p>
+    </div>
+    <p class="src">その他の理由：知識が無いため何を話し合っていいか分からないから 31.0%／話し合う必要性を感じていないから 21.8%。出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 16 メッセージの転換 ================= -->
+<section class="slide" data-chapter="2" data-title="メッセージの転換" data-note="精神論と行動論の対比。左は動きが生まれない言い方、右は明日の行動に直結する言い方。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span>決まっていない</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">同じ現実を、どう言うか</p>
+    <h2 class="headline sm">言い方を変えると、明日が変わります。</h2>
+    <div class="split" style="margin-top:28px;">
+      <div class="panel x">
+        <h4>✕ 行動が生まれない言い方</h4>
+        <p class="big-line">「日本人は死の話を<br>したがらないから、難しい」</p>
+        <p style="margin-top:14px;font-size:15.5px;">文化のせいにした瞬間、我々の仕事は消えます。<br>そして、これはデータ上そもそも成立しにくい。</p>
+      </div>
+      <div class="panel o">
+        <h4>○ 明日の行動に直結する言い方</h4>
+        <p class="big-line">「決めたくないのではなく、<br>聞かれていないだけ。<br>だから我々が聞く」</p>
+        <p style="margin-top:14px;font-size:15.5px;">拒否しているのは2.1%。<br>残りは、きっかけを待っています。</p>
+      </div>
+    </div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 17 きっかけはケアマネの目の前にある ================= -->
+<section class="slide" data-chapter="2" data-title="きっかけは、我々の目の前にある" data-note="「家族等の介護」40.7%はケアマネが必ず居合わせる場面。ケアプラン作成・更新は統計的に最良の切り出し機会。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span>決まっていない</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">話し合うきっかけとして挙げられた出来事（一般国民）</p>
+    <h2 class="headline sm">きっかけの第3位は、我々が必ず居合わせる場面です。</h2>
+    <div class="barchart" style="margin-top:24px;">
+      <div class="bar-row"><span class="b-lab">ご家族等の病気</span><span class="bar-track"><span class="bar-fill" style="width:54.8%"></span></span><span class="b-val">54.8%</span></div>
+      <div class="bar-row"><span class="b-lab">自分の病気</span><span class="bar-track"><span class="bar-fill" style="width:47.7%"></span></span><span class="b-val">47.7%</span></div>
+      <div class="bar-row on"><span class="b-lab">ご家族等の介護</span><span class="bar-track"><span class="bar-fill" style="width:40.7%"></span></span><span class="b-val">40.7%</span></div>
+      <div class="bar-row"><span class="b-lab">ご家族等の死</span><span class="bar-track"><span class="bar-fill" style="width:31.1%"></span></span><span class="b-val">31.1%</span></div>
+      <div class="bar-row"><span class="b-lab">医療・介護従事者による説明や相談の機会</span><span class="bar-track"><span class="bar-fill" style="width:21.8%"></span></span><span class="b-val">21.8%</span></div>
+    </div>
+    <p class="lede" style="margin-top:22px;">ケアプランの作成・更新、サービス担当者会議、区分変更、入退院 ──<br><strong>統計的に見て、これが最良の切り出し機会です。</strong></p>
+    <p class="src">出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 18 届いていない ================= -->
+<section class="slide" data-chapter="2" data-title="決めても、届いていない" data-note="「決める」より「届ける」の方がはるかに壊れている。ここはケアマネの記録・共有の仕事の価値づけに直結する。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span>決まっていない</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">話し合った内容を、医療・介護従事者と共有しているか</p>
+    <h2 class="headline sm">決めることより、届けることが壊れています。</h2>
+    <div class="split wide-l" style="margin-top:24px;">
+      <div class="barchart">
+        <div class="bar-row on"><span class="b-lab">一般国民（共有していない）</span><span class="bar-track"><span class="bar-fill" style="width:81.6%"></span></span><span class="b-val">81.6%</span></div>
+        <div class="bar-row"><span class="b-lab">医師（共有していない）</span><span class="bar-track"><span class="bar-fill" style="width:65.1%"></span></span><span class="b-val">65.1%</span></div>
+        <div class="bar-row"><span class="b-lab">看護師（共有していない）</span><span class="bar-track"><span class="bar-fill" style="width:70.2%"></span></span><span class="b-val">70.2%</span></div>
+        <div class="bar-row good"><span class="b-lab">介護支援専門員（共有していない）</span><span class="bar-track"><span class="bar-fill" style="width:56.6%"></span></span><span class="b-val">56.6%</span></div>
+      </div>
+      <div class="callout">
+        <p><span class="k">話し合った3割 × 共有できた1.6割<br>≒ 実質5%</span></p>
+        <p style="font-size:16.5px;">専門職に本人の意思が届いているのは、この程度です。<br><br>なお、共有できている割合が最も高いのは<em class="mk-sj">介護支援専門員</em>（43.4%が共有）。皆さんは、最も届けている職種です。</p>
+      </div>
+    </div>
+    <p class="src">出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」（話し合ったことがある人のみ）</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 19 我々の側の壁 ================= -->
+<section class="slide" data-chapter="2" data-title="我々の側の壁｜切り出す抵抗 53.2%" data-note="ここは責める文脈で出さない。「医師・看護師の2倍以上。これは力量ではなく構造の問題です」と即座に続ける。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span>決まっていない</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow sig">話し合いをほとんど行っていない理由「切り出すことに抵抗を感じるため」</p>
+    <h2 class="headline sm">ケアマネジャーだけが、2倍以上です。</h2>
+    <div class="barchart" style="margin-top:28px;">
+      <div class="bar-row"><span class="b-lab">医師</span><span class="bar-track"><span class="bar-fill" style="width:35%"></span></span><span class="b-val">21.0%</span></div>
+      <div class="bar-row"><span class="b-lab">看護師</span><span class="bar-track"><span class="bar-fill" style="width:36.8%"></span></span><span class="b-val">22.1%</span></div>
+      <div class="bar-row on"><span class="b-lab">介護支援専門員</span><span class="bar-track"><span class="bar-fill" style="width:88.7%"></span></span><span class="b-val">53.2%</span></div>
+    </div>
+    <p class="lede" style="margin-top:26px;">これは<strong>力量の問題ではありません。構造の問題です。</strong></p>
+    <p class="src">※横軸は0〜60%。出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 20 なぜケアマネだけか ================= -->
+<section class="slide" data-chapter="2" data-title="なぜケアマネだけが切り出せないのか" data-note="入口の有無で説明する。ここで納得が生まれると、第3章の型が素直に入る。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span>決まっていない</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">構造の説明</p>
+    <h2 class="headline sm">医師と看護師には「入口」があります。<br>ケアマネジャーには、ありません。</h2>
+    <div class="split" style="margin-top:26px;">
+      <div class="panel">
+        <h4>医師・看護師</h4>
+        <p><strong style="color:var(--ai)">「病状説明」という正当な入口がある。</strong><br>医療的な悪い知らせを告げることが、職務として認められている。だから切り出せる。</p>
+      </div>
+      <div class="panel o">
+        <h4>ケアマネジャー</h4>
+        <p><strong style="color:var(--shu)">入口がない。しかし距離は最も近い。</strong><br>悪い知らせを告げる立場ではないのに、本人・家族と最も長く、最も近くにいる。だから抵抗を感じる。</p>
+      </div>
+    </div>
+    <div class="callout ai" style="margin-top:24px;">
+      <p style="font-size:18px;">それでもケアマネジャーは、<em class="mk-sj">最も話し合っている職種</em>です（十分／一応行っている 68.8%。医師59.5%・看護師54.5%）。そして<em class="mk-sj">89.3%</em>が「事前指示書の存在を伝えるべき」と答えています。<br><strong>抵抗を抱えながら、最前線に立っている職種です。</strong></p>
+    </div>
+    <p class="src">出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 21 日本には空席がある ================= -->
+<section class="slide" data-chapter="2" data-title="日本には、その役職がない" data-note="ここは静かに読む。締めのスライドで再度この「空席」に戻ってくるので、伏線として置く。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span>決まっていない</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">死の話を切り出すのは、誰の仕事か</p>
+    <h2 class="headline sm">諸外国では、訓練を受けた専門職の仕事です。</h2>
+    <div class="tblwrap" style="margin-top:22px;">
+      <table class="tbl">
+        <thead><tr><th style="width:26%">国・地域</th><th>死の話を切り出す役</th><th style="width:30%">裏付け</th></tr></thead>
+        <tbody>
+          <tr><td>アメリカ</td><td class="jp">チャプレン、ホスピスのソーシャルワーカー</td><td class="jp">職種として確立</td></tr>
+          <tr><td>イスラム圏</td><td class="jp">イマーム</td><td class="jp">宗教</td></tr>
+          <tr><td>カトリック圏</td><td class="jp">司祭</td><td class="jp">宗教</td></tr>
+          <tr><td>台湾</td><td class="jp">ACP指定病院の多職種チーム（研修受講必須）</td><td class="jp">法定（病人自主権利法）</td></tr>
+          <tr class="hot"><td>日本</td><td class="jp">── 空席</td><td class="jp">法制化されず、ガイドライン運用</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lede" style="margin-top:22px;">法律か宗教が担ってきた機能を、制度的裏付けのないまま、現場の専門職が担っています。<br><strong>抵抗を感じて、当然です。</strong></p>
+    <p class="src">出典：森川岳大「終末期の医療・ケアに関する制度的枠組みの国際比較」年報 公共政策学 Vol.14, 2020 をもとに整理</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 22 日本の弱点はルールが無いこと ================= -->
+<section class="slide" data-chapter="2" data-title="「ガチガチの制度」の正体" data-note="台湾は健康保険証に事前指示が登録される。日本は冷蔵庫に貼るしかない。これは意識差ではなくインフラ差。ケアマネの仕事を誇りに変える論点。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">02</span>決まっていない</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">制度的枠組みの国際比較</p>
+    <h2 class="headline sm">日本の弱点は、規制が厳しいことではありません。<br>ルールが無いことです。</h2>
+    <div class="split wide-l" style="margin-top:22px;">
+      <div class="tblwrap">
+        <table class="tbl" style="font-size:14.5px;">
+          <thead><tr><th></th><th>台湾</th><th>韓国</th><th>日本</th></tr></thead>
+          <tbody>
+            <tr><td>事前指示関連法</td><td class="jp">あり（2000/2019）</td><td class="jp">あり（2018施行）</td><td class="jp">なし</td></tr>
+            <tr><td>代理人の指定</td><td class="jp">必須</td><td class="jp">規定なし</td><td class="jp">推奨のみ</td></tr>
+            <tr class="hot"><td>情報共有の基盤</td><td class="jp">健康保険証に登録</td><td class="jp">国立機関に集約</td><td class="jp">自分や家族で保管</td></tr>
+            <tr><td>全国統一様式</td><td class="jp">あり</td><td class="jp">あり</td><td class="jp">なし</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <p><span class="k">台湾では健康保険証に登録される。<br>日本では、冷蔵庫に貼るしかない。</span></p>
+        <p style="font-size:16.5px;">これは意識の差ではなく、<em class="mk">インフラの差</em>です。<br><br>皆さんがやっている「冷蔵庫の一枚紙」は、台湾の国家データベースの代替を、現場が手作業で担っているということ。<br><strong>恥ずべきことではなく、極めて重要な仕事です。</strong></p>
+      </div>
+    </div>
+    <p class="src">出典：森川岳大「終末期の医療・ケアに関する制度的枠組みの国際比較」2020</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 23 章扉3 ================= -->
+<section class="slide s-chapter" data-chapter="3" data-title="第3章 型を渡す" data-note="ここから実務パート。精神論は一切なし、と宣言してから入る。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">03</span></span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="c-num">CHAPTER 03</p>
+    <h2 class="c-title">型を渡す</h2>
+    <p class="c-sub">ここから先は、精神論はなしです。<br>「意識を高める」「丁寧に関わる」は打ち手ではありません。<br>仕組み・段取り・書式・約束事に落ちるものだけを扱います。</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 24 切り出しの型3つ ================= -->
+<section class="slide top" data-chapter="3" data-title="切り出しの型 3つ" data-note="③の定型文は事業所で統一することが要点。全員が同じ言葉を使えば、それは個人の判断ではなく手続きになる。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">03</span>型を渡す</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">抵抗を感じる53.2%を、越えるための3つ</p>
+    <h2 class="headline sm">自分の判断で切り出さない。手続きとして切り出す。</h2>
+    <ol class="steps" style="margin-top:24px;">
+      <li><b>制度上の節目を口実にする</b>区分変更・更新・退院時・サービス担当者会議。「決まりになっているので」と言えば、それは個人の判断ではなくなります。</li>
+      <li><b>「病状の話」ではなく「暮らしの希望の話」として入る</b>医療の話にしない。予後の説明は医師の仕事です。切り出すことと、答えることは別の仕事です。</li>
+      <li><b>定型文を事業所で持ち、全員が同じ言葉を使う</b>個人の力量に任せない。文面が決まっていれば、迷いは消えます。</li>
+    </ol>
+    <div class="mock" style="margin-top:22px;"><span class="hd">定型文の例</span>
+「お元気なうちに伺っておく<span class="hl">決まりになっている</span>のですが、
+　もしもの時のご希望を教えていただけますか」</div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 25 予後の説明は担わない ================= -->
+<section class="slide" data-chapter="3" data-title="担わないことを、明示する" data-note="「切り出すこと」と「答えること」を分離するのが最大の解毒。ここでケアマネの心理的負荷が下がる。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">03</span>型を渡す</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">役割は、狭く定義するほど人は逃げない</p>
+    <h2 class="headline sm">ケアマネジャーは、予後の説明を担いません。</h2>
+    <div class="split" style="margin-top:24px;">
+      <div class="panel">
+        <h4>担 う</h4>
+        <p>段取り<br>家族関係の調整<br><strong>要注意家族の特定</strong><br>会議の設計<br>きっかけを作ること</p>
+      </div>
+      <div class="panel o">
+        <h4>担 わ な い（明示することが重要）</h4>
+        <p><strong>医学的判断</strong><br><strong>予後の説明</strong><br><br>これは医師の仕事です。<br>「医学的なことを聞かれたら答えられない」という不安は、ここで解消されます。</p>
+      </div>
+    </div>
+    <div class="callout ai" style="margin-top:24px;">
+      <p style="font-size:18px;">人が逃げるのは、<strong>求められている範囲が無限に見えるとき</strong>です。<br>「これは担わなくてよい」と書いてあると、担うべきことから逃げなくなります。</p>
+    </div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 26 台湾型 ================= -->
+<section class="slide" data-chapter="3" data-title="家族を最初から同席させる（台湾型）" data-note="「集団主義だから決められない」を否定する。台湾は儒教文化圏で家族集団主義が強いが、法でACPを推進し、家族の同席を必須にしている。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">03</span>型を渡す</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">「日本人は集団主義だから決められない」は、再考の余地あり</p>
+    <h2 class="headline sm">集団主義は、決められない理由ではなく、<br>設計に織り込むべき前提です。</h2>
+    <div class="split" style="margin-top:22px;">
+      <div>
+        <ul class="pts">
+          <li>台湾は<b>儒教文化圏で家族集団主義が強い</b>にもかかわらず、2000年に安寧緩和医療法を制定し、国策としてACPを推進している。</li>
+          <li>台湾のACPは、<b>家族または親族のうち少なくとも1人の同席が必須</b>（英・豪は本人1人でも作成可）。</li>
+          <li>韓国も、事前指示がない場合は<b>家族全員の合意</b>を要件としている。</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <p><span class="k">本人だけで決めさせる欧米型を輸入せず、<br>家族を最初から同席させる型を作る。</span></p>
+        <p style="font-size:17px;"><strong>実務では ──</strong><br>サービス担当者会議に、キーパーソン以外の家族も呼ぶ。<br>とくに<em class="mk">反対しそうな遠方の家族を、最初から入れる</em>。<br><br>最後にひっくり返すのは、この人です。悪化してから呼ぶと「なぜもっと早く言わなかった」になります。</p>
+      </div>
+    </div>
+    <p class="src">出典：森川岳大「終末期の医療・ケアに関する制度的枠組みの国際比較」2020</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 27 決めることは4つ ================= -->
+<section class="slide top" data-chapter="3" data-title="決めることを4つに絞る" data-note="ACPで決めることを増やすと現場が回らない。4つに固定する。4番を最初に決めるのが要点。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">03</span>型を渡す</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">聞くことを限定する</p>
+    <h2 class="headline sm">決めることは、4つだけにします。</h2>
+    <div class="tblwrap" style="margin-top:20px;">
+      <table class="tbl">
+        <thead><tr><th style="width:44px" class="n">#</th><th>問い</th><th style="width:34%">記録形式</th></tr></thead>
+        <tbody>
+          <tr><td class="n">1</td><td>食べられなくなったら、点滴をしますか／しませんか</td><td class="jp">する（皮下・少量）／しない／未決</td></tr>
+          <tr><td class="n">2</td><td>呼吸が止まっていたら、救急車を呼びますか</td><td class="jp">呼ばない・主治医へ／呼ぶ／未決</td></tr>
+          <tr><td class="n">3</td><td>苦しくなったら、入院しますか／自宅で眠らせますか</td><td class="jp">入院／在宅で鎮静／未決</td></tr>
+          <tr class="hot"><td class="n">4</td><td>本人が言えなくなったら、誰が代わりに答えますか</td><td class="jp">氏名・続柄・連絡先</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout" style="margin-top:20px;">
+      <p style="font-size:18px;"><strong>4番を、最初に決めます。</strong> 日本では決定者が消えるため、代理人を明示しないと、決定は<em class="mk">「その場にいた人」</em>に落ちます。多くは同居の女性です。</p>
+    </div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 28 未決リスト ================= -->
+<section class="slide" data-chapter="3" data-title="未決リスト＝夜に崩れる患者リスト" data-note="「何人と話せたか」は達成感で終わる。「まだ話せていない人が何人いるか」は行動を生む。唯一の先行指標。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">03</span>型を渡す</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">たった一つの先行指標</p>
+    <h2 class="headline sm">「未決」が残っている人が、夜に崩れます。</h2>
+    <div class="split" style="margin-top:24px;">
+      <div class="panel x">
+        <h4>✕ 達成感で終わる管理</h4>
+        <p class="big-line">何人と話せたか</p>
+        <p style="margin-top:12px;font-size:15.5px;">数えると気分は良くなりますが、翌週の行動は変わりません。</p>
+      </div>
+      <div class="panel o">
+        <h4>○ 行動を生む管理</h4>
+        <p class="big-line">まだ話せていない人が<br>何人いるか</p>
+        <p style="margin-top:12px;font-size:15.5px;">4つの問いに「未決」が残る利用者を、週次でリスト化する。<br>これが<strong>夜間に崩れる可能性のある人のリスト</strong>です。</p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:24px;">4つの問いは、<strong>医師とケアマネのどちらが聞いても構いません。</strong>埋まったら共有する。それだけです。</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 29 章扉4 ================= -->
+<section class="slide s-chapter" data-chapter="4" data-title="第4章 場所と、夜" data-note="残り20分程度。ここから場所の話と、夜の話。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span></span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="c-num">CHAPTER 04</p>
+    <h2 class="c-title">場所と、夜</h2>
+    <p class="c-sub">希望は絶対ではなく、揺れ動きます。<br>そして在宅看取りが崩れるのは、ほとんどが夜です。</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 30 希望は揺れる ================= -->
+<section class="slide" data-chapter="4" data-title="希望は揺れる｜途中と最期" data-note="同じ人に聞いても、途中と最期で答えが違う。「最期は自宅」と言う人の多くが「途中は病院」と考えている。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">同じ人に、二つの質問をすると（一般国民）</p>
+    <h2 class="headline sm">場所の希望は一つではなく、時期によって変わります。</h2>
+    <div class="split" style="margin-top:22px;">
+      <div>
+        <p class="eyebrow" style="margin-bottom:12px;">最期をどこで迎えたいか</p>
+        <div class="barchart">
+          <div class="bar-row on" style="grid-template-columns:110px 1fr 64px;"><span class="b-lab">自宅</span><span class="bar-track"><span class="bar-fill" style="width:73%"></span></span><span class="b-val">43.8%</span></div>
+          <div class="bar-row" style="grid-template-columns:110px 1fr 64px;"><span class="b-lab">医療機関</span><span class="bar-track"><span class="bar-fill" style="width:69.3%"></span></span><span class="b-val">41.6%</span></div>
+          <div class="bar-row mute" style="grid-template-columns:110px 1fr 64px;"><span class="b-lab">介護施設</span><span class="bar-track"><span class="bar-fill" style="width:16.7%"></span></span><span class="b-val">10.0%</span></div>
+        </div>
+      </div>
+      <div>
+        <p class="eyebrow" style="margin-bottom:12px;">それまでの医療・ケアをどこで受けたいか</p>
+        <div class="barchart">
+          <div class="bar-row" style="grid-template-columns:110px 1fr 64px;"><span class="b-lab">医療機関</span><span class="bar-track"><span class="bar-fill" style="width:91.3%"></span></span><span class="b-val">54.8%</span></div>
+          <div class="bar-row on" style="grid-template-columns:110px 1fr 64px;"><span class="b-lab">自宅</span><span class="bar-track"><span class="bar-fill" style="width:45.5%"></span></span><span class="b-val">27.3%</span></div>
+          <div class="bar-row mute" style="grid-template-columns:110px 1fr 64px;"><span class="b-lab">介護施設</span><span class="bar-track"><span class="bar-fill" style="width:13.3%"></span></span><span class="b-val">8.0%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:24px;">
+      <p style="font-size:18px;">「最期は自宅」と言う人の多くが、<em class="mk">「途中は病院」</em>と考えています。<br>希望を一度聞いて終わりにすると、必ずずれます。</p>
+    </div>
+    <p class="src">※横軸は0〜60%。出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 31 病態別 ================= -->
+<section class="slide" data-chapter="4" data-title="病態で答えは大きく変わる" data-note="認知症では自宅希望が14.7%まで落ちる。『認知症の人を自宅で看取る』は本人の希望としても少数派、という現実を直視する。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">最期を迎えたい場所（一般国民・病態別）</p>
+    <h2 class="headline sm">認知症では、自宅希望は14.7%まで落ちます。</h2>
+    <div class="tblwrap" style="margin-top:22px;">
+      <table class="tbl">
+        <thead><tr><th style="width:26%">病態</th><th class="n">医療機関</th><th class="n">介護施設</th><th class="n">自宅</th><th>読み方</th></tr></thead>
+        <tbody>
+          <tr><td>末期がん</td><td class="n">51.7%</td><td class="n">14.7%</td><td class="n">32.2%</td><td class="jp">自宅希望が最も高い病態</td></tr>
+          <tr><td>重い心臓病</td><td class="n">54.1%</td><td class="n">13.9%</td><td class="n">29.6%</td><td class="jp">医療機関が過半</td></tr>
+          <tr class="hot"><td>認知症</td><td class="n">29.7%</td><td class="n">53.1%</td><td class="n">14.7%</td><td class="jp">介護施設が過半に跳ね上がる</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lede" style="margin-top:24px;"><strong>「認知症の人を自宅で看取る」は、本人の希望としても少数派です。</strong><br>在宅を前提にしない判断も、等しく尊重されるべき選択です。</p>
+    <p class="src">出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 32 自宅を諦める理由 ================= -->
+<section class="slide" data-chapter="4" data-title="自宅を諦める理由は特定できている" data-note="上位に『医療行為ができない』が一つもないことを必ず指摘する。挙がっているのは負担と不安だけ。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">なぜ自宅以外を選んだか（一般国民 n=1,548・複数回答）</p>
+    <h2 class="headline sm">上位に「医療行為ができないから」は、一つもありません。</h2>
+    <div class="barchart" style="margin-top:22px;">
+      <div class="bar-row on"><span class="b-lab">介護してくれる家族等に負担がかかる</span><span class="bar-track"><span class="bar-fill" style="width:74.6%"></span></span><span class="b-val">74.6%</span></div>
+      <div class="bar-row on"><span class="b-lab">急変時の対応に自分も家族も不安</span><span class="bar-track"><span class="bar-fill" style="width:57.2%"></span></span><span class="b-val">57.2%</span></div>
+      <div class="bar-row"><span class="b-lab">すぐ医師・看護師の訪問が受けられるか不安</span><span class="bar-track"><span class="bar-fill" style="width:28.2%"></span></span><span class="b-val">28.2%</span></div>
+      <div class="bar-row"><span class="b-lab">すぐ病院に入院できるか不安</span><span class="bar-track"><span class="bar-fill" style="width:26.7%"></span></span><span class="b-val">26.7%</span></div>
+      <div class="bar-row"><span class="b-lab">訪問してくれるかかりつけ医がいない</span><span class="bar-track"><span class="bar-fill" style="width:22.0%"></span></span><span class="b-val">22.0%</span></div>
+      <div class="bar-row mute"><span class="b-lab">介護してくれる家族等がいない</span><span class="bar-track"><span class="bar-fill" style="width:14.1%"></span></span><span class="b-val">14.1%</span></div>
+    </div>
+    <p class="lede" style="margin-top:20px;">挙がっているのは、<em class="mk">負担</em>と<em class="mk">不安</em>だけです。<br>つまり在宅看取りが成立しない主因は、医療技術ではありません。</p>
+    <p class="src">出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 33 決定的な非対称 ================= -->
+<section class="slide" data-chapter="4" data-title="決定的な非対称｜負担 71.6% vs 長生き 6.1%" data-note="本人が最も重視するのは『家族に負担をかけないこと』。長生きは6.1%。この非対称が、我々の打ち手を決める。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow sig">どこで最期を迎えたいかを考える際に重要なこと（一般国民）</p>
+    <div class="duo" style="margin-top:6px;">
+      <div class="duo-cell hot"><p class="n">71.6<span class="u">%</span></p><p class="lbl"><b>家族等の負担にならないこと</b></p></div>
+      <span class="vs">に対して</span>
+      <div class="duo-cell cool"><p class="n">6.1<span class="u">%</span></p><p class="lbl"><b>可能な限り長生きすること</b></p></div>
+    </div>
+    <p class="lede" style="margin-top:24px;">その他：体や心の苦痛なく過ごせること 60.2%／経済的な負担が少ないこと 55.9%／自分らしくいられること 48.7%</p>
+    <div class="callout" style="margin-top:20px;">
+      <p style="font-size:18px;">自宅を諦める理由の大半は、医療の限界ではなく、<em class="mk">家族への遠慮と急変への不安</em>。<br><strong>この2つは、両方とも我々が外せます。</strong></p>
+    </div>
+    <p class="src">出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 34 後戻り可能性 ================= -->
+<section class="slide" data-chapter="4" data-title="後戻り可能性を保証する" data-note="「一度決めても変えていい」と先に言うことが、在宅という選択肢を残す。撤退路の保証が選択を可能にする。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">打ち手は、2つの不安に対応する</p>
+    <h2 class="headline sm">先に逃げ道を見せると、自宅は選ばれます。</h2>
+    <div class="split" style="margin-top:26px;">
+      <div class="panel o">
+        <h4>不安① 家族への遠慮 — 74.6%</h4>
+        <p><strong>家族の負担を軽くする段取りを、先に提示する。</strong></p>
+        <p style="font-size:15.5px;">レスパイトを「限界が来たら」ではなく<b style="color:var(--ink)">定期で組み込む</b>（限界申告は上がってこない前提で組む）。夜間だけ外部化する設計（夜間対応型訪問介護・定期巡回・夜間のみのショート）。</p>
+      </div>
+      <div class="panel o">
+        <h4>不安② 急変への不安 — 57.2%</h4>
+        <p><strong>急変時の逃げ道を、先に保証する。</strong></p>
+        <p style="font-size:15.5px;">24時間対応の訪問看護を、<b style="color:var(--ink)">終末期になる前に</b>入れておく。「今は必要ない」段階で入れる。<br>そして「一度『家で』と決めても、途中で変えて構いません」と明言する。</p>
+      </div>
+    </div>
+    <div class="callout ai" style="margin-top:24px;">
+      <p style="font-size:18px;"><strong>後戻り可能性の担保が、在宅看取り率を上げます。</strong> 撤退できると分かっている選択肢だけが、選ばれます。</p>
+    </div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 35 点滴だけが例外 ================= -->
+<section class="slide" data-chapter="4" data-title="点滴だけが例外" data-note="「延命はしませんね」と一括で確認すると家族は納得しない。点滴だけは別扱いだと知っておく。心肺蘇生の『わからない』22.4%が夜の119番になる。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">延命医療への希望（一般国民・1年以内に死に至る想定）</p>
+    <h2 class="headline sm">「何もしない」ではありません。<br>「点滴はしてほしい」が、国民の平均です。</h2>
+    <div class="tblwrap" style="margin-top:20px;">
+      <table class="tbl">
+        <thead><tr><th>医療行為</th><th class="n">望む</th><th class="n">望まない</th><th class="n">わからない</th></tr></thead>
+        <tbody>
+          <tr class="hot"><td>口から水を飲めなくなった場合の点滴</td><td class="n">56.2%</td><td class="n">18.8%</td><td class="n">21.4%</td></tr>
+          <tr><td>抗生剤の内服・点滴</td><td class="n">57.2%</td><td class="n">12.4%</td><td class="n">25.2%</td></tr>
+          <tr><td>経鼻栄養</td><td class="n">19.4%</td><td class="n">46.5%</td><td class="n">30.7%</td></tr>
+          <tr><td>人工呼吸器</td><td class="n">11.6%</td><td class="n">57.3%</td><td class="n">27.9%</td></tr>
+          <tr><td>胃ろう</td><td class="n">7.6%</td><td class="n">63.3%</td><td class="n">26.0%</td></tr>
+          <tr><td>心肺蘇生</td><td class="n">20.7%</td><td class="n">53.8%</td><td class="n">22.4%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lede" style="margin-top:18px;">点滴だけが例外的に「望む」が多数です。ここを踏まえずに「延命はしませんね」と一括で確認すると、家族は納得しません。<br>そして心肺蘇生の「わからない」<em class="mk">22.4%</em> ── <strong>決められていない2割が、夜の119番になります。</strong></p>
+    <p class="src">出典：厚生労働省「令和4年度 人生の最終段階における医療・ケアに関する意識調査」</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 36 5つのゲート ================= -->
+<section class="slide" data-chapter="4" data-title="5つのゲート（直列回路）" data-note="在宅看取りは直列回路。どれか1つが破れると、そこで担当が離れる。G5が最も見落とされる。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">在宅看取りは、直列回路です</p>
+    <h2 class="headline sm">5つの関門を全部通過して、はじめて成立します。</h2>
+    <div class="gates" style="margin-top:30px;">
+      <div class="gate done"><span class="node">G1</span><span class="g-name">気づく</span><span class="g-sub">終末期を、どれだけ早く把握できたか</span></div>
+      <div class="gate done"><span class="node">G2</span><span class="g-name">話す</span><span class="g-sub">本人・家族と最期の方針を話せたか</span></div>
+      <div class="gate done"><span class="node">G3</span><span class="g-name">つなぐ</span><span class="g-sub">24時間対応の医療が入っていたか</span></div>
+      <div class="gate on"><span class="node">G4</span><span class="g-name">夜を越える</span><span class="g-sub">急変時の手順が家族の手元にあったか</span></div>
+      <div class="gate on"><span class="node">G5</span><span class="g-name">離さない</span><span class="g-sub">入院・入所しても関わり続けたか</span></div>
+    </div>
+    <div class="callout" style="margin-top:32px;">
+      <p style="font-size:18px;">実際に破れるのは <em class="mk">G4（夜を越える）</em> と <em class="mk">G2（話す）</em>。医療技術ではありません。<br>そして <em class="mk">G5</em> は、最も見落とされます ── 制度上は担当を外れますが、<strong>関わり続けてはいけないとは、どこにも書いていません。</strong></p>
+    </div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 37 崩壊点は夜の119番 ================= -->
+<section class="slide" data-chapter="4" data-title="崩壊点は、夜の119番" data-note="制度上の事実を正確に。DNARの意思表示があっても、119番通報されれば原則として蘇生される。地域MC協議会のプロトコルを事前確認しておく。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow sig">G4 ── 夜を越える</p>
+    <h2 class="headline sm">119番を押した瞬間に、<br>それまでの意思決定が無効になる地域があります。</h2>
+    <div class="split wide-l" style="margin-top:22px;">
+      <div>
+        <ul class="pts tight">
+          <li>救急隊は消防法上、心肺停止を認知した場合、<b>救命処置を行い搬送する責務</b>がある。</li>
+          <li>したがってDNARの意思表示があっても、<b>119番通報されれば原則として蘇生される</b>。</li>
+          <li>各地のメディカルコントロール協議会がプロトコルを整備中だが、<b>全国統一のルールはない</b>。</li>
+        </ul>
+        <p class="src">例：山梨県（医師の指示書に基づく運用）／静岡県志太榛原MC協議会／岐阜県（指定様式）／岡山県（申し出があっても処置を継続して搬送）</p>
+      </div>
+      <div class="callout">
+        <p><span class="k">「意思表示があるから大丈夫」<br>ではありません。</span></p>
+        <p style="font-size:17px;">用意すべきは<em class="mk">「119番を押させない導線」</em>。<br>＝ 冷蔵庫に貼る一枚紙（方針／夜間連絡先／「救急車の前にここへ」）<br><br>そして、<strong>地域のMC協議会がどのプロトコルを採用しているかを、事前に確認しておく。</strong></p>
+      </div>
+    </div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 38 予告こそ最大の技術 ================= -->
+<section class="slide" data-chapter="4" data-title="予告こそ、最大の技術" data-note="深夜3時、家族は判断できない。判断できないとき人は最も安全に見える選択をする。それが119番。予告されていれば、それは判断ではなく確認になる。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">119番を防ぐ、最大の技術</p>
+    <h2 class="headline sm">予告されていれば、それは判断ではなく、確認になります。</h2>
+    <div class="split" style="margin-top:24px;">
+      <div class="panel x">
+        <h4>予告が無い夜</h4>
+        <p style="font-size:16px;">深夜3時。家族は「これが自然な経過なのか」「救急車を呼ぶべきか」を判断できません。</p>
+        <p style="font-size:16px;">判断できないとき、人は<b style="color:var(--ink)">最も安全に見える選択</b>をします。</p>
+        <p class="big-line" style="color:var(--shu);margin-top:14px;">それが、119番です。</p>
+      </div>
+      <div class="panel o">
+        <h4>予告がある夜</h4>
+        <p style="font-size:16px;">「ゴロゴロという音が出てきます。苦しいのではありません」<br>「呼吸が止まったように見えて、また始まります」</p>
+        <p style="font-size:16px;">先に聞いていれば、家族がやることは判断ではなく、<b style="color:var(--ink)">紙と目の前を照合する確認</b>になります。</p>
+        <p class="big-line" style="color:var(--seiji);margin-top:14px;">だから、電話が鳴ります。<br>救急車ではなく。</p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:22px;"><strong>予告と許可は、医師にしか出せません。</strong>「休んでいい」「呼んでいい」という許可には、権威が要ります。<br>皆さんの役割は、<em class="mk-ai">医師にそれを出させる段取りを作ること</em>、そして<em class="mk-ai">訪問のたびに同じ言葉で繰り返すこと</em>です。</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 39 予告シート ================= -->
+<section class="slide top" data-chapter="4" data-title="予告シート｜冷蔵庫に貼る一枚" data-note="疾患別4版（がん・老衰・心不全/呼吸不全・認知症）。A4片面1枚、冷蔵庫に貼る。渡すだけでは読まれないので、その場で読み合わせる。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">冷蔵庫に貼る一枚 ── 疾患別4版</p>
+    <h2 class="headline sm">全員が同じ紙を見て、同じ言葉で説明する。</h2>
+    <div class="split wide-r" style="margin-top:20px;">
+      <div class="mock" style="font-size:12.5px;line-height:1.72;padding:18px 22px;"><span class="hd">これから起こることについて</span>
+
+【食べなくなります・飲まなくなります】
+　体が必要としなくなったためです。
+　「食べさせられなかった」と自分を責めないでください。
+
+【ゴロゴロと音のする呼吸になります】
+　のどに唾液がたまる音です。<span class="hl">ご本人は苦しくありません。</span>
+
+<span class="hd">【こうなったら、ご連絡ください】</span>
+　・不安で、誰かと話したいとき　←　<span class="hl">これで結構です</span>
+
+<span class="hd">【呼吸が止まったときは】</span>
+　あわてなくて大丈夫です。急ぐ必要はありません。
+　<span class="hl">★ 救急車は呼ばないでください。</span></div>
+      <div>
+        <div class="tblwrap">
+          <table class="tbl" style="font-size:14px;">
+            <thead><tr><th>版</th><th>崩れる場所</th><th>核となる一文</th></tr></thead>
+            <tbody>
+              <tr><td>がん</td><td class="jp">せん妄の夜</td><td class="jp">「痛みは我慢させません」</td></tr>
+              <tr><td>老衰</td><td class="jp">家族の消耗</td><td class="jp">「弱ったから食べない。食べないから弱るのではない」</td></tr>
+              <tr><td style="white-space:nowrap">心不全・呼吸不全</td><td class="jp">「今回も治る」期待</td><td class="jp">「一度決めても、変えて構いません」</td></tr>
+              <tr><td>認知症</td><td class="jp">肺炎ごとの入院</td><td class="jp">「本人なら何とおっしゃるか、を一緒に考えさせてください」</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout" style="margin-top:16px;">
+          <p style="font-size:16.5px;"><strong>渡すだけでは読まれません。</strong>その場で読み合わせ、冷蔵庫に貼ってもらう。<br>そして訪問のたびに、<em class="mk">全職種が同じ言葉で繰り返す</em>。<br>説明が人によって違うことが、家族の不安を最も増幅させます。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 40 G5 離さない ================= -->
+<section class="slide" data-chapter="4" data-title="G5 離さない｜施設は敵ではない" data-note="増えている住まいの多くでは担当を続けられる。にもかかわらず担当が切れているなら、それは制度のせいではない。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow sig">G5 ── 離さない</p>
+    <h2 class="headline sm">いま最も増えている住まいでは、担当を続けられます。</h2>
+    <div class="split wide-l" style="margin-top:22px;">
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead><tr><th style="width:34%">居宅ケアマネは</th><th>住まいの種別</th></tr></thead>
+          <tbody>
+            <tr class="hot"><td>継続できる</td><td class="jp">住宅型有料老人ホーム<br>サービス付き高齢者向け住宅（一般型）</td></tr>
+            <tr><td>移管される</td><td class="jp">介護付有料老人ホーム（特定施設）<br>特別養護老人ホーム／介護老人保健施設<br>グループホーム</td></tr>
+          </tbody>
+        </table>
+        <p class="src">住宅型有料老人ホーム：2019年 10,029施設 → 2023年 12,061施設（+20.3%）／介護付有料は +9.7%</p>
+      </div>
+      <div class="callout sj">
+        <p><span class="k">施設は敵ではなく、流通経路です。</span></p>
+        <p style="font-size:16.5px;">やるべきことは施設と戦うことではなく、<strong>「あそこに送ったら、最期まで一緒にやってくれるケアマネだ」と施設から思われること</strong>。<br><br>選ばれる側から、<em class="mk-sj">選ぶ側・組む側</em>に回る。<br><br>そして入院しても、担当を切らずに退院支援を前提として関わり続ける。</p>
+      </div>
+    </div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 41 看取り継続率 ================= -->
+<section class="slide" data-chapter="4" data-title="測るなら、看取り継続率" data-note="死亡場所は家族要因に左右されるが、担当を降りるかどうかは自分の判断領域。だからこの指標は逃げない。今日その場で計算できる。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">もし一つだけ数えるなら</p>
+    <div class="callout ai" style="margin-top:6px;">
+      <p><span class="k">看取り継続率 ＝<br>死亡時点でも自分が担当していた人数 ÷ 亡くなった担当利用者の総数</span></p>
+    </div>
+    <div class="tiles c4" style="margin-top:24px;">
+      <div class="tile"><span class="t-lab">制御できる</span><span class="t-note" style="font-size:14px;">死亡場所は家族要因に左右されるが、<b>担当を降りるかどうかは自分の判断領域</b>。</span></div>
+      <div class="tile"><span class="t-lab">議論が逃げない</span><span class="t-note" style="font-size:14px;">「介護力がないから無理」で終わらせない。</span></div>
+      <div class="tile"><span class="t-lab">その場で測れる</span><span class="t-note" style="font-size:14px;">全員が電卓で計算できる。今日、この場でも。</span></div>
+      <div class="tile"><span class="t-lab">経験に直結する</span><span class="t-note" style="font-size:14px;">看取りの経験値は<b>「最期まで関わった数」</b>で決まる。</span></div>
+    </div>
+    <p class="lede" style="margin-top:24px;">ケアプランを何枚書いたかではなく、<strong>何人の最期に立ち会えたか</strong>が、地域から「看取りができるケアマネ」と認識されるかを決めます。<br>そして ── <em class="mk">年に1〜2人、降りるのをやめるだけで、分布は動きます。</em></p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 42 評価するのは遺族 ================= -->
+<section class="slide" data-chapter="4" data-title="評価するのは、遺族" data-note="ACPの効果指標は『自宅で死ねたか』ではない。希望が尊重されたと感じたか、遺族が満足したか。ケアマネの関わりは遺族の人生に何十年も残る。">
+  <div class="chrome"><span class="chapter-mark"><span class="num">04</span>場所と、夜</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">ACPには、効果のエビデンスがあります</p>
+    <h2 class="headline sm">評価するのは、本人ではなく遺族です。</h2>
+    <div class="split" style="margin-top:24px;">
+      <div>
+        <p class="eyebrow" style="margin-bottom:12px;">終末期の希望が尊重されたと感じた患者</p>
+        <div class="duo" style="gap:20px;">
+          <div class="duo-cell hot"><p class="n">86<span class="u">%</span></p><p class="lbl">ACPあり</p></div>
+          <span class="vs">vs</span>
+          <div class="duo-cell cool"><p class="n">30<span class="u">%</span></p><p class="lbl">ACPなし</p></div>
+        </div>
+      </div>
+      <div>
+        <p class="eyebrow" style="margin-bottom:12px;">遺族の満足度</p>
+        <div class="duo" style="gap:20px;">
+          <div class="duo-cell hot"><p class="n">90<span class="u">%</span></p><p class="lbl">ACPあり</p></div>
+          <span class="vs">vs</span>
+          <div class="duo-cell cool"><p class="n">78<span class="u">%</span></p><p class="lbl">ACPなし</p></div>
+        </div>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:26px;">さらに、遺族の<strong>不安・ストレス・うつ状態を軽減</strong>することが示されています。<br>効果指標は「自宅で死ねたか」ではありません。<em class="mk">皆さんの関わりは、遺族の人生に何十年も残ります。</em></p>
+    <p class="src">出典：Detering KM, Hancock AD, Reade MC, Silvester W. "The impact of advance care planning on end of life care in elderly patients: randomised controlled trial." BMJ 2010;340（オーストラリア・80歳以上の入院患者RCT）</p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 43 締め ================= -->
+<section class="slide s-quote" data-chapter="4" data-title="締め｜空席に、座らされている" data-note="ここは読み上げる。急がない。間を取る。">
+  <div class="chrome"><span class="chapter-mark">おわりに</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="q-text" style="font-size:38px;">日本には、死の話を切り出す役職がありません。<br>空席のまま、誰も座っていない。<br><br>そこに、我々が座らされています。<br>資格も、研修も、報酬も、はっきりしないまま。<br><br>だから抵抗を感じて当然です。<br>でも ── <span class="em">その席に座れるのは、いま、我々しかいない。</span></p>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+<!-- ================= 44 明日からの1つ ================= -->
+<section class="slide" data-chapter="4" data-title="明日からの1つ" data-note="全件やる話ではないことを強調して終わる。「誰か1人を決めてください」で締める。">
+  <div class="chrome"><span class="chapter-mark">おわりに</span><span class="deck-mark">看取り勉強会</span></div>
+  <div class="body">
+    <p class="eyebrow">全件やる話ではありません</p>
+    <h2 class="headline sm">明日、誰か1人に対して、1つだけ。</h2>
+    <ul class="pts" style="margin-top:22px;">
+      <li><b>サプライズ・クエスチョンを自問する</b> ──「この方が1年以内に亡くなったら驚くか？」驚かないなら、看取り準備を開始する。</li>
+      <li><b>次の担当者会議に、遠方の家族を呼ぶ</b> ── 反対しそうな人ほど、早く入れる。</li>
+      <li><b>「もしもの時のご希望を伺う決まりになっています」</b> ── 制度上の節目を口実に、一度だけ言ってみる。</li>
+      <li><b>冷蔵庫の一枚紙があるか、訪問時に確認する</b> ── 無ければ、主治医に交付を頼む。</li>
+      <li><b>入院・入所しても、担当を切らない</b> ── 年に1〜2人で構いません。</li>
+    </ul>
+    <div class="callout" style="margin-top:24px;">
+      <p style="font-size:19px;">決めたくないのではなく、<em class="mk">聞かれていないだけ</em>です。<br><strong>だから、我々が聞きます。</strong></p>
+    </div>
+  </div>
+  <span class="pageno"></span>
+</section>
+
+</div>
+</div>
+
+<div id="toc" role="dialog" aria-label="目次" aria-modal="true">
+  <h2>目次</h2>
+  <p class="hint">クリックで移動 ／ <kbd>Esc</kbd> または <kbd>O</kbd> で閉じる</p>
+  <ol id="toclist"></ol>
+</div>
+
+<div id="notes" aria-live="polite"><span class="tag">進行メモ</span><span id="notetext"></span></div>
+
+<div id="help">
+  <kbd>←</kbd><kbd>→</kbd> 移動 ・ <kbd>O</kbd> 目次 ・ <kbd>S</kbd> 進行メモ ・ <kbd>T</kbd> 配色 ・ <kbd>F</kbd> 全画面 ・ <kbd>P</kbd> 印刷/PDF
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var deck   = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(deck.querySelectorAll('.slide'));
+  var toc    = document.getElementById('toc');
+  var tocList= document.getElementById('toclist');
+  var notes  = document.getElementById('notes');
+  var noteTx = document.getElementById('notetext');
+  var i = 0;
+
+  /* --- scale the fixed 1280x720 canvas to the viewport --- */
+  function fit(){
+    var k = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    deck.style.transform = 'scale(' + k + ')';
+  }
+  window.addEventListener('resize', fit);
+
+  /* --- render --- */
+  function show(n){
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function(s, k){ s.classList.toggle('active', k === i); });
+    var s = slides[i];
+    s.style.setProperty('--progress', ((i + 1) / slides.length * 100).toFixed(2) + '%');
+    var pn = s.querySelector('.pageno');
+    if (pn) pn.textContent = (i + 1) + ' / ' + slides.length;
+    noteTx.textContent = s.getAttribute('data-note') || '（メモなし）';
+    Array.prototype.forEach.call(tocList.querySelectorAll('button'), function(b, k){
+      b.classList.toggle('cur', k === i);
+    });
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) {}
+  }
+
+  /* --- contents --- */
+  slides.forEach(function(s, k){
+    var li = document.createElement('li');
+    var b  = document.createElement('button');
+    b.type = 'button';
+    if (s.classList.contains('s-chapter')) b.classList.add('ch');
+    b.innerHTML = '<span class="i">' + (k + 1) + '</span><span>' +
+      (s.getAttribute('data-title') || '') + '</span>';
+    b.addEventListener('click', function(){ closeToc(); show(k); });
+    li.appendChild(b);
+    tocList.appendChild(li);
+  });
+  function openToc(){ toc.classList.add('open'); var c = tocList.querySelector('button.cur'); if (c) c.focus(); }
+  function closeToc(){ toc.classList.remove('open'); }
+  function toggleToc(){ toc.classList.contains('open') ? closeToc() : openToc(); }
+
+  /* --- theme --- */
+  function toggleTheme(){
+    var cur = document.documentElement.getAttribute('data-theme');
+    if (!cur) {
+      cur = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+  }
+
+  /* --- keys --- */
+  document.addEventListener('keydown', function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (k === 'Escape'){ if (toc.classList.contains('open')) { e.preventDefault(); closeToc(); } return; }
+    if (toc.classList.contains('open') && k !== 'o' && k !== 'O') return;
+
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === ' ' || k === 'PageDown' || k === 'Enter'){
+      e.preventDefault(); show(i + 1);
+    } else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace'){
+      e.preventDefault(); show(i - 1);
+    } else if (k === 'Home'){ e.preventDefault(); show(0); }
+    else if (k === 'End'){ e.preventDefault(); show(slides.length - 1); }
+    else if (k === 'o' || k === 'O'){ e.preventDefault(); toggleToc(); }
+    else if (k === 's' || k === 'S'){ e.preventDefault(); notes.classList.toggle('on'); }
+    else if (k === 't' || k === 'T'){ e.preventDefault(); toggleTheme(); }
+    else if (k === 'p' || k === 'P'){ e.preventDefault(); window.print(); }
+    else if (k === 'f' || k === 'F'){
+      e.preventDefault();
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+    }
+  });
+
+  /* --- click / tap: right half forward, left half back --- */
+  document.getElementById('stage').addEventListener('click', function(e){
+    if (e.target.closest('.seg')) return;
+    show(e.clientX > window.innerWidth * 0.35 ? i + 1 : i - 1);
+  });
+
+  /* --- swipe --- */
+  var x0 = null;
+  document.addEventListener('touchstart', function(e){ x0 = e.changedTouches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 46) show(dx < 0 ? i + 1 : i - 1);
+    x0 = null;
+  }, {passive:true});
+
+  /* --- fade the shortcut bar out while presenting --- */
+  var help = document.getElementById('help'), idleT;
+  function wake(){
+    help.classList.remove('idle');
+    clearTimeout(idleT);
+    idleT = setTimeout(function(){ help.classList.add('idle'); }, 6000);
+  }
+  ['mousemove','keydown','touchstart'].forEach(function(ev){
+    document.addEventListener(ev, wake, {passive:true});
+  });
+  wake();
+
+  fit();
+  var start = parseInt((location.hash || '').replace('#',''), 10);
+  show(isNaN(start) ? 0 : start - 1);
+})();
+</script>
