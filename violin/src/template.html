@@ -335,8 +335,8 @@ canvas#score{width:100%;height:170px;display:block;background:#f5eedd;
                 <button data-v="metro">🥁 メトロノーム</button>
               </div>
             </div>
-            <div id="bpmBox" class="hidden">
-              <div class="sec-label" style="margin-top:0">テンポ(♩=)</div>
+            <div id="bpmBox">
+              <div class="sec-label" style="margin-top:0">テンポ(♩=) 🥁/お手本用</div>
               <input type="number" class="numin" id="bpmInput" min="30" max="160" value="60" inputmode="numeric">
             </div>
           </div>
@@ -425,6 +425,7 @@ canvas#score{width:100%;height:170px;display:block;background:#f5eedd;
     </div>
 
     <button class="btn primary" id="startBtn">練習をはじめる</button>
+    <button class="btn ghost" id="demoBtn">▶ お手本をきく(選んだ課題を楽譜つきで自動演奏・マイク不要)</button>
     <button class="btn ghost" id="tunerBtn">チューナーモード(自由に弾く)</button>
     <p class="micnote">開始するとマイクの使用許可を求められます。静かな部屋での使用がおすすめです。</p>
     <div class="err hidden" id="micErr"></div>

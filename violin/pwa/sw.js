@@ -1,4 +1,4 @@
-const CACHE = 'ontei-checker-v22';
+const CACHE = 'ontei-checker-v23';
 const ASSETS = [
   "./",
   "./index.html",

@@ -288,7 +288,6 @@ $('advSeg').querySelectorAll('button').forEach(b=>{
     b.classList.add('sel');
     S.advMode=b.dataset.v;
     const isMetro=S.advMode==='metro';
-    $('bpmBox').classList.toggle('hidden',!isMetro);
     $('metroHint').classList.toggle('hidden',!isMetro);
   };
 });
@@ -1536,6 +1535,49 @@ async function begin(mode){
 }
 $('startBtn').onclick=()=>begin('practice');
 $('tunerBtn').onclick=()=>begin('tuner');
+
+/* ================= お手本再生(マイク不要のデモ演奏) =================
+   選んだ課題を、楽譜を追いかけながらテンポ(S.bpm)通りに自動演奏する。
+   弾く前に耳とリズムで覚えるための機能。 */
+let demoOn=false, demoTimer=0;
+function stopDemo(){demoOn=false;clearTimeout(demoTimer);demoTimer=0;}
+function demoStep(){
+  if(!demoOn||S.mode!=='demo')return;
+  if(S.idx>=S.notes.length){
+    demoOn=false;
+    $('jpName').textContent='おわり';
+    $('enName').textContent='';
+    demoTimer=setTimeout(()=>{if(S.mode==='demo'){S.idx=0;renderTarget();}},1500);
+    return;
+  }
+  renderTarget();   // 現在音のリング表示とページ送り(自動再生ロジックはmode==='demo'では発火しない)
+  const n=S.notes[S.idx];
+  const win=durBeats(n)*(60000/S.bpm);
+  playReferenceTone(n.target,Math.max(0.25,win/1000*0.95));
+  S.idx++;
+  demoTimer=setTimeout(demoStep,win);
+}
+async function beginDemo(){
+  S.mode='demo';
+  if(!buildExercise())return;
+  master.active=false;
+  stopDemo();stopMetro();
+  ensureToneCtx();
+  $('exName').textContent=S.exLabel+' ・ お手本 ♩='+S.bpm;
+  $('pbtns').style.display='flex';
+  $('skipBtn').classList.add('hidden');
+  $('playTargetBtn').classList.add('hidden');
+  $('score').classList.remove('hidden');
+  $('trace').classList.add('hidden');
+  $('practice').classList.remove('tunermode');
+  show('practice');
+  scoreCtx=null;sizeScore();
+  S.idx=0;S.results=[];
+  demoOn=true;
+  try{await violinLoadPromise;}catch(e){}   // 実録音サンプルの読み込みを待ってから開始
+  demoStep();
+}
+$('demoBtn').onclick=beginDemo;
 $('skipBtn').onclick=()=>{
   const n=S.notes[S.idx];
   if(!n)return;
@@ -1545,12 +1587,14 @@ $('skipBtn').onclick=()=>{
   renderTarget();
 };
 $('restartBtn').onclick=()=>{
+  if(S.mode==='demo'){stopDemo();S.idx=0;demoOn=true;demoStep();return;}
   S.idx=0;S.results=[];hold=[];S.streak=0;S.score=0;updateGameBar();renderTarget();
   if(S.advMode==='metro'&&S.mode==='practice'){stopMetro();startMetro();}
 };
 $('exitBtn').onclick=()=>{
   S.running=false;
   stopMetro();
+  stopDemo();
   resetDrone();
   if(S.mode==='practice'&&S.results.length){finish();}
   else{if(audioCtx)audioCtx.suspend();show('setup');}
