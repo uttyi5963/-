@@ -29,6 +29,9 @@ DATA.chart = {
 DATA.typeMod = (atkType, defType) =>
   (DATA.chart[atkType] && DATA.chart[atkType][defType]) ?? 1;
 
+// ---------------- 状態異常 ----------------
+DATA.statusNames = { poison: "どく", para: "まひ", sleep: "ねむり" };
+
 // ---------------- 技 ----------------
 // pow: いりょく / pri: せんせい (おおきいほど先) / acc: めいちゅう
 DATA.moves = {
@@ -52,11 +55,16 @@ DATA.moves = {
   // でんき
   spark:    { name: "パチパチ",       type: "elec", pow: 35, acc: 0.98 },
   boltarrow:{ name: "サンダーアロー", type: "elec", pow: 60, acc: 0.95 },
-  thunder:  { name: "らいめい",       type: "elec", pow: 85, acc: 0.8 },
+  thunder:  { name: "らいめい",       type: "elec", pow: 85, acc: 0.8, inflict: { status: "para", chance: 0.2 } },
   // つち
   pebble:   { name: "いしつぶて",     type: "earth", pow: 35, acc: 0.98 },
   rockdrop: { name: "がんせきおとし", type: "earth", pow: 60, acc: 0.95 },
   quakeroar:{ name: "だいちのいかり", type: "earth", pow: 85, acc: 0.85 },
+  // ほじょ技 (状態異常)
+  poisonpow: { name: "どくのこな",   type: "grass", pow: 0, acc: 0.85, status: "poison" },
+  stunspore: { name: "しびれごな",   type: "grass", pow: 0, acc: 0.8,  status: "para" },
+  hypnowave: { name: "さいみんは",   type: "dark",  pow: 0, acc: 0.65, status: "sleep" },
+  poisonsting: { name: "どくばり",   type: "grass", pow: 25, acc: 1.0, inflict: { status: "poison", chance: 0.4 } },
   // やみ
   shadowjab:{ name: "かげうち",       type: "dark", pow: 30, acc: 1.0, pri: 1 },
   darkfang: { name: "やみのキバ",     type: "dark", pow: 60, acc: 0.95 },
@@ -77,11 +85,11 @@ DATA.species = {
     catch: 0.15, exp: 30, learn: { 1: "ember", 9: "fireball", 18: "darkfang", 26: "heatwave", 34: "gigaslam" } },
   mokurin: { name: "モクリン", type: "grass", spr: "treant", dex: "あたまの わかばは 1にちに 1ミリ のびる。ひなたぼっこが すき",
     base: { hp: 25, atk: 10, def: 10, spd: 8 }, growth: { hp: 2.8, atk: 1.3, def: 1.4, spd: 1.0 },
-    catch: 0.5, exp: 14, learn: { 1: "leaf", 5: "tackle", 9: "leafedge", 15: "pebble", 22: "wildroar" },
+    catch: 0.5, exp: 14, learn: { 1: "leaf", 5: "tackle", 9: "leafedge", 12: "stunspore", 15: "pebble", 22: "wildroar" },
     evolve: { to: "morigami", lv: 16 } },
   morigami: { name: "モリガミ", type: "grass", spr: "treant", scale: 3, dex: "もりの こころを やどした すがた。あめの ひは うたを うたう",
     base: { hp: 36, atk: 14, def: 15, spd: 9 }, growth: { hp: 3.6, atk: 1.7, def: 1.9, spd: 1.1 },
-    catch: 0.15, exp: 32, learn: { 1: "leaf", 9: "leafedge", 18: "rockdrop", 26: "wildroar", 34: "quakeroar" } },
+    catch: 0.15, exp: 32, learn: { 1: "leaf", 9: "leafedge", 12: "stunspore", 18: "rockdrop", 26: "wildroar", 34: "quakeroar" } },
   shizukun: { name: "シズクン", type: "water", spr: "slime", dex: "からだの 90%が みず。うれしいと ぷるぷる ふるえる",
     base: { hp: 24, atk: 10, def: 9, spd: 10 }, growth: { hp: 2.6, atk: 1.4, def: 1.2, spd: 1.2 },
     catch: 0.5, exp: 14, learn: { 1: "squirt", 5: "tackle", 9: "aquashot", 15: "quick", 22: "maelstrom" },
@@ -104,14 +112,14 @@ DATA.species = {
     catch: 0.2, exp: 26, learn: { 1: "tackle", 5: "quick", 11: "bodyslam", 22: "gigaslam" } },
   togemaru: { name: "トゲマル", type: "grass", spr: "mantis", dex: "うでの カマは くさかりに べんり。のうかの にんきもの",
     base: { hp: 22, atk: 12, def: 8, spd: 11 }, growth: { hp: 2.2, atk: 1.6, def: 1.0, spd: 1.3 },
-    catch: 0.55, exp: 12, learn: { 1: "leaf", 7: "quick", 13: "leafedge", 20: "wildroar" } },
+    catch: 0.55, exp: 12, learn: { 1: "leaf", 7: "quick", 10: "stunspore", 13: "leafedge", 20: "wildroar" } },
   dokugama: { name: "ドクガマ", type: "water", spr: "toad", dex: "みための われに はんして きれいずき。まいあさ みずあびをする",
     base: { hp: 26, atk: 10, def: 10, spd: 7 }, growth: { hp: 2.8, atk: 1.3, def: 1.3, spd: 0.9 },
-    catch: 0.55, exp: 12, learn: { 1: "squirt", 7: "tackle", 13: "aquashot", 20: "bodyslam" },
+    catch: 0.55, exp: 12, learn: { 1: "squirt", 7: "tackle", 10: "poisonpow", 13: "aquashot", 20: "bodyslam" },
     evolve: { to: "oogama", lv: 15 } },
   oogama: { name: "オオガマ", type: "water", spr: "toad", scale: 3, dex: "ぬまの ぬし。したの いちげきは いわを もくだく",
     base: { hp: 38, atk: 14, def: 14, spd: 8 }, growth: { hp: 3.6, atk: 1.7, def: 1.7, spd: 1.0 },
-    catch: 0.15, exp: 28, learn: { 1: "squirt", 7: "tackle", 13: "aquashot", 18: "maelstrom", 26: "gigaslam" } },
+    catch: 0.15, exp: 28, learn: { 1: "squirt", 7: "tackle", 10: "poisonpow", 13: "aquashot", 18: "maelstrom", 26: "gigaslam" } },
   mimizun: { name: "ミミズン", type: "earth", spr: "worm", dex: "つちの なかを じゆうに およぐ。はたけを たがやす てつだいも",
     base: { hp: 23, atk: 11, def: 9, spd: 6 }, growth: { hp: 2.5, atk: 1.5, def: 1.2, spd: 0.8 },
     catch: 0.6, exp: 11, learn: { 1: "pebble", 7: "tackle", 13: "rockdrop", 21: "quakeroar" } },
@@ -130,11 +138,11 @@ DATA.species = {
     catch: 0.35, exp: 18, learn: { 1: "spark", 9: "boltarrow", 16: "darkfang", 24: "thunder" } },
   komorin: { name: "コモリン", type: "dark", spr: "bat", dex: "ひるは ほらあなで さかさまに ねている。くだものが だいこうぶつ",
     base: { hp: 20, atk: 10, def: 7, spd: 13 }, growth: { hp: 2.0, atk: 1.4, def: 0.9, spd: 1.7 },
-    catch: 0.6, exp: 10, learn: { 1: "shadowjab", 6: "tackle", 12: "darkfang" },
+    catch: 0.6, exp: 10, learn: { 1: "shadowjab", 6: "tackle", 9: "poisonsting", 12: "darkfang" },
     evolve: { to: "yorubane", lv: 14 } },
   yorubane: { name: "ヨルバネ", type: "dark", spr: "gargoyle", scale: 2, dex: "よるの みはりやく。つきのひかりを あびると つよくなる",
     base: { hp: 28, atk: 14, def: 10, spd: 16 }, growth: { hp: 2.7, atk: 1.8, def: 1.2, spd: 1.9 },
-    catch: 0.18, exp: 26, learn: { 1: "shadowjab", 6: "tackle", 12: "darkfang", 24: "nebula" } },
+    catch: 0.18, exp: 26, learn: { 1: "shadowjab", 6: "tackle", 9: "poisonsting", 12: "darkfang", 24: "nebula" } },
   honekage: { name: "ホネカゲ", type: "dark", spr: "skeleton", dex: "ふるい いせきに すみつく。ほんとうは さみしがりや",
     base: { hp: 23, atk: 13, def: 9, spd: 9 }, growth: { hp: 2.3, atk: 1.7, def: 1.1, spd: 1.1 },
     catch: 0.4, exp: 16, learn: { 1: "shadowjab", 8: "pebble", 15: "darkfang", 23: "nebula" } },
@@ -167,7 +175,7 @@ DATA.items = {
 DATA.shops = {
   akatsuki: {
     name: "アカツキどうぐてん",
-    stock: ["hoshidama", "gindama", "kizugusuri", "iikusuri", "genkidama"],
+    stock: ["hoshidama", "gindama", "kizugusuri", "iikusuri", "mannou", "genkidama"],
   },
 };
 
@@ -635,7 +643,7 @@ Object.assign(DATA.species, {
     catch: 0.25, exp: 22, learn: { 1: "tackle", 6: "quick", 12: "bodyslam", 20: "gigaslam" } },
   bakeneko: { name: "バケネコ", type: "dark", spr: "cat", pal: "dark", scale: 2, dex: "しっぽが 2ほんに わかれた ふしぎなネコ。よなかに おどるという",
     base: { hp: 30, atk: 15, def: 11, spd: 19 }, growth: { hp: 2.8, atk: 1.8, def: 1.3, spd: 2.1 },
-    catch: 0.15, exp: 28, learn: { 1: "shadowjab", 12: "darkfang", 22: "bodyslam", 28: "nebula" } },
+    catch: 0.15, exp: 28, learn: { 1: "shadowjab", 12: "darkfang", 16: "hypnowave", 22: "bodyslam", 28: "nebula" } },
   raimushi: { name: "ライムシ", type: "elec", spr: "mantis", pal: "dark", dex: "はねを こすって でんきを おこす。こうげんの かみなりの正体",
     base: { hp: 22, atk: 13, def: 8, spd: 14 }, growth: { hp: 2.2, atk: 1.7, def: 1.0, spd: 1.7 },
     catch: 0.5, exp: 15, learn: { 1: "spark", 8: "quick", 14: "boltarrow", 22: "thunder" } },
@@ -644,10 +652,10 @@ Object.assign(DATA.species, {
     catch: 0.4, exp: 17, learn: { 1: "spark", 8: "pebble", 15: "boltarrow", 23: "rockdrop" } },
   onibi: { name: "オニビ", type: "dark", spr: "wisp", pal: "dark", dex: "ふるい洞窟に ゆらめく あおいひ。おどかすのが だいすき",
     base: { hp: 22, atk: 13, def: 8, spd: 13 }, growth: { hp: 2.2, atk: 1.7, def: 1.0, spd: 1.6 },
-    catch: 0.45, exp: 16, learn: { 1: "shadowjab", 8: "ember", 15: "darkfang", 24: "nebula" } },
+    catch: 0.45, exp: 16, learn: { 1: "shadowjab", 8: "ember", 12: "hypnowave", 15: "darkfang", 24: "nebula" } },
   kuragen: { name: "クラゲン", type: "water", spr: "kraken", pal: "dark", dex: "ちていこに ただよう クラゲのような魔物。あしは 8ほん",
     base: { hp: 25, atk: 12, def: 10, spd: 9 }, growth: { hp: 2.6, atk: 1.5, def: 1.3, spd: 1.1 },
-    catch: 0.45, exp: 16, learn: { 1: "squirt", 8: "shadowjab", 15: "aquashot", 23: "maelstrom" } },
+    catch: 0.45, exp: 16, learn: { 1: "squirt", 8: "shadowjab", 12: "poisonpow", 15: "aquashot", 23: "maelstrom" } },
   ryuon: { name: "リュウオン", type: "fire", spr: "dragon", scale: 3, dex: "リュウコの しんかした すがた。なきごえは 山びこになって ひびく",
     base: { hp: 42, atk: 20, def: 16, spd: 16 }, growth: { hp: 3.8, atk: 2.3, def: 1.8, spd: 1.8 },
     catch: 0.05, exp: 50, learn: { 1: "ember", 18: "fireball", 26: "heatwave", 34: "gigaslam", 40: "nebula" } },
@@ -657,11 +665,12 @@ Object.assign(DATA.species, {
 Object.assign(DATA.items, {
   kindama: { name: "キンのホシダマ", kind: "ball", price: 1000, rate: 2.2, desc: "つかまえやすさ 2.2倍の きんの たま" },
   mantan:  { name: "まんたんぐすり", kind: "use", price: 1200, heal: 999, desc: "魔物のHPを ぜんかいふく" },
+  mannou:  { name: "まんのうそう",   kind: "use", price: 300, cureAll: true, desc: "どく・まひ・ねむりを なおす" },
 });
 
 DATA.shops.minamo = {
   name: "ミナモどうぐてん",
-  stock: ["hoshidama", "gindama", "kindama", "kizugusuri", "iikusuri", "mantan", "genkidama"],
+  stock: ["hoshidama", "gindama", "kindama", "kizugusuri", "iikusuri", "mantan", "mannou", "genkidama"],
 };
 
 // ---------------- 新トレーナー ----------------

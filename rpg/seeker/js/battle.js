@@ -91,11 +91,25 @@ class BattleScene {
     return { dmg: Math.max(1, dmg), mod, crit };
   }
 
+  stName(st) { return DATA.statusNames[st] || st; }
+
+  applyStatus(target, st) {
+    if (target.status) { this.say("しかし うまく きまらなかった!"); return; }
+    target.status = st;
+    if (st === "sleep") target.sleepT = 0;
+    this.say(`${target.name}は ${this.stName(st)}じょうたいに なった!`, () => AudioSys.sfx("buzz"));
+  }
+
   useMove(atkMon, defMon, moveId, isMine) {
     const move = DATA.moves[moveId];
     this.say(`${atkMon.name}の ${move.name}!`, () => AudioSys.sfx("hit"));
     if (Math.random() > (move.acc ?? 1)) {
       this.say("しかし はずれてしまった!");
+      return;
+    }
+    // 補助技 (ダメージなし・状態異常を あたえる)
+    if (move.status) {
+      this.applyStatus(defMon, move.status);
       return;
     }
     const { dmg, mod, crit } = this.calcDmg(atkMon, defMon, move);
@@ -107,11 +121,45 @@ class BattleScene {
     if (crit) this.say("きゅうしょに あたった!");
     if (mod >= 2) this.say("こうかは ばつぐんだ!");
     else if (mod < 1) this.say("こうかは いまひとつの ようだ……");
+    // 追加効果 (らいめいの まひ など)
+    if (move.inflict && !defMon.status) {
+      this.say(null, () => {
+        if (defMon.hp <= 0 || defMon.status) return;
+        if (Math.random() < move.inflict.chance) {
+          this.pending = [];
+          this.applyStatus(defMon, move.inflict.status);
+          this.queue = this.pending.concat(this.queue);
+          this.pending = null;
+        }
+      });
+    }
   }
+
+  // 1体ぶんの行動 (ねむり/まひの 行動不能チェックつき)
+  performAct(a, d, mv, mine) {
+    if (a.hp <= 0 || d.hp <= 0) return;
+    if (a.status === "sleep") {
+      a.sleepT = (a.sleepT || 0) + 1;
+      if (a.sleepT >= 2 && (Math.random() < 0.5 || a.sleepT > 3)) {
+        a.status = null;
+        this.say(`${a.name}は 目をさました!`);
+      } else {
+        this.say(`${a.name}は ぐうぐう ねむっている……`);
+        return;
+      }
+    }
+    if (a.status === "para" && Math.random() < 0.25) {
+      this.say(`${a.name}は 体がしびれて うごけない!`);
+      return;
+    }
+    this.useMove(a, d, mv, mine);
+  }
+
+  effSpd(m) { return m.spd * (m.status === "para" ? 0.5 : 1); }
 
   enemyMove() {
     const mv = this.enemy.moves[Math.floor(Math.random() * this.enemy.moves.length)];
-    this.useMove(this.enemy, this.mine(), mv, false);
+    this.performAct(this.enemy, this.mine(), mv, false);
   }
 
   // ---------------- ターンしんこう ----------------
@@ -120,8 +168,9 @@ class BattleScene {
     const enMoveId = en.moves[Math.floor(Math.random() * en.moves.length)];
     const myPri = DATA.moves[myMoveId].pri || 0;
     const enPri = DATA.moves[enMoveId].pri || 0;
+    const mySpd = this.effSpd(me), enSpd = this.effSpd(en);
     const meFirst = myPri !== enPri ? myPri > enPri
-      : me.spd !== en.spd ? me.spd > en.spd : Math.random() < 0.5;
+      : mySpd !== enSpd ? mySpd > enSpd : Math.random() < 0.5;
 
     const acts = meFirst
       ? [[me, en, myMoveId, true], [en, me, enMoveId, false]]
@@ -129,15 +178,29 @@ class BattleScene {
 
     for (const [a, d, mv, mine] of acts) {
       this.say(null, () => {
-        // どちらかが たおれていたら のこりの行動は なし
-        if (a.hp <= 0 || d.hp <= 0) return;
         this.pending = [];
-        this.useMove(a, d, mv, mine);
+        this.performAct(a, d, mv, mine);
         this.queue = this.pending.concat(this.queue);
         this.pending = null;
       });
       this.say(null, () => this.checkFaint());
     }
+    // ターンおわりの どくダメージ
+    this.say(null, () => {
+      this.pending = [];
+      for (const m of [me, en]) {
+        if (m.hp > 0 && m.status === "poison") {
+          const dmg = Math.max(1, Math.round(m.maxhp / 8));
+          this.say(`${m.name}は どくの ダメージを うけた!`, () => {
+            m.hp = Math.max(0, m.hp - dmg);
+            AudioSys.sfx("hit");
+          });
+        }
+      }
+      this.queue = this.pending.concat(this.queue);
+      this.pending = null;
+    });
+    this.say(null, () => this.checkFaint());
     this.flush("menu");
   }
 
@@ -191,14 +254,20 @@ class BattleScene {
   }
 
   // ---------------- 捕獲 ----------------
+  // ねむり/まひ/どくの あいては つかまえやすい (1.5倍)
+  catchChance(en, ball) {
+    let p = this.sp(en).catch * ball.rate * (1 - 0.72 * en.hp / en.maxhp);
+    if (en.hp / en.maxhp <= 0.25) p += 0.1;
+    if (en.status) p *= 1.5;
+    return Math.max(0.03, Math.min(0.95, p));
+  }
+
   tryCapture(ballId) {
     const ball = DATA.items[ballId];
     G.removeItem(ballId);
     const en = this.enemy;
     this.say(`${ball.name}を なげた!`, () => AudioSys.sfx("confirm"));
-    let p = this.sp(en).catch * ball.rate * (1 - 0.72 * en.hp / en.maxhp);
-    if (en.hp / en.maxhp <= 0.25) p += 0.1;
-    p = Math.max(0.03, Math.min(0.95, p));
+    const p = this.catchChance(en, ball);
     if (Math.random() < p) {
       this.say(`やった! ${en.name}を\nつかまえた!!`, () => { AudioSys.sfx("levelup"); AudioSys.bgm("victory"); });
       const firstTime = !(G.state.bestiary[en.id] && G.state.bestiary[en.id].caught);
@@ -392,7 +461,7 @@ class BattleScene {
       Gfx.draw(this.sp(en).spr, ex, ey + bob, { scale: esc, variant: this.sp(en).pal });
     }
     Gfx.window(8, 8, 150, 38);
-    Gfx.text(en.name, 16, 15, 3, 11);
+    Gfx.text(en.name + (en.status ? `(${this.stName(en.status)})` : ""), 16, 15, 3, 11);
     Gfx.textR(`Lv${en.lv}`, 150, 15, 3, 10);
     this.hpBar(16, 32, 132, en);
 
@@ -405,7 +474,7 @@ class BattleScene {
       Gfx.draw(this.sp(me).spr, mx, my + (1 - bob), { scale: msc, flip: true, variant: this.sp(me).pal });
     }
     Gfx.window(162, 150, 150, 52);
-    Gfx.text(me.name, 170, 157, 3, 11);
+    Gfx.text(me.name + (me.status ? `(${this.stName(me.status)})` : ""), 170, 157, 3, 11);
     Gfx.textR(`Lv${me.lv}`, 304, 157, 3, 10);
     this.hpBar(170, 174, 132, me);
     Gfx.text(`HP ${me.hp}/${me.maxhp}`, 170, 184, 3, 10);
