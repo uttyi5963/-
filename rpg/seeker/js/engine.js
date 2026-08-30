@@ -708,6 +708,7 @@ const G = {
   // げんざいの進行ど (フラグから逆算)
   currentChapter(flags) {
     const f = flags || this.state.flags;
+    if (f.badge2) return "いちにんまえシーカー";
     if (f.badge1) return "認定シーカー";
     if (f.starter) return "見習いシーカー";
     return "旅立ちの朝";

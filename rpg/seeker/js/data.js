@@ -93,7 +93,8 @@ DATA.species = {
   // === 草原・森の魔物 ===
   nezumaru: { name: "ネズマル", type: "normal", spr: "goblin", dex: "どこにでもいる ちいさな魔物。ほっぺに どんぐりを ためる",
     base: { hp: 20, atk: 9, def: 7, spd: 12 }, growth: { hp: 2.0, atk: 1.2, def: 0.9, spd: 1.5 },
-    catch: 0.7, exp: 8, learn: { 1: "tackle", 6: "quick", 12: "bodyslam" } },
+    catch: 0.7, exp: 8, learn: { 1: "tackle", 6: "quick", 12: "bodyslam" },
+    evolve: { to: "oonezu", lv: 14 } },
   torippi: { name: "トリッピ", type: "normal", spr: "bird", dex: "かぜにのって 1にちで 山を 3つ こえる。うたごえが きれい",
     base: { hp: 21, atk: 10, def: 6, spd: 14 }, growth: { hp: 2.1, atk: 1.4, def: 0.8, spd: 1.8 },
     catch: 0.6, exp: 10, learn: { 1: "tackle", 5: "quick", 11: "bodyslam", 18: "gigaslam" },
@@ -142,10 +143,12 @@ DATA.species = {
     catch: 0.5, exp: 14, learn: { 1: "squirt", 7: "tackle", 14: "aquashot", 21: "maelstrom" } },
   nekomata: { name: "ネコマタ", type: "normal", spr: "cat", dex: "きまぐれで じゆうな 魔物。なつくと かたのりを してくる",
     base: { hp: 22, atk: 11, def: 8, spd: 15 }, growth: { hp: 2.2, atk: 1.5, def: 1.0, spd: 1.8 },
-    catch: 0.45, exp: 13, learn: { 1: "tackle", 6: "quick", 12: "shadowjab", 19: "bodyslam" } },
+    catch: 0.45, exp: 13, learn: { 1: "tackle", 6: "quick", 12: "shadowjab", 19: "bodyslam" },
+    evolve: { to: "bakeneko", lv: 20 } },
   ryuko: { name: "リュウコ", type: "fire", spr: "dragon", dex: "でんせつの りゅうの こども。であえたら とても ラッキー",
     base: { hp: 28, atk: 15, def: 12, spd: 12 }, growth: { hp: 3.0, atk: 2.0, def: 1.5, spd: 1.5 },
-    catch: 0.1, exp: 30, learn: { 1: "ember", 10: "darkfang", 18: "fireball", 26: "heatwave", 34: "gigaslam" } },
+    catch: 0.1, exp: 30, learn: { 1: "ember", 10: "darkfang", 18: "fireball", 26: "heatwave", 34: "gigaslam" },
+    evolve: { to: "ryuon", lv: 30 } },
 };
 
 // けいけんち: つぎのレベルまでに ひつような量
@@ -617,4 +620,274 @@ DATA.dexOrder = [
   "nezumaru", "torippi", "kazeppo", "nekomata", "togemaru", "mimizun",
   "tsuchigoro", "iwagoron", "pikarin", "mahobi", "dokugama", "oogama",
   "kanimaru", "komorin", "yorubane", "honekage", "ryuko",
+  "oonezu", "bakeneko", "raimushi", "denchu", "onibi", "kuragen", "ryuon",
 ];
+
+
+// ============================================================
+// v0.2: イナヅマこうげん・ヒビキ洞窟・ミナモのまち・第2試験
+// ============================================================
+
+// ---------------- 新種族 (7種・計30種) ----------------
+Object.assign(DATA.species, {
+  oonezu: { name: "オオネズ", type: "normal", spr: "goblin", pal: "dark", scale: 2, dex: "むれの リーダー。ほっぺの どんぐりは 仲間への おみやげ",
+    base: { hp: 28, atk: 13, def: 10, spd: 15 }, growth: { hp: 2.6, atk: 1.6, def: 1.2, spd: 1.8 },
+    catch: 0.25, exp: 22, learn: { 1: "tackle", 6: "quick", 12: "bodyslam", 20: "gigaslam" } },
+  bakeneko: { name: "バケネコ", type: "dark", spr: "cat", pal: "dark", scale: 2, dex: "しっぽが 2ほんに わかれた ふしぎなネコ。よなかに おどるという",
+    base: { hp: 30, atk: 15, def: 11, spd: 19 }, growth: { hp: 2.8, atk: 1.8, def: 1.3, spd: 2.1 },
+    catch: 0.15, exp: 28, learn: { 1: "shadowjab", 12: "darkfang", 22: "bodyslam", 28: "nebula" } },
+  raimushi: { name: "ライムシ", type: "elec", spr: "mantis", pal: "dark", dex: "はねを こすって でんきを おこす。こうげんの かみなりの正体",
+    base: { hp: 22, atk: 13, def: 8, spd: 14 }, growth: { hp: 2.2, atk: 1.7, def: 1.0, spd: 1.7 },
+    catch: 0.5, exp: 15, learn: { 1: "spark", 8: "quick", 14: "boltarrow", 22: "thunder" } },
+  denchu: { name: "デンチュウ", type: "elec", spr: "golem", pal: "light", dex: "からだに でんきを ためる いわ。さわると ビリッとくる",
+    base: { hp: 26, atk: 12, def: 14, spd: 7 }, growth: { hp: 2.7, atk: 1.5, def: 1.8, spd: 0.8 },
+    catch: 0.4, exp: 17, learn: { 1: "spark", 8: "pebble", 15: "boltarrow", 23: "rockdrop" } },
+  onibi: { name: "オニビ", type: "dark", spr: "wisp", pal: "dark", dex: "ふるい洞窟に ゆらめく あおいひ。おどかすのが だいすき",
+    base: { hp: 22, atk: 13, def: 8, spd: 13 }, growth: { hp: 2.2, atk: 1.7, def: 1.0, spd: 1.6 },
+    catch: 0.45, exp: 16, learn: { 1: "shadowjab", 8: "ember", 15: "darkfang", 24: "nebula" } },
+  kuragen: { name: "クラゲン", type: "water", spr: "kraken", pal: "dark", dex: "ちていこに ただよう クラゲのような魔物。あしは 8ほん",
+    base: { hp: 25, atk: 12, def: 10, spd: 9 }, growth: { hp: 2.6, atk: 1.5, def: 1.3, spd: 1.1 },
+    catch: 0.45, exp: 16, learn: { 1: "squirt", 8: "shadowjab", 15: "aquashot", 23: "maelstrom" } },
+  ryuon: { name: "リュウオン", type: "fire", spr: "dragon", scale: 3, dex: "リュウコの しんかした すがた。なきごえは 山びこになって ひびく",
+    base: { hp: 42, atk: 20, def: 16, spd: 16 }, growth: { hp: 3.8, atk: 2.3, def: 1.8, spd: 1.8 },
+    catch: 0.05, exp: 50, learn: { 1: "ember", 18: "fireball", 26: "heatwave", 34: "gigaslam", 40: "nebula" } },
+});
+
+// ---------------- 新アイテム ----------------
+Object.assign(DATA.items, {
+  kindama: { name: "キンのホシダマ", kind: "ball", price: 1000, rate: 2.2, desc: "つかまえやすさ 2.2倍の きんの たま" },
+  mantan:  { name: "まんたんぐすり", kind: "use", price: 1200, heal: 999, desc: "魔物のHPを ぜんかいふく" },
+});
+
+DATA.shops.minamo = {
+  name: "ミナモどうぐてん",
+  stock: ["hoshidama", "gindama", "kindama", "kizugusuri", "iikusuri", "mantan", "genkidama"],
+};
+
+// ---------------- 新トレーナー ----------------
+Object.assign(DATA.trainers, {
+  rival2: {
+    name: "ライバルのテッタ",
+    mons: [["torippi", 13], ["RIVAL_STARTER", 15]],
+    gold: 800,
+    winMsg: "テッタ「くーっ また まけた!\nおまえ ほんとに つよくなったな……。\nつぎこそ かつからな!」",
+  },
+  examiner2: {
+    name: "しけんかん レイラさん",
+    mons: [["mahobi", 14], ["kazeppo", 16], ["iwagoron", 18]],
+    gold: 3000,
+    winMsg: "レイラ「おみごと!\nあなたは もう いちにんまえね」",
+  },
+});
+
+// ---------------- 新エンカウント ----------------
+Object.assign(DATA.encounters, {
+  route3: { rate: 1 / 9, mons: [
+    ["raimushi", 10, 13, 8], ["pikarin", 10, 13, 6], ["denchu", 11, 14, 6],
+    ["torippi", 11, 14, 5], ["nekomata", 11, 14, 4], ["nezumaru", 12, 14, 3],
+  ] },
+  cave: { rate: 1 / 8, mons: [
+    ["onibi", 12, 15, 8], ["komorin", 12, 15, 6], ["kuragen", 12, 15, 6],
+    ["honekage", 13, 16, 5], ["tsuchigoro", 13, 16, 4], ["mimizun", 13, 16, 3],
+    ["ryuko", 13, 15, 1],
+  ] },
+});
+
+// ---------------- 新マップ ----------------
+// アカツキのまちの 東に 出口を あける
+DATA.maps.akatsuki.rows[5] = "f..ppppppppppppppp";
+DATA.maps.akatsuki.events.push(
+  { x: 17, y: 5, type: "enter", warp: { map: "route3", x: 1, y: 4, dir: "r" } });
+
+// イナヅマこうげん
+DATA.maps.route3 = {
+  name: "イナヅマこうげん",
+  bgm: "field",
+  encounter: "route3",
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "p": { tile: "path" },
+    "m": { tile: "mountain", solid: true },
+    "s": { tile: "scree" },
+    "F": { tile: "flower" },
+  },
+  rows: [
+    "ffffffffffffffffff",
+    "f....s.......mm..f",
+    "f..s......s..mm..f",
+    "f.....mm.........f",
+    "pppp..mm...s.....f",
+    "f..ppppppppppp...f",
+    "f.s.........pp.s.f",
+    "f.....s.....pp...f",
+    "f...........pp...f",
+    "ffffffffffffppffff",
+  ],
+  events: [
+    { x: 0, y: 4, type: "enter", warp: { map: "akatsuki", x: 16, y: 5, dir: "l" } },
+    { x: 12, y: 9, type: "enter", warp: { map: "cave", x: 2, y: 1, dir: "d" } },
+    { x: 13, y: 9, type: "enter", warp: { map: "cave", x: 2, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "rival2_spot", x: 8, y: 5, spr: "gou", hideFlag: "rival2Done",
+      script: [{ scriptId: "rival2Fight" }] },
+    { id: "highland_man", x: 4, y: 7, spr: "villager", wander: true,
+      script: [{ msg: "とざんか「この こうげんは かみなりの\n魔物の すみかだ。みなみの ヒビキ洞窟を\nぬければ ミナモのまちに つくぞ」" }] },
+  ],
+  chests: [
+    { id: "r3a", x: 16, y: 1, item: "kindama" },
+    { id: "r3b", x: 2, y: 8, item: "iikusuri" },
+  ],
+};
+
+// ヒビキ洞窟
+DATA.maps.cave = {
+  name: "ヒビキどうくつ",
+  bgm: "dungeon",
+  encounter: "cave",
+  legend: {
+    "#": { tile: "pillar", solid: true },
+    ".": { tile: "floor" },
+    "w": { tile: "water", solid: true, anim: "water2" },
+  },
+  rows: [
+    "##################",
+    "#..........##...##",
+    "#.###..###.....###",
+    "#.#......#.###..##",
+    "#.#.####...###...#",
+    "#...##...#....##.#",
+    "#.####.#.####.##.#",
+    "#......#....#....#",
+    "#.##.###.##.####.#",
+    "#.ww......#......#",
+    "#.ww.#.##.#.##.###",
+    "#....#....#.##...#",
+    "########.#########",
+  ],
+  events: [
+    { x: 2, y: 0, type: "enter", warp: { map: "route3", x: 12, y: 8, dir: "u" } },
+    { x: 8, y: 12, type: "enter", warp: { map: "minamo", x: 8, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "cave_hiker", x: 15, y: 11, spr: "villager",
+      script: [{ msg: "たんけんか「この洞窟には あおい ひのたまの\n魔物が でる。くらやみで ひかるから\nすぐ わかるさ」" }] },
+  ],
+  chests: [
+    { id: "cv1", x: 16, y: 1, item: "mantan" },
+    { id: "cv2", x: 2, y: 11, item: "gindama" },
+    { id: "cv3", x: 12, y: 5, item: "genkidama" },
+  ],
+};
+
+// ミナモのまち
+DATA.maps.minamo = {
+  name: "ミナモのまち",
+  bgm: "town",
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "p": { tile: "path" },
+    "w": { tile: "water", solid: true, anim: "water2" },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "o": { tile: "fountain", solid: true },
+    "F": { tile: "flower" },
+  },
+  rows: [
+    "ffffffffpfffffffff",
+    "f.......p........f",
+    "f.WWWW..p..WWWW..f",
+    "f.WddW..p..WddW..f",
+    "f..pp...p...pp...f",
+    "f..ppppppppppp...f",
+    "fww.....o........f",
+    "fww.F...p......F.f",
+    "ffffffffpfffffffff",
+  ],
+  events: [
+    { x: 8, y: 0, type: "enter", warp: { map: "cave", x: 8, y: 11, dir: "u" } },
+    { x: 3, y: 3, type: "enter", scriptId: "minamoShopDoor" },
+    { x: 4, y: 3, type: "enter", scriptId: "minamoShopDoor" },
+    { x: 12, y: 3, type: "enter", warp: { map: "guild2", x: 4, y: 6, dir: "u" } },
+    { x: 13, y: 3, type: "enter", warp: { map: "guild2", x: 4, y: 6, dir: "u" } },
+  ],
+  npcs: [
+    { id: "minamo_keeper", x: 7, y: 6, spr: "villager", pal: "light",
+      script: [
+        { msg: "いずみのばん「みずうみの まちミナモへ\nようこそ。さあ いやされて いってね」" },
+        { healMons: 1 },
+        { msg: "てもちの魔物が 元気に なった!" },
+      ] },
+    { id: "minamo_elder", x: 14, y: 6, spr: "elder", wander: true,
+      script: [{ msg: "ちょうろう「ヒビキ洞窟の おくで あかい竜の子を\nみたものが おる。そだてれば すごい魔物に\nなるそうじゃ」" }] },
+  ],
+  chests: [],
+};
+
+// ミナモ協会
+DATA.maps.guild2 = {
+  name: "ミナモきょうかい",
+  bgm: "shrine",
+  legend: {
+    "W": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "c": { tile: "carpet" },
+    "B": { tile: "banner", solid: true },
+    "t": { tile: "torch", solid: true },
+  },
+  rows: [
+    "WWWBWWWBWWWW",
+    "Wt...cc...tW",
+    "W....cc....W",
+    "W....cc....W",
+    "W....cc....W",
+    "W....cc....W",
+    "WWWWW..WWWWW",
+  ],
+  events: [
+    { x: 5, y: 6, type: "enter", warp: { map: "minamo", x: 12, y: 4, dir: "d" } },
+    { x: 6, y: 6, type: "enter", warp: { map: "minamo", x: 12, y: 4, dir: "d" } },
+  ],
+  npcs: [
+    { id: "examiner2", x: 5, y: 1, spr: "soldier", pal: "light",
+      script: [{ scriptId: "exam2Fight" }] },
+    { id: "guild2_clerk", x: 2, y: 3, spr: "villager",
+      script: [{ msg: "うけつけ「だい2しけんは 3連戦よ。\nでんき・かぜ・いわ ぞろい。\nタイプの相性を かんがえてね!」" }] },
+  ],
+  chests: [],
+};
+
+// ---------------- 新スクリプト ----------------
+Object.assign(DATA.scripts, {
+  rival2Fight: [
+    { cond: { flag: "rival2Done" },
+      then: [],
+      else: [
+        { msg: "テッタ「よう! しけん ごうかくしたんだって?\nおれも つよくなったぜ。\nリベンジマッチだ!」" },
+        { battle: { trainer: "rival2" } },
+        { flag: ["rival2Done", 1] },
+        { msg: "テッタ「……なあ、おまえと たたかうと\nなんか ワクワクするな。\nミナモの しけんも がんばれよ!」" },
+      ] },
+  ],
+  minamoShopDoor: [
+    { shop: "minamo" },
+  ],
+  exam2Fight: [
+    { cond: { flag: "badge2" },
+      then: [{ msg: "レイラ「いちにんまえシーカーさん、\nこんど いっしょに 調査に いきましょ」" }],
+      else: [
+        { cond: { flag: "badge1" },
+          then: [
+            { msg: "レイラ「アカツキの あかしを もってるのね。\nでは だい2しけん、いくわよ!」" },
+            { battle: { trainer: "examiner2" } },
+            { flag: ["badge2", 1] },
+            { msg: "『ミナモのあかし』を さずかった!!" },
+            { msg: "レイラ「アオバ地方には まだまだ\nみぬ 魔物が いっぱい。\nずかんの かんせい、きたいしてるわ」" },
+            { msg: "―― モンスターシーカー v0.2 ――\nここまで あそんでくれて ありがとう!\nつづきは アップデートで!" },
+          ],
+          else: [{ msg: "レイラ「まずは アカツキのまちの\nだい1しけんに ごうかくしてきてね」" }] },
+      ] },
+  ],
+});

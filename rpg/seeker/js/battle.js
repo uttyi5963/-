@@ -318,7 +318,7 @@ class BattleScene {
         if (this.sel === 0) { this.phase = "moves"; this.sel2 = 0; }
         else if (this.sel === 1) { // ホシダマ
           if (this.trainer) { this.say("トレーナーの魔物は\nつかまえられない!"); this.flush("menu"); return; }
-          const balls = ["gindama", "hoshidama"].filter((b) => (G.state.items[b] || 0) > 0);
+          const balls = ["kindama", "gindama", "hoshidama"].filter((b) => (G.state.items[b] || 0) > 0);
           if (balls.length === 0) { this.say("ホシダマを もっていない!"); this.flush("menu"); return; }
           this.tryCapture(balls[0]); // つよい たまから つかう
         }
