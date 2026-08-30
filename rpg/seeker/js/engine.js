@@ -567,6 +567,7 @@ const G = {
       id, name: sp.name, lv,
       exp: this.expTotalFor(lv),
       moves: [],
+      status: null,
       caughtAt: null,
     };
     this.monStats(m);
@@ -636,7 +637,7 @@ const G = {
 
   aliveMons() { return this.state.party.filter((m) => m.hp > 0); },
   healAllMons() {
-    this.state.party.forEach((m) => { m.hp = m.maxhp; });
+    this.state.party.forEach((m) => { m.hp = m.maxhp; m.status = null; });
   },
 
   // どうぐ整理: つかう→ぶき→よろい→アクセ→たいせつなもの の順に ならべなおす

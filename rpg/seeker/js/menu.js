@@ -13,6 +13,12 @@ function applyFieldItem(def, mon) {
     mon.hp = Math.min(mon.maxhp, mon.hp + def.heal);
     return `${mon.name}の HPが 回復した!`;
   }
+  if (def.cureAll) {
+    if (!mon.status) return null;
+    const name = DATA.statusNames[mon.status] || mon.status;
+    mon.status = null;
+    return `${mon.name}の ${name}が なおった!`;
+  }
   if (def.revive) {
     if (mon.hp > 0) return null;
     mon.hp = Math.max(1, Math.floor(mon.maxhp * def.revive));
@@ -189,7 +195,8 @@ class MenuScene {
         const sp = DATA.species[m.id];
         Gfx.draw(sp.spr, 32, y - 4, { scale: 1.5, variant: sp.pal });
         Gfx.text(`${m.name}  Lv${m.lv}`, 64, y, m.hp > 0 ? 3 : 1, 11);
-        Gfx.text(`HP ${m.hp}/${m.maxhp}  ${DATA.types[sp.type].name}`, 64, y + 14, m.hp > 0 ? 2 : 1, 10);
+        const st = m.status ? ` (${DATA.statusNames[m.status]})` : "";
+        Gfx.text(`HP ${m.hp}/${m.maxhp}  ${DATA.types[sp.type].name}${st}`, 64, y + 14, m.hp > 0 ? 2 : 1, 10);
         const cursorSel = this.state === "party" ? this.sub : this.sel;
         if (i === cursorSel) Gfx.cursor(24, y + 8);
       });

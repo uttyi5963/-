@@ -320,6 +320,80 @@ const check = (ok, name) => {
   check(v02.deposit && v02.withdraw && v02.guardLast, "ボックスであずける/ひきだす (最後の1体は保護)");
   check(v02.gated && v02.badge2, "第2試験: badge1必須→勝利でミナモのあかし");
 
+  console.log("\n== v0.3: 状態異常 ==");
+  const v03 = await page.evaluate(async () => {
+    const r = {};
+    const D = DATA;
+    r.movesDef = ["poisonpow", "stunspore", "hypnowave", "poisonsting"].every((id) => !!D.moves[id])
+      && D.moves.thunder.inflict && D.moves.thunder.inflict.status === "para";
+    // 補助技で 状態がつく
+    G.newGame();
+    G.scenes = [new FieldScene()];
+    G.state.party = [G.makeMon("togemaru", 20)];
+    let bs = new BattleScene({ wild: { id: "nezumaru", lv: 5 } });
+    G.push(bs);
+    const drive = async (b, limit = 400) => {
+      for (let i = 0; i < limit; i++) {
+        if (b.finished) return;
+        if (b.phase === "msg") { if (b.cur && b.cur.text != null) { b.chars = 9999; b.advance(); } }
+        else return;
+        await new Promise((res) => setTimeout(res, 10));
+      }
+    };
+    await drive(bs);
+    // しびれごなを 直接あてる (命中は運なので applyStatus を検証)
+    bs.pending = [];
+    bs.applyStatus(bs.enemy, "para");
+    bs.queue = bs.pending; bs.pending = null; bs.afterQueue = "menu"; bs.phase = "msg"; bs.advance();
+    await drive(bs);
+    r.paraSet = bs.enemy.status === "para";
+    r.paraSlow = bs.effSpd(bs.enemy) === bs.enemy.spd * 0.5;
+    // 状態異常で 捕獲率1.5倍
+    const ball = D.items.hoshidama;
+    bs.enemy.hp = bs.enemy.maxhp;
+    const withSt = bs.catchChance(bs.enemy, ball);
+    bs.enemy.status = null;
+    const noSt = bs.catchChance(bs.enemy, ball);
+    r.catchBonus = withSt > noSt && Math.abs(withSt / noSt - 1.5) < 0.01;
+    // どく: ターン終了時に へる
+    bs.enemy.status = "poison";
+    const hpBefore = bs.enemy.hp;
+    G.state.party[0].moves = ["stunspore"]; // ダメージ0の技で 毒ダメージだけ みる
+    bs.runTurn("stunspore");
+    await drive(bs);
+    r.poisonTick = bs.enemy.hp < hpBefore || bs.enemy.hp === 0;
+    bs.finished = true;
+    G.scenes = G.scenes.filter((sc) => sc.constructor.name === "FieldScene");
+    // ねむり: 行動スキップ (sleepT 1ターン目は 必ずねている)
+    bs = new BattleScene({ wild: { id: "nezumaru", lv: 5 } });
+    G.push(bs);
+    await drive(bs);
+    bs.enemy.status = "sleep"; bs.enemy.sleepT = 0;
+    const meHp = G.state.party[0].hp = G.state.party[0].maxhp;
+    bs.pending = [];
+    bs.performAct(bs.enemy, G.state.party[0], bs.enemy.moves[0], false);
+    bs.queue = bs.pending; bs.pending = null; bs.afterQueue = "menu"; bs.phase = "msg"; bs.advance();
+    await drive(bs);
+    r.sleepSkip = G.state.party[0].hp === meHp && bs.enemy.status === "sleep";
+    bs.finished = true;
+    G.scenes = G.scenes.filter((sc) => sc.constructor.name === "FieldScene");
+    // まんのうそうで なおる / いずみ(healAllMons)でも なおる
+    const m = G.state.party[0];
+    m.status = "poison";
+    const cured = applyFieldItem(D.items.mannou, m);
+    r.mannou = !!cured && m.status === null;
+    m.status = "sleep";
+    G.healAllMons();
+    r.springCure = m.status === null;
+    return r;
+  });
+  check(v03.movesDef, "補助技4種+らいめいのまひ追加効果が定義済み");
+  check(v03.paraSet && v03.paraSlow, "まひ: 状態付与と素早さ半減");
+  check(v03.catchBonus, "状態異常の相手は捕獲率1.5倍");
+  check(v03.poisonTick, "どく: ターン終了時にダメージ");
+  check(v03.sleepSkip, "ねむり: 行動をスキップ");
+  check(v03.mannou && v03.springCure, "まんのうそう/いずみで状態異常が治る");
+
   console.log("\n== 全滅処理 ==");
   const lose = await page.evaluate(async () => {
     G.state.party = [G.makeMon("nezumaru", 2)];
