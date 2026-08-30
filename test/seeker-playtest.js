@@ -44,7 +44,7 @@ const check = (ok, name) => {
       (m.events || []).every((e) => !e.warp || !!D.maps[e.warp.map]));
     return r;
   });
-  check(data.species === 23, `種族23種が定義済み (${data.species})`);
+  check(data.species === 30, `種族30種が定義済み (${data.species})`);
   check(data.dexAll, "図鑑の順序が全種と一致");
   check(data.movesOk && data.typeOk, "全習得技と技タイプが有効");
   check(data.evolveOk, "進化先がすべて実在");
@@ -226,6 +226,99 @@ const check = (ok, name) => {
   });
   check(save.saved && save.loaded, "セーブ→ロードで状態が戻る");
   check(save.code, "ひきつぎコードの書き出し/読み込み");
+
+  console.log("\n== v0.2: 新エリアとボックス ==");
+  const v02 = await page.evaluate(async () => {
+    const r = {};
+    const D = DATA;
+    r.newMaps = ["route3", "cave", "minamo", "guild2"].every((id) => !!D.maps[id]);
+    r.akatsukiExit = D.maps.akatsuki.rows[5].length === 18
+      && D.maps.akatsuki.events.some((e) => e.x === 17 && e.y === 5 && e.warp && e.warp.map === "route3");
+    r.evolutions = D.species.nezumaru.evolve.to === "oonezu"
+      && D.species.nekomata.evolve.to === "bakeneko"
+      && D.species.ryuko.evolve.to === "ryuon";
+    // 新種族の進化と技
+    const m = G.makeMon("nezumaru", 13);
+    G.addMonExp(m, G.expTotalFor(14) - m.exp);
+    r.oonezuEvo = m.id === "oonezu" && m.moves.length > 0;
+    // キンのホシダマは 最優先で つかわれる
+    G.newGame();
+    G.scenes = [new FieldScene()];
+    G.state.party = [G.makeMon("hibashira", 20)];
+    G.state.items = { hoshidama: 5, kindama: 2 };
+    const bs = new BattleScene({ wild: { id: "raimushi", lv: 10 } });
+    G.push(bs);
+    for (let i = 0; i < 200; i++) {
+      if (bs.phase === "msg") { if (bs.cur && bs.cur.text != null) { bs.chars = 9999; bs.advance(); } }
+      else break;
+      await new Promise((res) => setTimeout(res, 10));
+    }
+    bs.enemy.hp = 1;
+    bs.update && bs.phase === "menu" && (bs.sel = 1);
+    // ホシダマコマンド相当を 直接よぶ
+    const ballsBefore = G.state.items.kindama;
+    bs.tryCapture(["kindama", "gindama", "hoshidama"].filter((b) => (G.state.items[b] || 0) > 0)[0]);
+    r.kindamaFirst = G.state.items.kindama === ballsBefore - 1;
+    bs.finished = true;
+    G.scenes = G.scenes.filter((sc) => sc.constructor.name === "FieldScene");
+    // ボックス: あずける/ひきだす
+    G.state.party = [G.makeMon("hibachi", 10), G.makeMon("nezumaru", 5)];
+    G.state.box = [];
+    const ms = new MenuScene();
+    ms.state = "box"; ms.boxMode = 0; ms.sub = 1;
+    G.push(ms);
+    Input.hit.a = true; ms.update(); Input.hit = {};
+    r.deposit = G.state.box.length === 1 && G.state.party.length === 1;
+    ms.boxMode = 1; ms.sub = 0;
+    Input.hit.a = true; ms.update(); Input.hit = {};
+    r.withdraw = G.state.box.length === 0 && G.state.party.length === 2;
+    // 最後の戦える1体は あずけられない
+    G.state.party = [G.makeMon("hibachi", 10)];
+    ms.boxMode = 0; ms.sub = 0;
+    Input.hit.a = true; ms.update(); Input.hit = {};
+    r.guardLast = G.state.party.length === 1;
+    G.pop();
+    // 第2試験: badge1なしでは たたかえない → badge1ありで 勝利して badge2
+    const drive2 = async (b, limit = 600) => {
+      for (let i = 0; i < limit; i++) {
+        if (b.finished) return;
+        if (b.phase === "msg") { if (b.cur && b.cur.text != null) { b.chars = 9999; b.advance(); } }
+        else return;
+        await new Promise((res) => setTimeout(res, 10));
+      }
+    };
+    G.state.party = [G.makeMon("ryuon", 35)];
+    runScript(JSON.parse(JSON.stringify(DATA.scripts.exam2Fight)));
+    for (let i = 0; i < 20; i++) {
+      const t = G.top();
+      if (t && t.constructor.name === "MessageScene") { t.page = t.pages.length; G.pop(); if (t.onDone) t.onDone(); }
+      else break;
+      await new Promise((res) => setTimeout(res, 15));
+    }
+    r.gated = !G.flag("badge2");
+    G.setFlag("badge1", 1);
+    runScript(JSON.parse(JSON.stringify(DATA.scripts.exam2Fight)));
+    for (let i = 0; i < 250; i++) {
+      const t = G.top();
+      if (!t) break;
+      const n = t.constructor.name;
+      if (n === "MessageScene") { t.page = t.pages.length; G.pop(); if (t.onDone) t.onDone(); }
+      else if (n === "BattleScene") {
+        if (t.phase === "msg") await drive2(t);
+        else if (t.phase === "menu" || t.phase === "moves") { t.runTurn(G.state.party[0].moves[0]); await drive2(t); }
+        else break;
+      }
+      else break;
+      await new Promise((res) => setTimeout(res, 15));
+    }
+    r.badge2 = G.flag("badge2") && G.currentChapter() === "いちにんまえシーカー";
+    return r;
+  });
+  check(v02.newMaps && v02.akatsukiExit, "新エリア4マップとアカツキ東出口");
+  check(v02.evolutions && v02.oonezuEvo, "既存3種に進化追加 (ネズマル→オオネズ等)");
+  check(v02.kindamaFirst, "キンのホシダマを最優先で使用");
+  check(v02.deposit && v02.withdraw && v02.guardLast, "ボックスであずける/ひきだす (最後の1体は保護)");
+  check(v02.gated && v02.badge2, "第2試験: badge1必須→勝利でミナモのあかし");
 
   console.log("\n== 全滅処理 ==");
   const lose = await page.evaluate(async () => {

@@ -35,11 +35,12 @@ class MenuScene {
     else if (this.state === "item") this.updItem();
     else if (this.state === "itemTarget") this.updItemTarget();
     else if (this.state === "dex") this.updDex();
+    else if (this.state === "box") this.updBox();
     else if (this.state === "config") this.updConfig();
   }
 
   updMain() {
-    const cmds = ["つよさ", "もちもの", "ずかん", "セーブ", "コンフィグ", "とじる"];
+    const cmds = ["つよさ", "もちもの", "ずかん", "ボックス", "セーブ", "コンフィグ", "とじる"];
     if (Input.tap("up")) { this.sel = (this.sel + cmds.length - 1) % cmds.length; AudioSys.sfx("cursor"); }
     if (Input.tap("down")) { this.sel = (this.sel + 1) % cmds.length; AudioSys.sfx("cursor"); }
     if (Input.tap("b")) { AudioSys.sfx("cancel"); G.pop(); return; }
@@ -49,6 +50,7 @@ class MenuScene {
       if (c === "つよさ") { this.state = "party"; this.sub = 0; }
       else if (c === "もちもの") { this.state = "item"; this.sub = 0; this.scroll = 0; }
       else if (c === "ずかん") { this.state = "dex"; this.sub = 0; this.scroll = 0; }
+      else if (c === "ボックス") { this.state = "box"; this.sub = 0; this.boxMode = 0; }
       else if (c === "セーブ") {
         G.push(new SlotPickScene("save", (slot) => {
           if (slot > 0) {
@@ -117,6 +119,37 @@ class MenuScene {
     }
   }
 
+  updBox() {
+    // 左右で「あずける(てもち)」⇔「ひきだす(ボックス)」を きりかえ
+    if (Input.tap("left") || Input.tap("right")) {
+      this.boxMode = 1 - this.boxMode;
+      this.sub = 0;
+      AudioSys.sfx("cursor");
+    }
+    const list = this.boxMode === 0 ? G.state.party : G.state.box;
+    if (Input.tap("up") && list.length) { this.sub = (this.sub + list.length - 1) % list.length; AudioSys.sfx("cursor"); }
+    if (Input.tap("down") && list.length) { this.sub = (this.sub + 1) % list.length; AudioSys.sfx("cursor"); }
+    if (Input.tap("b")) { AudioSys.sfx("cancel"); this.state = "main"; return; }
+    if (Input.tap("a") && list.length) {
+      const i = Math.min(this.sub, list.length - 1);
+      if (this.boxMode === 0) {
+        // あずける: 戦える魔物が ほかに いないと あずけられない
+        const others = G.state.party.filter((m, j) => j !== i && m.hp > 0);
+        if (others.length === 0) { AudioSys.sfx("buzz"); return; }
+        const m = G.state.party.splice(i, 1)[0];
+        G.state.box.push(m);
+        AudioSys.sfx("confirm");
+      } else {
+        // ひきだす: てもちは 5ひきまで
+        if (G.state.party.length >= 5) { AudioSys.sfx("buzz"); return; }
+        const m = G.state.box.splice(i, 1)[0];
+        G.state.party.push(m);
+        AudioSys.sfx("confirm");
+      }
+      this.sub = 0;
+    }
+  }
+
   updDex() {
     const n = DATA.dexOrder.length;
     if (Input.tap("up")) { this.sub = (this.sub + n - 1) % n; AudioSys.sfx("cursor"); }
@@ -140,8 +173,8 @@ class MenuScene {
   // ---------------- びょうが ----------------
   draw() {
     if (this.state === "main") {
-      Gfx.window(200, 8, 112, 6 * 18 + 12);
-      ["つよさ", "もちもの", "ずかん", "セーブ", "コンフィグ", "とじる"].forEach((c, i) => {
+      Gfx.window(200, 8, 112, 7 * 18 + 12);
+      ["つよさ", "もちもの", "ずかん", "ボックス", "セーブ", "コンフィグ", "とじる"].forEach((c, i) => {
         Gfx.text(c, 226, 16 + i * 18);
         if (i === this.sel) Gfx.cursor(210, 19 + i * 18);
       });
@@ -230,6 +263,28 @@ class MenuScene {
         Gfx.text(d.length > 26 ? d.slice(0, 26) : d, 32, 258, 2, 9);
         if (d.length > 26) Gfx.text(d.slice(26), 32, 270, 2, 9);
       }
+    }
+    else if (this.state === "box") {
+      const party = G.state.party, box = G.state.box;
+      const list = this.boxMode === 0 ? party : box;
+      Gfx.window(20, 14, 280, 30);
+      Gfx.text(this.boxMode === 0 ? "◀ あずける (てもち) ▶" : "◀ ひきだす (ボックス) ▶", 60, 23, 3, 12);
+      Gfx.window(20, 48, 280, 186);
+      if (list.length === 0) {
+        Gfx.text(this.boxMode === 0 ? "てもちが いない" : "ボックスは からっぽ", 40, 66, 2, 11);
+      }
+      const view = 9;
+      const sel = Math.min(this.sub, Math.max(0, list.length - 1));
+      const sc = Math.max(0, Math.min(sel - view + 1, list.length - view));
+      list.slice(sc, sc + view).forEach((m, i) => {
+        const y = 60 + i * 19;
+        Gfx.text(`${m.name}  Lv${m.lv}`, 46, y, m.hp > 0 ? 3 : 1, 11);
+        Gfx.textR(`HP ${m.hp}/${m.maxhp}`, 288, y, 2, 10);
+        if (sc + i === sel) Gfx.cursor(32, y + 3);
+      });
+      Gfx.window(20, 240, 280, 42);
+      Gfx.text(`てもち ${party.length}/5  ボックス ${box.length}`, 32, 248, 3, 10);
+      Gfx.text("←→できりかえ / Aで うつす", 32, 262, 2, 10);
     }
     else if (this.state === "config") {
       const c = G.state.config;
