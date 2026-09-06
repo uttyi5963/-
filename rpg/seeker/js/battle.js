@@ -31,6 +31,8 @@ class BattleScene {
       this.enemyQueue.push(G.makeMon(opts.wild.id, opts.wild.lv));
     }
     this.enemy = this.enemyQueue.shift();
+    // 野生には まれに「いろちがい」(1/64) が あらわれる
+    if (opts.wild) this.enemy.shiny = Math.random() < 1 / 64;
     G.recordSeen(this.enemy.id);
 
     // じぶんの 先頭の元気な魔物
@@ -46,6 +48,7 @@ class BattleScene {
       ? `${this.trainer.name}が\nしょうぶを しかけてきた!`
       : `あっ! やせいの ${this.enemy.name}が\nとびだしてきた! (Lv${this.enemy.lv})`;
     this.say(intro);
+    if (this.enemy.shiny) this.say("……! いろの ちがう\nめずらしい すがただ!!", () => AudioSys.sfx("levelup"));
     this.say(`いけっ! ${this.mine().name}!`);
     this.flush("menu");
 
@@ -274,6 +277,11 @@ class BattleScene {
       G.recordCaught(en.id);
       const caught = G.makeMon(en.id, en.lv);
       caught.hp = Math.max(1, en.hp);
+      if (en.shiny) {
+        caught.shiny = true;
+        G.bestiaryEntry(en.id).shiny = 1;
+        this.say("いろちがいの きちょうな こたいだ!");
+      }
       if (G.state.party.length < 5) {
         G.state.party.push(caught);
         this.say(`${en.name}は なかまに くわわった!`);
@@ -458,10 +466,10 @@ class BattleScene {
     const ex = 240 - esize / 2, ey = 96 - esize;
     const bob = Math.floor(performance.now() / 500) % 2;
     if (!(this.flashE > 0 && Math.floor(performance.now() / 60) % 2 === 0)) {
-      Gfx.draw(this.sp(en).spr, ex, ey + bob, { scale: esc, variant: this.sp(en).pal });
+      Gfx.draw(this.sp(en).spr, ex, ey + bob, { scale: esc, variant: en.shiny ? "light" : this.sp(en).pal });
     }
     Gfx.window(8, 8, 150, 38);
-    Gfx.text(en.name + (en.status ? `(${this.stName(en.status)})` : ""), 16, 15, 3, 11);
+    Gfx.text((en.shiny ? "★" : "") + en.name + (en.status ? `(${this.stName(en.status)})` : ""), 16, 15, 3, 11);
     Gfx.textR(`Lv${en.lv}`, 150, 15, 3, 10);
     this.hpBar(16, 32, 132, en);
 
@@ -471,10 +479,10 @@ class BattleScene {
     const msize = 16 * msc;
     const mx = 84 - msize / 2, my = 190 - msize;
     if (!(this.flashP > 0 && Math.floor(performance.now() / 60) % 2 === 0)) {
-      Gfx.draw(this.sp(me).spr, mx, my + (1 - bob), { scale: msc, flip: true, variant: this.sp(me).pal });
+      Gfx.draw(this.sp(me).spr, mx, my + (1 - bob), { scale: msc, flip: true, variant: me.shiny ? "light" : this.sp(me).pal });
     }
     Gfx.window(162, 150, 150, 52);
-    Gfx.text(me.name + (me.status ? `(${this.stName(me.status)})` : ""), 170, 157, 3, 11);
+    Gfx.text((me.shiny ? "★" : "") + me.name + (me.status ? `(${this.stName(me.status)})` : ""), 170, 157, 3, 11);
     Gfx.textR(`Lv${me.lv}`, 304, 157, 3, 10);
     this.hpBar(170, 174, 132, me);
     Gfx.text(`HP ${me.hp}/${me.maxhp}`, 170, 184, 3, 10);

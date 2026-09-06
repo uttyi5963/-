@@ -193,8 +193,8 @@ class MenuScene {
       party.forEach((m, i) => {
         const y = 40 + i * 34;
         const sp = DATA.species[m.id];
-        Gfx.draw(sp.spr, 32, y - 4, { scale: 1.5, variant: sp.pal });
-        Gfx.text(`${m.name}  Lv${m.lv}`, 64, y, m.hp > 0 ? 3 : 1, 11);
+        Gfx.draw(sp.spr, 32, y - 4, { scale: 1.5, variant: m.shiny ? "light" : sp.pal });
+        Gfx.text(`${m.shiny ? "★" : ""}${m.name}  Lv${m.lv}`, 64, y, m.hp > 0 ? 3 : 1, 11);
         const st = m.status ? ` (${DATA.statusNames[m.status]})` : "";
         Gfx.text(`HP ${m.hp}/${m.maxhp}  ${DATA.types[sp.type].name}${st}`, 64, y + 14, m.hp > 0 ? 2 : 1, 10);
         const cursorSel = this.state === "party" ? this.sub : this.sel;
@@ -207,8 +207,8 @@ class MenuScene {
       const m = G.state.party[this.sub];
       const sp = DATA.species[m.id];
       Gfx.window(20, 24, 280, 240);
-      Gfx.draw(sp.spr, 40, 40, { scale: 3, variant: sp.pal });
-      Gfx.text(`${m.name}`, 110, 44, 3, 13);
+      Gfx.draw(sp.spr, 40, 40, { scale: 3, variant: m.shiny ? "light" : sp.pal });
+      Gfx.text(`${m.shiny ? "★" : ""}${m.name}`, 110, 44, 3, 13);
       Gfx.text(`Lv${m.lv}  ${DATA.types[sp.type].name}タイプ`, 110, 64, 3, 11);
       Gfx.text(`HP ${m.hp}/${m.maxhp}`, 110, 82, 3, 11);
       Gfx.text(`こうげき ${m.atk}  ぼうぎょ ${m.def}`, 40, 106, 3, 11);
@@ -251,7 +251,7 @@ class MenuScene {
         const no = String(sc + i + 1).padStart(2, "0");
         if (b && b.caught) {
           Gfx.text(`No${no} ${DATA.species[id].name}`, 46, y, 3, 11);
-          Gfx.textR("★", 288, y, 3, 10);
+          Gfx.textR(b.shiny ? "★☆" : "★", 288, y, 3, 10);
         } else if (b && b.seen) {
           Gfx.text(`No${no} ${DATA.species[id].name}`, 46, y, 2, 11);
         } else {

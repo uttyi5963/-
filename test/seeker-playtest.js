@@ -394,6 +394,76 @@ const check = (ok, name) => {
   check(v03.sleepSkip, "ねむり: 行動をスキップ");
   check(v03.mannou && v03.springCure, "まんのうそう/いずみで状態異常が治る");
 
+  console.log("\n== v0.4: シンボルと色違い ==");
+  const v04 = await page.evaluate(async () => {
+    const r = {};
+    const D = DATA;
+    // シンボルNPCが 3体 配置され スクリプトも有効
+    const syms = [["cave", "sym_ryuko", "symRyuko"], ["route3", "sym_iwagoron", "symIwagoron"], ["forest", "sym_oogama", "symOogama"]];
+    r.symbols = syms.every(([mid, nid, sid]) =>
+      D.maps[mid].npcs.some((n) => n.id === nid && n.hideFlag === sid) && !!D.scripts[sid]);
+    const drive = async (b, limit = 400) => {
+      for (let i = 0; i < limit; i++) {
+        if (b.finished) return;
+        if (b.phase === "msg") { if (b.cur && b.cur.text != null) { b.chars = 9999; b.advance(); } }
+        else return;
+        await new Promise((res) => setTimeout(res, 10));
+      }
+    };
+    // シンボル戦: リュウコが 出て、たおすと フラグが立ち 再戦しない
+    G.newGame();
+    G.scenes = [new FieldScene()];
+    G.state.party = [G.makeMon("uminon", 30)];
+    runScript(JSON.parse(JSON.stringify(D.scripts.symRyuko)));
+    for (let i = 0; i < 100; i++) {
+      const t = G.top();
+      if (!t) break;
+      const n = t.constructor.name;
+      if (n === "MessageScene") { t.page = t.pages.length; G.pop(); if (t.onDone) t.onDone(); }
+      else if (n === "BattleScene") {
+        r.symEnemy = t.enemy.id === "ryuko";
+        if (t.phase === "msg") await drive(t);
+        else if (t.phase === "menu" || t.phase === "moves") { t.runTurn(G.state.party[0].moves[0]); await drive(t); }
+        else break;
+      }
+      else break;
+      await new Promise((res) => setTimeout(res, 15));
+    }
+    r.symFlag = G.flag("symRyuko");
+    // 色違い: 乱数を固定して 野生に ★が つく → 捕獲で ひきつぐ
+    const origRandom = Math.random;
+    Math.random = () => 0.0001;
+    const bs = new BattleScene({ wild: { id: "nezumaru", lv: 3 } });
+    Math.random = origRandom;
+    G.push(bs);
+    await drive(bs);
+    r.shinySpawn = bs.enemy.shiny === true;
+    bs.enemy.hp = 1;
+    G.state.items.hoshidama = 99;
+    let caught = false;
+    for (let i = 0; i < 40 && !bs.finished; i++) {
+      bs.tryCapture("hoshidama");
+      await drive(bs);
+      if (G.state.party.some((m) => m.id === "nezumaru")) { caught = true; break; }
+    }
+    if (!bs.finished) { bs.finished = true; G.scenes = G.scenes.filter((sc) => sc.constructor.name === "FieldScene"); }
+    const cm = G.state.party.find((m) => m.id === "nezumaru") || G.state.box.find((m) => m.id === "nezumaru");
+    r.shinyCaught = caught && cm && cm.shiny === true
+      && !!(G.state.bestiary.nezumaru && G.state.bestiary.nezumaru.shiny);
+    // トレーナーの魔物は 色違いにならない
+    Math.random = () => 0.0001;
+    const tb = new BattleScene({ trainer: "rival" });
+    Math.random = origRandom;
+    r.trainerNoShiny = !tb.enemy.shiny;
+    tb.finished = true;
+    G.scenes = G.scenes.filter((sc) => sc.constructor.name === "FieldScene");
+    return r;
+  });
+  check(v04.symbols, "固定シンボル3体が配置されている");
+  check(v04.symEnemy && v04.symFlag, "シンボル戦: リュウコ出現→撃破でフラグ (再戦なし)");
+  check(v04.shinySpawn && v04.shinyCaught, "色違い(1/64)が出現し捕獲でひきつぐ+図鑑記録");
+  check(v04.trainerNoShiny, "トレーナーの魔物は色違いにならない");
+
   console.log("\n== 全滅処理 ==");
   const lose = await page.evaluate(async () => {
     G.state.party = [G.makeMon("nezumaru", 2)];
