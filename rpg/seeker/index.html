@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0f380f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="モンスターシーカー">
+    <meta name="theme-color" content="#1b1b1b">
+  <title>モンスターシーカー 〜アオバ地方の ずかんたび〜</title>
+  <meta name="description" content="ゲームボーイ風・魔物を つかまえて そだてる 収集育成RPG。ブラウザだけで動作します。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230f380f'/%3E%3Cpath d='M8 2 L12 8 L8 14 L4 8 Z' fill='%239bbc0f'/%3E%3C/svg%3E">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      background: #1b1b1b;
+      overflow: hidden;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      font-family: sans-serif;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gb-shell {
+      background: #c8c4bc;
+      border-radius: 12px 12px 48px 12px;
+      padding: 18px 18px 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.6), inset 0 2px 0 rgba(255,255,255,.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      max-width: 100vw;
+    }
+    .gb-screen-frame {
+      background: #54545c;
+      border-radius: 10px 10px 28px 10px;
+      padding: 14px 20px 16px;
+    }
+    .gb-screen-label {
+      color: #d8d8e0;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    canvas {
+      display: block;
+      width: min(92vw, 480px, calc((100vh - 220px) * 320 / 288));
+      aspect-ratio: 320 / 288;
+      background: #9bbc0f;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border: 3px solid #2a2a30;
+    }
+    .gb-brand {
+      color: #3a3a8c;
+      font-weight: bold;
+      font-style: italic;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+    .pad-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0 6px 6px;
+      gap: 12px;
+    }
+    .dpad {
+      position: relative;
+      width: 132px;
+      height: 132px;
+      flex: none;
+      touch-action: none;
+    }
+    .dpad button {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      background: #2a2a30;
+      border: none;
+      border-radius: 6px;
+      color: #888;
+      font-size: 16px;
+      touch-action: none;
+      pointer-events: none; /* タッチは .dpad 全面で受ける */
+    }
+    .dpad .up    { left: 44px; top: 0; }
+    .dpad .down  { left: 44px; top: 88px; }
+    .dpad .left  { left: 0; top: 44px; }
+    .dpad .right { left: 88px; top: 44px; }
+    .dpad .mid   { left: 44px; top: 44px; border-radius: 0; }
+    .ab {
+      display: flex;
+      gap: 14px;
+      transform: rotate(-14deg);
+      flex: none;
+    }
+    .ab button {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: #a32d4e;
+      color: #f0d0d8;
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 3px 0 #6e1e35;
+      touch-action: none;
+    }
+    .ab button:active { transform: translateY(2px); box-shadow: 0 1px 0 #6e1e35; }
+    .start-row {
+      display: flex;
+      gap: 18px;
+      margin-top: -2px;
+    }
+    .start-row button {
+      width: 56px;
+      height: 16px;
+      border-radius: 8px;
+      border: none;
+      background: #8a8680;
+      color: #3c3a36;
+      font-size: 8px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      transform: rotate(-14deg);
+      box-shadow: 0 2px 0 #5c5a56;
+      touch-action: none;
+    }
+    .hint {
+      color: #55524c;
+      font-size: 10px;
+      text-align: center;
+      padding-bottom: 4px;
+    }
+    @media (min-width: 900px) and (min-height: 700px) {
+      .hint { font-size: 11px; }
+    }
+    @media (max-height: 560px) {
+      .pad-row, .start-row, .hint { display: none; }
+      .gb-shell { padding: 10px; border-radius: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="gb-shell">
+    <div class="gb-screen-frame">
+      <div class="gb-screen-label">DOT MATRIX RPG — MONSTER SEEKER</div>
+      <canvas id="screen" width="320" height="288"></canvas>
+    </div>
+    <div class="gb-brand">CLAUDE BOY<span style="font-size:9px;">™</span></div>
+    <div class="pad-row">
+      <div class="dpad">
+        <button class="up" data-key="ArrowUp">▲</button>
+        <button class="left" data-key="ArrowLeft">◀</button>
+        <button class="mid" disabled></button>
+        <button class="right" data-key="ArrowRight">▶</button>
+        <button class="down" data-key="ArrowDown">▼</button>
+      </div>
+      <div class="ab">
+        <button data-key="x">B</button>
+        <button data-key="z">A</button>
+      </div>
+    </div>
+    <div class="start-row">
+      <button data-key="x">SELECT</button>
+      <button data-key="Enter">START</button>
+    </div>
+    <div class="hint">キーボード: 矢印キー移動 / Z=けってい / X=キャンセル / M=サウンド切替</div>
+  </div>
+  <script src="js/sprites.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/field.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/battle.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+  </script>
+</body>
+</html>
