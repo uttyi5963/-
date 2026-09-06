@@ -900,3 +900,46 @@ Object.assign(DATA.scripts, {
       ] },
   ],
 });
+
+
+// ============================================================
+// v0.4: レア魔物の固定シンボル + いろちがい
+// ============================================================
+
+// 一度かぎりの シンボルエンカウント (すがたが 見えている レア魔物)
+Object.assign(DATA.scripts, {
+  symRyuko: [
+    { cond: { flag: "symRyuko" },
+      then: [],
+      else: [
+        { msg: "……! あかい竜の子が\nこちらを じっと 見ている!" },
+        { battle: { wild: { id: "ryuko", lv: 14 } } },
+        { flag: ["symRyuko", 1] },
+      ] },
+  ],
+  symIwagoron: [
+    { cond: { flag: "symIwagoron" },
+      then: [],
+      else: [
+        { msg: "おおきな いわ……と おもったら\nうごいた! イワゴロンだ!" },
+        { battle: { wild: { id: "iwagoron", lv: 18 } } },
+        { flag: ["symIwagoron", 1] },
+      ] },
+  ],
+  symOogama: [
+    { cond: { flag: "symOogama" },
+      then: [],
+      else: [
+        { msg: "ぬまの ぬしが すがたを あらわした!\nオオガマだ!" },
+        { battle: { wild: { id: "oogama", lv: 16 } } },
+        { flag: ["symOogama", 1] },
+      ] },
+  ],
+});
+
+DATA.maps.cave.npcs.push({ id: "sym_ryuko", x: 12, y: 4, spr: "dragon", hideFlag: "symRyuko",
+  script: [{ scriptId: "symRyuko" }] });
+DATA.maps.route3.npcs.push({ id: "sym_iwagoron", x: 14, y: 2, spr: "golem", hideFlag: "symIwagoron",
+  script: [{ scriptId: "symIwagoron" }] });
+DATA.maps.forest.npcs.push({ id: "sym_oogama", x: 2, y: 9, spr: "toad", hideFlag: "symOogama",
+  script: [{ scriptId: "symOogama" }] });
