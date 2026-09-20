@@ -42,9 +42,12 @@ const check = (ok, name) => {
     // マップ: ワープ先が すべて 実在する
     r.warpOk = Object.values(D.maps).every((m) =>
       (m.events || []).every((e) => !e.warp || !!D.maps[e.warp.map]));
+    // マップ: 全タイル文字が legend に定義されている
+    r.tileOk = Object.values(D.maps).every((m) =>
+      m.rows.every((row) => [...row].every((ch) => !!m.legend[ch])));
     return r;
   });
-  check(data.species === 40, `種族40種が定義済み (${data.species})`);
+  check(data.species === 50, `種族50種が定義済み (${data.species})`);
   check(data.dexAll, "図鑑の順序が全種と一致");
   check(data.movesOk && data.typeOk, "全習得技と技タイプが有効");
   check(data.evolveOk, "進化先がすべて実在");
@@ -52,6 +55,7 @@ const check = (ok, name) => {
   check(data.encOk && data.trainerOk && data.shopOk, "エンカウント/トレーナー/ショップのIDが有効");
   check(data.chart, "タイプ相性 (ばつぐん/いまひとつ) が機能");
   check(data.warpOk, "全マップのワープ先が実在");
+  check(data.tileOk, "全マップのタイル文字がlegendに定義済み");
 
   console.log("\n== はじまりの流れ ==");
   const intro = await page.evaluate(async () => {
@@ -530,6 +534,70 @@ const check = (ok, name) => {
   check(v05.newEnc, "海岸/海洞エンカウントとカガリのショップ");
   check(v05.newSym, "固定シンボル: スナオロチが海洞に配置");
   check(v05.gated && v05.badge3, "第3試験: badge2必須→勝利でカガリのあかし");
+
+  console.log("\n== v0.6: 第4エリアと50種 ==");
+  const v06 = await page.evaluate(async () => {
+    const r = {};
+    const D = DATA;
+    r.newMaps = ["route5", "peak", "shirakaba", "guild4"].every((id) => !!D.maps[id]);
+    // カガリ東出口 → ヤマスソこみち
+    r.kagariExit = (D.maps.kagari.events || []).some((e) =>
+      e.warp && e.warp.map === "route5");
+    const newIds = ["yukiyagi", "kazataka", "matsubokku", "yukimin", "fubukima",
+      "gorobi", "gorogami", "gankotsu", "shimobashira", "yogarasu"];
+    r.newSpecies = newIds.every((id) => !!D.species[id]);
+    r.newEvo = D.species.yukimin.evolve && D.species.yukimin.evolve.to === "fubukima"
+      && D.species.gorobi.evolve && D.species.gorobi.evolve.to === "gorogami";
+    r.newEnc = !!D.encounters.mount && !!D.encounters.peak && !!D.shops.shirakaba;
+    r.newSym = D.maps.peak.npcs.some((n) => n.id === "sym_fubukima" && n.hideFlag === "symFubukima")
+      && !!D.scripts.symFubukima;
+    const drive6 = async (b, limit = 600) => {
+      for (let i = 0; i < limit; i++) {
+        if (b.finished) return;
+        if (b.phase === "msg") { if (b.cur && b.cur.text != null) { b.chars = 9999; b.advance(); } }
+        else return;
+        await new Promise((res) => setTimeout(res, 10));
+      }
+    };
+    // 第4試験: badge3なしでは たたかえない → badge3ありで 勝利して badge4
+    G.newGame();
+    G.scenes = [new FieldScene()];
+    G.state.party = [G.makeMon("ryuon", 45)];
+    runScript(JSON.parse(JSON.stringify(D.scripts.exam4Fight)));
+    for (let i = 0; i < 20; i++) {
+      const t = G.top();
+      if (t && t.constructor.name === "MessageScene") { t.page = t.pages.length; G.pop(); if (t.onDone) t.onDone(); }
+      else break;
+      await new Promise((res) => setTimeout(res, 15));
+    }
+    r.gated = !G.flag("badge4");
+    G.setFlag("badge3", 1);
+    runScript(JSON.parse(JSON.stringify(D.scripts.exam4Fight)));
+    for (let i = 0; i < 300; i++) {
+      const t = G.top();
+      if (!t) break;
+      const n = t.constructor.name;
+      if (n === "MessageScene") { t.page = t.pages.length; G.pop(); if (t.onDone) t.onDone(); }
+      else if (n === "BattleScene") {
+        if (t.phase === "msg") await drive6(t);
+        else if (t.phase === "menu" || t.phase === "moves") {
+          const me = G.state.party[0];
+          me.hp = me.maxhp; me.status = null;
+          t.runTurn(me.moves[0]); await drive6(t);
+        }
+        else break;
+      }
+      else break;
+      await new Promise((res) => setTimeout(res, 15));
+    }
+    r.badge4 = G.flag("badge4") && G.currentChapter() === "たつじんシーカー";
+    return r;
+  });
+  check(v06.newMaps && v06.kagariExit, "第4エリア4マップとカガリ東出口");
+  check(v06.newSpecies && v06.newEvo, "新種10種と進化2系統 (ユキミン→フブキマ等)");
+  check(v06.newEnc, "山道/峠エンカウントとシラカバのショップ");
+  check(v06.newSym, "固定シンボル: フブキマが峠に配置");
+  check(v06.gated && v06.badge4, "第4試験: badge3必須→勝利でシラカバのあかし");
 
   console.log("\n== 全滅処理 ==");
   const lose = await page.evaluate(async () => {

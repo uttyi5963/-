@@ -1028,6 +1028,7 @@ DATA.maps.route4 = {
   bgm: "field",
   encounter: "beach",
   legend: {
+    ".": { tile: "sand" },
     "f": { tile: "forest", solid: true },
     "s": { tile: "sand" },
     "p": { tile: "path" },
@@ -1224,6 +1225,290 @@ Object.assign(DATA.scripts, {
             { msg: "―― モンスターシーカー v0.5 ――\nここまで あそんでくれて ありがとう!\nつづきは アップデートで!" },
           ],
           else: [{ msg: "ガイ「まずは ミナモの だい2しけんを\nうけてきな。はなしは それからだ!」" }] },
+      ] },
+  ],
+});
+
+
+// ============================================================
+// v0.6: 第4エリア (シラカバこうげん) と 新種10種
+// ============================================================
+
+DATA.dexOrder.push(
+  "yukiyagi", "kazataka", "matsubokku", "yukimin", "fubukima",
+  "gorobi", "gorogami", "gankotsu", "shimobashira", "yogarasu");
+
+// ---------------- 新種族 ----------------
+Object.assign(DATA.species, {
+  yukiyagi: { name: "ユキヤギ", type: "normal", spr: "cat", pal: "light", dex: "こうげんの ゆきを たべて そだつ。しろい けなみは ふゆの ほこり",
+    base: { hp: 26, atk: 13, def: 12, spd: 13 }, growth: { hp: 2.6, atk: 1.6, def: 1.5, spd: 1.5 },
+    catch: 0.45, exp: 15, learn: { 1: "tackle", 8: "quick", 15: "bodyslam", 26: "gigaslam" } },
+  kazataka: { name: "カザタカ", type: "normal", spr: "bird", pal: "dark", dex: "とうげの かぜに のって 1にちで やまを 3つ こえる はやての たか",
+    base: { hp: 24, atk: 15, def: 10, spd: 16 }, growth: { hp: 2.4, atk: 1.8, def: 1.2, spd: 1.9 },
+    catch: 0.4, exp: 16, learn: { 1: "quick", 12: "bodyslam", 24: "gigaslam" } },
+  matsubokku: { name: "マツボック", type: "grass", spr: "treant", pal: "light", dex: "ゆきに うもれても かれない まつの せいれい。はるを まちわびている",
+    base: { hp: 28, atk: 14, def: 13, spd: 8 }, growth: { hp: 2.9, atk: 1.7, def: 1.6, spd: 1.0 },
+    catch: 0.4, exp: 17, learn: { 1: "leaf", 9: "poisonpow", 14: "leafedge", 26: "wildroar" } },
+  yukimin: { name: "ユキミン", type: "water", spr: "slime", pal: "light", dex: "ふりつもる ゆきから うまれる。てのひらに のせると ひんやり うれしい",
+    base: { hp: 25, atk: 13, def: 11, spd: 11 }, growth: { hp: 2.6, atk: 1.6, def: 1.4, spd: 1.3 },
+    catch: 0.4, exp: 15, learn: { 1: "squirt", 9: "quick", 14: "aquashot" },
+    evolve: { to: "fubukima", lv: 18 } },
+  fubukima: { name: "フブキマ", type: "water", spr: "kraken", pal: "light", dex: "ふぶきの よるに あらわれる ぬし。うずまく こなゆきで あいてを ねむらせる",
+    base: { hp: 32, atk: 17, def: 14, spd: 12 }, growth: { hp: 3.3, atk: 2.0, def: 1.7, spd: 1.4 },
+    catch: 0.2, exp: 26, learn: { 1: "squirt", 14: "aquashot", 20: "hypnowave", 26: "maelstrom" } },
+  gorobi: { name: "ゴロビ", type: "elec", spr: "wisp", dex: "かみなりぐもの かけら。ゴロゴロ なきながら そらを ころがる",
+    base: { hp: 23, atk: 14, def: 9, spd: 15 }, growth: { hp: 2.3, atk: 1.7, def: 1.1, spd: 1.8 },
+    catch: 0.4, exp: 16, learn: { 1: "spark", 13: "boltarrow" },
+    evolve: { to: "gorogami", lv: 20 } },
+  gorogami: { name: "ゴロガミ", type: "elec", spr: "demon", pal: "light", dex: "とうげに すむ かみなりの ぬし。たいこを たたいて あらしを よぶ",
+    base: { hp: 30, atk: 18, def: 13, spd: 15 }, growth: { hp: 3.0, atk: 2.1, def: 1.5, spd: 1.7 },
+    catch: 0.2, exp: 27, learn: { 1: "spark", 13: "boltarrow", 24: "thunder" } },
+  gankotsu: { name: "ガンコツ", type: "earth", spr: "skeleton", pal: "dark", dex: "がんばんから うまれた ほねの もののけ。がんこで ゆずらない せいかく",
+    base: { hp: 29, atk: 16, def: 15, spd: 7 }, growth: { hp: 2.9, atk: 1.9, def: 1.8, spd: 0.9 },
+    catch: 0.35, exp: 18, learn: { 1: "pebble", 11: "rockdrop", 24: "quakeroar" } },
+  shimobashira: { name: "シモバシラ", type: "earth", spr: "golem", pal: "light", dex: "こおった つちの きょじん。ふまれると ザクザク おこる",
+    base: { hp: 31, atk: 15, def: 17, spd: 6 }, growth: { hp: 3.2, atk: 1.8, def: 2.0, spd: 0.8 },
+    catch: 0.3, exp: 20, learn: { 1: "pebble", 12: "rockdrop", 20: "stunspore", 27: "quakeroar" } },
+  yogarasu: { name: "ヨガラス", type: "dark", spr: "bat", pal: "dark", dex: "ふゆの よぞらに とけこむ くろい とり。ひとみだけが ほしのように ひかる",
+    base: { hp: 24, atk: 15, def: 10, spd: 15 }, growth: { hp: 2.4, atk: 1.8, def: 1.2, spd: 1.7 },
+    catch: 0.35, exp: 18, learn: { 1: "shadowjab", 11: "hypnowave", 16: "darkfang" } },
+});
+
+// ---------------- 新トレーナー ----------------
+Object.assign(DATA.trainers, {
+  rival4: {
+    name: "ライバルのテッタ",
+    mons: [["oonezu", 23], ["yogarasu", 22], ["RIVAL_STARTER", 25]],
+    gold: 2500,
+    winMsg: "テッタ「さむっ……まけると よけいに\nさむいな! でも おれの チーム、\nあつく なってきただろ?」",
+  },
+  examiner4: {
+    name: "しけんかん フユノさん",
+    mons: [["matsubokku", 24], ["gorogami", 26], ["fubukima", 28]],
+    gold: 8000,
+    winMsg: "フユノ「みごとな たたかいぶり。\nふゆやまの きびしさにも まけない\nつよさ、みとめます」",
+  },
+});
+
+// ---------------- 新エンカウント ----------------
+Object.assign(DATA.encounters, {
+  mount: { rate: 1 / 9, mons: [
+    ["yukiyagi", 17, 20, 8], ["kazataka", 17, 20, 7], ["gorobi", 17, 20, 6],
+    ["matsubokku", 17, 20, 5], ["gankotsu", 18, 21, 4],
+  ] },
+  peak: { rate: 1 / 8, mons: [
+    ["yukimin", 19, 22, 8], ["yogarasu", 19, 22, 7], ["shimobashira", 19, 22, 5],
+    ["gorobi", 19, 22, 5], ["gankotsu", 19, 22, 4], ["gorogami", 20, 22, 1],
+  ] },
+});
+
+// カガリのみなとの 東に 出口を あける
+DATA.maps.kagari.rows[5] = "f..ppppppppppppppp";
+DATA.maps.kagari.events.push(
+  { x: 17, y: 5, type: "enter", warp: { map: "route5", x: 1, y: 5, dir: "r" } });
+
+// ヤマスソこみち
+DATA.maps.route5 = {
+  name: "ヤマスソこみち",
+  bgm: "field",
+  encounter: "mount",
+  legend: {
+    ".": { tile: "grass" },
+    "m": { tile: "mountain", solid: true },
+    "g": { tile: "grass" },
+    "s": { tile: "scree" },
+    "p": { tile: "path" },
+    "n": { tile: "pine", solid: true },
+  },
+  rows: [
+    "mmmmmmmmpmmmmmmmmm",
+    "mgg..s..p.n..ggggm",
+    "mg.n....p....s..gm",
+    "mgg..s..p..n....gm",
+    "mg....n.p......ggm",
+    "ppppppppp..s..ggmm",
+    "mg..s......n..gggm",
+    "mgn....s........gm",
+    "mgg..n....s..n.ggm",
+    "mmmmmmmmmmmmmmmmmm",
+  ],
+  events: [
+    { x: 0, y: 5, type: "enter", warp: { map: "kagari", x: 16, y: 5, dir: "l" } },
+    { x: 8, y: 0, type: "enter", warp: { map: "peak", x: 9, y: 11, dir: "u" } },
+  ],
+  npcs: [
+    { id: "rival4_spot", x: 12, y: 5, spr: "gou", hideFlag: "rival4Done",
+      script: [{ scriptId: "rival4Fight" }] },
+    { id: "hiker", x: 4, y: 7, spr: "villager", pal: "dark", wander: true,
+      script: [{ msg: "やまおとこ「この さきの とうげは\nふぶきで まっしろだ。かいふくの\nじゅんびは いいか?」" }] },
+  ],
+  chests: [
+    { id: "r5a", x: 16, y: 1, item: "mantan" },
+  ],
+};
+
+// フブキとうげ
+DATA.maps.peak = {
+  name: "フブキとうげ",
+  bgm: "dungeon",
+  encounter: "peak",
+  legend: {
+    ".": { tile: "snow" },
+    "m": { tile: "mountain", solid: true },
+    "S": { tile: "snow" },
+    "n": { tile: "pine", solid: true },
+    "s": { tile: "scree" },
+  },
+  rows: [
+    "mmmmmmmmSmmmmmmmmm",
+    "mSSSn..SS..nSSSSSm",
+    "mSS..s....SSS..SSm",
+    "mS..n..SSS...s.SSm",
+    "mSS...SS..n....SSm",
+    "mSSS.SS..s..SSSSSm",
+    "mS..SS..n..SS..SSm",
+    "mSS.S..SS.....n.Sm",
+    "mS...sSS..s..SSSSm",
+    "mSSn..S..n..SS..Sm",
+    "mSSS..SS...SS.sSSm",
+    "mmmmmmmmmSmmmmmmmm",
+  ],
+  events: [
+    { x: 9, y: 11, type: "enter", warp: { map: "route5", x: 8, y: 1, dir: "d" } },
+    { x: 8, y: 0, type: "enter", warp: { map: "shirakaba", x: 8, y: 8, dir: "u" } },
+  ],
+  npcs: [
+    { id: "sym_fubukima", x: 15, y: 9, spr: "kraken", pal: "dark", hideFlag: "symFubukima",
+      script: [{ scriptId: "symFubukima" }] },
+  ],
+  chests: [
+    { id: "pk1", x: 16, y: 1, item: "kindama" },
+    { id: "pk2", x: 1, y: 10, item: "genkidama" },
+  ],
+};
+
+// シラカバのさと
+DATA.maps.shirakaba = {
+  name: "シラカバのさと",
+  bgm: "town",
+  legend: {
+    ".": { tile: "snow" },
+    "m": { tile: "mountain", solid: true },
+    "S": { tile: "snow" },
+    "p": { tile: "path" },
+    "n": { tile: "pine", solid: true },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "o": { tile: "fountain", solid: true },
+  },
+  rows: [
+    "mmmmmmmmmmmmmmmmmm",
+    "mSSSn......nSSSSSm",
+    "mS.WWWW....WWWW.Sm",
+    "mS.WddW....WddW.Sm",
+    "mSS.pp......pp.SSm",
+    "mSS.pppppppppp.SSm",
+    "mSSSS..o...p..SSSm",
+    "mSn....p...p...nSm",
+    "mSSSSSSpSSSSSSSSSm",
+    "mmmmmmmmpmmmmmmmmm".slice(0, 8) + "p" + "mmmmmmmmm",
+  ],
+  events: [
+    { x: 8, y: 9, type: "enter", warp: { map: "peak", x: 8, y: 1, dir: "d" } },
+    { x: 4, y: 3, type: "enter", scriptId: "shirakabaShopDoor" },
+    { x: 5, y: 3, type: "enter", scriptId: "shirakabaShopDoor" },
+    { x: 12, y: 3, type: "enter", warp: { map: "guild4", x: 4, y: 6, dir: "u" } },
+    { x: 13, y: 3, type: "enter", warp: { map: "guild4", x: 4, y: 6, dir: "u" } },
+  ],
+  npcs: [
+    { id: "shirakaba_keeper", x: 7, y: 6, spr: "villager", pal: "light",
+      script: [
+        { msg: "いずみのばん「ゆきやまの さとへ\nようこそ。あたたかい いずみで\nひとやすみ していってね」" },
+        { healMons: 1 },
+        { msg: "てもちの魔物が 元気に なった!" },
+      ] },
+    { id: "snowkid", x: 11, y: 7, spr: "villager", wander: true,
+      script: [{ msg: "さとのこ「とうげの おくに ふぶきの\nぬしが いるんだって! ゆきが\nうずまいてる ばしょが めじるしさ」" }] },
+  ],
+  chests: [],
+};
+
+// シラカバ協会
+DATA.maps.guild4 = {
+  name: "シラカバきょうかい",
+  bgm: "shrine",
+  legend: {
+    "W": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "c": { tile: "carpet" },
+    "B": { tile: "banner", solid: true },
+    "t": { tile: "torch", solid: true },
+  },
+  rows: [
+    "WWWBWWWBWWWW",
+    "Wt...cc...tW",
+    "W....cc....W",
+    "W....cc....W",
+    "W....cc....W",
+    "W....cc....W",
+    "WWWWW..WWWWW",
+  ],
+  events: [
+    { x: 5, y: 6, type: "enter", warp: { map: "shirakaba", x: 12, y: 4, dir: "d" } },
+    { x: 6, y: 6, type: "enter", warp: { map: "shirakaba", x: 12, y: 4, dir: "d" } },
+  ],
+  npcs: [
+    { id: "examiner4", x: 5, y: 1, spr: "wizard", pal: "light",
+      script: [{ scriptId: "exam4Fight" }] },
+    { id: "guild4_clerk", x: 2, y: 3, spr: "villager",
+      script: [{ msg: "うけつけ「だい4しけんかんの フユノさんは\nれいせいちんちゃく。ぬし2たいを\nしたがえた さいきょうかんぶよ!」" }] },
+  ],
+  chests: [],
+};
+
+DATA.shops.shirakaba = {
+  name: "シラカバどうぐてん",
+  stock: ["hoshidama", "gindama", "kindama", "iikusuri", "mantan", "mannou", "genkidama", "omusubi"],
+};
+
+// ---------------- 新スクリプト ----------------
+Object.assign(DATA.scripts, {
+  rival4Fight: [
+    { cond: { flag: "rival4Done" },
+      then: [],
+      else: [
+        { msg: "テッタ「ゆきやまで とっくん ちゅうだ!\nおまえと やれば もっと あつく\nなれるよな。 いくぜ!」" },
+        { battle: { trainer: "rival4" } },
+        { flag: ["rival4Done", 1] },
+        { msg: "テッタ「4れんぱい……。 でも おれ、\nあきらめないぜ。ちょうじょうの しけん、\nさきに うかって まってるからな!」" },
+      ] },
+  ],
+  shirakabaShopDoor: [
+    { shop: "shirakaba" },
+  ],
+  symFubukima: [
+    { cond: { flag: "symFubukima" },
+      then: [],
+      else: [
+        { msg: "ふぶきが うずを まいて……\nフブキマが あらわれた!!" },
+        { battle: { wild: { id: "fubukima", lv: 26 } } },
+        { flag: ["symFubukima", 1] },
+      ] },
+  ],
+  exam4Fight: [
+    { cond: { flag: "badge4" },
+      then: [{ msg: "フユノ「たつじんどの、ごきげんよう。\nずかんの かんせい、たのしみに\nしていますよ」" }],
+      else: [
+        { cond: { flag: "badge3" },
+          then: [
+            { msg: "フユノ「カガリの あかし、たしかに。\nでは だい4しけん…… ふゆやまの\nきびしさ、おしえて さしあげます」" },
+            { battle: { trainer: "examiner4" } },
+            { flag: ["badge4", 1] },
+            { msg: "『シラカバのあかし』を さずかった!!" },
+            { msg: "フユノ「あなたは もう たつじんの いき。\nアオバ地方の いただきは もう\nすぐそこ ですよ」" },
+            { msg: "―― モンスターシーカー v0.6 ――\nつぎの アップデートで ものがたりは\nクライマックスへ!" },
+          ],
+          else: [{ msg: "フユノ「まずは カガリの だい3しけんに\nごうかくを。じゅんばんは たいせつです」" }] },
       ] },
   ],
 });
