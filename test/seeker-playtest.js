@@ -44,7 +44,7 @@ const check = (ok, name) => {
       (m.events || []).every((e) => !e.warp || !!D.maps[e.warp.map]));
     return r;
   });
-  check(data.species === 30, `種族30種が定義済み (${data.species})`);
+  check(data.species === 40, `種族40種が定義済み (${data.species})`);
   check(data.dexAll, "図鑑の順序が全種と一致");
   check(data.movesOk && data.typeOk, "全習得技と技タイプが有効");
   check(data.evolveOk, "進化先がすべて実在");
@@ -463,6 +463,73 @@ const check = (ok, name) => {
   check(v04.symEnemy && v04.symFlag, "シンボル戦: リュウコ出現→撃破でフラグ (再戦なし)");
   check(v04.shinySpawn && v04.shinyCaught, "色違い(1/64)が出現し捕獲でひきつぐ+図鑑記録");
   check(v04.trainerNoShiny, "トレーナーの魔物は色違いにならない");
+
+  console.log("\n== v0.5: 第3エリアと40種 ==");
+  const v05 = await page.evaluate(async () => {
+    const r = {};
+    const D = DATA;
+    r.newMaps = ["route4", "seacave", "kagari", "guild3"].every((id) => !!D.maps[id]);
+    // ミナモ西出口 → ユウナギかいがん
+    r.minamoExit = (D.maps.minamo.events || []).some((e) =>
+      e.warp && e.warp.map === "route4");
+    // 新種10種 + 進化2系統
+    const newIds = ["shiomane", "ooshio", "namippo", "isokama", "shiodama",
+      "hotarubi", "sunamogu", "sunaorochi", "yorume", "kagaribi"];
+    r.newSpecies = newIds.every((id) => !!D.species[id]);
+    r.newEvo = D.species.shiomane.evolve && D.species.shiomane.evolve.to === "ooshio"
+      && D.species.sunamogu.evolve && D.species.sunamogu.evolve.to === "sunaorochi";
+    // 海岸/海洞のエンカウントと カガリのショップ
+    r.newEnc = !!D.encounters.beach && !!D.encounters.seacave && !!D.shops.kagari;
+    // シンボル: スナオロチが 海洞に 配置
+    r.newSym = D.maps.seacave.npcs.some((n) => n.id === "sym_sunaorochi" && n.hideFlag === "symSunaorochi")
+      && !!D.scripts.symSunaorochi;
+    const drive5 = async (b, limit = 600) => {
+      for (let i = 0; i < limit; i++) {
+        if (b.finished) return;
+        if (b.phase === "msg") { if (b.cur && b.cur.text != null) { b.chars = 9999; b.advance(); } }
+        else return;
+        await new Promise((res) => setTimeout(res, 10));
+      }
+    };
+    // 第3試験: badge2なしでは たたかえない → badge2ありで 勝利して badge3
+    G.newGame();
+    G.scenes = [new FieldScene()];
+    G.state.party = [G.makeMon("ryuon", 40)];
+    runScript(JSON.parse(JSON.stringify(D.scripts.exam3Fight)));
+    for (let i = 0; i < 20; i++) {
+      const t = G.top();
+      if (t && t.constructor.name === "MessageScene") { t.page = t.pages.length; G.pop(); if (t.onDone) t.onDone(); }
+      else break;
+      await new Promise((res) => setTimeout(res, 15));
+    }
+    r.gated = !G.flag("badge3");
+    G.setFlag("badge2", 1);
+    runScript(JSON.parse(JSON.stringify(D.scripts.exam3Fight)));
+    for (let i = 0; i < 300; i++) {
+      const t = G.top();
+      if (!t) break;
+      const n = t.constructor.name;
+      if (n === "MessageScene") { t.page = t.pages.length; G.pop(); if (t.onDone) t.onDone(); }
+      else if (n === "BattleScene") {
+        if (t.phase === "msg") await drive5(t);
+        else if (t.phase === "menu" || t.phase === "moves") {
+          const me = G.state.party[0];
+          me.hp = me.maxhp; me.status = null;
+          t.runTurn(me.moves[0]); await drive5(t);
+        }
+        else break;
+      }
+      else break;
+      await new Promise((res) => setTimeout(res, 15));
+    }
+    r.badge3 = G.flag("badge3") && G.currentChapter() === "ベテランシーカー";
+    return r;
+  });
+  check(v05.newMaps && v05.minamoExit, "第3エリア4マップとミナモ西出口");
+  check(v05.newSpecies && v05.newEvo, "新種10種と進化2系統 (シオマネ→オオシオ等)");
+  check(v05.newEnc, "海岸/海洞エンカウントとカガリのショップ");
+  check(v05.newSym, "固定シンボル: スナオロチが海洞に配置");
+  check(v05.gated && v05.badge3, "第3試験: badge2必須→勝利でカガリのあかし");
 
   console.log("\n== 全滅処理 ==");
   const lose = await page.evaluate(async () => {

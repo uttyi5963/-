@@ -629,6 +629,8 @@ DATA.dexOrder = [
   "tsuchigoro", "iwagoron", "pikarin", "mahobi", "dokugama", "oogama",
   "kanimaru", "komorin", "yorubane", "honekage", "ryuko",
   "oonezu", "bakeneko", "raimushi", "denchu", "onibi", "kuragen", "ryuon",
+  "shiomane", "ooshio", "namippo", "isokama", "shiodama", "hotarubi",
+  "sunamogu", "sunaorochi", "yorume", "kagaribi",
 ];
 
 
@@ -943,3 +945,285 @@ DATA.maps.route3.npcs.push({ id: "sym_iwagoron", x: 14, y: 2, spr: "golem", hide
   script: [{ scriptId: "symIwagoron" }] });
 DATA.maps.forest.npcs.push({ id: "sym_oogama", x: 2, y: 9, spr: "toad", hideFlag: "symOogama",
   script: [{ scriptId: "symOogama" }] });
+
+
+// ============================================================
+// v0.5: ユウナギかいがん・シオカゼほらあな・カガリのみなと・第3試験
+// ============================================================
+
+// ---------------- 新種族 (10種・計40種) ----------------
+Object.assign(DATA.species, {
+  shiomane: { name: "シオマネ", type: "water", spr: "crab", pal: "light", dex: "おおきな ハサミを ふって しおの みちひきを あやつるという",
+    base: { hp: 25, atk: 12, def: 12, spd: 9 }, growth: { hp: 2.5, atk: 1.5, def: 1.5, spd: 1.1 },
+    catch: 0.55, exp: 13, learn: { 1: "squirt", 7: "tackle", 13: "aquashot", 20: "maelstrom" },
+    evolve: { to: "ooshio", lv: 17 } },
+  ooshio: { name: "オオシオ", type: "water", spr: "crab", pal: "light", scale: 2, dex: "ハサミの いちげきは 波を まっぷたつにする。かいがんの ぬし",
+    base: { hp: 34, atk: 16, def: 17, spd: 10 }, growth: { hp: 3.2, atk: 1.9, def: 2.0, spd: 1.2 },
+    catch: 0.18, exp: 28, learn: { 1: "squirt", 7: "tackle", 13: "aquashot", 19: "maelstrom", 26: "gigaslam" } },
+  namippo: { name: "ナミッポ", type: "water", spr: "bird", pal: "light", dex: "なみのうえを すべるように とぶ。さかなとりの めいじん",
+    base: { hp: 22, atk: 11, def: 7, spd: 15 }, growth: { hp: 2.2, atk: 1.5, def: 0.9, spd: 1.9 },
+    catch: 0.55, exp: 12, learn: { 1: "squirt", 6: "quick", 12: "aquashot", 20: "bodyslam" } },
+  isokama: { name: "イソカマ", type: "water", spr: "mantis", pal: "light", dex: "いそべの カマキリ。カマで かいそうを かりとって たべる",
+    base: { hp: 23, atk: 13, def: 9, spd: 12 }, growth: { hp: 2.3, atk: 1.7, def: 1.1, spd: 1.4 },
+    catch: 0.5, exp: 14, learn: { 1: "squirt", 7: "quick", 13: "leafedge", 20: "maelstrom" } },
+  shiodama: { name: "シオダマ", type: "water", spr: "slime", pal: "dark", dex: "しおみずで できた からだ。よるの うみで ほのかに ひかる",
+    base: { hp: 26, atk: 11, def: 10, spd: 10 }, growth: { hp: 2.7, atk: 1.4, def: 1.3, spd: 1.2 },
+    catch: 0.5, exp: 14, learn: { 1: "squirt", 7: "shadowjab", 13: "aquashot", 21: "maelstrom" } },
+  hotarubi: { name: "ホタルビ", type: "elec", spr: "wisp", pal: "light", dex: "よるの ほらあなを てらす ひかりの たま。むれで ダンスをする",
+    base: { hp: 22, atk: 13, def: 8, spd: 14 }, growth: { hp: 2.2, atk: 1.7, def: 1.0, spd: 1.7 },
+    catch: 0.5, exp: 14, learn: { 1: "spark", 8: "quick", 14: "boltarrow", 22: "thunder" } },
+  sunamogu: { name: "スナモグ", type: "earth", spr: "worm", pal: "dark", dex: "すなはまに もぐって くらす。あしあとだけが てがかり",
+    base: { hp: 24, atk: 12, def: 10, spd: 7 }, growth: { hp: 2.6, atk: 1.6, def: 1.3, spd: 0.9 },
+    catch: 0.5, exp: 14, learn: { 1: "pebble", 8: "tackle", 12: "poisonsting", 15: "rockdrop", 23: "quakeroar" },
+    evolve: { to: "sunaorochi", lv: 19 } },
+  sunaorochi: { name: "スナオロチ", type: "earth", spr: "worm", pal: "dark", scale: 3, dex: "すなの したから えものを まるのみにする かいがんの ぬし",
+    base: { hp: 40, atk: 18, def: 15, spd: 8 }, growth: { hp: 3.7, atk: 2.1, def: 1.8, spd: 1.0 },
+    catch: 0.12, exp: 32, learn: { 1: "pebble", 15: "rockdrop", 24: "quakeroar", 30: "gigaslam" } },
+  yorume: { name: "ヨルメ", type: "dark", spr: "eye", pal: "dark", dex: "くらやみで じっと こちらを 見ている。めが あうと ついてくる",
+    base: { hp: 23, atk: 13, def: 9, spd: 13 }, growth: { hp: 2.3, atk: 1.7, def: 1.1, spd: 1.6 },
+    catch: 0.45, exp: 16, learn: { 1: "shadowjab", 9: "darkfang", 14: "hypnowave", 24: "nebula" } },
+  kagaribi: { name: "カガリビ", type: "fire", spr: "demon", pal: "light", dex: "みなとの とうだいに すみつき、ふねの みちしるべになる やさしい炎",
+    base: { hp: 27, atk: 14, def: 11, spd: 12 }, growth: { hp: 2.8, atk: 1.8, def: 1.3, spd: 1.4 },
+    catch: 0.3, exp: 20, learn: { 1: "ember", 9: "fireball", 16: "hypnowave", 24: "heatwave" } },
+});
+
+// ---------------- 新トレーナー ----------------
+Object.assign(DATA.trainers, {
+  rival3: {
+    name: "ライバルのテッタ",
+    mons: [["oonezu", 18], ["RIVAL_STARTER", 20]],
+    gold: 1500,
+    winMsg: "テッタ「3れんぱい かあ……。\nでも おれの ネズマルも オオネズに\nしんかしたんだ。つぎこそな!」",
+  },
+  examiner3: {
+    name: "しけんかん ガイさん",
+    mons: [["ooshio", 20], ["kagaribi", 22], ["sunaorochi", 24]],
+    gold: 5000,
+    winMsg: "ガイ「がっはっは! つよい つよい!\nきみは もう ベテランの きゅうだ!」",
+  },
+});
+
+// ---------------- 新エンカウント ----------------
+Object.assign(DATA.encounters, {
+  beach: { rate: 1 / 9, mons: [
+    ["shiomane", 13, 16, 8], ["namippo", 13, 16, 7], ["isokama", 13, 16, 6],
+    ["kanimaru", 14, 17, 5], ["shiodama", 14, 17, 4],
+  ] },
+  seacave: { rate: 1 / 8, mons: [
+    ["shiodama", 15, 18, 7], ["yorume", 15, 18, 7], ["hotarubi", 15, 18, 6],
+    ["kuragen", 15, 18, 5], ["sunamogu", 16, 19, 5], ["onibi", 15, 17, 4],
+    ["ryuko", 16, 18, 1],
+  ] },
+});
+
+// ---------------- 新マップ ----------------
+// ミナモのまちの 西に 出口を あける
+DATA.maps.minamo.rows[5] = "p..ppppppppppp...f";
+DATA.maps.minamo.events.push(
+  { x: 0, y: 5, type: "enter", warp: { map: "route4", x: 16, y: 4, dir: "l" } });
+
+// ユウナギかいがん
+DATA.maps.route4 = {
+  name: "ユウナギかいがん",
+  bgm: "field",
+  encounter: "beach",
+  legend: {
+    "f": { tile: "forest", solid: true },
+    "s": { tile: "sand" },
+    "p": { tile: "path" },
+    "w": { tile: "water", solid: true, anim: "water2" },
+    "P": { tile: "palm", solid: true },
+  },
+  rows: [
+    "ffffffffffffffffff",
+    "fwwwwwwwww...P...f",
+    "fwwwwww.......s..f",
+    "fwww....s.....ppppp".slice(0, 17) + "f",
+    "fww..s....pppppppp",
+    "fw.....ppp.s.....f",
+    "fw.s..pp....P..s.f",
+    "fww..pp..........f",
+    "fwwwwppwwwwwwwwwwf",
+    "ffffffppffffffffff".slice(0, 4) + "pp" + "ffffffffffff",
+  ],
+  events: [
+    { x: 17, y: 4, type: "enter", warp: { map: "minamo", x: 1, y: 5, dir: "r" } },
+    { x: 4, y: 9, type: "enter", warp: { map: "seacave", x: 2, y: 1, dir: "d" } },
+    { x: 5, y: 9, type: "enter", warp: { map: "seacave", x: 2, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "rival3_spot", x: 8, y: 5, spr: "gou", hideFlag: "rival3Done",
+      script: [{ scriptId: "rival3Fight" }] },
+    { id: "beach_girl", x: 13, y: 6, spr: "villager", pal: "light", wander: true,
+      script: [{ msg: "うみべのむすめ「すなはまに あしあとだけの\n魔物が いるのよ。ほりだせたら\nラッキーね」" }] },
+  ],
+  chests: [
+    { id: "r4a", x: 15, y: 2, item: "kindama" },
+  ],
+};
+
+// シオカゼほらあな
+DATA.maps.seacave = {
+  name: "シオカゼほらあな",
+  bgm: "dungeon",
+  encounter: "seacave",
+  legend: {
+    "#": { tile: "pillar", solid: true },
+    ".": { tile: "floor" },
+    "w": { tile: "water", solid: true, anim: "water2" },
+  },
+  rows: [
+    "##################",
+    "#....##......#...#",
+    "#.##.....##....#.#",
+    "#.#..###.##.##.#.#",
+    "#.#..#.......#...#",
+    "#....#.#####.#.#.#",
+    "#.####.....#.#.#.#",
+    "#......###.#...#.#",
+    "#.####.#...#.###.#",
+    "#.www..#.###.....#",
+    "#.www.##.....###.#",
+    "#....#....##.....#",
+    "#########.########",
+  ],
+  events: [
+    { x: 2, y: 0, type: "enter", warp: { map: "route4", x: 4, y: 8, dir: "u" } },
+    { x: 9, y: 12, type: "enter", warp: { map: "kagari", x: 8, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "sym_sunaorochi", x: 15, y: 10, spr: "worm", pal: "dark", hideFlag: "symSunaorochi",
+      script: [{ scriptId: "symSunaorochi" }] },
+  ],
+  chests: [
+    { id: "sc1", x: 16, y: 1, item: "mantan" },
+    { id: "sc2", x: 2, y: 11, item: "gindama" },
+  ],
+};
+
+// カガリのみなと
+DATA.maps.kagari = {
+  name: "カガリのみなと",
+  bgm: "town",
+  legend: {
+    "f": { tile: "forest", solid: true },
+    ".": { tile: "grass" },
+    "p": { tile: "path" },
+    "w": { tile: "water", solid: true, anim: "water2" },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "o": { tile: "fountain", solid: true },
+    "b": { tile: "bridge" },
+    "t": { tile: "torch", solid: true },
+  },
+  rows: [
+    "ffffffffpfffffffff",
+    "f.......p......t.f",
+    "f.WWWW..p..WWWW..f",
+    "f.WddW..p..WddW..f",
+    "f..pp...p...pp...f",
+    "f..ppppppppppp...f",
+    "f.......o....p...f",
+    "f..t....p....p...f",
+    "fwwwwwwwbbwwwwwwwf",
+    "fwwwwwwwwwwwwwwwwf",
+  ],
+  events: [
+    { x: 8, y: 0, type: "enter", warp: { map: "seacave", x: 9, y: 11, dir: "u" } },
+    { x: 3, y: 3, type: "enter", scriptId: "kagariShopDoor" },
+    { x: 4, y: 3, type: "enter", scriptId: "kagariShopDoor" },
+    { x: 12, y: 3, type: "enter", warp: { map: "guild3", x: 4, y: 6, dir: "u" } },
+    { x: 13, y: 3, type: "enter", warp: { map: "guild3", x: 4, y: 6, dir: "u" } },
+  ],
+  npcs: [
+    { id: "kagari_keeper", x: 7, y: 6, spr: "villager", pal: "light",
+      script: [
+        { msg: "いずみのばん「みなとまち カガリへ\nようこそ。とうだいの ひが\nめじるしよ」" },
+        { healMons: 1 },
+        { msg: "てもちの魔物が 元気に なった!" },
+      ] },
+    { id: "sailor", x: 14, y: 6, spr: "villager", wander: true,
+      script: [{ msg: "ふなのり「とうだいには カガリビっていう\nほのおの魔物が すんでてな、\nおれたちの みちしるべなのさ」" }] },
+  ],
+  chests: [],
+};
+
+// カガリ協会
+DATA.maps.guild3 = {
+  name: "カガリきょうかい",
+  bgm: "shrine",
+  legend: {
+    "W": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "c": { tile: "carpet" },
+    "B": { tile: "banner", solid: true },
+    "t": { tile: "torch", solid: true },
+  },
+  rows: [
+    "WWWBWWWBWWWW",
+    "Wt...cc...tW",
+    "W....cc....W",
+    "W....cc....W",
+    "W....cc....W",
+    "W....cc....W",
+    "WWWWW..WWWWW",
+  ],
+  events: [
+    { x: 5, y: 6, type: "enter", warp: { map: "kagari", x: 12, y: 4, dir: "d" } },
+    { x: 6, y: 6, type: "enter", warp: { map: "kagari", x: 12, y: 4, dir: "d" } },
+  ],
+  npcs: [
+    { id: "examiner3", x: 5, y: 1, spr: "soldier", pal: "dark",
+      script: [{ scriptId: "exam3Fight" }] },
+    { id: "guild3_clerk", x: 2, y: 3, spr: "villager",
+      script: [{ msg: "うけつけ「だい3しけんかんの ガイさんは\nみず・ほのお・つちの つかい手。\nぬしクラスの 3連戦よ!」" }] },
+  ],
+  chests: [],
+};
+
+DATA.shops.kagari = {
+  name: "カガリどうぐてん",
+  stock: ["hoshidama", "gindama", "kindama", "iikusuri", "mantan", "mannou", "genkidama"],
+};
+
+// ---------------- 新スクリプト ----------------
+Object.assign(DATA.scripts, {
+  rival3Fight: [
+    { cond: { flag: "rival3Done" },
+      then: [],
+      else: [
+        { msg: "テッタ「うみだー! ……って おまえ!\nちょうど いいところに。\nしんかした おれの魔物を みせてやる!」" },
+        { battle: { trainer: "rival3" } },
+        { flag: ["rival3Done", 1] },
+        { msg: "テッタ「くそー! ……なあ、おたがい\nずいぶん つよくなったよな。\nカガリの しけんで また あおうぜ!」" },
+      ] },
+  ],
+  kagariShopDoor: [
+    { shop: "kagari" },
+  ],
+  symSunaorochi: [
+    { cond: { flag: "symSunaorochi" },
+      then: [],
+      else: [
+        { msg: "すなやまが もりあがって……\nスナオロチが あらわれた!!" },
+        { battle: { wild: { id: "sunaorochi", lv: 22 } } },
+        { flag: ["symSunaorochi", 1] },
+      ] },
+  ],
+  exam3Fight: [
+    { cond: { flag: "badge3" },
+      then: [{ msg: "ガイ「よお ベテランどの!\nアオバ地方の 魔物ずかん、\nのこりも うめてってくれよな!」" }],
+      else: [
+        { cond: { flag: "badge2" },
+          then: [
+            { msg: "ガイ「ミナモの あかし もちか!\nなら えんりょは いらねえ。\nだい3しけん、はじめるぞ!」" },
+            { battle: { trainer: "examiner3" } },
+            { flag: ["badge3", 1] },
+            { msg: "『カガリのあかし』を さずかった!!" },
+            { msg: "ガイ「がっはっは! きみは もう\nいちにんまえ どころか ベテランだ!\nつぎの まちでも あばれてこい!」" },
+            { msg: "―― モンスターシーカー v0.5 ――\nここまで あそんでくれて ありがとう!\nつづきは アップデートで!" },
+          ],
+          else: [{ msg: "ガイ「まずは ミナモの だい2しけんを\nうけてきな。はなしは それからだ!」" }] },
+      ] },
+  ],
+});
