@@ -47,7 +47,7 @@ const check = (ok, name) => {
       m.rows.every((row) => [...row].every((ch) => !!m.legend[ch])));
     return r;
   });
-  check(data.species === 50, `種族50種が定義済み (${data.species})`);
+  check(data.species === 60, `種族60種が定義済み (${data.species})`);
   check(data.dexAll, "図鑑の順序が全種と一致");
   check(data.movesOk && data.typeOk, "全習得技と技タイプが有効");
   check(data.evolveOk, "進化先がすべて実在");
@@ -598,6 +598,71 @@ const check = (ok, name) => {
   check(v06.newEnc, "山道/峠エンカウントとシラカバのショップ");
   check(v06.newSym, "固定シンボル: フブキマが峠に配置");
   check(v06.gated && v06.badge4, "第4試験: badge3必須→勝利でシラカバのあかし");
+
+  console.log("\n== v0.7: 最終エリアと60種・だい7しょう ==");
+  const v07 = await page.evaluate(async () => {
+    const r = {};
+    const D = DATA;
+    r.newMaps = ["route6", "ruins", "aoba", "guild5"].every((id) => !!D.maps[id]);
+    // シラカバ北出口 → ホシノさんどう
+    r.shirakabaExit = (D.maps.shirakaba.events || []).some((e) =>
+      e.warp && e.warp.map === "route6");
+    const newIds = ["hotogitsu", "kyubi", "tsutakodama", "kagenezumi", "kageoni",
+      "ishibotoke", "hoshimimizu", "hoshiryu", "kokuei", "hikarioo"];
+    r.newSpecies = newIds.every((id) => !!D.species[id]);
+    r.newEvo = D.species.hotogitsu.evolve && D.species.hotogitsu.evolve.to === "kyubi"
+      && D.species.hoshimimizu.evolve && D.species.hoshimimizu.evolve.to === "hoshiryu"
+      && D.species.kagenezumi.evolve && D.species.kagenezumi.evolve.to === "kageoni";
+    r.newEnc = !!D.encounters.starpath && !!D.encounters.ruins && !!D.shops.aoba;
+    r.newSym = D.maps.ruins.npcs.some((n) => n.id === "sym_kokuei" && n.hideFlag === "symKokuei")
+      && !!D.scripts.symKokuei;
+    const drive7 = async (b, limit = 700) => {
+      for (let i = 0; i < limit; i++) {
+        if (b.finished) return;
+        if (b.phase === "msg") { if (b.cur && b.cur.text != null) { b.chars = 9999; b.advance(); } }
+        else return;
+        await new Promise((res) => setTimeout(res, 10));
+      }
+    };
+    // 第5試験(最終): badge4なしでは たたかえない → badge4ありで 勝利して badge5
+    G.newGame();
+    G.scenes = [new FieldScene()];
+    G.state.party = [G.makeMon("ryuon", 55)];
+    runScript(JSON.parse(JSON.stringify(D.scripts.exam5Fight)));
+    for (let i = 0; i < 20; i++) {
+      const t = G.top();
+      if (t && t.constructor.name === "MessageScene") { t.page = t.pages.length; G.pop(); if (t.onDone) t.onDone(); }
+      else break;
+      await new Promise((res) => setTimeout(res, 15));
+    }
+    r.gated = !G.flag("badge5");
+    G.setFlag("badge4", 1);
+    runScript(JSON.parse(JSON.stringify(D.scripts.exam5Fight)));
+    for (let i = 0; i < 400; i++) {
+      const t = G.top();
+      if (!t) break;
+      const n = t.constructor.name;
+      if (n === "MessageScene") { t.page = t.pages.length; G.pop(); if (t.onDone) t.onDone(); }
+      else if (n === "BattleScene") {
+        if (t.phase === "msg") await drive7(t);
+        else if (t.phase === "menu" || t.phase === "moves") {
+          const me = G.state.party[0];
+          me.hp = me.maxhp; me.status = null;
+          t.runTurn(me.moves[0]); await drive7(t);
+        }
+        else break;
+      }
+      else break;
+      await new Promise((res) => setTimeout(res, 15));
+    }
+    r.badge5 = G.flag("badge5") && G.currentChapter() === "でんせつシーカー";
+    return r;
+  });
+  check(v07.newMaps && v07.shirakabaExit, "最終エリア4マップとシラカバ北出口");
+  check(v07.newSpecies && v07.newEvo, "新種10種と進化3系統 (ホトギツネ→キュウビ等)");
+  check(v07.newEnc, "星路/いせきエンカウントとアオバのショップ");
+  check(v07.newSym, "固定シンボル: コクエイがいせきに配置");
+  check(v07.gated && v07.badge5, "第5試験(最終): badge4必須→勝利でアオバのあかし・でんせつシーカー");
 
   console.log("\n== 全滅処理 ==");
   const lose = await page.evaluate(async () => {

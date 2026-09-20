@@ -1512,3 +1512,293 @@ Object.assign(DATA.scripts, {
       ] },
   ],
 });
+
+
+// ============================================================
+// v0.7: 最終エリア (アオバのいただき) と 新種10種・だい7しょう
+// ============================================================
+
+DATA.dexOrder.push(
+  "hotogitsu", "kyubi", "tsutakodama", "kagenezumi", "kageoni",
+  "ishibotoke", "hoshimimizu", "hoshiryu", "kokuei", "hikarioo");
+
+// ---------------- 新技 (しゅうばん技) ----------------
+Object.assign(DATA.moves, {
+  starburst: { type: "normal", pow: 95 },
+  abyssroar: { type: "dark", pow: 95 },
+});
+
+// ---------------- 新種族 ----------------
+Object.assign(DATA.species, {
+  hotogitsu: { name: "ホトギツネ", type: "fire", spr: "cat", pal: "dark", dex: "いせきの ほのおを まとう キツネ。よるに なると おどるように はしる",
+    base: { hp: 26, atk: 16, def: 11, spd: 14 }, growth: { hp: 2.6, atk: 1.9, def: 1.3, spd: 1.6 },
+    catch: 0.4, exp: 17, learn: { 1: "ember", 10: "quick", 16: "fireball", 26: "heatwave" },
+    evolve: { to: "kyubi", lv: 22 } },
+  kyubi: { name: "キュウビ", type: "fire", spr: "demon", pal: "dark", dex: "9ほんの おを もつ ほのおの けしん。アオバの やまじゅうを かけめぐる でんせつ",
+    base: { hp: 33, atk: 20, def: 14, spd: 17 }, growth: { hp: 3.3, atk: 2.3, def: 1.6, spd: 1.9 },
+    catch: 0.15, exp: 30, learn: { 1: "ember", 10: "quick", 16: "fireball", 22: "heatwave", 30: "nebula" } },
+  tsutakodama: { name: "ツタコダマ", type: "grass", spr: "treant", pal: "dark", dex: "コダイのいせきに からみつく ツタの せいれい。せきぞうを まもっている",
+    base: { hp: 29, atk: 15, def: 16, spd: 9 }, growth: { hp: 2.9, atk: 1.7, def: 1.9, spd: 1.0 },
+    catch: 0.35, exp: 19, learn: { 1: "leaf", 9: "stunspore", 15: "leafedge", 25: "wildroar" } },
+  kagenezumi: { name: "カゲネズミ", type: "dark", spr: "cat", pal: "dark", dex: "ほしあかりの したでしか すがたを みせない。かげに とけこんで うごく",
+    base: { hp: 24, atk: 14, def: 10, spd: 16 }, growth: { hp: 2.4, atk: 1.7, def: 1.2, spd: 1.8 },
+    catch: 0.45, exp: 15, learn: { 1: "shadowjab", 8: "quick", 14: "hypnowave" },
+    evolve: { to: "kageoni", lv: 19 } },
+  kageoni: { name: "カゲオニ", type: "dark", spr: "demon", pal: "dark", dex: "コダイのいせきに ねむっていた やみの きょじん。めざめると つきを おおいかくす",
+    base: { hp: 30, atk: 19, def: 13, spd: 18 }, growth: { hp: 3.0, atk: 2.2, def: 1.5, spd: 2.0 },
+    catch: 0.2, exp: 28, learn: { 1: "shadowjab", 8: "quick", 14: "hypnowave", 22: "darkfang", 28: "abyssroar" } },
+  ishibotoke: { name: "イシボトケ", type: "earth", spr: "golem", pal: "light", dex: "いせきを まもる せきぞう。なんびゃくねんも うごかず りょじんを みまもってきた",
+    base: { hp: 32, atk: 16, def: 19, spd: 5 }, growth: { hp: 3.2, atk: 1.8, def: 2.1, spd: 0.7 },
+    catch: 0.3, exp: 22, learn: { 1: "pebble", 10: "rockdrop", 18: "stunspore", 28: "quakeroar" } },
+  hoshimimizu: { name: "ホシミミズ", type: "normal", spr: "worm", pal: "light", dex: "ながれぼしが おちた あとの つちから わく。からだが ほのかに ひかる",
+    base: { hp: 22, atk: 12, def: 10, spd: 12 }, growth: { hp: 2.2, atk: 1.4, def: 1.2, spd: 1.4 },
+    catch: 0.5, exp: 12, learn: { 1: "tackle", 9: "quick" },
+    evolve: { to: "hoshiryu", lv: 24 } },
+  hoshiryu: { name: "ホシリュウ", type: "normal", spr: "dragon", dex: "ほしぞらの エネルギーを からだに やどした りゅう。アオバの ちょうじょうにのみ すがたを みせる",
+    base: { hp: 34, atk: 20, def: 16, spd: 14 }, growth: { hp: 3.4, atk: 2.2, def: 1.8, spd: 1.6 },
+    catch: 0.15, exp: 32, learn: { 1: "tackle", 9: "quick", 18: "bodyslam", 26: "gigaslam", 32: "starburst" } },
+  kokuei: { name: "コクエイ", type: "dark", spr: "voidos", dex: "いせきの おくそこに ねむる でんせつの えいたい。すがたを みたものは わずかしか いない",
+    base: { hp: 45, atk: 24, def: 20, spd: 20 }, growth: { hp: 4.0, atk: 2.6, def: 2.2, spd: 2.2 },
+    catch: 0.03, exp: 60, learn: { 1: "darkfang", 12: "hypnowave", 24: "nebula", 36: "abyssroar" } },
+  hikarioo: { name: "ヒカリオウ", type: "normal", spr: "zarba", dex: "コクエイと ついをなす ひかりの おうしゃ。ごくまれに いせきの おくで めげきされる",
+    base: { hp: 45, atk: 22, def: 20, spd: 22 }, growth: { hp: 4.0, atk: 2.4, def: 2.2, spd: 2.4 },
+    catch: 0.03, exp: 60, learn: { 1: "gigaslam", 12: "quick", 24: "bodyslam", 36: "starburst" } },
+});
+
+// ---------------- 新トレーナー ----------------
+Object.assign(DATA.trainers, {
+  rival5: {
+    name: "ライバルのテッタ",
+    mons: [["oonezu", 30], ["yogarasu", 29], ["RIVAL_STARTER", 32]],
+    gold: 3500,
+    winMsg: "テッタ「ちくしょう……でも わかったよ。\nおれは しょうぶより、魔物と\nいっしょに あるく このじかんが すきなんだ」",
+  },
+  examiner5: {
+    name: "きゅうきょくしけんかん アオバさん",
+    mons: [["kyubi", 34], ["kageoni", 36], ["hoshiryu", 38]],
+    gold: 10000,
+    winMsg: "アオバ「……みごと。もう おしえることは\nなにも ありません。あなたの たびは\nこれからも つづくのですね」",
+  },
+});
+
+// ---------------- 新エンカウント ----------------
+Object.assign(DATA.encounters, {
+  starpath: { rate: 1 / 9, mons: [
+    ["hotogitsu", 28, 31, 8], ["hoshimimizu", 28, 31, 7], ["kagenezumi", 28, 31, 7],
+    ["tsutakodama", 28, 31, 6], ["ishibotoke", 29, 32, 4],
+  ] },
+  ruins: { rate: 1 / 8, mons: [
+    ["kageoni", 30, 33, 6], ["hoshiryu", 30, 33, 5], ["ishibotoke", 30, 33, 5],
+    ["kagenezumi", 29, 32, 6], ["hikarioo", 32, 32, 1],
+  ] },
+});
+
+// シラカバのさとの 北に 出口を あける
+DATA.maps.shirakaba.rows[0] = "mmmmmmmmpmmmmmmmmm";
+DATA.maps.shirakaba.events.push(
+  { x: 8, y: 0, type: "enter", warp: { map: "route6", x: 8, y: 9, dir: "u" } });
+
+// ホシノさんどう
+DATA.maps.route6 = {
+  name: "ホシノさんどう",
+  bgm: "field",
+  encounter: "starpath",
+  legend: {
+    ".": { tile: "nightgrass" },
+    "m": { tile: "mountain", solid: true },
+    "n": { tile: "deadtree", solid: true },
+    "s": { tile: "scree" },
+    "p": { tile: "path" },
+  },
+  rows: [
+    "mmmmmmmmpmmmmmmmmm",
+    "m..n..s..p.n....pm",
+    "m.n....p....s...pm",
+    "m..s...p..n.....pm",
+    "m....n.p......ppmm",
+    "ppppppppp..s..ppmm",
+    "m..s......n...ppmm",
+    "mn....s.........mm",
+    "m..n....s..n..ppmm",
+    "mmmmmmmmpmmmmmmmmm",
+  ],
+  events: [
+    { x: 8, y: 0, type: "enter", warp: { map: "ruins", x: 9, y: 11, dir: "u" } },
+    { x: 8, y: 9, type: "enter", warp: { map: "shirakaba", x: 8, y: 1, dir: "d" } },
+  ],
+  npcs: [
+    { id: "rival5_spot", x: 12, y: 5, spr: "gou", hideFlag: "rival5Done",
+      script: [{ scriptId: "rival5Fight" }] },
+    { id: "starpath_sage", x: 3, y: 7, spr: "villager", pal: "dark", wander: true,
+      script: [{ msg: "やまのけんじゃ「ほしぞらの みちの さきに、\nコダイのいせきが ねむっている。\nこころして いくがよい」" }] },
+  ],
+  chests: [
+    { id: "r6a", x: 16, y: 1, item: "kindama" },
+  ],
+};
+
+// コダイのいせき
+DATA.maps.ruins = {
+  name: "コダイのいせき",
+  bgm: "dungeon",
+  encounter: "ruins",
+  legend: {
+    ".": { tile: "floor" },
+    "W": { tile: "wall", solid: true },
+    "P": { tile: "pillar", solid: true },
+    "c": { tile: "carpet" },
+  },
+  rows: [
+    "WWWWWWWW.WWWWWWWWW",
+    "W...P..cc..P....WW",
+    "WW..c....P.WWW..WW",
+    "W..P..WWW...c...WW",
+    "WW...WW..P......WW",
+    "WWW.WW..c..WW.WWWW",
+    "W..WW..P..WW....WW",
+    "WW.W..WW.....P..WW",
+    "W...cWW..c..WW.WWW",
+    "WWP..W..P..WW...WW",
+    "WWW..WW...WW.c..WW",
+    "WWWWWWWWW.WWWWWWWW",
+  ],
+  events: [
+    { x: 9, y: 11, type: "enter", warp: { map: "route6", x: 8, y: 1, dir: "d" } },
+    { x: 8, y: 0, type: "enter", warp: { map: "aoba", x: 8, y: 8, dir: "u" } },
+  ],
+  npcs: [
+    { id: "sym_kokuei", x: 15, y: 9, spr: "voidos", hideFlag: "symKokuei",
+      script: [{ scriptId: "symKokuei" }] },
+  ],
+  chests: [
+    { id: "ru1", x: 15, y: 1, item: "kindama" },
+    { id: "ru2", x: 14, y: 10, item: "genkidama" },
+  ],
+};
+
+// アオバのいただき
+DATA.maps.aoba = {
+  name: "アオバのいただき",
+  bgm: "town",
+  legend: {
+    ".": { tile: "nightgrass" },
+    "m": { tile: "mountain", solid: true },
+    "n": { tile: "deadtree", solid: true },
+    "W": { tile: "wall", solid: true },
+    "d": { tile: "door" },
+    "o": { tile: "fountain", solid: true },
+    "p": { tile: "path" },
+  },
+  rows: [
+    "mmmmmmmmmmmmmmmmmm",
+    "m...n......n.....m",
+    "m..WWWW....WWWW..m",
+    "m..WddW....WddW..m",
+    "m...pp......pp...m",
+    "m...pppppppppp...m",
+    "m...o...p....ppp.m",
+    "mn......p...p...nm",
+    "m.......p.......pm",
+    "mmmmmmmmpmmmmmmmmm",
+  ],
+  events: [
+    { x: 8, y: 9, type: "enter", warp: { map: "ruins", x: 8, y: 1, dir: "d" } },
+    { x: 3, y: 3, type: "enter", scriptId: "aobaShopDoor" },
+    { x: 4, y: 3, type: "enter", scriptId: "aobaShopDoor" },
+    { x: 12, y: 3, type: "enter", warp: { map: "guild5", x: 4, y: 6, dir: "u" } },
+    { x: 13, y: 3, type: "enter", warp: { map: "guild5", x: 4, y: 6, dir: "u" } },
+  ],
+  npcs: [
+    { id: "aoba_keeper", x: 7, y: 6, spr: "villager", pal: "light",
+      script: [
+        { msg: "みはりばん「アオバの いただきへ\nようこそ。ここが アオバ地方の\nさいごの まちよ」" },
+        { healMons: 1 },
+        { msg: "てもちの魔物が 元気に なった!" },
+      ] },
+    { id: "summit_traveler", x: 13, y: 7, spr: "villager", wander: true,
+      script: [{ msg: "たびびと「ここまで くるとは……\nきょうかいの きゅうきょくしけんかんに\nちょうせん してみるといい」" }] },
+  ],
+  chests: [],
+};
+
+// アオバきょうかい
+DATA.maps.guild5 = {
+  name: "アオバきょうかい",
+  bgm: "shrine",
+  legend: {
+    "W": { tile: "wall", solid: true },
+    ".": { tile: "floor" },
+    "c": { tile: "carpet" },
+    "B": { tile: "banner", solid: true },
+    "t": { tile: "torch", solid: true },
+  },
+  rows: [
+    "WWWBWWWBWWWW",
+    "Wt...cc...tW",
+    "W....cc....W",
+    "W....cc....W",
+    "W....cc....W",
+    "W....cc....W",
+    "WWWWW..WWWWW",
+  ],
+  events: [
+    { x: 5, y: 6, type: "enter", warp: { map: "aoba", x: 12, y: 4, dir: "d" } },
+    { x: 6, y: 6, type: "enter", warp: { map: "aoba", x: 12, y: 4, dir: "d" } },
+  ],
+  npcs: [
+    { id: "examiner5", x: 5, y: 1, spr: "wizard", pal: "dark",
+      script: [{ scriptId: "exam5Fight" }] },
+    { id: "guild5_clerk", x: 2, y: 3, spr: "villager",
+      script: [{ msg: "うけつけ「きゅうきょくしけんかんの アオバさんは\nこの地方 さいきょうの シーカー。\nでんせつきゅうの 3れんせんよ」" }] },
+  ],
+  chests: [],
+};
+
+DATA.shops.aoba = {
+  name: "アオバどうぐてん",
+  stock: ["hoshidama", "gindama", "kindama", "iikusuri", "mantan", "mannou", "genkidama", "omusubi"],
+};
+
+// ---------------- 新スクリプト ----------------
+Object.assign(DATA.scripts, {
+  rival5Fight: [
+    { cond: { flag: "rival5Done" },
+      then: [],
+      else: [
+        { msg: "テッタ「アオバの ちょうじょうまで\nおいついたぞ! これが さいごの\nしょうぶだ、うけてくれ!」" },
+        { battle: { trainer: "rival5" } },
+        { flag: ["rival5Done", 1] },
+        { msg: "テッタ「くやしいけど……たのしかった。\nまた どこかの まちで であおうぜ!」" },
+      ] },
+  ],
+  aobaShopDoor: [
+    { shop: "aoba" },
+  ],
+  symKokuei: [
+    { cond: { flag: "symKokuei" },
+      then: [],
+      else: [
+        { msg: "やみが うずまいて……\nコクエイが すがたを あらわした!!" },
+        { battle: { wild: { id: "kokuei", lv: 36 } } },
+        { flag: ["symKokuei", 1] },
+      ] },
+  ],
+  exam5Fight: [
+    { cond: { flag: "badge5" },
+      then: [{ msg: "アオバ「でんせつシーカーどの。\nまた いつでも ここへ もどって\nきてくださいね」" }],
+      else: [
+        { cond: { flag: "badge4" },
+          then: [
+            { msg: "アオバ「きゅうきょくしけんかんの\nアオバです。ようこそ、いただきへ。\n……あなたを ためさせて もらいます」" },
+            { battle: { trainer: "examiner5" } },
+            { flag: ["badge5", 1] },
+            { msg: "『アオバのあかし』を さずかった!!" },
+            { msg: "アオバ「おめでとうございます。あなたは いま、\nアオバ地方 ぜんいきで みとめられた\n『でんせつシーカー』です」" },
+            { msg: "アオバ「でも これで おわりでは\nありません。まだ ずかんに のって\nいない 魔物も いるはずですよ」" },
+            { msg: "―― モンスターシーカー だい7しょう クリア! ――\nここまで あそんでくれて ほんとうに\nありがとう!" },
+            { msg: "図鑑を コンプリートしたり、まだ\nであっていない シンボルを さがしに\nいくのも いいかもしれません。" },
+          ],
+          else: [{ msg: "アオバ「まずは シラカバの だい4しけんを\nうけてきてください。じゅんばんどおりに」" }] },
+      ] },
+  ],
+});
