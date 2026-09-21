@@ -2,7 +2,7 @@
 // モンスターシーカー - タイトル / 起動 / メインループ
 // ============================================================
 
-const BUILD_VERSION = "v0.7.0";
+const BUILD_VERSION = "v0.7.1";
 
 class TitleScene {
   constructor() {
