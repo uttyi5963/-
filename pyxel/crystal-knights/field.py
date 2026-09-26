@@ -1,9 +1,10 @@
 # ============================================================
 # クリスタルナイツ (Pyxel版) - フィールドシーン
 # ============================================================
+import random
 import pyxel
 import gfx
-from data import MAPS
+from data import MAPS, ENCOUNTERS
 
 DIRS = {"u": (0, -1), "d": (0, 1), "l": (-1, 0), "r": (1, 0)}
 
@@ -106,6 +107,7 @@ class FieldScene:
                 self.x += dx
                 self.y += dy
                 self.moving = None
+                self.on_step()
             else:
                 self.moving = (dx, dy, t)
             return
@@ -125,8 +127,11 @@ class FieldScene:
         nx, ny = self.x + dx, self.y + dy
         ev = self.event_at(nx, ny)
         if ev:
-            if ev["type"] == "exit":
+            if ev["type"] == "info":
                 Game.push(MessageScene(ev["msg"]))
+                return
+            if ev["type"] == "warp":
+                self.warp_to(ev["map"], ev["wx"], ev["wy"], ev.get("dir", "d"))
                 return
         if self.solid_at(nx, ny):
             return
@@ -134,12 +139,30 @@ class FieldScene:
             return
         self.moving = (dx, dy, 0)
 
+    def warp_to(self, map_id, x, y, direction):
+        self.map_id = map_id
+        self.x = x
+        self.y = y
+        self.dir = direction
+        self.moving = None
+        self.name_timer = 2.0
+
     def interact(self):
         dx, dy = DIRS[self.dir]
         fx, fy = self.x + dx, self.y + dy
         npc = self.npc_at(fx, fy)
         if npc:
             Game.push(MessageScene(npc["msg"]))
+
+    def on_step(self):
+        table_id = self.map.get("encounter")
+        if not table_id:
+            return
+        table = ENCOUNTERS[table_id]
+        if random.random() < table["rate"]:
+            enemy_id = random.choice(table["mons"])
+            from battle import BattleScene
+            Game.push(BattleScene(enemy_id))
 
     def draw(self):
         m = self.map

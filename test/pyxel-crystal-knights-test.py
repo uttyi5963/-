@@ -7,9 +7,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'pyxel', 'cryst
 import sys
 import pyxel
 
+import random
+
 import main
 from field import FieldScene, MessageScene, Game
-from data import MAPS, NEW_GAME
+from data import MAPS, NEW_GAME, ENCOUNTERS
+from battle import BattleScene
+import state
 
 failures = []
 
@@ -34,19 +38,6 @@ def tap(key, frames=1):
     step(1)
 
 
-print("== データ整合性 ==")
-m = MAPS["castle"]
-width_ok = all(len(row) == len(m["rows"][0]) for row in m["rows"])
-check(width_ok, "マップの行の幅がそろっている")
-
-undef = set()
-for row in m["rows"]:
-    for ch in row:
-        if ch not in m["legend"]:
-            undef.add(ch)
-check(len(undef) == 0, f"タイル文字がlegendに定義済み (未定義: {undef})")
-
-
 def walkable(mm, x, y):
     rows = mm["rows"]
     if y < 0 or y >= len(rows):
@@ -58,22 +49,51 @@ def walkable(mm, x, y):
     return bool(t) and not t["solid"]
 
 
-cells = [(x, y) for y, row in enumerate(m["rows"]) for x in range(len(row)) if walkable(m, x, y)]
-seen = {cells[0]}
-queue = [cells[0]]
-while queue:
-    x, y = queue.pop()
-    for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-        nx, ny = x + dx, y + dy
-        if (nx, ny) not in seen and walkable(m, nx, ny):
-            seen.add((nx, ny))
-            queue.append((nx, ny))
-check(all(c in seen for c in cells), "歩行可能領域が連結している (孤立エリアなし)")
+print("== データ整合性 (全マップ) ==")
+for map_id, m in MAPS.items():
+    width_ok = all(len(row) == len(m["rows"][0]) for row in m["rows"])
+    check(width_ok, f"[{map_id}] マップの行の幅がそろっている")
 
-for npc in m["npcs"]:
-    check(walkable(m, npc["x"], npc["y"] + 1) or walkable(m, npc["x"], npc["y"] - 1)
-          or walkable(m, npc["x"] - 1, npc["y"]) or walkable(m, npc["x"] + 1, npc["y"]),
-          f"NPC {npc['id']} に隣接する歩行可能マスがある")
+    undef = set()
+    for row in m["rows"]:
+        for ch in row:
+            if ch not in m["legend"]:
+                undef.add(ch)
+    check(len(undef) == 0, f"[{map_id}] タイル文字がlegendに定義済み (未定義: {undef})")
+
+    cells = [(x, y) for y, row in enumerate(m["rows"]) for x in range(len(row)) if walkable(m, x, y)]
+    start = m.get("spawn", cells[0])
+    seen = {start}
+    queue = [start]
+    while queue:
+        x, y = queue.pop()
+        for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+            nx, ny = x + dx, y + dy
+            if (nx, ny) not in seen and walkable(m, nx, ny):
+                seen.add((nx, ny))
+                queue.append((nx, ny))
+    if m.get("allow_disconnected"):
+        # フィールドの ワールドマップは 山脈で 東西が わかれており、
+        # 洞窟/飛空艇(未実装)でしか わたれない いこうの区画がある。
+        # そのため「主要区画から とどく イベント/NPC」だけを けんしょうする。
+        for ev in m.get("events", []):
+            if ev.get("reachable", True):
+                check((ev["x"], ev["y"]) in seen or any(
+                    (ev["x"] + dx, ev["y"] + dy) in seen for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]),
+                    f"[{map_id}] event({ev['x']},{ev['y']}) が主要区画から到達できる")
+    else:
+        check(all(c in seen for c in cells), f"[{map_id}] 歩行可能領域が連結している (孤立エリアなし)")
+
+    for npc in m.get("npcs", []):
+        check(walkable(m, npc["x"], npc["y"] + 1) or walkable(m, npc["x"], npc["y"] - 1)
+              or walkable(m, npc["x"] - 1, npc["y"]) or walkable(m, npc["x"] + 1, npc["y"]),
+              f"[{map_id}] NPC {npc['id']} に隣接する歩行可能マスがある")
+
+    for ev in m.get("events", []):
+        if ev["type"] == "warp":
+            check(ev["map"] in MAPS, f"[{map_id}] warpイベントの行き先マップ '{ev['map']}' が実在する")
+
+m = MAPS["castle"]
 
 print("\n== 起動とタイトル ==")
 main.boot(headless=True)
@@ -117,7 +137,7 @@ check("リグル" in msg_scene.pages[0], "宮廷学者リグルのセリフが�
 tap(pyxel.KEY_Z, frames=2)
 check(isinstance(Game.top(), FieldScene), "メッセージを閉じるとフィールドへ戻る")
 
-print("\n== 未実装エリアの案内 ==")
+print("\n== 城とフィールドの ワープおうふく ==")
 fs.x, fs.y, fs.dir = 9, 10, "d"
 fs.moving = None
 step(1)
@@ -125,9 +145,75 @@ pyxel.set_btn(pyxel.KEY_DOWN, True)
 step(4)
 pyxel.set_btn(pyxel.KEY_DOWN, False)
 step(2)
-check(isinstance(Game.top(), MessageScene), "南の出口(未実装)に触れると案内メッセージが出る")
+check(fs.map_id == "world" and (fs.x, fs.y) == (7, 27), "城の出口→フィールドへワープする (座標も正しい)")
+
+fs.warp_to("castle", 9, 10, "u")
+step(1)
+check(fs.map_id == "castle" and (fs.x, fs.y) == (9, 10), "フィールド→城へ ワープしなおせる")
+
+print("\n== 未実装エリアの案内 ==")
+fs.warp_to("world", 21, 6, "d")
+step(1)
+pyxel.set_btn(pyxel.KEY_DOWN, True)
+step(4)
+pyxel.set_btn(pyxel.KEY_DOWN, False)
+step(2)
+check(isinstance(Game.top(), MessageScene), "未実装の出口に触れると案内メッセージが出る")
 if isinstance(Game.top(), MessageScene):
     tap(pyxel.KEY_Z, frames=2)
+
+print("\n== エンカウントと せんとう ==")
+random.seed(7)
+state.STATE = state.new_game()
+fs.warp_to("world", 8, 9, "d")
+step(1)
+before_hp = state.STATE["leon"]["hp"]
+before_exp = state.STATE["leon"]["exp"]
+bs = BattleScene("goblin")
+Game.push(bs)
+step(2)
+check(isinstance(Game.top(), BattleScene) and bs.phase == "msg", "戦闘開始時はメッセージ表示から")
+tap(pyxel.KEY_Z, frames=2)
+check(bs.phase == "command", "メッセージのあとコマンド選択になる")
+
+for _ in range(30):
+    if isinstance(Game.top(), FieldScene):
+        break
+    top = Game.top()
+    if isinstance(top, BattleScene) and top.phase == "command":
+        top.sel = 0  # たたかう
+        tap(pyxel.KEY_Z, frames=2)
+    elif isinstance(top, BattleScene) and top.phase == "msg":
+        tap(pyxel.KEY_Z, frames=2)
+    else:
+        step(1)
+
+check(isinstance(Game.top(), FieldScene), "戦闘終了後にフィールドへ戻る")
+check(bs.won or bs.lost, "戦闘の勝敗が確定する")
+if bs.won:
+    check(state.STATE["leon"]["exp"] > before_exp, "勝利で経験値を獲得する")
+if bs.lost:
+    check(state.STATE["leon"]["hp"] == state.STATE["leon"]["maxhp"], "敗北時はHPが全回復して継続する (簡易処理)")
+
+print("\n== にげる ==")
+random.seed(3)
+state.STATE = state.new_game()
+bs2 = BattleScene("bat")
+Game.push(bs2)
+step(2)
+tap(pyxel.KEY_Z, frames=2)  # イントロメッセージを とじる
+for _ in range(20):
+    top = Game.top()
+    if isinstance(top, FieldScene):
+        break
+    if isinstance(top, BattleScene) and top.phase == "command":
+        top.sel = 1  # にげる
+        tap(pyxel.KEY_Z, frames=2)
+    elif isinstance(top, BattleScene) and top.phase == "msg":
+        tap(pyxel.KEY_Z, frames=2)
+    else:
+        step(1)
+check(isinstance(Game.top(), FieldScene), "にげるコマンドで戦闘を終了できる")
 
 print("\n== 描画 ==")
 step(2)

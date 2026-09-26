@@ -2,7 +2,7 @@
 # クリスタルナイツ (Pyxel版) - びょうが ヘルパー
 # ============================================================
 import pyxel
-from sprites import TILES, CHARS
+from sprites import TILES, CHARS, MONS
 
 SCREEN_W = 320
 SCREEN_H = 288
@@ -59,6 +59,12 @@ def draw_char(name, x, y, flip=False, variant=None):
     draw_grid(rows, x, y, 1, variant)
 
 
+def draw_mon(name, x, y, scale=1, variant=None):
+    rows = MONS.get(name)
+    if rows:
+        draw_grid(rows, x, y, scale, variant)
+
+
 def text(x, y, s, col=3):
     if JP_FONT:
         pyxel.text(x, y, s, col, JP_FONT)
@@ -87,3 +93,9 @@ def window(x, y, w, h):
 
 def cursor(x, y):
     pyxel.tri(x, y, x + 7, y + 4, x, y + 8, 3)
+
+
+def bar(x, y, w, h, ratio, col=3):
+    pyxel.rect(x, y, w, h, 1)
+    fill_w = max(0, min(w, round(w * ratio)))
+    pyxel.rect(x, y, fill_w, h, col)
