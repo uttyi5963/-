@@ -12,7 +12,7 @@ cd "$(dirname "$0")"
 CHARS=$(python3 - <<'PYEOF'
 import re
 chars = set()
-for fname in ["data.py", "field.py", "main.py"]:
+for fname in ["data.py", "field.py", "main.py", "battle.py", "state.py"]:
     src = open(fname, encoding="utf-8").read()
     for m in re.finditer(r'"((?:[^"\\]|\\.)*)"', src):
         chars.update(m.group(1))
