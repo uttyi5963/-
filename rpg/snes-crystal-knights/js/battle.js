@@ -103,20 +103,37 @@ class BattleScene {
     if (this.onWin && this.won) this.onWin();
   }
 
+  // ---------------- びょうが (FF3〜5型の サイドビュー) ----------------
+  // てきは 右がわ、じぶんの パーティは 左がわに 立ち、たがいに むきあう。
+  // ドラクエ形式(てきしか みえない)ではなく、じぶんの すがたも みせる。
   draw() {
-    Gfx.clear(11);
-    Gfx.draw(this.enemy.spr, SCREEN_W / 2 - 64, 100, { scale: 4 });
-    const barW = 220;
-    const bx = SCREEN_W / 2 - barW / 2;
-    Gfx.window(bx - 8, 270, barW + 16, 60);
-    Gfx.text(this.enemy.name, bx, 282, 4, 16);
-    const ratio = this.enemy.hp / this.enemy.maxhp;
     const c = Gfx.ctx;
-    c.fillStyle = "#301818"; c.fillRect(bx, 306, barW, 14);
-    c.fillStyle = PAL[9]; c.fillRect(bx, 306, Math.max(0, barW * ratio), 14);
+    // せんじょうの はいけい: そら/ちへいせん/じめん の 3だん
+    c.fillStyle = "#385888"; c.fillRect(0, 0, SCREEN_W, 260);
+    c.fillStyle = "#203858"; c.fillRect(0, 240, SCREEN_W, 20);
+    c.fillStyle = "#284018"; c.fillRect(0, 260, SCREEN_W, SCREEN_H - 260);
+    // じめんの もようづけ(えんきん間で こさを かえる)
+    c.fillStyle = "#1c3010";
+    for (let i = 0; i < 10; i++) {
+      c.fillRect((i * 97 + 20) % SCREEN_W, 280 + (i % 3) * 40, 40, 6);
+    }
 
-    Gfx.window(8, 340, 220, 100);
+    // てき (右がわ)
+    Gfx.draw(this.enemy.spr, SCREEN_W - 220, 100, { scale: 4 });
+    const barW = 200;
+    const bx = SCREEN_W - 220;
+    Gfx.window(bx - 10, 220, barW + 20, 50);
+    Gfx.text(this.enemy.name, bx, 230, 4, 15);
+    const ratio = this.enemy.hp / this.enemy.maxhp;
+    c.fillStyle = "#301818"; c.fillRect(bx, 252, barW, 12);
+    c.fillStyle = PAL[9]; c.fillRect(bx, 252, Math.max(0, barW * ratio), 12);
+
+    // じぶんの パーティ (左がわ、てきの ほうを むいて たつ)
     const leon = this.leon();
+    Gfx.draw("hero_s", 110, 260, { scale: 2.2, flip: true });
+
+    // したの ウィンドウ: ステータス + コマンド/メッセージ
+    Gfx.window(8, 340, 220, 100);
     Gfx.text(`レオン Lv${leon.lv}`, 26, 356, 4, 16);
     Gfx.text(`HP ${leon.hp}/${leon.maxhp}`, 26, 382, 4, 16);
     Gfx.text(`MP ${leon.mp}/${leon.maxmp}`, 26, 408, 4, 16);
