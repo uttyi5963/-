@@ -11,7 +11,7 @@ DATA.maps = {
       "#": { tile: "wall", solid: true },
       "B": { tile: "banner", solid: true },
       "T": { tile: "torch", solid: true },
-      ".": { tile: "floor" },
+      ".": { tile: "stonefloor" },
       "c": { tile: "carpet" },
       "P": { tile: "pillar", solid: true },
       "d": { tile: "door" },
