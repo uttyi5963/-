@@ -1,7 +1,7 @@
 // Tests view: question bank stats + mock test runner + drill modes.
 import { el, escape, openModal, closeModal, toast } from '../ui.js';
 import { Profile, Storage } from '../storage.js';
-import { speakJa, canSpeak } from '../audio.js';
+import { speakJa, canSpeak, isAutoPlayEnabled } from '../audio.js';
 import { QUESTIONS, QTYPE_LABEL, buildMockTest } from '../data/tests.js';
 
 const HISTORY_KEY = 'test-history';
@@ -163,8 +163,8 @@ export function runTest(questions, setLabel, opts = {}) {
       if (!canSpeak()) {
         stem.appendChild(el('div', { style: 'margin-top:8px;' }, q.stem));
       }
-      // Auto-play once on render if supported.
-      if (canSpeak() && opts.audio !== false) speakJa(q.stem);
+      // Auto-play once on render if supported and user has auto-play on.
+      if (canSpeak() && opts.audio !== false && isAutoPlayEnabled()) speakJa(q.stem);
     } else if (q.type === 'grammar') {
       stem.innerHTML = escape(q.stem).replace('___', '<span class="blank"></span>');
     } else if (q.type === 'kanji' && q.target) {

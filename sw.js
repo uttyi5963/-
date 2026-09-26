@@ -1,5 +1,5 @@
 // Minimal service worker for offline cache.
-const CACHE = 'aiou-nihongo-v1';
+const CACHE = 'aiou-nihongo-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const ASSETS = [
   './assets/js/storage.js',
   './assets/js/srs.js',
   './assets/js/audio.js',
+  './assets/js/phonetics.js',
   './assets/js/ui.js',
   './assets/js/data/kana.js',
   './assets/js/data/vocab.js',
@@ -16,6 +17,7 @@ const ASSETS = [
   './assets/js/data/tests.js',
   './assets/js/data/tasks.js',
   './assets/js/data/jobs.js',
+  './assets/js/data/pitch.js',
   './assets/js/views/student.js',
   './assets/js/views/foundation.js',
   './assets/js/views/language.js',

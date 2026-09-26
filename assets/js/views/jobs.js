@@ -213,5 +213,25 @@ function botReply(state) {
     if (state.turn === 2) return { jp: 'では、こちらの問診票にご記入ください。', romaji: 'Dewa, kochira no monshinhyou ni go-kinyuu kudasai.' };
     return { jp: 'お名前を呼ぶまでお待ちください。', romaji: 'O-namae o yobu made omachi kudasai.' };
   }
+  if (id === 'konbini') {
+    if (state.turn === 1) return { jp: 'はい、温めますね。袋はご利用になりますか？', romaji: 'Hai, atatamemasu ne. Fukuro wa go-riyou ni narimasu ka?' };
+    if (state.turn === 2) return { jp: 'お会計は六百八十円です。', romaji: 'O-kaikei wa roppyaku-hachijuu en desu.' };
+    return { jp: 'ありがとうございました。', romaji: 'Arigatou gozaimashita.' };
+  }
+  if (id === 'station') {
+    if (state.turn === 1) return { jp: '東京駅ですね。次の電車は三番線です。', romaji: 'Toukyou-eki desu ne. Tsugi no densha wa san-banshen desu.' };
+    if (state.turn === 2) return { jp: '切符は二百二十円です。あちらの券売機で買えます。', romaji: 'Kippu wa nihyaku-nijuu en desu. Achira no kenbaiki de kaemasu.' };
+    return { jp: '気をつけて行ってください。', romaji: 'Ki o tsukete itte kudasai.' };
+  }
+  if (id === 'interview') {
+    if (state.turn === 1) return { jp: 'ありがとうございます。なぜ日本で働きたいですか？', romaji: 'Arigatou gozaimasu. Naze nihon de hatarakitai desu ka?' };
+    if (state.turn === 2) return { jp: 'なるほど。日本語はどのくらい勉強しましたか？', romaji: 'Naruhodo. Nihongo wa dono kurai benkyou shimashita ka?' };
+    return { jp: 'わかりました。結果は一週間以内にお知らせします。', romaji: 'Wakarimashita. Kekka wa isshuukan inai ni o-shirase shimasu.' };
+  }
+  if (id === 'apartment') {
+    if (state.turn === 1) return { jp: 'はい、駅から近い部屋ですね。ご予算はいくらぐらいですか？', romaji: 'Hai, eki kara chikai heya desu ne. Go-yosan wa ikura gurai desu ka?' };
+    if (state.turn === 2) return { jp: 'いくつか候補がございます。ご一緒に見に行きませんか？', romaji: 'Ikutsuka kouho ga gozaimasu. Go-issho ni mi ni ikimasen ka?' };
+    return { jp: 'では、明日の午後にご案内します。', romaji: 'Dewa, ashita no gogo ni go-annai shimasu.' };
+  }
   return { jp: 'なるほど、わかりました。', romaji: 'Naruhodo, wakarimashita.' };
 }
